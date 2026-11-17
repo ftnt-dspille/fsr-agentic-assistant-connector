@@ -1,0 +1,49 @@
+[
+  {
+    "name": "build_playbook_on_alert_page",
+    "note": "Defect box 159 sess-dmrfucve: a 'build a playbook' request typed on a triage-pinned Alert page must author a playbook, not investigate and force a verdict card.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "Build a playbook to automate these tasks: validate SIEM details for case 31885, enrich CMDB for the host, monitor for correlated alerts",
+    "expect": {
+      "resolved_intent": "build",
+      "card_in": ["playbook_offer"],
+      "card_not": ["verdict_card"],
+      "language": "en",
+      "no_unknown_connector": true
+    }
+  },
+  {
+    "name": "save_that_as_a_playbook_after_triage",
+    "note": "After an investigation, 'save that as a playbook' authors from the trace.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "Save that as a playbook",
+    "expect": { "resolved_intent": "build", "card_in": ["playbook_offer"] }
+  },
+  {
+    "name": "triage_question_naming_a_playbook_stays_triage",
+    "note": "Precision guard: naming a playbook in a question must NOT flip to build.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "Which playbook already ran on this alert?",
+    "expect": { "resolved_intent": "triage", "card_not": ["playbook_offer"] }
+  },
+  {
+    "name": "plain_triage_action_stays_triage",
+    "note": "A containment ask is triage, not authoring.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "Block the IP associated with this alert",
+    "expect": { "resolved_intent": "triage" }
+  },
+  {
+    "name": "build_request_with_no_intent_pin",
+    "note": "No widget pin, a record page (triage prior) + a build message -> build.",
+    "intent_pin": null,
+    "module": "alerts",
+    "page": "record",
+    "message": "Create a playbook that blocks a malicious IP using FortiGate",
+    "expect": { "resolved_intent": "build", "card_in": ["playbook_offer"] }
+  }
+]
