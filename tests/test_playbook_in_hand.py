@@ -10,6 +10,7 @@ playbook by the id recorded when it was saved.
 """
 from __future__ import annotations
 
+import itertools
 import time
 
 import pytest
@@ -49,7 +50,7 @@ def test_nothing_built_means_nothing_in_hand(storage):
 
 
 def test_the_latest_offer_is_the_draft(storage, monkeypatch):
-    clock = iter([1.0, 2.0])
+    clock = itertools.count(1.0)  # increasing, never runs out (other code calls time.time too)
     monkeypatch.setattr(time, "time", lambda: next(clock))
     _offer(storage, "s1", "v1")
     _offer(storage, "s1", "v2")
@@ -58,7 +59,7 @@ def test_the_latest_offer_is_the_draft(storage, monkeypatch):
 
 
 def test_a_save_after_the_offer_makes_it_the_saved_playbook(storage, monkeypatch):
-    clock = iter([1.0, 2.0])
+    clock = itertools.count(1.0)  # increasing, never runs out (other code calls time.time too)
     monkeypatch.setattr(time, "time", lambda: next(clock))
     _offer(storage, "s1", "v1")
     storage.set_session_saved_playbook("s1", "wf-1", "v1 as saved")
@@ -69,7 +70,7 @@ def test_a_save_after_the_offer_makes_it_the_saved_playbook(storage, monkeypatch
 
 def test_a_new_offer_after_the_save_is_the_draft_again(storage, monkeypatch):
     """Build A, save it, then build B: B is what "add a step" now means."""
-    clock = iter([1.0, 2.0, 3.0])
+    clock = itertools.count(1.0)  # increasing, never runs out (other code calls time.time too)
     monkeypatch.setattr(time, "time", lambda: next(clock))
     _offer(storage, "s1", "A")
     storage.set_session_saved_playbook("s1", "wf-1", "A")
