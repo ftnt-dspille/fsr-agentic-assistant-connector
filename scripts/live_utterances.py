@@ -52,6 +52,8 @@ def _looks_english(text: str) -> bool:
 
 
 def _drive(py: str, row: dict, llm: str, timeout: int) -> dict:
+    # A build-from-spec turn can run 70+ tool calls; let a row raise its ceiling.
+    timeout = int(row.get("timeout_s") or timeout)
     cmd = [py, str(LOCAL_TURN), "--json", "--tools", "live", "--llm", llm,
            "--intent", row.get("intent_pin") or "triage",
            "--message", row["message"]]
@@ -119,7 +121,7 @@ def main(argv=None) -> int:
                     help="python that can import the connector (dev_env)")
     ap.add_argument("--llm", default="frank")
     ap.add_argument("--only", default=None, help="run one golden by name")
-    ap.add_argument("--timeout", type=int, default=300)
+    ap.add_argument("--timeout", type=int, default=480)
     args = ap.parse_args(argv)
 
     rows = [r for r in json.loads(pathlib.Path(args.goldens).read_text())

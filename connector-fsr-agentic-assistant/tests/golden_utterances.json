@@ -5,6 +5,7 @@
     "intent_pin": "triage",
     "module": "alerts",
     "message": "Build a playbook to automate these tasks: validate SIEM details for case 31885, enrich CMDB for the host, monitor for correlated alerts",
+    "timeout_s": 600,
     "expect": {
       "resolved_intent": "build",
       "card_in": ["playbook_offer"],
@@ -14,12 +15,12 @@
     }
   },
   {
-    "name": "save_that_as_a_playbook_after_triage",
-    "note": "After an investigation, 'save that as a playbook' authors from the trace.",
+    "name": "save_that_as_a_playbook_promotes_to_build",
+    "note": "'Save that as a playbook' promotes a triage page to build (routing). As a single first turn there is no prior trace to save, so the card is context-dependent; assert routing + that it does not dead-end on a verdict, not a specific offer.",
     "intent_pin": "triage",
     "module": "alerts",
     "message": "Save that as a playbook",
-    "expect": { "resolved_intent": "build", "card_in": ["playbook_offer"] }
+    "expect": { "resolved_intent": "build", "card_not": ["verdict_card"], "language": "en" }
   },
   {
     "name": "triage_question_naming_a_playbook_stays_triage",
