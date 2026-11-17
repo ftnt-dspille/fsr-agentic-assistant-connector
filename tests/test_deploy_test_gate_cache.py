@@ -45,9 +45,12 @@ def test_the_skip_list_names_real_modules():
 def test_the_printed_seed_is_the_seed_pytest_gets():
     import re
     import subprocess
-    out = subprocess.run(["make", "-n", "test"], cwd=ROOT, capture_output=True, text=True).stdout
-    seeds = set(re.findall(r"(?:seed: |SEED=|randomly-seed=)(\d+)", out))
-    assert len(seeds) == 1, seeds
+    # Also with no dev venv (a CI runner): the seed must not depend on it.
+    for extra in ([], ["VENV=/nonexistent-venv"]):
+        out = subprocess.run(["make", "-n", "test", *extra], cwd=ROOT,
+                             capture_output=True, text=True).stdout
+        seeds = set(re.findall(r"(?:seed: |SEED=|randomly-seed=)(\d+)", out))
+        assert len(seeds) == 1, (extra, seeds)
 
 
 def test_gate_tests_the_framework_it_ships():

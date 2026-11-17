@@ -192,7 +192,8 @@ eval-ab: ## A/B outside agent vs widget loop on golden authoring tasks (SIDE=bot
 # Simply expanded once: a recursive `?=` re-ran the shell on every use, so the
 # printed seed and the seed pytest got differed and the replay hint never replayed.
 ifeq ($(origin SEED),undefined)
-SEED := $(shell $(PY) -c "import random; print(random.randrange(2**32))" 2>/dev/null)
+# python3, not $(PY): the seed needs no dev venv (a CI runner has none).
+SEED := $(shell python3 -c "import random; print(random.randrange(2**32))" 2>/dev/null)
 endif
 XDIST = $(if $(SERIAL),,$(shell $(PY) -c "import xdist" 2>/dev/null && echo "-n auto --dist worksteal"))
 # The widgets checkout, for the parity tests that read widget source
