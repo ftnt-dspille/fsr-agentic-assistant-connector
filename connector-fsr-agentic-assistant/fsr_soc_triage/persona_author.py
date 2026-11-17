@@ -28,10 +28,12 @@ from .profiles import KEY_PREFIX, validate_persona_record
 # to ground the data model / procedure in the real module, not guess. This mirrors
 # the hand-written gold standard (the ZTPF orchestration persona).
 _AUTHOR_SYSTEM = (
-    "You author ONE FortiSOAR Agentic Assistant persona: the durable instructions "
-    "that make the assistant, when mounted on a given module, an expert at a "
-    "specific task on that module -- so it never has to relearn the module's shape "
-    "every turn.\n\n"
+    "You author ONE FortiSOAR Agentic Assistant persona. Think of it as the "
+    "standing guide -- an AGENTS.md -- for how to handle a kind of record: the "
+    "durable, expected way to work this task, applied every time the assistant "
+    "opens that module, so it never relearns the module's shape or the team's "
+    "conventions from scratch. Write it to LAST: the conventions and the "
+    "expensive-to-relearn gotchas, not a one-off answer.\n\n"
     "A good persona carries FOUR things, and you must produce all four:\n"
     "1. ROLE + SCOPE: who this assistant is on this module, and -- just as "
     "important -- what it leaves to other assistants, so it stays on task.\n"
