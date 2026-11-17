@@ -219,6 +219,16 @@ class EnhancementOfferEvent(_WireBase):
     type: Literal["enhancement_offer"]
 
 
+class PersonaOfferEvent(_WireBase):
+    """The persona builder's Save offer (contract `PersonaOfferEvent`). The
+    connector drafts a module-scoped persona and emits this card; accepting it
+    writes the Key Store record (`ops_resume._resume_persona_offer_accept`), which
+    is why the accept is the human approval of the tools/write scope it grants.
+    Open like the other cards -- the widget reads `module`, `value` (the drafted
+    prompt), `jSONValue` (tools.allow / may_write / ui), `label` and a `summary`."""
+    type: Literal["persona_offer"]
+
+
 class VerdictCardEvent(_WireBase):
     """Structured investigation verdict with disposition, severity, confidence,
     and cited findings. The wire shape mirrors the framework's verdict_card
@@ -292,7 +302,7 @@ PollFrame = Annotated[
         ApprovalRequestEvent, ActivityEvent, ErrorEvent,
         ActionCardEvent, ChoiceCardEvent, CapabilityGapEvent,
         ManualInputEvent, PlaybookOfferEvent,
-        EnhancementOfferEvent,
+        EnhancementOfferEvent, PersonaOfferEvent,
         StatusCardEvent, InfoCardEvent, IocCardEvent, VerdictCardEvent,
         UnknownEvent,
     ],

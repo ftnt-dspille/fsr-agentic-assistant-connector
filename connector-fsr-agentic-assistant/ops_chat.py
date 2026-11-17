@@ -443,6 +443,18 @@ def chat_turn(config: dict, params: dict) -> dict:
     # that turn_start in ONE atomic write transaction, so two concurrent turns
     # (including separate worker processes) can't mint a duplicate turn_idx.
     turn_idx = storage.reserve_next_turn(session_id)
+
+    # Author-a-persona quick-action: a dedicated, DETERMINISTIC turn. The
+    # connector drafts a module-scoped persona for the mounted record and offers
+    # to save it (persona_offer card), instead of running the agent loop. The
+    # accept of that card is where the tools/write scope it grants are approved
+    # and written (ops_resume._resume_persona_offer_accept). See
+    # docs/PERSONA_BUILDER_PLAN.md.
+    if quick_action == "author_persona":
+        from .ops_persona_emit import build_persona_offer
+        return build_persona_offer(config, params, storage, provider,
+                                   turn_idx=turn_idx)
+
     # Status from turn start: one activity frame right behind turn_start, so the
     # analyst sees the turn is working before preflight (or the first token)
     # writes anything. Progress feed only; it never enters the saved transcript.
