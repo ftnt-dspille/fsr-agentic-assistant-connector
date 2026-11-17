@@ -108,7 +108,7 @@ define with_env
 set -a; . "$(BOX_ENV)"; set +a; PATH="$(VENV)/bin:$$PATH"
 endef
 
-.PHONY: session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores
+.PHONY: session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -560,6 +560,9 @@ pack: ## Build the Agentic Assistant pack (connector + both widgets + dashboard,
 
 configure: ## Create or update a connector configuration on the ENV box, then health-check it. WHAT=agentic-assistant (default) | fortigate | fortiedr | ... ; secrets come from the environment (OPENAI_API_KEY / ANTHROPIC_API_KEY for agentic-assistant). ARGS='--default --name X --dry-run'. List: make configure ARGS=--list
 	@$(with_env); $(PY) "$(REPO)/scripts/configure_connector.py" $(if $(filter --list,$(ARGS)),,$(or $(WHAT),agentic-assistant)) $(ARGS)
+
+provision: ## Provision an EXPERIMENTAL box with the Agentic Assistant from a pack: enable PyPI in the box pip.conf (ssh), import via the Import Wizard (pyfsr), publish both widgets. BOX=<alias> (or omit to be ASKED for URL/user/pass for a box that was never set up); PACK=<zip> or RELEASE=<tag|latest>; ARGS='--dry-run|--skip-pypi|--skip-publish'
+	@$(PY) "$(REPO)/scripts/provision_box.py" $(if $(BOX),--box $(BOX)) $(if $(PACK),--pack $(PACK)) $(if $(RELEASE),--from-release $(RELEASE)) $(ARGS)
 
 plant: ## Plant/find/clean up needles in an external source (ServiceNow) for live graded rows. VERB=health|plant|find|cleanup; plant needs CONFIG=<ServiceNow config name> (run VERB=health first); SCENARIO= (default snow_incident_needle) TOKEN= for find. Writes only to the lab ServiceNow, never FortiSOAR
 	@$(with_env); $(PY) "$(REPO)/scripts/planter.py" $(or $(VERB),health) \
