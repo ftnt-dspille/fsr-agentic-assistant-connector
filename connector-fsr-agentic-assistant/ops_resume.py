@@ -22,7 +22,7 @@ from .ops_cards import _derecord, _humanize_op
 from .ops_config import _provider_name
 from .ops_common import (
     CONTRACT_VERSION, _as_frame, _check_turn_result, _err, _frame, _log, _require,
-    _safe_turn_field, _text, _validate_model,
+    _require_transport, _safe_turn_field, _text, _validate_model,
 )
 from .ops_entity import _remember_created
 from .ops_mcp import _apply_mcp_allowlist
@@ -107,11 +107,24 @@ def _chat_resume_routes(config: dict, params: dict, decision: str, storage,
         _card = storage.get_card(_sid, _oid) or {}
         if _card.get("type") == "enhancement_offer":
             return _resume_enhancement_offer_accept(config, params, storage)
+        if _card.get("type") == "persona_offer":
+            # A persona_offer SAVES a Key Store persona record. Accepting the card
+            # IS the human approval of the tools/write scope it grants (contract:
+            # the persona never bypasses human sign-off) -- the write happens here,
+            # not from the model.
+            return _resume_persona_offer_accept(config, params, storage)
         return _resume_playbook_offer_accept(config, params, storage)
     if decision == "decline":
         sid = _require(params, "session_id")
         _oid = params.get("offer_id") or params.get("card_id") or "offer"
-        if (storage.get_card(sid, _oid) or {}).get("type") == "enhancement_offer":
+        _dc_type = (storage.get_card(sid, _oid) or {}).get("type")
+        if _dc_type == "persona_offer":
+            return _offer_end_turn(
+                sid, [_frame(TextFrame, type="text", text=(
+                    "Okay, I won't save this persona. Tell me what to change and "
+                    "I'll revise it."))],
+                saved=False, code="declined")
+        if _dc_type == "enhancement_offer":
             # Declining an EDIT is "not this change", not "stop building".
             # Live (analyst sim): the analyst declined one unwanted step and
             # read "I won't save this as a playbook" as the build being over.
@@ -1057,6 +1070,75 @@ def _apply_offer_edits(yaml_text: str, edits: dict) -> str:
         return _yaml.safe_dump(doc, sort_keys=False, allow_unicode=True)
     except Exception:  # noqa: BLE001 -- a cosmetic edit must never block the save
         return yaml_text
+
+
+def _resume_persona_offer_accept(config: dict, params: dict, storage) -> dict:
+    """On **accept** of a `persona_offer`, write the drafted persona to the Key
+    Store (``fsr_assistant_profile:<module>``). Accepting the card IS the human
+    approval of the tools and write scope the persona grants, so the connector
+    (not the model) performs the write here, re-lint-checking the draft first.
+
+    Never dead-ends: a missing/invalid draft, no transport, or a write failure
+    each return an explanatory end_turn (``saved: False``), never an error
+    banner -- the same pattern as the playbook offer accept."""
+    from urllib.parse import quote
+
+    from fsr_soc_triage import persona_author
+    from fsr_soc_triage.profiles import KEY_PREFIX, validate_persona_record
+
+    session_id = _require(params, "session_id")
+    offer_id = params.get("offer_id") or params.get("card_id") or "offer"
+    card = storage.get_card(session_id, offer_id) or {}
+
+    module = str(card.get("module") or "").strip()
+    value = card.get("value")
+    jsonvalue = card.get("jSONValue") if isinstance(card.get("jSONValue"), dict) else {}
+    label = jsonvalue.get("label") or module or "persona"
+
+    # Re-lint at save time: the draft the analyst accepted must still be valid
+    # (a hand-edit on the card could have broken it), and an error-level issue
+    # means the persona would resolve to nothing useful -- refuse rather than
+    # save a dead persona.
+    rec = {"value": value, "jSONValue": jsonvalue}
+    errors = [i for i in validate_persona_record(
+        rec, known_tools=persona_author.default_known_tools()) if i.level == "error"]
+    if not module or errors:
+        why = ("I couldn't tell which module this persona is for" if not module
+               else "the draft had problems I couldn't save: "
+               + "; ".join(f"{i.field} ({i.message})" for i in errors))
+        return _offer_end_turn(
+            session_id, [_text(f"I didn't save the persona -- {why}.")],
+            saved=False, code="invalid_persona")
+
+    mr, err = _require_transport()
+    if err:
+        return _offer_end_turn(
+            session_id,
+            [_text("I couldn't reach FortiSOAR to save the persona. Try again "
+                   "in a moment.")],
+            saved=False, code="crudhub_unavailable")
+
+    key = f"{KEY_PREFIX}{module}"
+    body = {"value": value, "jSONValue": jsonvalue}
+    try:
+        existing = mr(f"/api/3/keys?key={quote(key, safe='')}&$limit=1", "GET") or {}
+        members = existing.get("hydra:member") if isinstance(existing, dict) else None
+        if members:
+            mr(members[0]["@id"], "PUT", body=body)
+            verb = "Updated"
+        else:
+            mr("/api/3/keys", "POST", body={"name": key, "key": key, **body})
+            verb = "Saved"
+    except Exception as exc:  # noqa: BLE001 - surfaced as analyst-facing text
+        return _offer_end_turn(
+            session_id, [_text(f"I couldn't save the persona: {exc}.")],
+            saved=False, code="write_failed")
+
+    return _offer_end_turn(
+        session_id,
+        [_text(f'{verb} the "{label}" persona. It applies the next time the '
+               f"assistant opens a {module} record.")],
+        saved=True, code="persona_saved")
 
 
 def _resume_playbook_offer_accept(config: dict, params: dict, storage) -> dict:
