@@ -17,8 +17,10 @@ from __future__ import annotations
 import uuid
 from typing import Any, Callable, Optional
 
-from .ops_common import CONTRACT_VERSION, _make_request, _text, _validate_model
-from .pydantic_models import ChatTurnResponse
+from .ops_common import (
+    CONTRACT_VERSION, _frame, _make_request, _text, _validate_model,
+)
+from .pydantic_models import ChatTurnResponse, PersonaOfferEvent
 
 
 class _MakeRequestClient:
@@ -112,9 +114,12 @@ def build_persona_offer(config: dict, params: dict, storage, provider, *,
     offer_id = f"persona-{uuid.uuid4().hex[:8]}"
     summary = persona_author.summarize(rec)
 
-    card = {"type": "persona_offer", "id": offer_id, "module": module,
-            "value": rec["value"], "jSONValue": jv, "label": label,
-            "summary": summary}
+    # Build the frame through its model (exclude_unset dumps exactly these keys;
+    # PersonaOfferEvent is extra="allow", so the card fields ride through). A raw
+    # {"type": ...} literal is forbidden -- test_outbound_frame_models.
+    card = _frame(PersonaOfferEvent, type="persona_offer", id=offer_id,
+                  module=module, value=rec["value"], jSONValue=jv, label=label,
+                  summary=summary)
     try:
         storage.save_card(session_id, card)
     except Exception:  # noqa: BLE001 - a save-card failure must not fail the turn
