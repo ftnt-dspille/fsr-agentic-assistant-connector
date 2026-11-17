@@ -247,11 +247,10 @@ fi
 
 # --- 4. ship (its own preflight re-checks the BOX's index, then verifies) --
 #
-# No CI is watched for the CONNECTOR itself, because it has none: its remotes are
-# the two GitLab mirrors and neither has a pipeline definition. The ship's own
-# gate is `verify_workers.py` (every worker on the new version AND the pinned
-# framework), which runs below. Said out loud so "no pipeline output" reads as a
-# fact about this repo rather than as a watcher that quietly did nothing.
+# No CI is watched for the CONNECTOR here. Its GitHub Actions run (on every push)
+# is the test gate; the ship does not wait on it. The ship's own gate is
+# `verify_workers.py` (every worker on the new version AND the pinned
+# framework), which runs below.
 say "shipping the connector (BUMP=$BUMP) to $BOX_SSH"
 make -C "$ROOT" ship BUMP="$BUMP" BOX="$BOX" BOX_ENV="$BOX_ENV" BOX_SSH="$BOX_SSH" \
     || die "ship failed"
