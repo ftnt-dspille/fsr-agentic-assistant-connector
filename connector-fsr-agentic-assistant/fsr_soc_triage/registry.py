@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import functools
 import inspect
+import re
 from typing import Any
 
 # Internal library surface (accepted coupling under Option A).
@@ -50,6 +51,41 @@ def register_triage_tools() -> None:
     _shared.set_source_connector_resolver(source_availability.resolve_connector)
     _shared.set_host_connector_name(connector_name)
     set_failed_run_provider(list_recent_failed_runs)
+
+
+# Threat-intel sources the analyst has ruled out for enrichment. AlienVault-OTX
+# is forbidden on this box (analyst policy). Matched on the connector name, so
+# the store's spelling ("alienvault-otx") and close variants are all refused.
+_DENIED_ENRICHMENT_RE = re.compile(r"alienvault|(?<![a-z0-9])otx(?![a-z0-9])")
+
+
+def run_op_policy_refusal(args: Any) -> str | None:
+    """Why a `run_op` call cannot run, or None. A cross-field rule for the
+    framework's `CROSS_FIELD_RULES["run_op"]`: it runs before authorization, so
+    a refused call never raises an approval card and never reaches the box."""
+    if not isinstance(args, dict):
+        return None
+    connector = str(args.get("connector") or "").strip().lower()
+    if connector and _DENIED_ENRICHMENT_RE.search(connector):
+        return ("connector '%s' is not allowed on this box: AlienVault-OTX is "
+                "never used for enrichment. Use a configured threat-intel "
+                "connector, or say the source is unavailable."
+                % args.get("connector"))
+    return None
+
+
+def register_run_op_policy() -> None:
+    """Refuse `run_op` against the denied enrichment connectors. Idempotent.
+
+    The framework's dispatch runs `CROSS_FIELD_RULES` on every call before the
+    approval gate, so this is the connector's enforcement point for the
+    no-OTX rule. A framework without the registry is a no-op (the prompt rule
+    still applies)."""
+    try:
+        from fsr_playbooks.llm.tool_models import CROSS_FIELD_RULES
+    except ImportError:  # pre-registry framework: prompt rule only
+        return
+    CROSS_FIELD_RULES["run_op"] = run_op_policy_refusal
 
 
 def register_record_tools() -> None:

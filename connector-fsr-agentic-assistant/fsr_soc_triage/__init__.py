@@ -13,6 +13,7 @@ Both registrations are idempotent.
 """
 from .registry import (
     register_playbook_tools,
+    register_run_op_policy,
     register_prior_case_tools,
     register_record_tools,
     register_triage_prompt,
@@ -24,6 +25,8 @@ from .enrichment_view import install_enrichment_view
 from . import tools_agent  # registers triage_build_turn/resume + session primitives via @mcp.tool()
 
 register_triage_tools()
+# The no-OTX rule, enforced on every run_op before authorization.
+register_run_op_policy()
 # Threat-intel run_op results are shaped to fit the model's context budget, so
 # the verdict fields survive the framework's clip of older results.
 install_enrichment_view()
@@ -71,6 +74,6 @@ def register_mcp_materializer() -> None:
 
 register_mcp_materializer()
 
-__all__ = ["register_triage_tools", "register_record_tools",
+__all__ = ["register_triage_tools", "register_record_tools", "register_run_op_policy",
            "register_ztpf_tools", "register_playbook_tools",
            "register_triage_prompt", "register_catalog_probe", "tools_agent"]

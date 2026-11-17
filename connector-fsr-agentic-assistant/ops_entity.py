@@ -107,6 +107,35 @@ _ENTITY_CONTEXT_MAX = 10_000
 # confabulation: never pass off example/sample data or an assumption as a real,
 # live result; verify factual claims with a tool. Terse on purpose -- it must
 # not overpower a persona's own instructions.
+# Analyst-facing language lock. Live (sess-dmrfucve, box 159) the agent drifted
+# into Spanish mid-investigation. The analyst UI is English, so every analyst-
+# facing line stays English for the whole session.
+_ANALYST_LANGUAGE_RULE = (
+    "4. Write every analyst-facing line in English, the language of the analyst "
+    "UI. Do not switch languages mid-session, even when the analyst writes in "
+    "another language or a tool result is in one: quote foreign-language tool "
+    "output verbatim, but narrate in English.\n"
+)
+
+# run_op discipline: no blind calls. The framework bounces an uncatalogued
+# connector with unknown_connector, but only after the model has already spent a
+# round on it (15 blind run_op calls in sess-dmrfucve). Confirm first.
+_RUN_OP_CONFIGURED_RULE = (
+    "5. Before you call run_op for a connector, confirm it is configured on this "
+    "box (find(kind='connector') or list_configured_connectors). Do not call "
+    "run_op for a connector you have not confirmed: an unknown_connector result "
+    "means it is not configured here, so pick a configured connector or say the "
+    "source is unavailable. Never retry the same unconfigured connector.\n"
+)
+
+# No AlienVault-OTX enrichment, on any intent. Enforced in code too (see
+# fsr_soc_triage.registry.run_op_policy_refusal); this line keeps the model from
+# choosing it in the first place.
+_NO_OTX_RULE = (
+    "6. Never use AlienVault-OTX for enrichment or any lookup. Use the configured "
+    "threat-intel connectors instead; if none is configured, say so.\n"
+)
+
 _CONNECTOR_INVARIANT_RULES = (
     "\n\n---\n"
     "GROUND-TRUTH RULES (always apply):\n"
@@ -120,8 +149,17 @@ _CONNECTOR_INVARIANT_RULES = (
     "answering. Do not answer such a question from context fields alone.\n"
     "3. If you cannot verify with a tool, say so plainly and state what you "
     "would run -- never fill the gap by guessing or by reciting example values.\n"
-    "4. Reply in the language the analyst wrote in."
+    + _ANALYST_LANGUAGE_RULE
+    + _RUN_OP_CONFIGURED_RULE
+    + _NO_OTX_RULE
 )
+
+
+def _with_connector_rules(system_prompt: str) -> str:
+    """The resolved prompt plus the connector-wide invariant rules. Every turn
+    goes through here (built-in triage/build and every Key Store persona), so
+    the rules cannot be dropped by a persona override."""
+    return system_prompt + _CONNECTOR_INVARIANT_RULES
 
 
 def _is_illustrative_field(key: str) -> bool:
