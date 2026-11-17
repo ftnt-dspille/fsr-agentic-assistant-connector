@@ -78,3 +78,30 @@ def _instant_playbook_polling(monkeypatch):
     clock."""
     from fsr_playbooks.mcp_server import tools_playbook_run
     monkeypatch.setattr(tools_playbook_run, "time", _InstantClock())
+
+
+@pytest.fixture(autouse=True)
+def _quiesce_catalog_rewarm():
+    """`_auto_rewarm` runs the warm on a daemon thread that resets the module
+    global `_rewarming` in its `finally`. A test that starts a warm and does
+    not join that thread leaks it: on a loaded machine the reset lands AFTER
+    the next test has already called `_auto_rewarm` and seen `_rewarming` still
+    True, so it returns False and that test fails for an unrelated reason
+    (CI flake `test_catalog_rewarm`). Join any rewarm thread and clear the flag
+    before and after every test in this dir, so order never decides the result.
+    """
+    import threading
+
+    from fsr_soc_triage import catalog_probe as cp
+
+    def _settle():
+        for t in threading.enumerate():
+            if t.name == "fsrpb-stale-catalog-rewarm" and t is not threading.current_thread():
+                t.join(5)
+        cp._rewarming = False
+
+    _settle()
+    try:
+        yield
+    finally:
+        _settle()
