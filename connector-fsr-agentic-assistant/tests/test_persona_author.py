@@ -135,3 +135,67 @@ def test_summarize_states_allowlist_and_write_scope():
 
 def test_key_for_uses_the_profile_prefix():
     assert pa.key_for("alerts") == "fsr_assistant_profile:alerts"
+
+
+# --- draft_persona_update: fold a taught instruction into an existing persona ---
+
+def _update_reply(prompt_text, tools):
+    return "updated:\n" + json.dumps({
+        "value": prompt_text,
+        "jSONValue": {"label": "Alert Triage", "tools": {"allow": tools},
+                      "may_write": [], "ui": {"label": "Alert Triage"}},
+    })
+
+
+EXISTING = {
+    "value": "You triage alerts. Investigate and cite evidence.",
+    "jSONValue": {"label": "Alert Triage", "tools": {"allow": ["get_record"]},
+                  "may_write": [], "ui": {"label": "Alert Triage"}},
+}
+
+
+def test_update_folds_the_instruction_and_validates_clean():
+    known = {"get_record", "search_module_records"}
+    folded = ("You triage alerts. Investigate and cite evidence. "
+              "ALWAYS check prior cases before deciding a verdict.")
+    prov = _FakeProvider(_update_reply(folded, ["get_record", "search_module_records"]))
+    rec, issues = pa.draft_persona_update(
+        prov, "alerts", EXISTING, "Always check prior cases before you decide a verdict.",
+        knowledge={"module": "alerts", "fields": ["name"], "relations": {}},
+        known_tools=known)
+    assert rec is not None
+    assert "prior cases" in rec["value"].lower()
+    assert "investigate and cite evidence" in rec["value"].lower()  # kept the old guidance
+    assert [i for i in issues if i.level == "error"] == []
+
+
+def test_update_with_no_existing_persona_creates_one():
+    prov = _FakeProvider(_update_reply("You triage alerts, checking prior cases first.",
+                                       ["get_record"]))
+    rec, issues = pa.draft_persona_update(
+        prov, "alerts", None, "Check prior cases first.",
+        knowledge={"module": "alerts", "fields": [], "relations": {}},
+        known_tools={"get_record"})
+    assert rec is not None and "prior cases" in rec["value"].lower()
+
+
+def test_update_brief_carries_the_instruction_and_current_guide():
+    cap = {}
+    prov = _FakeProvider(_update_reply("x check prior cases", ["get_record"]), capture=cap)
+    pa.draft_persona_update(prov, "alerts", EXISTING, "Check prior cases first.",
+                            knowledge={"module": "alerts", "fields": [], "relations": {}},
+                            known_tools={"get_record"})
+    brief = cap["user"]
+    assert "Check prior cases first." in brief
+    assert "Investigate and cite evidence" in brief  # the current guide is shown
+    assert cap["tags"] == {"intent": "persona_update"}
+
+
+def test_update_lint_flags_a_hallucinated_tool():
+    prov = _FakeProvider(_update_reply("x", ["get_record", "make_coffee"]))
+    rec, issues = pa.draft_persona_update(
+        prov, "alerts", EXISTING, "do x",
+        knowledge={"module": "alerts", "fields": [], "relations": {}},
+        known_tools={"get_record"})
+    errs = [i for i in issues if i.level == "error" and i.field == "tools.allow"]
+    assert errs and "make_coffee" in errs[0].message

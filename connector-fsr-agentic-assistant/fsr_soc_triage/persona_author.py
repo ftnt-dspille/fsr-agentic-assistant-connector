@@ -221,6 +221,102 @@ def draft_persona(
     return rec, issues
 
 
+# Updating the standing guide when the analyst teaches a durable preference --
+# the feedback loop. The change is usually a HOW ("always check prior cases
+# first"), which is a prompt edit, not a new permission; the update is told so.
+_UPDATE_SYSTEM = (
+    "You maintain the standing guide -- the AGENTS.md -- for how to handle a kind "
+    "of FortiSOAR record. The analyst has just taught you a durable way they want "
+    "these handled from now on. Fold that instruction into the guide and return "
+    "the UPDATED guide.\n\n"
+    "Rules:\n"
+    "- KEEP everything in the current guide that is still correct; change only "
+    "what the new instruction requires, and state the new rule explicitly so it "
+    "is not lost on the next edit.\n"
+    "- A preference about HOW to work is a PROMPT change, not a new permission: do "
+    "NOT broaden the tool allowlist or may_write unless the instruction clearly "
+    "calls for a new capability.\n"
+    "- Same rules as authoring: plain analyst-facing guidance in the prompt (no "
+    "tool names, enum values or JSON; hyphens not dashes); all config stays in "
+    "jSONValue, which must not be empty.\n\n"
+    "Reply with EXACTLY ONE JSON object and nothing else, the SAME shape as a "
+    'fresh persona: {"value": "<the updated standing guide>", "jSONValue": '
+    '{"label": ..., "tools": {"allow": [...]}, "may_write": [...], '
+    '"capabilities": {...}, "ui": {...}}}'
+)
+
+
+def _update_brief(module: str, existing: Optional[dict[str, Any]], instruction: str,
+                  knowledge: dict[str, Any], known_tools: Optional[set[str]]) -> str:
+    cur = existing or {}
+    cur_prompt = cur.get("value") or "(no persona exists yet for this module -- create one that embodies the instruction)"
+    cur_jv = cur.get("jSONValue") if isinstance(cur.get("jSONValue"), dict) else {}
+    fields = ", ".join(knowledge.get("fields") or []) or "(none read)"
+    tools_txt = (", ".join(sorted(known_tools)) if known_tools
+                 else "(catalog unavailable; keep the current tools)")
+    return (
+        f"Module: {module}\n"
+        f"The new standing instruction the analyst just taught you:\n{instruction}\n\n"
+        f"CURRENT guide (its system prompt) -- keep what still holds:\n{cur_prompt}\n\n"
+        f"CURRENT config (tools / write scope / ui) -- keep unless the instruction "
+        f"changes it:\n{json.dumps(cur_jv)[:1500]}\n\n"
+        f"The module's fields (ground any data-model detail in these):\n  {fields}\n"
+        f"Tools allowed in tools.allow (use only these names):\n  {tools_txt}\n"
+    )
+
+
+async def _stream_record(provider: Any, system: str, user_content: str,
+                         tag: str, timeout: float) -> Optional[dict[str, Any]]:
+    from fsr_playbooks.llm.provider import Message, TextEvent
+
+    async def _go() -> str:
+        said = ""
+        async for ev in provider.stream(
+                system=system, messages=[Message(role="user", content=user_content)],
+                tools=[], tags={"intent": tag}, max_tool_turns=1):
+            if isinstance(ev, TextEvent):
+                said += ev.text
+        return said
+
+    try:
+        said = await asyncio.wait_for(_go(), timeout)
+    except Exception:  # noqa: BLE001
+        return None
+    return _parse_record(said)
+
+
+def draft_persona_update(
+    provider: Any, module: str, existing: Optional[dict[str, Any]], instruction: str,
+    knowledge: Optional[dict[str, Any]] = None, *,
+    known_tools: Optional[set[str]] = "__default__",  # type: ignore[assignment]
+    timeout: float = 90.0,
+) -> tuple[Optional[dict[str, Any]], list]:
+    """Fold a durable ``instruction`` into ``module``'s existing persona
+    (``existing`` is its ``{value, jSONValue}`` record, or None to create one).
+
+    This is the feedback loop's engine: a correction the analyst teaches once
+    becomes the standing way to handle that kind of record. Returns
+    ``(record, issues)`` exactly like :func:`draft_persona`; a record with an
+    ``error`` issue must not be saved as is."""
+    if known_tools == "__default__":
+        known_tools = default_known_tools()
+    if knowledge is None:
+        knowledge = {"module": module, "fields": [], "relations": {}}
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop is not None:
+        raise RuntimeError("draft_persona_update is sync; call _stream_record under a running loop")
+    rec = asyncio.run(_stream_record(
+        provider, _UPDATE_SYSTEM,
+        _update_brief(module, existing, instruction, knowledge, known_tools),
+        "persona_update", timeout))
+    if rec is None:
+        return None, []
+    return rec, validate_persona_record(rec, known_tools=known_tools)
+
+
 def key_for(module: str) -> str:
     """The Key Store ``key`` a persona for ``module`` is saved under."""
     return f"{KEY_PREFIX}{module}"

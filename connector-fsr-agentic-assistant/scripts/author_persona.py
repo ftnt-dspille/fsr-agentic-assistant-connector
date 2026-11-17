@@ -70,11 +70,14 @@ def main(argv=None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--box", required=True, help="experimental box alias (scripts/box.sh --list)")
     ap.add_argument("--module", required=True, help="the module this persona mounts on")
-    ap.add_argument("--goal", required=True, help="the task the assistant should be expert at")
+    ap.add_argument("--goal", help="the task the assistant should be expert at (create)")
+    ap.add_argument("--instruction", help="a durable rule to fold into the module's persona (update)")
     ap.add_argument("--llm", default="frank", help="frank|openai|anthropic (default: frank, free)")
     ap.add_argument("--samples", type=int, default=3, help="records to read for the data model")
     ap.add_argument("--save", action="store_true", help="write the Key Store record (refused on lint error)")
     args = ap.parse_args(argv)
+    if not args.goal and not args.instruction:
+        ap.error("pass --goal (create a persona) or --instruction (update the module's persona)")
 
     from fsr_soc_triage import persona_author as pa
 
@@ -84,9 +87,22 @@ def main(argv=None) -> int:
           f"{len(knowledge['relations'])} relation(s) read.")
 
     provider = _build_provider(args.llm)
-    rec, issues = pa.draft_persona(provider, args.module, args.goal, knowledge=knowledge)
-    if rec is None:
-        sys.exit("the model did not return a usable persona; try rephrasing --goal.")
+    if args.instruction:
+        # Update: fold the taught rule into the module's existing persona (the
+        # feedback loop). Load the current record first; None creates one.
+        key = pa.key_for(args.module)
+        cur = client.get("/api/3/keys", params={"key": key, "$limit": 1})
+        members = cur.get("hydra:member", []) if isinstance(cur, dict) else cur
+        existing = members[0] if members else None
+        print(f"Persona for {args.module}: {'updating existing' if existing else 'none yet, creating'}.")
+        rec, issues = pa.draft_persona_update(provider, args.module, existing,
+                                              args.instruction, knowledge=knowledge)
+        if rec is None:
+            sys.exit("the model did not return a usable persona update; rephrase --instruction.")
+    else:
+        rec, issues = pa.draft_persona(provider, args.module, args.goal, knowledge=knowledge)
+        if rec is None:
+            sys.exit("the model did not return a usable persona; try rephrasing --goal.")
 
     print("\n" + "=" * 60 + "\nDRAFTED PERSONA\n" + "=" * 60)
     print(pa.summarize(rec))
