@@ -1,0 +1,13 @@
+{
+  "tools": [
+    "emit_card",
+    "run_op",
+    "get_record",
+    "test_template"
+  ],
+  "turn_context": "## Turn context (a prior, not a cage)\nWorking prior: **triage**. Page state: the analyst is on the alerts module. The full tool surface is available to you regardless of this prior -- if the analyst's request crosses into other work (triage from the editor, authoring from an alert), follow the request, not the prior.\nDisposition: you are working a live record. The authoring surface (compile, validate, push, enhance) is available for when the analyst asks to bottle this investigation or edit a playbook. When the investigation reveals a repeatable pattern, OFFERING to bottle it is welcome; silently drifting into building one instead of finishing the investigation is not.",
+  "sections": [
+    "## Turn context (a prior, not a cage)",
+    "## Constraints (stated up front)"
+  ]
+}

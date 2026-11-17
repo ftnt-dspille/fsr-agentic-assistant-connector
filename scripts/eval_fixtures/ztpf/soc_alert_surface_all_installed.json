@@ -1,0 +1,12 @@
+{
+  "_README": "soc_alert_surface, with its connector inventory DECLARED and every connector healthy/Available. The default world does not serve the `connector_details?configured=true` / `connectors` reads, so a build turn that needs a connector discovers an empty or unanswered inventory and (correctly) asks or flags a capability gap -- which is right behaviour, but gives the build-delivery graders no buildable case. This variant pins a known INSTALLED set (FortiEDR, FortiGate, VirusTotal, FortiSIEM, SMTP, all Completed, none Disconnected) so a build that uses only these can actually be authored and offered. Pair: soc_alert_surface_disconnected (same set, FortiGate/ServiceNow Disconnected).",
+  "extends": "soc_alert_surface",
+  "configured_connectors": [
+    {"name": "fortinet-fortiedr", "status": "Completed", "version": "3.1.0", "label": "Fortinet FortiEDR", "config_count": 1},
+    {"name": "fortigate-firewall", "status": "Completed", "version": "5.1.0", "label": "Fortinet FortiGate", "config_count": 1},
+    {"name": "virustotal", "status": "Completed", "version": "3.0.0", "label": "VirusTotal", "config_count": 1},
+    {"name": "fortinet-fortisiem", "status": "Completed", "version": "4.0.0", "label": "Fortinet FortiSIEM", "config_count": 1},
+    {"name": "smtp", "status": "Completed", "version": "2.6.0", "label": "SMTP", "config_count": 1}
+  ],
+  "modules": {}
+}

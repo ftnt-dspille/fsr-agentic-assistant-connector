@@ -1,0 +1,53 @@
+{
+  "_README": [
+    "The default offline box plus a configured, healthy ServiceNow -- the",
+    "healthy twin of soc_alert_surface_disconnected, so a soak goal can run on",
+    "both and tell 'the box is broken' from 'the app is'."
+  ],
+  "extends": "soc_alert_surface",
+  "configured_connectors": [
+    {
+      "name": "fortinet-fortiedr",
+      "status": "Completed",
+      "version": "3.1.0",
+      "label": "Fortinet FortiEDR",
+      "config_count": 1
+    },
+    {
+      "name": "fortigate-firewall",
+      "status": "Completed",
+      "version": "5.1.0",
+      "label": "Fortinet FortiGate",
+      "config_count": 1
+    },
+    {
+      "name": "virustotal",
+      "status": "Completed",
+      "version": "3.0.0",
+      "label": "VirusTotal",
+      "config_count": 1
+    },
+    {
+      "name": "fortinet-fortisiem",
+      "status": "Completed",
+      "version": "4.0.0",
+      "label": "Fortinet FortiSIEM",
+      "config_count": 1
+    },
+    {
+      "name": "smtp",
+      "status": "Completed",
+      "version": "2.6.0",
+      "label": "SMTP",
+      "config_count": 1
+    },
+    {
+      "name": "servicenow",
+      "status": "Completed",
+      "version": "3.4.0",
+      "label": "ServiceNow",
+      "config_count": 1
+    }
+  ],
+  "modules": {}
+}

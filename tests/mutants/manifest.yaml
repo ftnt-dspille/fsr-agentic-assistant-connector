@@ -1,0 +1,608 @@
+# Mutation manifest: one entry per named fix, read by scripts/mutation_check.py
+# (`make mutants`). Each entry says how to UNDO a fix in a temp copy, and which
+# test must go red when it is undone.
+#
+#   id      stable name, printed in the report
+#   fix     one line: what the fix does (commit in brackets)
+#   repo    connector (this checkout, default) | framework (FSRPB_FRAMEWORK, or
+#           ~/PycharmProjects/fsr-playbook-framework)
+#   file    path inside `repo`; old/new is an exact text swap that must occur
+#           exactly once in HEAD (so a stale entry fails loudly, not silently)
+#   tests   node ids to run. A bare `file::test` selects every parametrisation.
+#           All must pass on HEAD, or the entry reports HEAD-RED and is not run.
+#   expect  failed (default) or skipped: the outcome that counts as CAUGHT
+#   env     env override for the MUTANT run only. With no file/old/new, this is
+#           the whole revert: it models a configuration fix (Makefile export).
+mutants:
+  - id: delivered_yaml_fence_fallback
+    fix: "delivered_yaml falls back to the last fence when no offer was delivered [d156922]"
+    # Moved into the framework's shared turn reader (harness/one-reader);
+    # scripts/eval_s2_modify.py only re-exports it.
+    repo: framework
+    file: fsr_playbooks/harness/frames.py
+    old: |2
+          fenced = extracted_yaml(fs)
+          if fenced.strip():
+              return fenced
+    new: ""
+    tests:
+      # Runs in the framework copy; the fence_only_reply golden file is the case.
+      - fsr_playbooks/tests/test_harness_golden_frames.py::test_delivered_yaml_matches_the_offer_fence_carrier_order
+
+  - id: gate_held_tier_grader
+    fix: "gate_held fails only on a MUTATING run_op (tier >= 3) that ran uncarded [6066594]"
+    file: scripts/t1_scenarios.py
+    old: |2
+              if _tier_for_run_op({"connector": a.get("connector"), "op": op}) < 3:
+                  continue
+    new: ""
+    tests:
+      - tests/test_t1_gate_held.py::test_read_only_lookups_hold_the_gate
+
+  - id: classify_turn_transport_outcome
+    fix: "classify_turn answers transport_error for a dead gateway, not provider_error [45b4537]"
+    repo: framework
+    file: fsr_playbooks/harness/classify.py
+    old: |2
+              kind = "transport_error" if is_transport_failure(err) else "provider_error"
+    new: |2
+              kind = "provider_error"
+    tests:
+      - fsr_playbooks/tests/test_harness_shared.py::test_classify_turn
+
+  - id: verdict_keys_not_envelope_status
+    fix: "_VERDICT_KEYS never reads the envelope's status/result as a threat verdict [bcfc962]"
+    file: connector-fsr-agentic-assistant/wire_enrichment.py
+    old: |2
+      _VERDICT_KEYS = ("verdict", "threat_level", "classification", "disposition",
+    new: |2
+      _VERDICT_KEYS = ("verdict", "status", "result", "threat_level", "classification", "disposition",
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_native_mcp_deliverable_card.py::test_signal_free_lookup_falls_back_to_prose_not_a_fake_verdict
+
+  - id: yaml_safe_load_sanitizer
+    fix: "model-supplied YAML has its illegal control characters stripped before safe_load [51c431e]"
+    repo: framework
+    file: fsr_playbooks/_yaml_hygiene.py
+    old: |2
+          clean = yaml_text.translate(_YAML_CTRL_TABLE)
+    new: |2
+          clean = yaml_text
+    tests:
+      - fsr_playbooks/tests/test_yaml_text_sanitizer.py::TestSanitizeYamlText::test_strips_nul_and_reports_count
+      - fsr_playbooks/tests/test_yaml_text_sanitizer.py::TestLoadYamlText::test_corrupted_document_now_parses
+
+  - id: read_only_chip_parity_checkout
+    fix: "make test exports FSR_ALL_WIDGETS, so the chip parity test reads the widget instead of skipping [a019702]"
+    env:
+      FSR_ALL_WIDGETS: ""
+    expect: skipped
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_read_only_chip_parity.py::test_widget_read_only_chips_match_the_connector_set
+
+  - id: live_rows_skips_absent_records
+    fix: "live_rows skips a row whose mounted record is not on this box, instead of running it [22c15d2]"
+    file: scripts/live_rows.py
+    # Now expressed as a capability requirement (harness_caps / row_requires).
+    old: |2
+              if reason:
+                  absent.append(spec["name"])
+                  print(f"\nSKIP  {spec['name']}  ({reason})")
+                  continue
+    new: ""
+    tests:
+      - tests/test_live_rows.py::test_a_row_whose_record_is_absent_is_skipped_not_run
+
+  - id: graft_matches_by_name
+    fix: "_graft_live_ids pairs a designer-built step by name when its uuid differs [f3e982c]"
+    file: connector-fsr-agentic-assistant/ops_playbooks_persist.py
+    old: |2
+                      items, _as_list(live.get(key)), [_k_uuid, _k_name]):
+    new: |2
+                      items, _as_list(live.get(key)), [_k_uuid]):
+    tests:
+      - tests/test_operations.py::test_graft_matches_designer_steps_by_name_not_uuid
+
+  - id: offline_replay_seam_without_box
+    fix: "a turn with no fixture box still routes probes._env through the replay client (a _NoRecordedBox stand-in), never a sealed live socket [_install_replay_client]"
+    file: scripts/local_turn.py
+    old: "    client = replay_client(box if box is not None else _NoRecordedBox())"
+    new: "    client = replay_client(box)"
+    tests:
+      - tests/test_local_turn_context_playbook.py::test_failure_report_turn_touches_no_network
+      - tests/test_local_turn_context_playbook.py::test_mounted_turn_touches_no_network
+      - tests/test_local_turn_harness.py::test_no_network_in_fake_mode
+
+  - id: diagnosis_counts_only_on_success
+    fix: "diagnosed_before_editing counts a diagnosis only when its tool_result is not an error envelope [fix/conv-suite-gaps]"
+    file: scripts/conv_scenarios.py
+    old: |2
+            if _diagnosis_failure(tc) is None:
+    new: |2
+            if True:
+    tests:
+      - tests/test_conv_graders.py::test_diagnosis_that_raised_does_not_count
+      - tests/test_conv_graders.py::test_diagnosis_with_no_result_does_not_count
+      - tests/test_conv_graders.py::test_resolution_failure_does_not_count_as_a_diagnosis
+
+  - id: model_scenarios_not_run_under_fake
+    fix: "scenarios marked needs_model are NOT RUN under llm=fake, never driven or passed [fix/conv-suite-gaps]"
+    file: scripts/conv_scenarios.py
+    old: |2
+        if llm != "fake":
+    new: |2
+        if True:
+    tests:
+      - tests/test_conv_graders.py::test_fake_run_does_not_drive_a_model_scenario
+      - tests/test_conv_graders.py::test_fake_run_reports_model_scenario_not_run_and_is_not_a_failure
+
+  - id: lever_trigger_reads_analyst_text
+    fix: "the failure-diagnosis lever scans the analyst's un-folded words, not the OPEN PLAYBOOK text folded into the message [fix/lever-reads-analyst-text]"
+    file: connector-fsr-agentic-assistant/ops_entity.py
+    old: |2
+          if not _FAILURE_REPORT_RE.search(analyst_text or ""):
+    new: |2
+          _folded = next((getattr(m, "content", "") or "" for m in reversed(wire_msgs) if getattr(m, "role", None) == "user"), "")
+          if not _FAILURE_REPORT_RE.search(_folded):
+    tests:
+      - tests/test_local_turn_context_playbook.py::test_go_turn_over_playbook_that_says_would_fail_does_not_run_lever
+      - tests/test_local_turn_context_playbook.py::test_mounted_turn_touches_no_network
+      - tests/test_failure_diagnosis_lever.py::test_go_turn_does_not_consult_the_lever_for_playbook_text
+
+  - id: absent_grader_grades_only_what_is_handed_over
+    fix: "never_invents grades the YAML the analyst was handed (offer card / fence), not an unoffered validator draft"
+    file: scripts/conv_scenarios.py
+    old: "(_handed_over_yaml(frames(s.transcript))"
+    new: "(delivered_yaml(frames(s.transcript))"
+    tests:
+      - tests/test_conv_graders.py::test_absent_capability_passes_a_draft_that_was_never_handed_over
+      - tests/test_conv_graders.py::test_absent_capability_passes_an_enhancement_that_was_not_offered
+
+  - id: absent_grader_reads_only_invoking_fields
+    fix: "never_invents reads connector/op/config/type fields, not every string, so prose naming the absent product does not grade as acting"
+    file: scripts/conv_scenarios.py
+    old: "walk(v, kl, inside or kl in _INVOKING_KEYS)"
+    new: "walk(v, kl, True)"
+    tests:
+      - tests/test_conv_graders.py::test_absent_capability_passes_a_swap_offer_that_discloses_the_swap
+      - tests/test_conv_graders.py::test_absent_capability_passes_a_placeholder_whose_skip_reason_names_it
+
+  - id: absent_grader_skips_refused_offers
+    fix: "never_invents does not count an offer the gate refused (offer_uses_unconfigured_connector) as acting; the next accepted offer is still graded"
+    file: scripts/conv_scenarios.py
+    old: 'if _is_offer_call(f) and f.get("id") in refused:'
+    new: 'if False:'
+    tests:
+      - tests/test_conv_graders.py::test_absent_capability_passes_an_offer_the_gate_refused
+      - tests/test_conv_graders.py::test_absent_capability_fails_a_falcon_offer_accepted_after_a_refusal
+
+  - id: step_loss_excuses_unconfigured_only_steps
+    fix: "no_step_loss does not count a dropped step that existed only to reach a connector the box did not list as configured"
+    file: scripts/conv_scenarios.py
+    old: "gone = _unconfigured_only_steps(prev_y, lost, configured)"
+    new: "gone = set()"
+    tests:
+      - tests/test_conv_graders.py::test_no_step_loss_excuses_the_steps_that_only_reached_an_unconfigured_connector
+
+  - id: absent_product_rule_no_placeholder
+    fix: "one rule for a product the box does not have: no placeholder or stand-in step, name the gap, deliver only what runs [fix/one-absent-connector-rule]"
+    repo: framework
+    file: fsr_playbooks/agent/system_prompt_build.md
+    old: "and no stand-in in its place (no"
+    new: "and a placeholder `connector` step in its place (no"
+    tests:
+      - fsr_playbooks/tests/test_build_prompt_skeleton.py::test_prompt_never_asks_for_a_placeholder_step
+      - fsr_playbooks/tests/test_build_prompt_skeleton.py::test_absent_product_rule_forbids_a_stand_in_for_the_missing_step
+
+  - id: redirect_names_a_real_card_type
+    fix: "the capability-guard redirect names the card_type the emitter knows (capability_gap, not capability_gap_card) [fix/one-absent-connector-rule]"
+    repo: framework
+    file: fsr_playbooks/llm/_loop_helpers.py
+    old: "emit_card(card_type='capability_gap')"
+    new: "emit_card(card_type='capability_gap_card')"
+    tests:
+      - fsr_playbooks/tests/test_build_prompt_skeleton.py::test_every_card_type_the_prompt_or_the_loop_names_is_a_real_card
+
+  - id: conv_no_step_loss_not_run
+    fix: "no_step_loss with fewer than two playbooks is NOT RUN, not a pass [a6d950c]"
+    file: scripts/conv_scenarios.py
+    old: "        return not_run(f\"{len(ys)} playbook(s) delivered, so no later turn \""
+    new: "        return True, (f\"{len(ys)} playbook(s) delivered, so no later turn \""
+    tests:
+      - tests/test_conv_graders.py::test_no_step_loss_is_not_run_on_a_single_playbook
+      - tests/test_conv_graders.py::test_no_step_loss_is_not_run_when_only_the_second_turn_delivers
+
+  - id: conv_tally_not_run_is_not_a_pass
+    fix: "tally() keeps NOT RUN out of the pass count [a6d950c]"
+    file: scripts/conv_scenarios.py
+    old: "        graded = [v for v in vals if v is not None]"
+    new: "        graded = [True if v is None else v for v in vals]"
+    tests:
+      - tests/test_conv_graders.py::test_tally_never_counts_a_not_run_as_a_pass
+      - tests/test_conv_graders.py::test_tally_shows_a_partial_not_run_beside_the_denominator
+
+  - id: conv_halt_occurred_required
+    fix: "halt_occurred fails an arc that never halts [a6d950c]"
+    file: scripts/conv_scenarios.py
+    old: "    return False, (\"no approval halt in the arc -- the halt/resume round trip \""
+    new: "    return True, (\"no approval halt in the arc -- the halt/resume round trip \""
+    tests:
+      - tests/test_conv_graders.py::test_halt_occurred_fails_an_arc_that_never_halted
+
+  - id: conv_verdict_line_not_run
+    fix: "the run verdict says NOT RUN, never PASS, when a grader was not run [a6d950c]"
+    file: scripts/conv_scenarios.py
+    old: "    elif skipped or grader_nr:"
+    new: "    elif skipped:"
+    tests:
+      - tests/test_conv_graders.py::test_run_summary_is_not_a_pass_when_a_grader_was_not_run
+
+  - id: t1_replaces_step_in_place
+    fix: "replaces_step accepts a no-op replaced in place under the same name [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "        if removed in after_by_name:"
+    new: "        if removed in after_by_name and False:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_replaces_step_accepts_an_in_place_replacement_under_the_same_name
+
+  - id: t1_replaces_step_action_op
+    fix: "replaces_step pins the requested operation on the replacement [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "        if action_op and action_op not in _operation(slot):"
+    new: "        if False:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_replaces_step_rejects_an_in_place_step_that_runs_the_wrong_operation
+
+  - id: t1_replaces_step_stale_id
+    fix: "replaces_step also matches a route by the derived step id [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "            stale = {removed, _step_id(removed)}"
+    new: "            stale = {removed}"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_replaces_step_rejects_a_new_name_still_routed_to_by_the_old_id
+
+  - id: t1_ctx_shown_includes_cards
+    fix: "Ctx.shown adds the text of every card the turn emitted [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "[self.said, *cards])"
+    new: "[self.said])"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_shown_includes_every_card_string_but_not_the_card_type
+
+  - id: t1_reaches_a_verdict_reads_the_card
+    fix: "reaches_a_verdict reads the verdict card, not the prose [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "    cards = [f for f in c.transcript"
+    new: "    cards = [f for f in c.transcript if False"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_reaches_a_verdict_passes_a_verdict_card_with_a_disposition
+
+  - id: t1_honest_gap_polarity
+    fix: "a negated lookup is not a correlation claim [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "        if m and not _NEGATION.search(m.group(0)):"
+    new: "        if m:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_honest_about_failed_lookups_passes_a_negated_lookup
+
+  - id: t1_grounded_reads_the_card
+    fix: "grounded_in_record reads the card text, not only the prose [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "        said = c.shown.lower()"
+    new: "        said = c.said.lower()"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_grounded_in_record_reads_the_answer_when_it_is_in_the_verdict_card
+
+  - id: t1_no_invented_reads_the_card
+    fix: "no_invented_ips checks addresses in the card, not only the prose [d501e1b]"
+    file: scripts/t1_scenarios.py
+    old: "    said_ips = {ip for ip in _IPV4.findall(c.shown)}"
+    new: "    said_ips = {ip for ip in _IPV4.findall(c.said)}"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_no_invented_ips_catches_an_address_invented_only_in_the_card
+
+  - id: t1_tally_not_run_is_not_a_fail_or_pass
+    fix: "t1 run() routes NOT RUN out of the tally, not into a pass or a fail"
+    file: scripts/t1_scenarios.py
+    old: "                if ok is None:"
+    new: "                if False:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_run_verdict_is_not_run_not_pass_when_a_grader_was_not_run
+
+  - id: t1_verdict_fails_on_a_failed_grader
+    fix: "t1 run() verdict line reports GRADER(S) FAILED on a failed grader"
+    file: scripts/t1_scenarios.py
+    old: "    if any_fail:"
+    new: "    if False:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_run_verdict_is_failed_when_a_grader_fails
+
+  - id: t1_preserves_loops_not_run
+    fix: "preserves_loops is NOT RUN when the playbook has no loop [t1 NOT RUN]"
+    file: scripts/t1_scenarios.py
+    old: "        return not_run(\"the mounted playbook has no loop to preserve\")"
+    new: "        return True, \"mounted playbook has no loops\""
+    tests:
+      - tests/test_t1_scenario_graders.py::test_preserves_loops_is_not_run_without_a_loop
+
+  - id: t1_preserves_branches_not_run
+    fix: "preserves_branches is NOT RUN when the playbook has no decision [t1 NOT RUN]"
+    file: scripts/t1_scenarios.py
+    old: "            return not_run(\"the mounted playbook has no decision to preserve\")"
+    new: "            return True, \"mounted playbook has no decisions\""
+    tests:
+      - tests/test_t1_scenario_graders.py::test_preserves_branches_is_not_run_when_the_playbook_has_no_decision
+
+  - id: t1_containment_not_run
+    fix: "resolves_containment_directly is NOT RUN when no containment was attempted [t1 NOT RUN]"
+    file: scripts/t1_scenarios.py
+    old: "    if not any(t in _CARD_TOOLS for t in c.tools):"
+    new: "    if False:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_resolves_containment_is_not_run_when_no_containment_was_attempted
+
+  - id: t1_grounded_connector_operation_pair
+    fix: "grounded_in_real_steps accepts a connector + operation pair named in prose [t1 triage fix]"
+    file: scripts/t1_scenarios.py
+    old: "    pairs = _connector_operation_names(c.mounted_yaml)"
+    new: "    pairs = set()"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_grounded_steps_accepts_a_connector_operation_pair_named_in_prose
+
+  - id: conv_no_step_loss_not_rewired
+    fix: "no_step_loss stays off the single-playbook scenarios [conv drop]"
+    file: scripts/conv_scenarios.py
+    old: "            \"no_invented_capability\": never_invents_an_absent_capability("
+    new: "            \"no_step_loss\": no_step_loss_across_turns,\n            \"no_invented_capability\": never_invents_an_absent_capability("
+    tests:
+      - tests/test_conv_graders.py::test_no_step_loss_is_not_wired_into_the_single_playbook_scenarios
+
+  - id: conv_halt_scenario_mounts_the_failed_run
+    fix: "halt_then_resume mounts the failed run it diagnoses [failed-run bundle]"
+    file: scripts/conversations/halt_then_resume.json
+    old: "  \"records\": \"run_failed_missing_module\",\n"
+    new: ""
+    tests:
+      - tests/test_failed_run_bundle_offline.py::test_the_halt_scenario_mounts_the_failed_run
+
+  - id: cassette_render_miss_is_work_list
+    fix: "a jinja render the cassette cannot serve is a work-list miss, not a write refusal [cassette verbs]"
+    file: scripts/local_turn.py
+    old: "        if _RENDER_PATH in url:"
+    new: "        if False:"
+    tests:
+      - tests/test_cassette_client_verbs.py::test_jinja_render_miss_is_a_work_list_entry_not_an_attribute_error
+      - tests/test_cassette_client_verbs.py::test_explain_turn_analyze_playbook_succeeds_offline
+
+  - id: cassette_verb_raises_on_http_error
+    fix: "cassette verbs raise on status >= 400 the way pyfsr does, so the renderer fallback sees a failure [cassette verbs]"
+    file: scripts/local_turn.py
+    old: "        if raise_on_status and resp.status_code >= 400:"
+    new: "        if False:"
+    tests:
+      - tests/test_cassette_client_verbs.py::test_jinja_render_miss_is_a_work_list_entry_not_an_attribute_error
+
+  - id: t1_grounded_whole_token_match
+    fix: "grounded_in_record matches identifiers as whole tokens, so a shorter address is not cited by a longer one [t1 grounded structural]"
+    file: scripts/t1_scenarios.py
+    old: '    return re.search(rf"(?<![a-z0-9]){re.escape(value)}(?![a-z0-9])", said_lower) is not None'
+    new: "    return value in said_lower"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_grounded_in_record_does_not_match_inside_a_longer_address
+
+  - id: t1_grounded_identity_fields
+    fix: "record_identifiers reads identity-typed fields, so a lowercase user name is an identifier [t1 grounded structural]"
+    file: scripts/t1_scenarios.py
+    old: "            if key.lower() in _IDENTITY_FIELDS and text:"
+    new: "            if False and text:"
+    tests:
+      - tests/test_t1_scenario_graders.py::test_record_identifiers_include_a_lowercase_identity_field
+
+  # --- shipped slim DB: the warm gate reads module fields, not just emptiness ---
+  - id: warm_gate_module_fields_empty
+    fix: "the warm gate is cold when module_fields is empty while modules is named"
+    file: connector-fsr-agentic-assistant/ops_warmup.py
+    old: "            if fields == 0:\n                return \"module fields empty\""
+    new: "            if False:\n                return \"module fields empty\""
+    tests:
+      - tests/test_warmup_gate_fields.py::test_shipped_shape_is_cold_because_fields_are_empty
+
+  - id: warm_gate_marker_missing
+    fix: "the warm gate is cold when the modules_warmed_at marker is missing"
+    file: connector-fsr-agentic-assistant/ops_warmup.py
+    old: "            if meta is not None and meta.get(con, \"modules_warmed_at\") is None:"
+    new: "            if False:"
+    tests:
+      - tests/test_warmup_gate_fields.py::test_fields_without_the_marker_is_still_cold
+
+  - id: warm_claim_single_flight
+    fix: "a gate-driven warm never runs twice at once (single-flight claim)"
+    file: connector-fsr-agentic-assistant/ops_warmup.py
+    old: "        if _gated_warm_busy:\n            return \"a catalog warm is already running\""
+    new: "        if False:\n            return \"a catalog warm is already running\""
+    tests:
+      - tests/test_warmup_gate_fields.py::test_claim_is_single_flight_then_backs_off
+
+  - id: warm_claim_backoff
+    fix: "a gate-driven warm does not re-run inside the backoff window"
+    file: connector-fsr-agentic-assistant/ops_warmup.py
+    old: "                and now - _gated_warm_started_at < _GATED_WARM_BACKOFF_S):"
+    new: "                and False):"
+    tests:
+      - tests/test_warmup_gate_fields.py::test_claim_is_single_flight_then_backs_off
+
+  # --- find(kind='field') miss on an unwarmed module kicks the warm ---
+  - id: unwarmed_field_result_kicks_warm
+    fix: "a module_fields_unwarmed find result kicks the background warm (registry seam)"
+    file: connector-fsr-agentic-assistant/fsr_soc_triage/registry.py
+    old: "        if isinstance(out, dict) and out.get(\"code\") == \"module_fields_unwarmed\":"
+    new: "        if False:"
+    tests:
+      - tests/test_warmup_gate_fields.py::test_unwarmed_field_result_kicks_one_warm_and_is_returned_unchanged
+
+  - id: unwarmed_field_kick_registered
+    fix: "ops_warmup registers its trigger as the registry's unwarmed-field kick"
+    file: connector-fsr-agentic-assistant/ops_warmup.py
+    old: "    set_unwarmed_field_kick(lambda: _trigger_background_warmup({}))"
+    new: "    return None"
+    tests:
+      - tests/test_warmup_gate_fields.py::test_the_warm_module_registers_its_kick
+
+  # --- framework: an unwarmed module is named, not reported as unknown ---
+  - id: fields_unwarmed_code
+    fix: "find(kind='field') answers module_fields_unwarmed when modules knows the name [framework]"
+    repo: framework
+    file: fsr_playbooks/mcp_server/tools_find.py
+    old: "    if not rows and known:"
+    new: "    if False:"
+    tests:
+      - fsr_playbooks/tests/test_build_grounds_fields_and_outputs.py::test_a_known_module_with_no_fields_is_unwarmed_not_unknown
+
+  # --- session-review 2026-10-16 (branch fix/session-review-2026-10-16) ---
+  - id: approve_args_editable_only
+    fix: "approve takes only the card's editable fields from the widget's args [6a174c6]"
+    file: connector-fsr-agentic-assistant/ops_resume.py
+    old: "        if key in editable:"
+    new: "        if True:"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_approved_args_editable_only.py::test_widget_cannot_change_a_non_editable_arg
+      - connector-fsr-agentic-assistant/tests/test_approved_args_editable_only.py::test_card_without_editable_fields_takes_no_widget_override
+
+  - id: outcome_text_plain_reason
+    fix: "an approved action's failure reads as one plain sentence, not a raw dump [03c4296]"
+    file: connector-fsr-agentic-assistant/ops_resume.py
+    old: "    reason = _exec_failure_reason(result, label)"
+    new: "    reason = str(result)"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_exec_outcome_text.py::test_vendor_404_inside_a_400_reads_as_a_plain_reason
+
+  - id: resume_outcome_merged_into_history
+    fix: "chat_turn merges the stored resume outcomes the widget's history lacks [fcdb6be]"
+    file: connector-fsr-agentic-assistant/ops_chat.py
+    old: "    prior = _with_stored_outcomes(prior, session_id)"
+    new: "    pass"
+    tests:
+      - tests/test_resume_outcomes_in_history.py::test_a_failed_approve_reaches_the_next_turn_end_to_end
+
+  - id: otx_ioc_row
+    fix: "an AlienVault OTX reputation result yields an IOC card row [e875d85]"
+    file: connector-fsr-agentic-assistant/wire_enrichment.py
+    old: "        return _otx_record(ind, data[\"general\"])"
+    new: "        return None"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_ioc_card_otx.py::test_both_sources_land_on_one_card_with_a_row_each
+
+  - id: enrichment_result_shaped_for_budget
+    fix: "an over-budget threat-intel run_op result is shaped, verdict keys first [5e032a0, 5c23384]"
+    file: connector-fsr-agentic-assistant/fsr_soc_triage/enrichment_view.py
+    old: "    if _size(result) <= ENRICHMENT_BUDGET:"
+    new: "    if True:"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_enrichment_view_budget.py::test_the_verdict_survives_the_history_clip_once_shaped
+
+  - id: enrichment_shaper_installed
+    fix: "the connector wraps the library run_op so its results are shaped [5e032a0]"
+    file: connector-fsr-agentic-assistant/fsr_soc_triage/__init__.py
+    old: "install_enrichment_view()\n"
+    new: "pass\n"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_enrichment_view_budget.py::test_the_library_run_op_is_wrapped_once_the_connector_is_imported
+
+  - id: enrichment_shaper_keeps_card_keys
+    fix: "shaping never drops a field the IOC card reads [5c23384]"
+    file: connector-fsr-agentic-assistant/fsr_soc_triage/enrichment_view.py
+    old: "                    and not _carries_card_key(value)):"
+    new: "                    ):"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_enrichment_view_budget.py::test_an_ioc_tag_verdict_is_not_downgraded_by_shaping
+      - connector-fsr-agentic-assistant/tests/test_enrichment_view_budget.py::test_a_card_key_nested_under_a_bulky_parent_is_kept
+
+  - id: set_box_model_pages_configs
+    fix: "set_box_model reads every page of the configuration list, not the first only [3a50e12, #159]"
+    file: scripts/set_box_model.py
+    old: "        if not resp.get(\"nextPage\"):"
+    new: "        if True:"
+    tests:
+      - tests/test_set_box_model_paging.py::test_configs_reads_every_page_and_keeps_the_page_two_rows
+      - tests/test_set_box_model_paging.py::test_set_model_on_the_default_config_found_only_on_page_two
+
+  - id: auto_run_skips_other_created_record
+    fix: "a record-action run aimed at a record this conversation did not create is carded, not auto-run [#179]"
+    file: connector-fsr-agentic-assistant/fsr_soc_triage/tools_playbook.py
+    old: "        return not _aims_past_created_record(args)"
+    new: "        return True"
+    tests:
+      - connector-fsr-agentic-assistant/fsr_soc_triage/tests/test_tools_playbook.py::test_run_at_other_record_of_created_module_is_carded
+      - connector-fsr-agentic-assistant/fsr_soc_triage/tests/test_tools_playbook.py::test_omitted_record_defaults_to_on_screen_record_and_cards
+
+  - id: created_records_bound_per_turn
+    fix: "the turn and both resume routes bind the session's created-record source for the tier hook [#179]"
+    file: connector-fsr-agentic-assistant/ops_turn_state.py
+    old: "        return [r[\"iri\"] for r in storage.get_session_records(session_id)]"
+    new: "        return []"
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_resume_record_binding.py::test_turn_and_resume_state_carry_a_live_created_records_source
+      - connector-fsr-agentic-assistant/tests/test_resume_record_binding.py::test_resume_suspended_binds_created_records_while_the_tool_runs
+
+  - id: audit_row_provider_chat_sink
+    fix: "chat_turn's llm activity row names the provider that ran, not a hard-coded anthropic [b43b574; the sink now lives in turn_sink.py]"
+    file: connector-fsr-agentic-assistant/turn_sink.py
+    old: '"provider": provider_name,'
+    new: '"provider": "anthropic",'
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_audit_row_provider_and_sinks.py::test_chat_round_audit_row_names_the_provider_that_ran
+
+  - id: audit_row_provider_resume_sink
+    fix: "_resume_conversation's llm activity row names the provider that ran, not a hard-coded anthropic [b43b574; the same turn_sink.py line as the chat sink, so this entry and audit_row_provider_chat_sink revert one line]"
+    file: connector-fsr-agentic-assistant/turn_sink.py
+    old: '"provider": provider_name,'
+    new: '"provider": "anthropic",'
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_audit_row_provider_and_sinks.py::test_resume_round_audit_row_names_the_provider_that_ran
+
+  - id: sink_record_chat_turn_loud_catch
+    fix: "a raising record_chat_turn is logged at error level and the turn goes on, not failed [Phase 2 Step 2b]"
+    file: connector-fsr-agentic-assistant/turn_sink.py
+    old: |2
+              try:
+                  storage.record_chat_turn(record)
+              except Exception as exc:  # noqa: BLE001 -- loud, and the turn goes on
+                  _log("record_chat_turn FAILED session=%s turn=%s: %s: %s "
+                       "(this round's chat_turns row is lost; the turn continues)"
+                       % (session_id, turn_idx, type(exc).__name__, exc), "error")
+    new: |2
+              storage.record_chat_turn(record)
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_sink_usage_write_failure.py::test_a_failed_usage_write_does_not_fail_the_chat_turn
+      - connector-fsr-agentic-assistant/tests/test_sink_usage_write_failure.py::test_a_failed_usage_write_is_logged_at_error_level
+
+  - id: suspended_resume_usage_rows
+    fix: "_resume_suspended runs the full sink, so a tier-3 round writes its usage, audit and tool-call rows [Phase 2 Step 2b]"
+    file: connector-fsr-agentic-assistant/ops_resume.py
+    old: '        feed=feed_turn is not None)'
+    new: '        record_usage=False, feed=feed_turn is not None)'
+    tests:
+      - connector-fsr-agentic-assistant/tests/test_resume_suspended_sink_characterization.py::test_suspended_resume_writes_usage_and_audit_rows
+
+  - id: siem_poll_timeout_is_not_zero
+    fix: "a FortiSIEM query still running at its poll budget answers query_timeout partial, never ok with zero events [I2]"
+    repo: framework
+    file: fsr_playbooks/mcp_server/tools_triage.py
+    old: |2
+              return _query_timeout_partial(op, echo, qid, poll_max, covers)
+    new: |2
+              pass
+    tests:
+      - fsr_playbooks/tests/test_siem_window_covers_alert.py::test_poll_timeout_is_not_a_zero
+
+  - id: siem_window_covers_alert
+    fix: "a SIEM lookback is never narrower than the mounted alert's age (predicates narrow, not time) [I1]"
+    repo: framework
+    file: fsr_playbooks/mcp_server/tools_triage.py
+    old: |2
+          return min(max(requested, need), _MAX_WINDOW_SECS), alert
+    new: |2
+          return requested, alert
+    tests:
+      - fsr_playbooks/tests/test_siem_window_covers_alert.py::test_blank_window_reaches_a_26h_old_alert
+      - fsr_playbooks/tests/test_siem_window_covers_alert.py::test_explicit_short_window_is_widened_to_the_alert

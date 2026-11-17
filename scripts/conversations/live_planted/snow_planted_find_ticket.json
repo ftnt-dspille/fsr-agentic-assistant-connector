@@ -1,0 +1,16 @@
+{
+  "name": "snow_planted_find_ticket",
+  "category": "planted_needle",
+  "intent": "triage",
+  "planted": {"scenario": "snow_incident_needle"},
+  "why": [
+    "Live-only: finds a ServiceNow incident the planter created. The ask names the subject (an outbound transfer from a build host), never the per-run token, so the token can only reach the answer through a tool result. Two distractors on the same host or the same source carry other tokens and must not be shown."
+  ],
+  "steps": [
+    {"user": "Is there an open ServiceNow incident about an outbound transfer from build-07? What does it say?"}
+  ],
+  "expect": {
+    "planted_token": {"labels": ["needle"]},
+    "planted_not_shown": {"labels": ["distractor_similar", "distractor_other_host"]}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "anthropic_reachable": true,
+  "reference_db_present": true,
+  "reference_db_path": "/opt/cyops/configs/integrations/connectors/connector-fsr-agentic-assistant_0_3_15/store/fsr_reference.db",
+  "fsr_core_version": "unknown",
+  "fsr_core_module": "/opt/cyops/configs/integrations/connectors/connector-fsr-agentic-assistant_0_3_15/fsr_core/__init__.py"
+}

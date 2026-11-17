@@ -1,0 +1,1723 @@
+{
+  "_README": [
+    "Failed-run evidence for the playbook 'Refresh Latest Alert Details', recorded from a",
+    "live appliance by scripts/record_runs.py: the run history, run envs",
+    "and failure projection the diagnosis tools read, replayed through",
+    "pyfsr's own client offline. The playbook itself is eval_fixtures/run_failed_double_iri.yaml."
+  ],
+  "extends": "soc_alert_surface",
+  "modules": {},
+  "http": [
+    {
+      "method": "GET",
+      "path": "/api/3/workflows",
+      "query": {
+        "name": "Refresh Latest Alert Details",
+        "$limit": "5"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/api/3/contexts/Workflow",
+        "@id": "/api/3/workflows",
+        "@type": "hydra:Collection",
+        "hydra:member": [
+          {
+            "@id": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "@type": "Workflow",
+            "triggerLimit": null,
+            "name": "Refresh Latest Alert Details",
+            "aliasName": null,
+            "tag": "",
+            "description": "Fetch the newest alert and re-read its full record.",
+            "isActive": true,
+            "debug": false,
+            "singleRecordExecution": false,
+            "remoteExecutableFlag": false,
+            "parameters": [],
+            "synchronous": false,
+            "lastModifyDate": 1791303081,
+            "collection": "/api/3/workflow_collections/027687d4-511d-5b39-9fca-8c79e685c3ca",
+            "triggerStep": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+            "priority": {
+              "@id": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+              "@type": "Picklist",
+              "itemValue": "High",
+              "orderIndex": 2,
+              "color": null,
+              "icon": null,
+              "listName": "/api/3/picklist_names/e104ef72-11b4-4d0c-be0e-e1cf3b87b5f2",
+              "uuid": "9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+              "id": 112,
+              "importedBy": []
+            },
+            "playbookOrigin": {
+              "@id": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+              "@type": "Picklist",
+              "itemValue": "Custom",
+              "orderIndex": 1,
+              "color": "#ed1515",
+              "icon": null,
+              "listName": "/api/3/picklist_names/aa754880-6334-484b-9b49-cfccab09cafb",
+              "uuid": "15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+              "id": 188,
+              "importedBy": []
+            },
+            "isEditable": true,
+            "uuid": "3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "id": 5419,
+            "createUser": {
+              "@id": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "@type": "Person",
+              "sourceControlUsername": null,
+              "firstname": "CS",
+              "lastname": "Admin",
+              "title": "Admin",
+              "department": null,
+              "email": "admin@example.com",
+              "description": null,
+              "phoneFax": null,
+              "phoneHome": null,
+              "phoneMobile": null,
+              "phoneWork": "+16462759691",
+              "csActive": true,
+              "accessType": "Named",
+              "companyId": null,
+              "type": null,
+              "userType": null,
+              "avatar": null,
+              "uuid": "3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createDate": 1781872210.020616,
+              "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "modifyDate": 1786627812.184164,
+              "id": 3,
+              "userId": "bcdb929f-6b84-49f7-b8ee-3c788464c132",
+              "@settings": "/api/3/user_settings/3451141c-bac6-467c-8d72-85e0fab569ce"
+            },
+            "createDate": 1791303084.789401,
+            "modifyUser": {
+              "@id": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "@type": "Person",
+              "sourceControlUsername": null,
+              "firstname": "CS",
+              "lastname": "Admin",
+              "title": "Admin",
+              "department": null,
+              "email": "admin@example.com",
+              "description": null,
+              "phoneFax": null,
+              "phoneHome": null,
+              "phoneMobile": null,
+              "phoneWork": "+16462759691",
+              "csActive": true,
+              "accessType": "Named",
+              "companyId": null,
+              "type": null,
+              "userType": null,
+              "avatar": null,
+              "uuid": "3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createDate": 1781872210.020616,
+              "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "modifyDate": 1786627812.184164,
+              "id": 3,
+              "userId": "bcdb929f-6b84-49f7-b8ee-3c788464c132",
+              "@settings": "/api/3/user_settings/3451141c-bac6-467c-8d72-85e0fab569ce"
+            },
+            "modifyDate": 1791303084.789401,
+            "isPrivate": false,
+            "deletedAt": null,
+            "importedBy": [],
+            "recordTags": []
+          }
+        ],
+        "hydra:totalItems": 1,
+        "hydra:view": {
+          "@id": "/api/3/workflows?name=Refresh%20Latest%20Alert%20Details&%24limit=5",
+          "@type": "hydra:PartialCollectionView"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/",
+      "query": {
+        "format": "json",
+        "limit": "80",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "tags_exclude": "system"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/workflows/context/",
+        "hydra:nextPage": null,
+        "hydra:previousPage": null,
+        "hydra:totalItems": 2,
+        "hydra:itemsPerPage": 80,
+        "hydra:firstPage": "/wf/api/workflows/?format=json&limit=80&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:lastPage": "/wf/api/workflows/?format=json&limit=80&offset=0&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:member": [
+          {
+            "@id": "/wf/api/workflows/122386/",
+            "name": "Refresh Latest Alert Details",
+            "status": "failed",
+            "created": "2026-10-06T16:11:28.601991Z",
+            "modified": "2026-10-06T16:11:29.782749Z",
+            "parent_wf": null,
+            "tags": "",
+            "debug": true,
+            "node_name": "soar",
+            "@type": "Workflow"
+          },
+          {
+            "@id": "/wf/api/workflows/122284/",
+            "name": "Refresh Latest Alert Details",
+            "status": "failed",
+            "created": "2026-10-06T15:58:52.097637Z",
+            "modified": "2026-10-06T15:58:53.409923Z",
+            "parent_wf": null,
+            "tags": "",
+            "debug": true,
+            "node_name": "soar",
+            "@type": "Workflow"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/historical-workflows/",
+      "query": {
+        "format": "json",
+        "limit": "80",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "tags_exclude": "system"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/historical-workflows/context/",
+        "hydra:nextPage": null,
+        "hydra:previousPage": null,
+        "hydra:totalItems": 0,
+        "hydra:itemsPerPage": 80,
+        "hydra:firstPage": "/wf/api/historical-workflows/?format=json&limit=80&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:lastPage": "/wf/api/historical-workflows/?format=json&limit=80&offset=-80&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:member": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/",
+      "query": {
+        "format": "json",
+        "limit": "20",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "tags_exclude": "system"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/workflows/context/",
+        "hydra:nextPage": null,
+        "hydra:previousPage": null,
+        "hydra:totalItems": 2,
+        "hydra:itemsPerPage": 20,
+        "hydra:firstPage": "/wf/api/workflows/?format=json&limit=20&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:lastPage": "/wf/api/workflows/?format=json&limit=20&offset=0&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:member": [
+          {
+            "@id": "/wf/api/workflows/122386/",
+            "name": "Refresh Latest Alert Details",
+            "status": "failed",
+            "created": "2026-10-06T16:11:28.601991Z",
+            "modified": "2026-10-06T16:11:29.782749Z",
+            "parent_wf": null,
+            "tags": "",
+            "debug": true,
+            "node_name": "soar",
+            "@type": "Workflow"
+          },
+          {
+            "@id": "/wf/api/workflows/122284/",
+            "name": "Refresh Latest Alert Details",
+            "status": "failed",
+            "created": "2026-10-06T15:58:52.097637Z",
+            "modified": "2026-10-06T15:58:53.409923Z",
+            "parent_wf": null,
+            "tags": "",
+            "debug": true,
+            "node_name": "soar",
+            "@type": "Workflow"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/historical-workflows/",
+      "query": {
+        "format": "json",
+        "limit": "20",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "tags_exclude": "system"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/historical-workflows/context/",
+        "hydra:nextPage": null,
+        "hydra:previousPage": null,
+        "hydra:totalItems": 0,
+        "hydra:itemsPerPage": 20,
+        "hydra:firstPage": "/wf/api/historical-workflows/?format=json&limit=20&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:lastPage": "/wf/api/historical-workflows/?format=json&limit=20&offset=-20&ordering=-modified&parent_wf__isnull=True&tags_exclude=system&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:member": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/",
+      "query": {
+        "format": "json",
+        "limit": "50",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "tags_exclude": "system"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/workflows/context/",
+        "hydra:nextPage": "/wf/api/workflows/?format=json&limit=50&offset=50&ordering=-modified&parent_wf__isnull=True&tags_exclude=system",
+        "hydra:previousPage": null,
+        "hydra:totalItems": 1,
+        "hydra:itemsPerPage": 50,
+        "hydra:firstPage": "/wf/api/workflows/?format=json&limit=50&ordering=-modified&parent_wf__isnull=True&tags_exclude=system",
+        "hydra:lastPage": "/wf/api/workflows/?format=json&limit=50&offset=50&ordering=-modified&parent_wf__isnull=True&tags_exclude=system",
+        "hydra:member": [
+          {
+            "@id": "/wf/api/workflows/122386/",
+            "name": "Refresh Latest Alert Details",
+            "status": "failed",
+            "created": "2026-10-06T16:11:28.601991Z",
+            "modified": "2026-10-06T16:11:29.782749Z",
+            "parent_wf": null,
+            "tags": "",
+            "debug": true,
+            "node_name": "soar",
+            "@type": "Workflow"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/historical-workflows/",
+      "query": {
+        "format": "json",
+        "limit": "50",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "tags_exclude": "system"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/historical-workflows/context/",
+        "hydra:nextPage": "/wf/api/historical-workflows/?format=json&limit=50&offset=50&ordering=-modified&parent_wf__isnull=True&tags_exclude=system",
+        "hydra:previousPage": null,
+        "hydra:totalItems": 0,
+        "hydra:itemsPerPage": 50,
+        "hydra:firstPage": "/wf/api/historical-workflows/?format=json&limit=50&ordering=-modified&parent_wf__isnull=True&tags_exclude=system",
+        "hydra:lastPage": "/wf/api/historical-workflows/?format=json&limit=50&offset=4550&ordering=-modified&parent_wf__isnull=True&tags_exclude=system",
+        "hydra:member": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/122386/",
+      "query": {
+        "format": "json",
+        "step_detail": "true"
+      },
+      "status": 200,
+      "body": {
+        "@id": "/wf/api/workflows/122386/",
+        "name": "Refresh Latest Alert Details",
+        "result": {
+          "Error message": "\n CS-INTEGRATION-5: Error occurred while executing the connector action ERROR :: 404 Client Error: Not Found for url: https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25 :: {'type': 'NotFoundHttpException', 'message': 'No route found for \"GET https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25\"'} :: Url: https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25 Call for URL: https://localhost:9595/integration/execute/ failed with status code 400 \n"
+        },
+        "steps": [
+          {
+            "@id": "/wf/api/steps/1110480/",
+            "metadata": {
+              "id": 23086,
+              "template_iri": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98",
+              "metadata": {
+                "top": "250",
+                "left": "200",
+                "uuid": "2b9a55f1-331a-5e08-b392-847853da0c98",
+                "when": true,
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-find-record",
+                  "background": "#f7ac20",
+                  "displayName": "Find Records"
+                },
+                "ignore_errors": false,
+                "globalMockUsed": false,
+                "mockOutputUsed": false
+              },
+              "wf_metadata": 1838
+            },
+            "name": "Fetch Alert",
+            "args": {
+              "query": {
+                "sort": [],
+                "limit": 1,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "name",
+                    "value": "%",
+                    "operator": "like",
+                    "_operator": "like"
+                  }
+                ]
+              },
+              "module": "alerts?$limit=1",
+              "checkboxFields": false
+            },
+            "result": [
+              {
+                "id": 573,
+                "@id": "/api/3/alerts/1daad405-3999-4682-ba60-586bec063d25",
+                "url": null,
+                "name": "High log receiving delay from monitored device 10.10.100.27",
+                "rule": "PH_RULE_NO_LOGS_FROM_DEVICE",
+                "type": {
+                  "id": 227,
+                  "@id": "/api/3/picklists/574a6ee2-7265-4701-815e-cff83b053bce",
+                  "icon": null,
+                  "uuid": "574a6ee2-7265-4701-815e-cff83b053bce",
+                  "@type": "Picklist",
+                  "color": null,
+                  "listName": "/api/3/picklist_names/a7087b9c-5660-495f-a8ac-c3b198ddb8c2",
+                  "itemValue": "Other / Unknown",
+                  "importedBy": [],
+                  "orderIndex": 19
+                },
+                "uuid": "1daad405-3999-4682-ba60-586bec063d25",
+                "@type": "Alert",
+                "dueBy": null,
+                "state": {
+                  "id": 195,
+                  "@id": "/api/3/picklists/501d0562-89a0-4079-9a9e-cdde7d34e3ed",
+                  "icon": null,
+                  "uuid": "501d0562-89a0-4079-9a9e-cdde7d34e3ed",
+                  "@type": "Picklist",
+                  "color": null,
+                  "listName": "/api/3/picklist_names/2f9ed741-25fe-475a-9f12-64336288eebf",
+                  "itemValue": "Indicator Extracted",
+                  "importedBy": [],
+                  "orderIndex": 2
+                },
+                "domain": null,
+                "source": "Fortinet FortiSIEM",
+                "status": {
+                  "id": 201,
+                  "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+                  "icon": null,
+                  "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146",
+                  "@type": "Picklist",
+                  "color": "#264EA1",
+                  "listName": "/api/3/picklist_names/33e964a9-d607-49f2-813c-7ce46141815a",
+                  "itemValue": "Open",
+                  "importedBy": [],
+                  "orderIndex": 1
+                },
+                "tenant": {
+                  "id": 1,
+                  "@id": "/api/3/tenants/b3a700f7-00be-4ef9-90c6-3c8fe6e1be63",
+                  "name": "Self",
+                  "role": "self",
+                  "uuid": "b3a700f7-00be-4ef9-90c6-3c8fe6e1be63",
+                  "@type": "Tenant",
+                  "region": null,
+                  "license": null,
+                  "industry": null,
+                  "tenantId": "2215f975dd501e6f25f55568edf06af9",
+                  "createDate": null,
+                  "createUser": null,
+                  "modifyDate": null,
+                  "modifyUser": null,
+                  "description": "sample",
+                  "isDedicated": true,
+                  "allowRemoteMMDModification": true
+                },
+                "ackDate": null,
+                "emailTo": null,
+                "metrics": null,
+                "conflict": false,
+                "fileHash": null,
+                "fileName": null,
+                "filePath": null,
+                "fsrQueue": null,
+                "hostName": null,
+                "reporter": null,
+                "respDate": null,
+                "services": null,
+                "severity": {
+                  "id": 447,
+                  "@id": "/api/3/picklists/b3c20a3a-ecfd-4adc-a225-0205968e6793",
+                  "icon": null,
+                  "uuid": "b3c20a3a-ecfd-4adc-a225-0205968e6793",
+                  "@type": "Picklist",
+                  "color": "#D2AC1A",
+                  "listName": "/api/3/picklist_names/4e80cba3-032f-48b4-ac03-17e3ec247aac",
+                  "itemValue": "Medium",
+                  "importedBy": [],
+                  "orderIndex": 2
+                },
+                "sourceId": "27744",
+                "sourceIp": null,
+                "ticketID": null,
+                "userName": null,
+                "aISummary": null,
+                "aIVerdict": {
+                  "id": 467,
+                  "@id": "/api/3/picklists/210a0158-3748-47fa-81f9-e5deee715783",
+                  "icon": null,
+                  "uuid": "210a0158-3748-47fa-81f9-e5deee715783",
+                  "@type": "Picklist",
+                  "color": "#8E98AC",
+                  "listName": "/api/3/picklist_names/202307a3-d0de-4816-8dae-74933df464a0",
+                  "itemValue": "Not Investigated",
+                  "importedBy": [],
+                  "orderIndex": 0
+                },
+                "deviceUID": null,
+                "emailBody": "",
+                "emailFrom": null,
+                "epochTime": "1785159795000",
+                "eventTime": 1785159795,
+                "fileEmail": null,
+                "fileNames": null,
+                "processId": null,
+                "subSource": null,
+                "assignedTo": null,
+                "bucketName": null,
+                "createDate": 1785159920.083706,
+                "createUser": {
+                  "id": 1,
+                  "@id": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+                  "name": "Playbook",
+                  "uuid": "57545210-2adc-472b-a24f-2df6ee8dfe63",
+                  "@type": "Appliance",
+                  "avatar": null,
+                  "userId": "6f3626c1-0da7-4b44-8d5e-43750f780a47",
+                  "userType": null,
+                  "createDate": 1781872210.014607,
+                  "createUser": null,
+                  "modifyDate": 1781872210.014607,
+                  "modifyUser": null
+                },
+                "deviceType": null,
+                "fileHashes": null,
+                "modifyDate": 1785159980.72798,
+                "modifyUser": {
+                  "id": 1,
+                  "@id": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+                  "name": "Playbook",
+                  "uuid": "57545210-2adc-472b-a24f-2df6ee8dfe63",
+                  "@type": "Appliance",
+                  "avatar": null,
+                  "userId": "6f3626c1-0da7-4b44-8d5e-43750f780a47",
+                  "userType": null,
+                  "createDate": 1781872210.014607,
+                  "createUser": null,
+                  "modifyDate": 1781872210.014607,
+                  "modifyUser": null
+                },
+                "recordTags": [],
+                "returnPath": null,
+                "sourcePort": null,
+                "sourceTool": null,
+                "sourceType": null,
+                "sourcedata": "{\"incident_data\": {\"count\": 1, \"custId\": 1, \"customer\": \"Super\", \"eventName\": \"No logs from a device\", \"eventType\": \"PH_RULE_NO_LOGS_FROM_DEVICE\", \"incidentId\": 27744, \"incidentSrc\": {}, \"incidentReso\": 1, \"eventSeverity\": 6, \"incidentRptIp\": \"10.254.1.10\", \"incidentTitle\": \"High log receiving delay from monitored device 10.10.100.27\", \"incidentDetail\": \"{\\\"jobName\\\":\\\"Windows Agent\\\"}\", \"incidentStatus\": 0, \"incidentTarget\": {\"hostIpAddr\": \"10.10.100.27\"}, \"incidentTagName\": \"FortiSIEM Operational Issue\", \"eventSeverityCat\": \"MEDIUM\", \"incidentLastSeen\": 1785159795000, \"incidentFirstSeen\": 1785159795000, \"incidentStatusStr\": \"active\", \"origFirstSeenTime\": 1785159795000, \"incidentDetailJson\": {\"jobName\": \"Windows Agent\"}, \"incidentRptDevName\": \"collector\", \"phIncidentCategory\": 1, \"incidentClearedTime\": 0, \"phSubIncidentCategory\": \"FortiSIEM\"}, \"associated_events\": [{\"id\": 1815372862303251147, \"nid\": \"1815372862303251147\", \"index\": 0, \"custId\": 1, \"dataStr\": {}, \"eventType\": \"PH_DEV_MON_LOG_DEVICE_DELAY_HIGH\", \"attributes\": {\"Count\": 1, \"Host IP\": \"10.10.100.27\", \"Event ID\": 1815372862303251147, \"Job Name\": \"Windows Agent\", \"Host Name\": \"ORDERS-ERP\", \"Log Level\": \"PHL_INFO\", \"Event Name\": \"Log receipt delay for a single device crossed high water mark\", \"Event Type\": \"PH_DEV_MON_LOG_DEVICE_DELAY_HIGH\", \"Relaying IP\": \"10.254.1.10\", \"Collector ID\": 10000, \"Process Name\": \"AppServer\", \"Reporting IP\": \"10.254.1.10\", \"Raw Event Log\": \"Jul 27 09:42:44 [PH_DEV_MON_LOG_DEVICE_DELAY_HIGH]:[eventSeverity]=PHL_INFO,[phEventCategory]=3,[procName]=AppServer,[phCustId]=1,[relayDevName]=collector,[relayDevIpAddr]=10.254.1.10,[hostIpAddr]=10.10.100.27,[hostName]=ORDERS-ERP,[collectorId]=10000,[jobName]=Windows Agent,[phLogDetail]=Log receipt delay for a single device crossed high water mark\", \"Event Severity\": 1, \"Retention Days\": 18250, \"Organization ID\": 1, \"Relaying Device\": \"collector\", \"Reporting Model\": \"FortiSIEM\", \"Event Type Group\": \"Overall Health Issue\", \"Reporting Device\": \"collector\", \"Reporting Vendor\": \"Fortinet\", \"Event Parser Name\": \"PHBoxParser\", \"Organization Name\": \"Super\", \"Event Parse Status\": 1, \"Event Receive Time\": 1785159764000, \"Event Rule Trigger\": 1, \"Raw Event Log Size\": 351, \"Short Process Name\": \"AppServer\", \"System Event Category\": 3, \"Event Severity Category\": \"LOW\"}, \"rawMessage\": \"Jul 27 09:42:44 [PH_DEV_MON_LOG_DEVICE_DELAY_HIGH]:[eventSeverity]=PHL_INFO,[phEventCategory]=3,[procName]=AppServer,[phCustId]=1,[relayDevName]=collector,[relayDevIpAddr]=10.254.1.10,[hostIpAddr]=10.10.100.27,[hostName]=ORDERS-ERP,[collectorId]=10000,[jobName]=Windows Agent,[phLogDetail]=Log receipt delay for a single device crossed high water mark\", \"receiveTime\": 1785159764000, \"eventAttributes\": []}]}",
+                "commandLine": null,
+                "description": "<div class=\"font-size-14 ng-binding padding-bottom-sm\" style=\"font-family: 'Lato', Arial, sans-serif;\">\n    <h4 style=\"\n        padding:5px;\n        text-align:left;      \n        margin:0;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        No logs from a device - PH_RULE_NO_LOGS_FROM_DEVICE\n    </h4>\n</div>\n\n<table style=\"\n    width:60%;\n    border-collapse:collapse;\n    table-layout:fixed;\n    font-size:13px;\n    margin-top:10px;\n    background:transparent;\n    border:2px solid rgba(120,120,120,0.35);\n    font-family: 'Lato', Arial, sans-serif;\n\">\n\n<tbody>\n\n\n\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Incident Reporting IP\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        10.254.1.10\n    </td>\n</tr>\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Reporting Device\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        collector\n    </td>\n</tr>\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        First Occurred\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        2026-07-27 13:43:15 +00:00\n    </td>\n</tr>\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Last Occurred\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        2026-07-27 13:43:15 +00:00\n    </td>\n</tr>\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Incident Category\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Availability\n    </td>\n</tr>\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Incident Sub-Category\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        FortiSIEM\n    </td>\n</tr>\n\n\n\n\n\n\n\n\n\n\n\n<tr>\n    <th style=\"\n        padding:8px;\n        text-align:left;\n        font-weight:600;\n        border:2px solid rgba(120,120,120,0.25);\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        Incident Details\n    </th>\n    <td style=\"\n        padding:8px;\n        border:2px solid rgba(120,120,120,0.25);\n        word-break:break-word;\n        background:transparent;\n        font-family: 'Lato', Arial, sans-serif;\n    \">\n        {\"jobName\":\"Windows Agent\"}\n    </td>\n</tr>\n\n\n</tbody>\n</table>",
+                "deviceOwner": null,
+                "hostCountry": null,
+                "iPAddresses": null,
+                "latestLogin": null,
+                "processGuid": null,
+                "processName": null,
+                "processTree": null,
+                "registryKey": null,
+                "respDueDate": null,
+                "targetAsset": "10.10.100.27",
+                "userDetails": null,
+                "ackSlaStatus": {
+                  "id": 441,
+                  "@id": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "icon": null,
+                  "uuid": "72979f64-e8b9-4888-a965-957e0ec24818",
+                  "@type": "Picklist",
+                  "color": "#25A5AE",
+                  "listName": "/api/3/picklist_names/fe36a8f2-fcba-4221-b4ab-1081f596b153",
+                  "itemValue": "Awaiting Action",
+                  "importedBy": [],
+                  "orderIndex": 2
+                },
+                "assigneddate": null,
+                "closureNotes": null,
+                "computerName": null,
+                "emailHeaders": null,
+                "emailSubject": null,
+                "jiraTicketID": null,
+                "resolveddate": null,
+                "senderDomain": null,
+                "triagetaskid": null,
+                "closureReason": null,
+                "destinationID": null,
+                "destinationIp": null,
+                "hostIPAddress": null,
+                "mitreattackid": null,
+                "respSlaStatus": {
+                  "id": 441,
+                  "@id": "/api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818",
+                  "icon": null,
+                  "uuid": "72979f64-e8b9-4888-a965-957e0ec24818",
+                  "@type": "Picklist",
+                  "color": "#25A5AE",
+                  "listName": "/api/3/picklist_names/fe36a8f2-fcba-4221-b4ab-1081f596b153",
+                  "itemValue": "Awaiting Action",
+                  "importedBy": [],
+                  "orderIndex": 2
+                },
+                "scheduledTask": null,
+                "sourceProcess": null,
+                "targetProcess": null,
+                "ackSLApausedon": null,
+                "deviceSerialNo": null,
+                "hostMACAddress": null,
+                "killChainPhase": null,
+                "mitreTechnique": null,
+                "priorityWeight": 1,
+                "tenantRecordId": 573,
+                "attachmentNames": null,
+                "destinationPort": null,
+                "respSLApausedon": null,
+                "bytesTransferred": null,
+                "escalationReason": null,
+                "parentProcessPid": null,
+                "registryKeyValue": null,
+                "parentProcessName": null,
+                "reporterEmailBody": null,
+                "alertDetectionDate": null,
+                "decodedCommandLine": null,
+                "senderEmailAddress": null,
+                "emailClassification": null,
+                "escalatedtoincident": {
+                  "id": 355,
+                  "@id": "/api/3/picklists/2128a09c-153d-4db3-985d-de6be33deae5",
+                  "icon": null,
+                  "uuid": "2128a09c-153d-4db3-985d-de6be33deae5",
+                  "@type": "Picklist",
+                  "color": "#A4ACBC",
+                  "listName": "/api/3/picklist_names/e131cc54-9ae4-43c9-b830-af6e331fe024",
+                  "itemValue": "No",
+                  "importedBy": [],
+                  "orderIndex": 1
+                },
+                "resolvedAutomatedly": false,
+                "alertRemainingAckSLA": 0,
+                "parentProcessCmdLine": null,
+                "alertRemainingRespSLA": null,
+                "recipientEmailAddress": null,
+                "responseSLAResumeDate": null,
+                "vulnerabilitySeverity": null
+              }
+            ],
+            "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+            "created": "2026-10-06T16:11:28.634892Z",
+            "modified": "2026-10-06T16:11:29.293915Z",
+            "func": "find_data",
+            "status": "finished",
+            "initial": false,
+            "input": {
+              "debug": true,
+              "query": {
+                "sort": [],
+                "limit": 1,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "name",
+                    "value": "%",
+                    "operator": "like",
+                    "_operator": "like"
+                  }
+                ]
+              },
+              "module": "alerts?$limit=1",
+              "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+              "checkboxFields": false
+            },
+            "data": {},
+            "started": "2026-10-06T16:11:29.010320Z",
+            "completed": "2026-10-06T16:11:29.293707Z",
+            "workflow": "/wf/api/workflows/122386/",
+            "parent": null,
+            "@type": "Step"
+          },
+          {
+            "@id": "/wf/api/steps/1110481/",
+            "metadata": {
+              "id": 23087,
+              "template_iri": "/api/3/workflow_steps/241070e5-a26c-569e-8143-2777411010ac",
+              "metadata": {
+                "top": "510",
+                "left": "200",
+                "uuid": "241070e5-a26c-569e-8143-2777411010ac",
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-set-variables",
+                  "background": "#f7ac20",
+                  "displayName": "Set Variable"
+                }
+              },
+              "wf_metadata": 1838
+            },
+            "name": "Keep Severity",
+            "args": {
+              "severity": "{{ vars.steps.Read_Full_Alert.data.severity.itemValue }}",
+              "__eval_seq": [
+                "severity"
+              ]
+            },
+            "result": {},
+            "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+            "created": "2026-10-06T16:11:28.661874Z",
+            "modified": "2026-10-06T16:11:28.813595Z",
+            "func": "set_multiple",
+            "status": "incipient",
+            "initial": false,
+            "input": {},
+            "data": {},
+            "started": null,
+            "completed": null,
+            "workflow": "/wf/api/workflows/122386/",
+            "parent": null,
+            "@type": "Step"
+          },
+          {
+            "@id": "/wf/api/steps/1110482/",
+            "metadata": {
+              "id": 23088,
+              "template_iri": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+              "metadata": {
+                "top": "380",
+                "left": "200",
+                "uuid": "58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-connectors",
+                  "background": "#ff7600",
+                  "displayName": "Connector",
+                  "connectorName": "Utilities",
+                  "connectorVersion": "3.7.2"
+                }
+              },
+              "wf_metadata": 1838
+            },
+            "name": "Read Full Alert",
+            "args": {
+              "name": "Utilities",
+              "config": "",
+              "params": {
+                "iri": "/api/3/alerts/{{ vars.steps.Fetch_Alert[0]['@id'] }}",
+                "method": "GET"
+              },
+              "version": "3.7.2",
+              "connector": "cyops_utilities",
+              "operation": "make_cyops_request",
+              "operationTitle": "FSR: Make FortiSOAR API Call",
+              "pickFromTenant": false,
+              "step_variables": []
+            },
+            "result": {
+              "Error message": "\n CS-INTEGRATION-5: Error occurred while executing the connector action ERROR :: 404 Client Error: Not Found for url: https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25 :: {'type': 'NotFoundHttpException', 'message': 'No route found for \"GET https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25\"'} :: Url: https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25 Call for URL: https://localhost:9595/integration/execute/ failed with status code 400 \n"
+            },
+            "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+            "created": "2026-10-06T16:11:28.684384Z",
+            "modified": "2026-10-06T16:11:29.768980Z",
+            "func": "connector",
+            "status": "failed",
+            "initial": false,
+            "input": {
+              "name": "Utilities",
+              "debug": true,
+              "config": "",
+              "params": {
+                "iri": "/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25",
+                "method": "GET"
+              },
+              "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+              "version": "3.7.2",
+              "connector": "cyops_utilities",
+              "operation": "make_cyops_request",
+              "operationTitle": "FSR: Make FortiSOAR API Call",
+              "pickFromTenant": false
+            },
+            "data": {},
+            "started": "2026-10-06T16:11:29.331341Z",
+            "completed": "2026-10-06T16:11:29.753664Z",
+            "workflow": "/wf/api/workflows/122386/",
+            "parent": null,
+            "@type": "Step"
+          },
+          {
+            "@id": "/wf/api/steps/1110483/",
+            "metadata": {
+              "id": 23089,
+              "template_iri": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+              "metadata": {
+                "top": "120",
+                "left": "200",
+                "uuid": "d7e230f9-8429-5f83-bb43-bd75cc150af6",
+                "when": true,
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-referenced",
+                  "background": null,
+                  "displayName": "Referenced"
+                },
+                "ignore_errors": false,
+                "globalMockUsed": false,
+                "mockOutputUsed": false
+              },
+              "wf_metadata": 1838
+            },
+            "name": "Start",
+            "args": {
+              "input": [],
+              "globalMock": false,
+              "useMockOutput": false,
+              "step_variables": {
+                "input": {
+                  "params": []
+                },
+                "__eval_seq": []
+              }
+            },
+            "result": {
+              "debug": true,
+              "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+              "globalMock": false,
+              "useMockOutput": false
+            },
+            "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+            "created": "2026-10-06T16:11:28.720988Z",
+            "modified": "2026-10-06T16:11:28.976051Z",
+            "func": "set_multiple",
+            "status": "finished",
+            "initial": true,
+            "input": {},
+            "data": {},
+            "started": "2026-10-06T16:11:28.951969Z",
+            "completed": "2026-10-06T16:11:28.975867Z",
+            "workflow": "/wf/api/workflows/122386/",
+            "parent": null,
+            "@type": "Step"
+          }
+        ],
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "created": "2026-10-06T16:11:28.601991Z",
+        "modified": "2026-10-06T16:11:29.782749Z",
+        "env": {
+          "debug": true,
+          "input": {
+            "params": {},
+            "records": []
+          },
+          "result": {
+            "Error message": "\n CS-INTEGRATION-5: Error occurred while executing the connector action ERROR :: 404 Client Error: Not Found for url: https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25 :: {'type': 'NotFoundHttpException', 'message': 'No route found for \"GET https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25\"'} :: Url: https://localhost/api/3/alerts//api/3/alerts/1daad405-3999-4682-ba60-586bec063d25 Call for URL: https://localhost:9595/integration/execute/ failed with status code 400 \n"
+          },
+          "request": {
+            "uri": "https://fortisoar.example.com/api/triggers/1/notrigger/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "data": [],
+            "method": "POST",
+            "baseUri": "https://fortisoar.example.com",
+            "headers": {},
+            "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce"
+          },
+          "task_id": "6472d828-ebb5-4224-8892-bd956b923d7d",
+          "auth_info": {
+            "auth_method": "CS HMAC"
+          },
+          "resources": {},
+          "__schedule": {
+            "email": null
+          },
+          "audit_info": {
+            "cyops_playbook_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "cyops_playbook_name": "Refresh Latest Alert Details"
+          },
+          "globalMock": false,
+          "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "last_run_at": null,
+          "useMockOutput": false,
+          "mockPlaybookId": null
+        },
+        "status": "failed",
+        "parent_wf": null,
+        "tags": "",
+        "metadata": {
+          "id": 1838,
+          "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+          "wf_modified": "2026-10-06T16:11:21Z",
+          "metadata": {
+            "groups": [],
+            "routes": [
+              {
+                "@id": "/api/3/workflow_routes/89da3238-f9a3-5b62-8697-3e53861c9a63",
+                "name": "Fetch Alert -> Read Full Alert",
+                "uuid": "89da3238-f9a3-5b62-8697-3e53861c9a63",
+                "@type": "WorkflowRoute",
+                "group": null,
+                "label": null,
+                "isExecuted": false,
+                "sourceStep": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98",
+                "targetStep": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff"
+              },
+              {
+                "@id": "/api/3/workflow_routes/93a7b29b-fd3f-56ad-bf78-4f5078f4f27d",
+                "name": "Read Full Alert -> Keep Severity",
+                "uuid": "93a7b29b-fd3f-56ad-bf78-4f5078f4f27d",
+                "@type": "WorkflowRoute",
+                "group": null,
+                "label": null,
+                "isExecuted": false,
+                "sourceStep": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+                "targetStep": "/api/3/workflow_steps/241070e5-a26c-569e-8143-2777411010ac"
+              },
+              {
+                "@id": "/api/3/workflow_routes/d189f68d-a2fa-5b53-b0bc-8c356b571a50",
+                "name": "Start -> Fetch Alert",
+                "uuid": "d189f68d-a2fa-5b53-b0bc-8c356b571a50",
+                "@type": "WorkflowRoute",
+                "group": null,
+                "label": null,
+                "isExecuted": false,
+                "sourceStep": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+                "targetStep": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98"
+              }
+            ],
+            "trigger_step_type": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62"
+          }
+        },
+        "debug": true,
+        "peer_details": {},
+        "user": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+        "node_name": "soar",
+        "@type": "Workflow"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/3/workflows",
+      "query": {
+        "name": "Refresh Latest Alert Details",
+        "$limit": "50"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/api/3/contexts/Workflow",
+        "@id": "/api/3/workflows",
+        "@type": "hydra:Collection",
+        "hydra:member": [
+          {
+            "@id": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "@type": "Workflow",
+            "triggerLimit": null,
+            "name": "Refresh Latest Alert Details",
+            "aliasName": null,
+            "tag": "",
+            "description": "Fetch the newest alert and re-read its full record.",
+            "isActive": true,
+            "debug": false,
+            "singleRecordExecution": false,
+            "remoteExecutableFlag": false,
+            "parameters": [],
+            "synchronous": false,
+            "lastModifyDate": 1791303081,
+            "collection": "/api/3/workflow_collections/027687d4-511d-5b39-9fca-8c79e685c3ca",
+            "triggerStep": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+            "priority": {
+              "@id": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+              "@type": "Picklist",
+              "itemValue": "High",
+              "orderIndex": 2,
+              "color": null,
+              "icon": null,
+              "listName": "/api/3/picklist_names/e104ef72-11b4-4d0c-be0e-e1cf3b87b5f2",
+              "uuid": "9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+              "id": 112,
+              "importedBy": []
+            },
+            "playbookOrigin": {
+              "@id": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+              "@type": "Picklist",
+              "itemValue": "Custom",
+              "orderIndex": 1,
+              "color": "#ed1515",
+              "icon": null,
+              "listName": "/api/3/picklist_names/aa754880-6334-484b-9b49-cfccab09cafb",
+              "uuid": "15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+              "id": 188,
+              "importedBy": []
+            },
+            "isEditable": true,
+            "uuid": "3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "id": 5419,
+            "createUser": {
+              "@id": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "@type": "Person",
+              "sourceControlUsername": null,
+              "firstname": "CS",
+              "lastname": "Admin",
+              "title": "Admin",
+              "department": null,
+              "email": "admin@example.com",
+              "description": null,
+              "phoneFax": null,
+              "phoneHome": null,
+              "phoneMobile": null,
+              "phoneWork": "+16462759691",
+              "csActive": true,
+              "accessType": "Named",
+              "companyId": null,
+              "type": null,
+              "userType": null,
+              "avatar": null,
+              "uuid": "3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createDate": 1781872210.020616,
+              "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "modifyDate": 1786627812.184164,
+              "id": 3,
+              "userId": "bcdb929f-6b84-49f7-b8ee-3c788464c132",
+              "@settings": "/api/3/user_settings/3451141c-bac6-467c-8d72-85e0fab569ce"
+            },
+            "createDate": 1791303084.789401,
+            "modifyUser": {
+              "@id": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "@type": "Person",
+              "sourceControlUsername": null,
+              "firstname": "CS",
+              "lastname": "Admin",
+              "title": "Admin",
+              "department": null,
+              "email": "admin@example.com",
+              "description": null,
+              "phoneFax": null,
+              "phoneHome": null,
+              "phoneMobile": null,
+              "phoneWork": "+16462759691",
+              "csActive": true,
+              "accessType": "Named",
+              "companyId": null,
+              "type": null,
+              "userType": null,
+              "avatar": null,
+              "uuid": "3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "createDate": 1781872210.020616,
+              "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+              "modifyDate": 1786627812.184164,
+              "id": 3,
+              "userId": "bcdb929f-6b84-49f7-b8ee-3c788464c132",
+              "@settings": "/api/3/user_settings/3451141c-bac6-467c-8d72-85e0fab569ce"
+            },
+            "modifyDate": 1791303084.789401,
+            "isPrivate": false,
+            "deletedAt": null,
+            "importedBy": [],
+            "recordTags": []
+          }
+        ],
+        "hydra:totalItems": 1,
+        "hydra:view": {
+          "@id": "/api/3/workflows?name=Refresh%20Latest%20Alert%20Details&%24limit=50",
+          "@type": "hydra:PartialCollectionView"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/3/workflows",
+      "query": {
+        "$export": "true",
+        "$relationships": "true",
+        "uuid$in": "3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "$limit": "500"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/api/3/contexts/Workflow",
+        "@id": "/api/3/workflows",
+        "@type": "hydra:Collection",
+        "hydra:member": [
+          {
+            "@type": "Workflow",
+            "triggerLimit": null,
+            "name": "Refresh Latest Alert Details",
+            "aliasName": null,
+            "tag": "",
+            "description": "Fetch the newest alert and re-read its full record.",
+            "isActive": true,
+            "debug": false,
+            "singleRecordExecution": false,
+            "remoteExecutableFlag": false,
+            "parameters": [],
+            "synchronous": false,
+            "lastModifyDate": 1791303081,
+            "collection": "/api/3/workflow_collections/027687d4-511d-5b39-9fca-8c79e685c3ca",
+            "versions": [],
+            "triggerStep": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+            "steps": [
+              {
+                "@type": "WorkflowStep",
+                "name": "Fetch Alert",
+                "description": null,
+                "arguments": {
+                  "query": {
+                    "sort": [],
+                    "limit": 1,
+                    "logic": "AND",
+                    "filters": [
+                      {
+                        "type": "primitive",
+                        "field": "name",
+                        "value": "%",
+                        "operator": "like",
+                        "_operator": "like"
+                      }
+                    ]
+                  },
+                  "module": "alerts?$limit=1",
+                  "checkboxFields": false
+                },
+                "status": null,
+                "top": "250",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/b593663d-7d13-40ce-a3a3-96dece928770",
+                "group": null,
+                "uuid": "2b9a55f1-331a-5e08-b392-847853da0c98"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Keep Severity",
+                "description": null,
+                "arguments": {
+                  "severity": "{{ vars.steps.Read_Full_Alert.data.severity.itemValue }}"
+                },
+                "status": null,
+                "top": "510",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+                "group": null,
+                "uuid": "241070e5-a26c-569e-8143-2777411010ac"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Read Full Alert",
+                "description": null,
+                "arguments": {
+                  "name": "Utilities",
+                  "config": "",
+                  "params": {
+                    "iri": "/api/3/alerts/{{ vars.steps.Fetch_Alert[0]['@id'] }}",
+                    "method": "GET"
+                  },
+                  "version": "3.7.2",
+                  "connector": "cyops_utilities",
+                  "operation": "make_cyops_request",
+                  "operationTitle": "FSR: Make FortiSOAR API Call",
+                  "pickFromTenant": false,
+                  "step_variables": []
+                },
+                "status": null,
+                "top": "380",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+                "group": null,
+                "uuid": "58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Start",
+                "description": null,
+                "arguments": {
+                  "step_variables": {
+                    "input": {
+                      "params": []
+                    }
+                  }
+                },
+                "status": null,
+                "top": "120",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+                "group": null,
+                "uuid": "d7e230f9-8429-5f83-bb43-bd75cc150af6"
+              }
+            ],
+            "routes": [
+              {
+                "@type": "WorkflowRoute",
+                "name": "Fetch Alert -> Read Full Alert",
+                "targetStep": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+                "sourceStep": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "89da3238-f9a3-5b62-8697-3e53861c9a63"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Read Full Alert -> Keep Severity",
+                "targetStep": "/api/3/workflow_steps/241070e5-a26c-569e-8143-2777411010ac",
+                "sourceStep": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "93a7b29b-fd3f-56ad-bf78-4f5078f4f27d"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Start -> Fetch Alert",
+                "targetStep": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98",
+                "sourceStep": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "d189f68d-a2fa-5b53-b0bc-8c356b571a50"
+              }
+            ],
+            "groups": [],
+            "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+            "playbookOrigin": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+            "isEditable": true,
+            "uuid": "3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "id": 5419,
+            "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+            "createDate": 1791303084.789401,
+            "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+            "modifyDate": 1791303084.789401,
+            "owners": [],
+            "isPrivate": false,
+            "deletedAt": null,
+            "importedBy": [],
+            "recordTags": []
+          }
+        ],
+        "hydra:totalItems": 1,
+        "hydra:view": {
+          "@id": "/api/3/workflows?%24export=true&%24relationships=true&uuid%24in=3106d4a5-7143-515d-8ef5-aedc1b55ec7c&%24limit=500",
+          "@type": "hydra:PartialCollectionView"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/3/workflow_collections/027687d4-511d-5b39-9fca-8c79e685c3ca",
+      "query": {},
+      "status": 200,
+      "body": {
+        "@context": "/api/3/contexts/WorkflowCollection",
+        "@id": "/api/3/workflow_collections/027687d4-511d-5b39-9fca-8c79e685c3ca",
+        "@type": "WorkflowCollection",
+        "name": "Eval Run Failures",
+        "description": "",
+        "visible": true,
+        "image": null,
+        "uuid": "027687d4-511d-5b39-9fca-8c79e685c3ca",
+        "id": 1398,
+        "createUser": {
+          "@id": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "@type": "Person",
+          "sourceControlUsername": null,
+          "firstname": "CS",
+          "lastname": "Admin",
+          "title": "Admin",
+          "department": null,
+          "email": "admin@example.com",
+          "description": null,
+          "phoneFax": null,
+          "phoneHome": null,
+          "phoneMobile": null,
+          "phoneWork": "+16462759691",
+          "csActive": true,
+          "accessType": "Named",
+          "companyId": null,
+          "type": null,
+          "userType": null,
+          "avatar": null,
+          "uuid": "3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1781872210.020616,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1786627812.184164,
+          "id": 3,
+          "userId": "bcdb929f-6b84-49f7-b8ee-3c788464c132",
+          "@settings": "/api/3/user_settings/3451141c-bac6-467c-8d72-85e0fab569ce"
+        },
+        "createDate": 1791303084.788952,
+        "modifyUser": {
+          "@id": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "@type": "Person",
+          "sourceControlUsername": null,
+          "firstname": "CS",
+          "lastname": "Admin",
+          "title": "Admin",
+          "department": null,
+          "email": "admin@example.com",
+          "description": null,
+          "phoneFax": null,
+          "phoneHome": null,
+          "phoneMobile": null,
+          "phoneWork": "+16462759691",
+          "csActive": true,
+          "accessType": "Named",
+          "companyId": null,
+          "type": null,
+          "userType": null,
+          "avatar": null,
+          "uuid": "3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "createDate": 1781872210.020616,
+          "modifyUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "modifyDate": 1786627812.184164,
+          "id": 3,
+          "userId": "bcdb929f-6b84-49f7-b8ee-3c788464c132",
+          "@settings": "/api/3/user_settings/3451141c-bac6-467c-8d72-85e0fab569ce"
+        },
+        "modifyDate": 1791303084.788952,
+        "deletedAt": null,
+        "importedBy": [],
+        "recordTags": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/",
+      "query": {
+        "format": "json",
+        "limit": "1",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/workflows/context/",
+        "hydra:nextPage": "/wf/api/workflows/?format=json&limit=1&offset=1&ordering=-modified&parent_wf__isnull=True&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:previousPage": null,
+        "hydra:totalItems": 1,
+        "hydra:itemsPerPage": 1,
+        "hydra:firstPage": "/wf/api/workflows/?format=json&limit=1&ordering=-modified&parent_wf__isnull=True&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:lastPage": "/wf/api/workflows/?format=json&limit=1&offset=1&ordering=-modified&parent_wf__isnull=True&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:member": [
+          {
+            "@id": "/wf/api/workflows/122386/",
+            "name": "Refresh Latest Alert Details",
+            "status": "failed",
+            "created": "2026-10-06T16:11:28.601991Z",
+            "modified": "2026-10-06T16:11:29.782749Z",
+            "parent_wf": null,
+            "tags": "",
+            "debug": true,
+            "node_name": "soar",
+            "@type": "Workflow"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/historical-workflows/",
+      "query": {
+        "format": "json",
+        "limit": "1",
+        "ordering": "-modified",
+        "parent_wf__isnull": "True",
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c"
+      },
+      "status": 200,
+      "body": {
+        "@context": "/wf/api/historical-workflows/context/",
+        "hydra:nextPage": null,
+        "hydra:previousPage": null,
+        "hydra:totalItems": 0,
+        "hydra:itemsPerPage": 1,
+        "hydra:firstPage": "/wf/api/historical-workflows/?format=json&limit=1&ordering=-modified&parent_wf__isnull=True&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:lastPage": "/wf/api/historical-workflows/?format=json&limit=1&offset=-1&ordering=-modified&parent_wf__isnull=True&template_iri=%2Fapi%2F3%2Fworkflows%2F3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "hydra:member": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/122284/",
+      "query": {
+        "format": "json",
+        "step_detail": "true"
+      },
+      "status": 200,
+      "body": {
+        "@id": "/wf/api/workflows/122284/",
+        "name": "Refresh Latest Alert Details",
+        "result": {
+          "Error message": "\n CS-INTEGRATION-5: Error occurred while executing the connector action ERROR :: 401 Client Error: Unauthorized for url: https://localhost/api/3/alerts :: {'message': 'An authentication exception occurred.'} :: Url: https://localhost/api/3/alerts Call for URL: https://localhost:9595/integration/execute/ failed with status code 400 \n"
+        },
+        "steps": [
+          {
+            "@id": "/wf/api/steps/1109555/",
+            "metadata": {
+              "id": 23016,
+              "template_iri": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98",
+              "metadata": {
+                "top": "250",
+                "left": "200",
+                "uuid": "2b9a55f1-331a-5e08-b392-847853da0c98",
+                "when": true,
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-find-record",
+                  "background": "#f7ac20",
+                  "displayName": "Find Records"
+                },
+                "ignore_errors": false,
+                "globalMockUsed": false,
+                "mockOutputUsed": false
+              },
+              "wf_metadata": 1824
+            },
+            "name": "Fetch Alert",
+            "args": {
+              "query": {
+                "sort": [],
+                "limit": 1,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "op": "isnotnull",
+                    "type": "primitive",
+                    "field": "name",
+                    "value": null,
+                    "operator": "eq",
+                    "_operator": "eq"
+                  }
+                ]
+              },
+              "module": "alerts?$limit=1",
+              "checkboxFields": false
+            },
+            "result": [],
+            "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+            "created": "2026-10-06T15:58:52.132055Z",
+            "modified": "2026-10-06T15:58:52.779293Z",
+            "func": "find_data",
+            "status": "finished",
+            "initial": false,
+            "input": {
+              "debug": true,
+              "query": {
+                "sort": [],
+                "limit": 1,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "op": "isnotnull",
+                    "type": "primitive",
+                    "field": "name",
+                    "value": null,
+                    "operator": "eq",
+                    "_operator": "eq"
+                  }
+                ]
+              },
+              "module": "alerts?$limit=1",
+              "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+              "checkboxFields": false
+            },
+            "data": {},
+            "started": "2026-10-06T15:58:52.556362Z",
+            "completed": "2026-10-06T15:58:52.778921Z",
+            "workflow": "/wf/api/workflows/122284/",
+            "parent": null,
+            "@type": "Step"
+          },
+          {
+            "@id": "/wf/api/steps/1109556/",
+            "metadata": {
+              "id": 23017,
+              "template_iri": "/api/3/workflow_steps/241070e5-a26c-569e-8143-2777411010ac",
+              "metadata": {
+                "top": "510",
+                "left": "200",
+                "uuid": "241070e5-a26c-569e-8143-2777411010ac",
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-set-variables",
+                  "background": "#f7ac20",
+                  "displayName": "Set Variable"
+                }
+              },
+              "wf_metadata": 1824
+            },
+            "name": "Keep Severity",
+            "args": {
+              "severity": "{{ vars.steps.Read_Full_Alert.data.severity.itemValue }}",
+              "__eval_seq": [
+                "severity"
+              ]
+            },
+            "result": {},
+            "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+            "created": "2026-10-06T15:58:52.158854Z",
+            "modified": "2026-10-06T15:58:52.338958Z",
+            "func": "set_multiple",
+            "status": "incipient",
+            "initial": false,
+            "input": {},
+            "data": {},
+            "started": null,
+            "completed": null,
+            "workflow": "/wf/api/workflows/122284/",
+            "parent": null,
+            "@type": "Step"
+          },
+          {
+            "@id": "/wf/api/steps/1109557/",
+            "metadata": {
+              "id": 23018,
+              "template_iri": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+              "metadata": {
+                "top": "380",
+                "left": "200",
+                "uuid": "58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-connectors",
+                  "background": "#ff7600",
+                  "displayName": "Connector",
+                  "connectorName": "Utilities",
+                  "connectorVersion": "3.7.2"
+                }
+              },
+              "wf_metadata": 1824
+            },
+            "name": "Read Full Alert",
+            "args": {
+              "name": "Utilities",
+              "config": "",
+              "params": {
+                "iri": "/api/3/alerts/{{ vars.steps.Fetch_Alert.records[0]['@id'] }}",
+                "method": "GET"
+              },
+              "version": "3.7.2",
+              "connector": "cyops_utilities",
+              "operation": "make_cyops_request",
+              "operationTitle": "FSR: Make FortiSOAR API Call",
+              "pickFromTenant": false,
+              "step_variables": []
+            },
+            "result": {
+              "Error message": "\n CS-INTEGRATION-5: Error occurred while executing the connector action ERROR :: 401 Client Error: Unauthorized for url: https://localhost/api/3/alerts :: {'message': 'An authentication exception occurred.'} :: Url: https://localhost/api/3/alerts Call for URL: https://localhost:9595/integration/execute/ failed with status code 400 \n"
+            },
+            "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+            "created": "2026-10-06T15:58:52.183881Z",
+            "modified": "2026-10-06T15:58:53.394794Z",
+            "func": "connector",
+            "status": "failed",
+            "initial": false,
+            "input": {
+              "name": "Utilities",
+              "debug": true,
+              "config": "",
+              "params": {
+                "iri": "/api/3/alerts/",
+                "method": "GET"
+              },
+              "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+              "version": "3.7.2",
+              "connector": "cyops_utilities",
+              "operation": "make_cyops_request",
+              "operationTitle": "FSR: Make FortiSOAR API Call",
+              "pickFromTenant": false
+            },
+            "data": {},
+            "started": "2026-10-06T15:58:52.811828Z",
+            "completed": "2026-10-06T15:58:53.376704Z",
+            "workflow": "/wf/api/workflows/122284/",
+            "parent": null,
+            "@type": "Step"
+          },
+          {
+            "@id": "/wf/api/steps/1109558/",
+            "metadata": {
+              "id": 23019,
+              "template_iri": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+              "metadata": {
+                "top": "120",
+                "left": "200",
+                "uuid": "d7e230f9-8429-5f83-bb43-bd75cc150af6",
+                "when": true,
+                "group": null,
+                "stepType": {
+                  "icon": "icon icon-referenced",
+                  "background": null,
+                  "displayName": "Referenced"
+                },
+                "ignore_errors": false,
+                "globalMockUsed": false,
+                "mockOutputUsed": false
+              },
+              "wf_metadata": 1824
+            },
+            "name": "Start",
+            "args": {
+              "input": [],
+              "globalMock": false,
+              "useMockOutput": false,
+              "step_variables": {
+                "input": {
+                  "params": []
+                },
+                "__eval_seq": []
+              }
+            },
+            "result": {
+              "debug": true,
+              "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+              "globalMock": false,
+              "useMockOutput": false
+            },
+            "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+            "created": "2026-10-06T15:58:52.223534Z",
+            "modified": "2026-10-06T15:58:52.523596Z",
+            "func": "set_multiple",
+            "status": "finished",
+            "initial": true,
+            "input": {},
+            "data": {},
+            "started": "2026-10-06T15:58:52.493410Z",
+            "completed": "2026-10-06T15:58:52.523386Z",
+            "workflow": "/wf/api/workflows/122284/",
+            "parent": null,
+            "@type": "Step"
+          }
+        ],
+        "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+        "created": "2026-10-06T15:58:52.097637Z",
+        "modified": "2026-10-06T15:58:53.409923Z",
+        "env": {
+          "debug": true,
+          "input": {
+            "params": {},
+            "records": []
+          },
+          "result": {
+            "Error message": "\n CS-INTEGRATION-5: Error occurred while executing the connector action ERROR :: 401 Client Error: Unauthorized for url: https://localhost/api/3/alerts :: {'message': 'An authentication exception occurred.'} :: Url: https://localhost/api/3/alerts Call for URL: https://localhost:9595/integration/execute/ failed with status code 400 \n"
+          },
+          "request": {
+            "uri": "https://fortisoar.example.com/api/triggers/1/notrigger/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "data": [],
+            "method": "POST",
+            "baseUri": "https://fortisoar.example.com",
+            "headers": {},
+            "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce"
+          },
+          "task_id": "e45bf383-4e42-41e5-ab76-b0b74648a371",
+          "auth_info": {
+            "auth_method": "CS HMAC"
+          },
+          "resources": {},
+          "__schedule": {
+            "email": null
+          },
+          "audit_info": {
+            "cyops_playbook_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+            "cyops_playbook_name": "Refresh Latest Alert Details"
+          },
+          "globalMock": false,
+          "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+          "last_run_at": null,
+          "useMockOutput": false,
+          "mockPlaybookId": null
+        },
+        "status": "failed",
+        "parent_wf": null,
+        "tags": "",
+        "metadata": {
+          "id": 1824,
+          "template_iri": "/api/3/workflows/3106d4a5-7143-515d-8ef5-aedc1b55ec7c",
+          "wf_modified": "2026-10-06T15:58:18Z",
+          "metadata": {
+            "groups": [],
+            "routes": [
+              {
+                "@id": "/api/3/workflow_routes/89da3238-f9a3-5b62-8697-3e53861c9a63",
+                "name": "Fetch Alert -> Read Full Alert",
+                "uuid": "89da3238-f9a3-5b62-8697-3e53861c9a63",
+                "@type": "WorkflowRoute",
+                "group": null,
+                "label": null,
+                "isExecuted": false,
+                "sourceStep": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98",
+                "targetStep": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff"
+              },
+              {
+                "@id": "/api/3/workflow_routes/93a7b29b-fd3f-56ad-bf78-4f5078f4f27d",
+                "name": "Read Full Alert -> Keep Severity",
+                "uuid": "93a7b29b-fd3f-56ad-bf78-4f5078f4f27d",
+                "@type": "WorkflowRoute",
+                "group": null,
+                "label": null,
+                "isExecuted": false,
+                "sourceStep": "/api/3/workflow_steps/58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff",
+                "targetStep": "/api/3/workflow_steps/241070e5-a26c-569e-8143-2777411010ac"
+              },
+              {
+                "@id": "/api/3/workflow_routes/d189f68d-a2fa-5b53-b0bc-8c356b571a50",
+                "name": "Start -> Fetch Alert",
+                "uuid": "d189f68d-a2fa-5b53-b0bc-8c356b571a50",
+                "@type": "WorkflowRoute",
+                "group": null,
+                "label": null,
+                "isExecuted": false,
+                "sourceStep": "/api/3/workflow_steps/d7e230f9-8429-5f83-bb43-bd75cc150af6",
+                "targetStep": "/api/3/workflow_steps/2b9a55f1-331a-5e08-b392-847853da0c98"
+              }
+            ],
+            "trigger_step_type": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62"
+          }
+        },
+        "debug": true,
+        "peer_details": {},
+        "user": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+        "node_name": "soar",
+        "@type": "Workflow"
+      }
+    }
+  ]
+}

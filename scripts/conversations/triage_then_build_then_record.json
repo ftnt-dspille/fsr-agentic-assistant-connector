@@ -1,0 +1,32 @@
+{
+  "name": "triage_then_build_then_record",
+  "why": [
+    "4f follow-up #3, case (a) -- THE interleave. Analysts do not work in one",
+    "mode: they read the record, hunt, author something, then come back and ask",
+    "about the record again. Session sess-v6uv6x15 died at exactly this point.",
+    "",
+    "The trap is structural, not stylistic. TRIAGE_ONLY_TOOLS and",
+    "BUILD_ONLY_TOOLS are mutually exclusive slices and the intent latch flips",
+    "on the build-from-triage handoff -- so by turn 3 the agent is in the build",
+    "slice and can no longer call the tools that read the alert it is still",
+    "mounted on. The failure is not a crash; it is the agent answering a",
+    "question about the record from nothing, or refusing a question it has the",
+    "context to answer.",
+    "",
+    "Turn 3 is deliberately answerable FROM THE MOUNTED ENTITY ALONE -- the",
+    "widget puts those fields in context every turn -- so a correct agent needs",
+    "no tool at all. That keeps the grader honest offline: we assert the answer",
+    "is grounded and not a refusal, never that a specific tool was called."
+  ],
+  "intent": "triage",
+  "persona": "none",
+  "module": "alerts",
+  "record": "alert_c2_exfil",
+  "steps": [
+    {"user": "Walk me through this alert -- what is it and how bad is it?"},
+    {"intent": "build",
+     "user": "Right. Build me a playbook that automates the containment you just described."},
+    {"intent": "build",
+     "user": "Before I save that -- what was the source IP on this alert again, and what severity is it set to?"}
+  ]
+}

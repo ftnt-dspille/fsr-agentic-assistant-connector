@@ -1,0 +1,95 @@
+{
+  "name": "ztpf_build_profile_from_similar",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_profiles",
+  "persona": "fixture",
+  "records": "ztpf_profile_builder",
+  "mount": {
+    "module": "ztpf_automation_profiles",
+    "uuid": "f12f19b5-b037-5256-890f-285fa76acc68"
+  },
+  "why": [
+    "The profile-builder's core move: an empty profile, and an ask that only makes sense if the agent LOOKS at the profiles that already exist. The box has 7.4.12, 7.6.6 and 7.6.7 upgrade profiles; the right build copies their shape (status capture, upgrade, status capture, diff) with the firmware set to 7.6.8.",
+    "The captured 7.6.x profiles carry two routing-table steps whose action link is EMPTY on the real box, and no routing-table collector action exists. Copying those steps as-is is acceptable (the siblings are that way), but only with the gap told to the analyst (`reports`); a link to an action that does not exist is never acceptable (`links_resolve` with `allow_empty_links`). First run: the model found there was no collector, copied the shape, and flagged it -- the behaviour wanted.",
+    "`repeat` on the resume approves card after card: one approval per step record.",
+    "Graded on the WORLD (`world_after`): the bundle is `writable`, each approved card applies, and the resulting records are read back. Card-level graders pass a build with an invented action link, duplicate stepSequence, or a copied firmware version; this does not."
+  ],
+  "may_change_mounted": true,
+  "may_change": [
+    {
+      "module": "ztpf_automation_profile_steps",
+      "any": true
+    }
+  ],
+  "steps": [
+    {
+      "user": "Set up the steps for this profile. It should work like our other firmware upgrade profiles, just targeting 7.6.8."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 12
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "search_module_records"
+      ]
+    },
+    "world_after": {
+      "module": "ztpf_automation_profile_steps",
+      "where": {
+        "ztpfAutomationProfiles.uuid": "f12f19b5-b037-5256-890f-285fa76acc68"
+      },
+      "count": {
+        "min": 3,
+        "max": 8
+      },
+      "contiguous": "stepSequence",
+      "links_resolve": [
+        "ztpfAutomationActions"
+      ],
+      "order": [
+        {
+          "ztpfAutomationActions.name~": "Status"
+        },
+        {
+          "ztpfAutomationActions.name": "Upgrade Firmware from Planning Sheet Target Firmware"
+        },
+        {
+          "ztpfAutomationActions.name~": "Status"
+        }
+      ],
+      "contains": [
+        {
+          "ztpfAutomationActions.name": "Upgrade Firmware from Planning Sheet Target Firmware",
+          "stepARGS~": "7.6.8"
+        }
+      ],
+      "absent": [
+        {
+          "stepARGS~": "7.6.7"
+        },
+        {
+          "stepARGS~": "7.6.6"
+        }
+      ],
+      "min_writes": 3,
+      "allow_empty_links": true
+    },
+    "reports": {
+      "any_of": [
+        "no action",
+        "not linked",
+        "unlinked",
+        "no linked action",
+        "without an action",
+        "no collector"
+      ]
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "name": "designer_enrich_approve_block_ticket",
+  "why": "The live .159 session (10-08): empty designer, FortiGate + ServiceNow Disconnected.",
+  "playbook": "designer_empty_playbook.yaml",
+  "records": "soc_alert_surface_disconnected",
+  "goal": "From the empty playbook open in the designer, build a playbook that runs on an alert: enrich the alert's source IP, ask an analyst to approve, then block the IP on the FortiGate, then open a ticket in ServiceNow. You know FortiGate and ServiceNow are set up on this box even if their connection is down right now; you still want the steps in the playbook.",
+  "requirements": [
+    {
+      "kind": "step_type_present",
+      "type": "manual_input",
+      "note": "approval step"
+    },
+    {
+      "kind": "connector_op",
+      "connector": "fortigate-firewall",
+      "operation_contains": "block",
+      "note": "FortiGate block"
+    },
+    {
+      "kind": "connector_op",
+      "connector": "servicenow",
+      "operation_contains": "incident",
+      "note": "ServiceNow ticket"
+    },
+    {
+      "kind": "step_type_present",
+      "type": "connector",
+      "min": 3,
+      "note": "enrichment + block + ticket"
+    },
+    {
+      "kind": "arg_text_absent",
+      "type": "start",
+      "contains": "workflows",
+      "note": "trigger is not the designer's own record"
+    },
+    {
+      "kind": "arg_text_absent",
+      "type": "start_on_create",
+      "contains": "workflows",
+      "note": "trigger is not the designer's own record"
+    }
+  ],
+  "intent": "build",
+  "max_turns": 10
+}

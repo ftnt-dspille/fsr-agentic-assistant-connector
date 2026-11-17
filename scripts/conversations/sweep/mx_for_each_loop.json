@@ -1,0 +1,26 @@
+{
+  "name": "mx_for_each_loop",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "for_each_loop",
+  "why": [
+    "Product-path twin of eval-matrix task 'for_each_loop'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook that builds a static list of three alert payloads in a set_variable step, then runs a for_each loop over the list using create_record on the alerts module. Each iteration uses vars.item to populate fields. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "for_each_loop"
+  }
+}

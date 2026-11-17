@@ -1,0 +1,13 @@
+{
+  "ok": false,
+  "errors": [
+    {
+      "code": "no_trigger",
+      "message": "playbook 'B' has no 'start' step",
+      "path": "playbooks[0]",
+      "suggestion": "add `- id: start\\n  type: start` as the first step",
+      "near": null,
+      "severity": "error"
+    }
+  ]
+}

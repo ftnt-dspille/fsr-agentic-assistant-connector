@@ -1,0 +1,6 @@
+{
+ "name": "lifecycle_enhance_rename_step",
+ "why": "Continue/enhance leg: modify an existing playbook open in the designer. Inherits the framework's enhance_rename_step task (prompt + ir_assertions + before-state) so the sim runs the authoritative enhance scenario and grades the delivered edit, preserving untouched steps.",
+ "inherit_matrix": "enhance_rename_step",
+ "records": "soc_alert_surface_servicenow"
+}

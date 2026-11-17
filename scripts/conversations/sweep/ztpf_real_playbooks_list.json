@@ -1,0 +1,35 @@
+{
+  "name": "ztpf_real_playbooks_list",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. FIXME from the engineer: do not show playbooks that are disabled or have 'deprecated' in the title. This world has an inactive 'Queue Device Actions - deprecated'."
+  ],
+  "steps": [
+    {
+      "user": "What playbooks can I run on this device?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": [
+      "list_module_playbooks"
+    ],
+    "reports": {
+      "all_of": [
+        "Create RunGroup and Execute Steps",
+        "Add Steps to Device from Profile"
+      ],
+      "none_of": [
+        "Queue Device Actions"
+      ]
+    }
+  }
+}

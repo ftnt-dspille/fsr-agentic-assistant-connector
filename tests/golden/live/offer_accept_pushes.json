@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "session_id": "live-harness-card-1785680206",
+  "turn_id": "d1071dd61b8244198a600cb4041329e6",
+  "stop_reason": "end_turn",
+  "contract_version": "2.8.0",
+  "transcript": [
+    {
+      "type": "info_card",
+      "id": "pushed-offer",
+      "variant": "playbook_pushed",
+      "title": "Saved \u201cZZ FSRPB Smoke Offer 6f514e\u201d",
+      "summary": "Saved this investigation as a re-runnable playbook (6 steps).",
+      "blocks": [
+        {
+          "kind": "text",
+          "text": "Saved this investigation as a re-runnable playbook (6 steps)."
+        },
+        {
+          "kind": "link",
+          "label": "Open in Playbook Designer",
+          "url": "/playbooks/53c0249c-a78f-5e37-9f0f-f2baced210a5"
+        }
+      ],
+      "url": "/playbooks/53c0249c-a78f-5e37-9f0f-f2baced210a5",
+      "collection_uuid": "0bac2744-5d51-5e95-90a5-1235a7bffffc",
+      "workflow_uuids": [
+        "53c0249c-a78f-5e37-9f0f-f2baced210a5"
+      ]
+    },
+    {
+      "type": "text",
+      "text": "Done -- I saved this investigation as the playbook \u201cZZ FSRPB Smoke Offer 6f514e\u201d. Open it here: [\u201cZZ FSRPB Smoke Offer 6f514e\u201d](/playbooks/53c0249c-a78f-5e37-9f0f-f2baced210a5). You can also run it from the playbook library the next time this pattern shows up."
+    }
+  ],
+  "tags": {
+    "session_id": "live-harness-card-1785680206",
+    "resume": "playbook_offer_accept",
+    "saved": true,
+    "code": null
+  },
+  "error": null
+}

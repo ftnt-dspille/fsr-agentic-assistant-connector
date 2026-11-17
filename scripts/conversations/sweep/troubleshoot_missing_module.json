@@ -1,0 +1,35 @@
+{
+  "name": "troubleshoot_missing_module",
+  "category": "troubleshoot",
+  "intent": "build",
+  "playbook": "broken_create_record_missing_module.yaml",
+  "why": [
+    "Diagnose-before-fix on a bug that is visible in the YAML alone.",
+    "Emitting a fix first and rationalising after is the failure -- the",
+    "ordering matters, not merely that a fix appeared.",
+    "`called` accepts the verifying edit/verify tools: edit_playbook runs verify_enhancement on the result, so a fix through it IS a checked fix."
+  ],
+  "steps": [
+    {
+      "user": "This playbook runs but never creates the record. Work out why and fix it."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "diagnosed_first": true,
+    "yaml_compiles": true,
+    "called": {
+      "any_of": [
+        "validate_yaml",
+        "analyze_playbook",
+        "compile_yaml",
+        "diagnose_yaml_against_pb_execution",
+        "verify_playbook",
+        "verify_enhancement",
+        "edit_playbook"
+      ]
+    }
+  }
+}

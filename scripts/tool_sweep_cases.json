@@ -1,0 +1,432 @@
+{
+  "_doc": [
+    "Behavioural cases for the T0 offline tool sweep (scripts/tool_sweep.py).",
+    "Case format matches tool_probe.py so cases port between the offline sweep",
+    "and the live probe. Every `expect` clause is optional.",
+    "",
+    "`box_required` lists tools that CANNOT execute without a real appliance.",
+    "They are not untested -- the contract invariants (R/N/G/I/S) still run",
+    "against every one of them -- but a behavioural case here would either need",
+    "a box (defeating the tier) or assert a connection error (asserting nothing",
+    "about the tool). Listing them explicitly is what keeps the coverage number",
+    "honest: 'uncovered' then means 'offline-testable but untested', which is a",
+    "real backlog, instead of being permanently inflated by ~35 box tools."
+  ],
+
+  "box_required": [
+    "create_record", "update_record",
+    "run_op", "run_playbook", "resume_playbook", "push_playbook",
+    "why_did_playbook_fail",
+    "test_template",
+    "diagnose_yaml_against_pb_execution",
+    "build_playbook_from_trace", "verify_playbook", "verify_enhancement",
+    "dry_run_playbook", "step_through_playbook",
+    "siem_events_for_incident", "siem_raw_query",
+    "faz_get_alerts", "faz_raw_query", "faz_event_summary",
+    
+    "list_picklists", "picklist_for_field", "resolve_picklist_value",
+    "connector_health", "edr_host", "faz_search_by_serial", "faz_search_device_events", "faz_search_ip", "find_record_actions", "fmg_get_device_list", "fmg_get_device_status", "fmg_get_ha_status", "fmg_get_policy_package_status", "siem_search_host", "siem_search_ip", "siem_search_user"
+  ],
+
+  "cases": [
+    {
+      "name": "compile_yaml: a valid fixture compiles",
+      "tool": "compile_yaml",
+      "args_from_fixture": {"yaml_text": "marker_emitter.yaml"},
+      "expect": {"ok": true, "has_keys": ["summary"]}
+    },
+    {
+      "name": "compile_yaml: garbage YAML fails cleanly, no traceback",
+      "tool": "compile_yaml",
+      "args": {"yaml_text": "this: [is: not: a: playbook"},
+      "expect": {"ok": false}
+    },
+    {
+      "name": "validate_yaml: a valid fixture validates",
+      "tool": "validate_yaml",
+      "args_from_fixture": {"yaml_text": "marker_emitter.yaml"},
+      "expect": {"ok": true}
+    },
+    {
+      "name": "validate_yaml: missing module on create_record is caught",
+      "tool": "validate_yaml",
+      "args_from_fixture": {"yaml_text": "broken_create_record_missing_module.yaml"},
+      "expect": {"no_error": false}
+    },
+    {
+      "name": "analyze_playbook: reports on a real fixture",
+      "tool": "analyze_playbook",
+      "args_from_fixture": {"yaml_text": "marker_emitter.yaml"},
+      "expect": {"ok": true}
+    },
+    {
+      "name": "analyze_playbook: NUL byte does not kill the read path",
+      "tool": "analyze_playbook",
+      "args": {"yaml_text": "name: t\u0000\nworkflows: []\n"},
+      "expect": {}
+    },
+    {
+      "name": "find_connector: resolves a vendor by human phrasing",
+      "tool": "find_connector",
+      "args": {"q": "FortiGate"},
+      "expect": {"contains": ["fortigate"], "min_count": 1}
+    },
+    {
+      "name": "find_connector: multi-word query still resolves (regression)",
+      "tool": "find_connector",
+      "args": {"q": "FortiSOAR Utilities"},
+      "expect": {"min_count": 1}
+    },
+    {
+      "name": "find_operation: unknown connector explains itself",
+      "tool": "find_operation",
+      "args": {"connector": "definitely-not-a-connector"},
+      "expect": {"has_keys": ["suggestion"]}
+    },
+    {
+      "name": "get_step_type: a wrong name yields suggestions, not a crash",
+      "tool": "get_step_type",
+      "args": {"name": "Create Record"},
+      "expect": {"ok": false, "code": "not_found", "has_keys": ["suggestions"]}
+    },
+    {
+      "name": "get_step_type: a real step type resolves",
+      "tool": "get_step_type",
+      "args": {"name": "create_record"},
+      "expect": {"no_error": true}
+    },
+    {
+      "name": "find_jinja_filter: a known filter is found",
+      "tool": "find_jinja_filter",
+      "args": {"q": "upper"},
+      "expect": {"min_count": 1, "contains": ["upper"]}
+    },
+    {
+      "name": "get_filter_examples: returns signature + examples",
+      "tool": "get_filter_examples",
+      "args": {"name": "upper"},
+      "expect": {"has_keys": ["signature", "examples"]}
+    },
+    {
+      "name": "find_jinja_pattern: a common pattern resolves",
+      "tool": "find_jinja_pattern",
+      "args": {"q": "loop over records"},
+      "expect": {}
+    },
+    {
+      "name": "search_playbooks: the corpus answers a broad query",
+      "tool": "search_playbooks",
+      "args": {"q": "alert"},
+      "expect": {"min_count": 1}
+    },
+    {
+      "name": "propose_http_fallback: unknown vendor degrades with guidance",
+      "tool": "propose_http_fallback",
+      "args": {"vendor": "acme", "intent": "block ip"},
+      "expect": {"ok": false, "has_keys": ["suggestions"]}
+    },
+    {
+      "name": "emit_decision_step: builds a decision step",
+      "tool": "emit_decision_step",
+      "args": {
+        "name": "Severity gate",
+        "conditions": [{"label": "high", "condition": "{{ vars.sev == 'High' }}"}],
+        "default_branch": "low"
+      },
+      "expect": {}
+    },
+    {
+      "name": "emit_choice_card: renders a choice halt",
+      "tool": "emit_choice_card",
+      "args": {
+        "id": "sweep-choice-1",
+        "prompt": "Which connector should the block step use?",
+        "options": [{"id": "fgt", "label": "FortiGate"}, {"id": "edr", "label": "FortiEDR"}]
+      },
+      "expect": {}
+    },
+    {
+      "name": "emit_capability_gap_card: renders a gap card",
+      "tool": "emit_capability_gap_card",
+      "args": {
+        "id": "sweep-gap-1",
+        "missing": "FortiGate connector configuration",
+        "why": "no configured instance to run block_ip against",
+        "fix_steps": ["Add a FortiGate configuration", "Re-run the playbook"],
+        "resume": "retry the block step"
+      },
+      "expect": {}
+    },
+    {
+      "name": "emit_playbook_offer: refuses an offer with no recorded trace",
+      "tool": "emit_playbook_offer",
+      "args": {"id": "sweep-offer-1", "summary": "test offer"},
+      "expect": {"ok": false, "code": "empty_trace"}
+    },
+    {
+      "name": "get_op_schema: returns the grounded op documentation",
+      "tool": "get_op_schema",
+      "args": {"connector": "fortigate-firewall", "op": "block_ip"},
+      "expect": {"has_keys": ["markdown", "op_name"], "contains": ["block_ip"]}
+    },
+    {
+      "name": "emit_action_card: bad op args are rejected against the real schema",
+      "tool": "emit_action_card",
+      "args": {
+        "id": "sweep-card-1",
+        "connector": "fortigate-firewall",
+        "operation": "block_ip",
+        "summary": "Block 1.2.3.4",
+        "args": {"definitely_not_a_param": "1.2.3.4"},
+        "editable_fields": ["definitely_not_a_param"]
+      },
+      "expect": {"ok": false, "code": "bad_params", "has_keys": ["suggestions"]}
+    },
+    {
+      "name": "emit_manual_input: a malformed field is named precisely",
+      "tool": "emit_manual_input",
+      "args": {
+        "id": "sweep-mi-1",
+        "workflow_run_iri": "/api/3/workflow_executions/00000000-0000-0000-0000-000000000000",
+        "question": "Approve this containment?",
+        "fields": [{"name": "reason", "type": "text"}]
+      },
+      "expect": {"ok": false, "code": "invalid_tool_args", "contains": ["label"]}
+    },
+    {
+      "name": "emit_enhancement_offer: a forged verified_id cannot be redeemed",
+      "tool": "emit_enhancement_offer",
+      "args": {
+        "id": "sweep-enh-1",
+        "summary": "add a step",
+        "verified_id": "not-a-real-verified-id"
+      },
+      "expect": {"ok": false, "code": "unknown_verified_id"}
+    },
+    {
+      "name": "edit_playbook: no open playbook is a typed refusal, not a crash",
+      "tool": "edit_playbook",
+      "args": {"operations": [{"op": "remove_step", "name": "Start"}]},
+      "expect": {"ok": false, "code": "no_open_playbook"}
+    },
+    {
+      "name": "find: a kind outside the vocabulary is refused before the body runs",
+      "tool": "find",
+      "args": {
+        "kind": "nonsense"
+      },
+      "expect": {
+        "ok": false,
+        "code": "invalid_tool_args"
+      }
+    },
+    {
+      "name": "find: the jinja catalogue answers offline",
+      "tool": "find",
+      "args": {
+        "kind": "jinja",
+        "query": "json"
+      },
+      "expect": {
+        "has_keys": [
+          "results"
+        ],
+        "contains": [
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "find_step_examples: an unknown step type is an empty list, not a crash",
+      "tool": "find_step_examples",
+      "args": {
+        "step_type": "no_such_step_type_xyz"
+      },
+      "expect": {
+        "is_list": true
+      }
+    },
+    {
+      "name": "picklist: a known list returns its items",
+      "tool": "picklist",
+      "args": {
+        "name": "Severity"
+      },
+      "expect": {
+        "has_keys": [
+          "items"
+        ],
+        "contains": [
+          "Critical"
+        ]
+      }
+    },
+    {
+      "name": "picklist: an unknown list says so and suggests",
+      "tool": "picklist",
+      "args": {
+        "name": "NoSuchPicklistXyz"
+      },
+      "expect": {
+        "has_keys": [
+          "near"
+        ],
+        "contains": [
+          "unknown_picklist"
+        ]
+      }
+    },
+    {
+      "name": "emit_card: a card type outside the vocabulary is refused",
+      "tool": "emit_card",
+      "args": {
+        "card_type": "nonsense",
+        "payload": {}
+      },
+      "expect": {
+        "ok": false,
+        "code": "invalid_tool_args"
+      }
+    },
+    {
+      "name": "compose_playbook: a one-step plan compiles to YAML",
+      "tool": "compose_playbook",
+      "args": {
+        "name": "sweep",
+        "steps": [
+          {
+            "kind": "set_variable",
+            "name": "x",
+            "vars": {
+              "a": "1"
+            }
+          }
+        ]
+      },
+      "expect": {
+        "ok": true,
+        "has_keys": [
+          "yaml"
+        ]
+      }
+    },
+    {
+      "name": "compose_playbook: an unknown step key is named precisely",
+      "tool": "compose_playbook",
+      "args": {
+        "name": "sweep",
+        "steps": [
+          {
+            "id": "a",
+            "type": "set_variable"
+          }
+        ]
+      },
+      "expect": {
+        "ok": false,
+        "code": "bad_plan"
+      }
+    },
+    {
+      "name": "plan_playbook: a resolvable step is ready to build",
+      "tool": "plan_playbook",
+      "args": {
+        "steps": [
+          {
+            "purpose": "set a variable",
+            "type": "set_variable"
+          }
+        ]
+      },
+      "expect": {
+        "ok": true,
+        "has_keys": [
+          "ready_to_build"
+        ]
+      }
+    },
+    {
+      "name": "plan_playbook: no steps is refused with a reason",
+      "tool": "plan_playbook",
+      "args": {
+        "steps": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "no_steps"
+      }
+    },
+    {
+      "name": "search_module_records: no FSR configured answers the partial shape (W4)",
+      "tool": "search_module_records",
+      "args": {"module": "alerts"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "get_record: no FSR configured answers the partial shape (W4)",
+      "tool": "get_record",
+      "args": {"module": "alerts", "uuid": "00000000-0000-0000-0000-000000000000"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "list_configured_connectors: no FSR configured answers the partial shape (W4)",
+      "tool": "list_configured_connectors",
+      "args": {},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "siem_search: no FSR configured answers the partial shape (W4)",
+      "tool": "siem_search",
+      "args": {"by": "ip", "value": "203.0.113.9"},
+      "expect": {"ok": false, "code": "no_live_fsr", "partial": true}
+    },
+    {
+      "name": "faz_search: no FSR configured answers the partial shape (W4)",
+      "tool": "faz_search",
+      "args": {"by": "ip", "value": "203.0.113.9"},
+      "expect": {"ok": false, "code": "no_live_fsr", "partial": true}
+    },
+    {
+      "name": "fmg_device: no FSR configured answers the partial shape (W4)",
+      "tool": "fmg_device",
+      "args": {"by": "list"},
+      "expect": {"ok": false, "code": "no_live_fsr", "partial": true}
+    },
+    {
+      "name": "find_containment_actions: no FSR configured answers the partial shape (W4)",
+      "tool": "find_containment_actions",
+      "args": {"target_type": "ip"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "find_enrichment_actions: no FSR configured answers the partial shape (W4)",
+      "tool": "find_enrichment_actions",
+      "args": {"target_type": "ip"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "get_run_env: no FSR configured answers the partial shape (W4)",
+      "tool": "get_run_env",
+      "args": {"pb_execution": "1"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "list_module_playbooks: no FSR configured answers the partial shape (W4)",
+      "tool": "list_module_playbooks",
+      "args": {"module": "alerts"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "list_playbook_runs: no FSR configured answers the partial shape (W4)",
+      "tool": "list_playbook_runs",
+      "args": {},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "healthcheck_connector: no FSR configured answers the partial shape (W4)",
+      "tool": "healthcheck_connector",
+      "args": {"name": "virustotal"},
+      "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    }
+  ]
+}

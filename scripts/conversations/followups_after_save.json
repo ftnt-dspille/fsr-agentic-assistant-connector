@@ -1,0 +1,28 @@
+{
+  "name": "followups_after_save",
+  "why": [
+    "4f follow-up #3, case (d) -- the conversation does not end at the save.",
+    "Every build fixture stops at the offer, so the entire after-the-save",
+    "surface is untested: the analyst saves, then asks what it does, then asks",
+    "for a change.",
+    "",
+    "The specific hazard is that the save is a state transition the agent can",
+    "lose. After it, the playbook of record is the SAVED one, and turn 3's edit",
+    "must be a delta against that -- not against the pre-save draft, and not a",
+    "fragment. The widget writes the last ```yaml fence straight over the open",
+    "record, so a turn-3 answer that omits the earlier steps DELETES them; that",
+    "is the same silent-loss class HARDEN-1 gates at write time, arriving here",
+    "from the conversation side.",
+    "",
+    "Turn 2 also pins the cheaper regression: having just written the playbook,",
+    "the agent must answer a question about it without asking to be handed it."
+  ],
+  "intent": "build",
+  "persona": "none",
+  "playbook": "broken_create_record_missing_module.yaml",
+  "steps": [
+    {"user": "This playbook never creates the record. Fix it and give me the corrected playbook."},
+    {"user": "Saved. Remind me what this playbook does now, step by step."},
+    {"user": "Add a step at the end that sets a variable named notified to true. Keep everything else exactly as it is."}
+  ]
+}

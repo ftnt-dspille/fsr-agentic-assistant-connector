@@ -1,0 +1,59 @@
+collection: 06 - IRP - Case Management
+description: SLA management and other case management playbooks
+visible: true
+playbooks:
+- name: Incident - [04] Check for SLA violations
+  description: Periodically check Acknowledgement SLA violations of the Open Incidents.
+  is_active: true
+  trigger_step_id: start
+  steps:
+  - type: find_record
+    name: Fetch Open Incidents
+    step_variables: []
+    module: incidents?$limit=30
+    query:
+      sort: []
+      limit: 30
+      logic: OR
+      filters:
+      - type: datetime
+        field: ackDueDate
+        value: 'false'
+        operator: isnull
+      - type: datetime
+        field: resDueBy
+        value: 'false'
+        operator: isnull
+      - type: object
+        field: slaState
+        value: /api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818
+        _value:
+          '@id': /api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818
+          itemValue: Awaiting Action
+        operator: eq
+      - type: object
+        field: resSla
+        value: /api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818
+        _value:
+          '@id': /api/3/picklists/72979f64-e8b9-4888-a965-957e0ec24818
+          itemValue: Awaiting Action
+        operator: eq
+      __selectFields:
+      - ackDueDate
+      - resDueBy
+    checkboxFields: true
+    next: update_sla_status
+  - type: start
+    name: Start
+    step_variables: []
+    next: fetch_open_incidents
+  - type: workflow_reference
+    name: Update SLA Status
+    apply_async: true
+    step_variables: []
+    incident_data: '{{vars.item}}'
+    incident_severity: '{{vars.item.severity.itemValue}}'
+    workflowReference: /api/3/workflows/3b2b6e73-950f-47be-a112-2a2497a640a2
+    for_each:
+      item: '{{vars.steps.Fetch_Open_Incidents}}'
+      condition: ''

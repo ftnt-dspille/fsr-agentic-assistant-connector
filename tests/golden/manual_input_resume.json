@@ -1,0 +1,17 @@
+{
+  "method": "POST",
+  "endpoint": "/api/wf/api/workflows/682450/wfinput_resume/",
+  "request_body": {
+    "input": {
+      "probe_token": "tok-1780058087-0"
+    },
+    "step_iri": "/api/3/workflow_steps/8fc26827-d253-543f-a9a8-481931f8d846",
+    "step_id": 5706661,
+    "manual_input_id": 420
+  },
+  "status": 200,
+  "response": {
+    "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+    "message": "Awaiting Playbook resumed successfully."
+  }
+}

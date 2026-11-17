@@ -1,0 +1,33 @@
+{
+ "name": "ka_policy_would_block_c2",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_c2_beacon_policy",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "why": [
+  "KNOWN-ANSWER policy row (must fire). TI names the destination a Cobalt Strike C2 and SIEM shows",
+  "beaconing: a true_positive verdict citing the TI lookup, then a block of the EXTERNAL address,",
+  "meets every check of block-external-ip. The card must carry would_act -- and still wait for a click."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert and give me your verdict. If it is malicious, stage a block of the external address on the FortiGate for my approval."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive"
+   ]
+  },
+  "policy_decided": {
+   "outcome": "would_act",
+   "rule": "block-external-ip"
+  }
+ }
+}

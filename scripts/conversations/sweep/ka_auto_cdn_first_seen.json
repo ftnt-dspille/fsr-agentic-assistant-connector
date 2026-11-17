@@ -1,0 +1,32 @@
+{
+ "name": "ka_auto_cdn_first_seen",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_cdn_first_seen",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e03"
+ },
+ "auto_triage": true,
+ "why": [
+  "AUTO-TRIAGE row (tier-1 phase A gate): a first-seen CDN edge, 0/94 engines.",
+  "The model must reach false_positive/benign and STAGE the close. Authorizing the",
+  "close is the autonomy policy's job: under the default shadow policy the staged",
+  "close waits in the Monitor as a one-click approval (needs_human), and runs",
+  "unattended only once the close-false-positive rule is promoted to enforce -- so",
+  "the queue holds a ready-to-approve close, not a re-investigation."
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "false_positive",
+    "benign"
+   ]
+  },
+  "escalates": {
+   "needs_human": true
+  }
+ }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "ztpf_add_step_to_profile",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_profiles",
+  "persona": "fixture",
+  "records": "ztpf_profile_builder",
+  "mount": {
+    "module": "ztpf_automation_profiles",
+    "uuid": "71737500-7b69-4f94-a532-dfeb53406b15"
+  },
+  "why": [
+    "Add ONE step to an existing 3-step profile, modeled on a neighbour: the 7.6.x profiles end with a diff of the pre/post captures. The 7.4.12 profile captures with Device System Data at steps 1 and 3, so the new diff step is step 4 and its stepARGS must point at steps 1 and 3 -- not the 1,4 it would copy from 7.6.7.",
+    "The existing three steps must be left in place (contiguous 1..4).",
+    "Graded on the WORLD (`world_after`): the bundle is `writable`, each approved card applies, and the resulting records are read back. Card-level graders pass a build with an invented action link, duplicate stepSequence, or a copied firmware version; this does not."
+  ],
+  "may_change_mounted": true,
+  "may_change": [
+    {
+      "module": "ztpf_automation_profile_steps",
+      "any": true
+    }
+  ],
+  "steps": [
+    {
+      "user": "Add a final step that diffs the device status from before and after the upgrade, the way our 7.6.x upgrade profiles do."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 4
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "world_after": {
+      "module": "ztpf_automation_profile_steps",
+      "where": {
+        "ztpfAutomationProfiles.uuid": "71737500-7b69-4f94-a532-dfeb53406b15"
+      },
+      "count": {
+        "min": 4,
+        "max": 4
+      },
+      "contiguous": "stepSequence",
+      "links_resolve": [
+        "ztpfAutomationActions"
+      ],
+      "order": [
+        {
+          "name": "Prerun Device Satus"
+        },
+        {
+          "name": "Upgrade Firmware to 7.4.12"
+        },
+        {
+          "name": "Postrun Device Satus"
+        },
+        {
+          "ztpfAutomationActions.name~": "Diff"
+        }
+      ],
+      "contains": [
+        {
+          "ztpfAutomationActions.name~": "Diff",
+          "stepARGS~": "1,3"
+        }
+      ],
+      "min_writes": 1
+    }
+  }
+}

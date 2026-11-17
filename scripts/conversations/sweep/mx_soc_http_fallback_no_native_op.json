@@ -1,0 +1,26 @@
+{
+  "name": "mx_soc_http_fallback_no_native_op",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "soc_http_fallback_no_native_op",
+  "why": [
+    "Product-path twin of eval-matrix task 'soc_http_fallback_no_native_op'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "We use Akamai but the FortiSOAR Akamai connector doesn't have a 'block_url' operation. I need to block a URL via their Network Lists API anyway. Build me a playbook with a manual_input step that takes a URL from the analyst, then makes the call using FortiSOAR's generic 'http' connector to POST against the Network Lists endpoint. The Authorization header should reference a workflow input parameter for the bearer token (the analyst will wire that via connector config or vars). Comment back on the triggering record with the API response status. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "soc_http_fallback_no_native_op"
+  }
+}

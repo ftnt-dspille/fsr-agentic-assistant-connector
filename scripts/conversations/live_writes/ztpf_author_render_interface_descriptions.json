@@ -1,0 +1,40 @@
+{
+  "name": "ztpf_author_render_interface_descriptions",
+  "category": "ztpf_author",
+  "intent": "triage",
+  "mount": {
+    "module": "ztpf_templates",
+    "uuid": "7d762bbe-580d-4618-b174-f76ed5823fcf"
+  },
+  "why": [
+    "The whole authoring loop, proven by its output: the chat writes a template that reads device data, saves it, and renders it on a device through 'Render Script - Template'.",
+    "The rendered text is compared with an expectation computed in plain Python from the same device's data, collected by a separate 'Get Metadata Source Data on Device' run. Offline, test_template rendered against an empty context and always passed.",
+    "The analyst has a different template open, so the render must run on the new one (runs_on); an update of the open template is rejected and fails the row."
+  ],
+  "steps": [
+    {
+      "user": "Create a new Text template named 'Live Writes - Physical Interface Descriptions', linked to the 'DeviceDB System Interfaces - Physical' metadata source so it gets data.dvmdb_ints_physical. It must output one `config system interface` block that ends with `end`. Inside it, for every physical interface whose ip address is not 0.0.0.0, sorted by name: `edit \"<name>\"`, then `set description \"<alias, or the name when there is no alias> on <device name>\"` (the device name is record.device.name), then `set allowaccess <the allowaccess values separated by spaces>` (allowaccess can be a list or a single string; leave the line out when it is empty), then `next`. Skip interfaces with no ip. Test it against the source's example data before saving."
+    },
+    {
+      "user": "Now render 'Live Writes - Physical Interface Descriptions' on a real device with the Render Script - Template playbook."
+    }
+  ],
+  "runs_on": [
+    {"module": "ztpf_templates", "name": "Live Writes - Physical Interface Descriptions"}
+  ],
+  "oracle": {
+    "name": "physical_interface_descriptions",
+    "source": "DeviceDB System Interfaces - Physical"
+  },
+  "expect": {
+    "called": ["test_template", "create_record", "run_playbook"],
+    "world_after": [
+      {
+        "module": "ztpf_templates",
+        "where": {"name": "Live Writes - Physical Interface Descriptions"},
+        "count": {"min": 1, "max": 1},
+        "contains": [{"ztpfMetadataSources~": "Physical"}]
+      }
+    ]
+  }
+}

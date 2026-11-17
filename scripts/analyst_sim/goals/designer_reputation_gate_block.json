@@ -1,0 +1,43 @@
+{
+  "name": "designer_reputation_gate_block",
+  "why": "Build, then refine: the analyst adds the decision after the first version.",
+  "playbook": "designer_empty_playbook.yaml",
+  "goal": "Build a playbook that runs when an alert is created and looks up the reputation of the alert's destination IP on VirusTotal. Once that exists, you also want it to block the IP on the FortiGate ONLY if the reputation came back malicious, and otherwise set the alert's severity to Low. Ask for the first part first, apply it, then ask for the rest as a follow-up.",
+  "requirements": [
+    {
+      "kind": "connector_op",
+      "connector": "virustotal",
+      "note": "VirusTotal lookup"
+    },
+    {
+      "kind": "step_type_present",
+      "type": "decision",
+      "note": "malicious gate"
+    },
+    {
+      "kind": "connector_op",
+      "connector": "fortigate-firewall",
+      "operation_contains": "block",
+      "note": "FortiGate block"
+    },
+    {
+      "kind": "step_type_present",
+      "type": "update_record",
+      "note": "severity to Low on the else branch"
+    },
+    {
+      "kind": "arg_text_absent",
+      "type": "start",
+      "contains": "workflows",
+      "note": "trigger is not the designer's own record"
+    },
+    {
+      "kind": "arg_text_absent",
+      "type": "start_on_create",
+      "contains": "workflows",
+      "note": "trigger is not the designer's own record"
+    }
+  ],
+  "intent": "build",
+  "max_turns": 10
+}

@@ -1,0 +1,51 @@
+# DELIBERATELY BROKEN fixture -- the S5/S6/S7 troubleshooting cluster.
+#
+# This is the "user's broken playbook" raw material: a create_record whose
+# record body is written under a key the step does not take (`resource_fields:`
+# instead of `fields:`). Live-found while running the S1 build-persona eval --
+# the model authors this class of slip ~1-in-a-handful of runs.
+#
+# The insidious part this fixture pins: the playbook COMPILES CLEAN unless the
+# linter checks arguments per handler. The misnamed key is dropped, so Emit runs
+# with empty arguments and creates nothing -- yet the run can still reach
+# `finished`, failing only with `insert_data() takes at least 2 positional
+# arguments (1 given)`.
+#
+# The resolver's per-handler argument check flags it as `unknown_param`.
+# `tests/test_broken_fixtures_linted.py` is the negative test that holds the
+# linter to it. NOTE: the check lives in the RESOLVER, not the parser -- since
+# step arguments were hoisted to the step's top level there is no "leftover key"
+# for the parser to notice, so any lint path that skips the resolver will pass
+# this file.
+#
+# Scenario uses:
+#   S5 -- assistant's diagnosis must name the misnamed record-body key.
+#   S6 -- the proposed fix (`resource_fields:` -> `fields:`), applied, makes the
+#        playbook create the record and run.
+#   S7 -- the linter flags it before a push (this file + the negative test).
+#
+# The CORRECT shape is `eval_fixtures/marker_emitter.yaml`; diffing the two is
+# the fix.
+
+collection: ZZ FSRPB Eval Fixtures
+description: Throwaway fixtures for the build-persona eval harness. Safe to delete.
+visible: true
+playbooks:
+  - name: ZZ Eval Broken Create Record
+    description: create_record with a record body outside the arguments block (bad).
+    is_active: true
+    steps:
+      - name: Start
+        type: start
+        next: Emit
+        module: alerts
+        button_label: Emit marker
+
+      - name: Emit
+        type: create_record
+        # BUG: the record body is written under `resource_fields:`, which is
+        # not an argument `create_record` takes. FSR drops it, Emit runs with no
+        # data, and no record is created.
+        resource_fields:
+          description: ALPHA
+        module: alerts

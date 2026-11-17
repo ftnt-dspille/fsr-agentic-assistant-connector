@@ -1,0 +1,30 @@
+{
+  "name": "triage_specific_field_question",
+  "category": "triage",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "A narrow factual question. The failure this catches is the",
+    "confabulation shape -- plausible prose about a device that is not the",
+    "one on the record."
+  ],
+  "steps": [
+    {
+      "user": "Which device reported this, and what rule fired?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "answers_from_record": {
+      "reportingDeviceName": "FGT_Edge",
+      "ruleName": "FortiGuard Malware IP"
+    },
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "ztpf_explain_profile_quick_action",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_profiles",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_automation_profiles",
+    "uuid": "dbe7bdbe-574b-4003-b7e0-dae89b2dd926"
+  },
+  "why": [
+    "The 'Explain this profile' button as it ships: the profiles persona's quickActions prompt, copied verbatim (tests/test_ztpf_explain_profile_world.py fails if the two drift). Same world and graders as ztpf_real_explain_profile, which keeps the analyst's original, narrower wording as the hard case."
+  ],
+  "steps": [
+    {
+      "user": "Explain this profile: walk through its steps in order. For each, say what its action actually does, what stepARGS it passes, and how its latest run went."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reads": {
+      "required": [
+        "ztpf_automation_actions",
+        "ztpf_device_automation_steps"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "dvmdb_vdom"
+      ],
+      "any_of": [
+        "parse yaml",
+        "parsing yaml",
+        "parse the yaml",
+        "yaml pars",
+        "failed to parse"
+      ]
+    }
+  }
+}

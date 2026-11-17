@@ -1,0 +1,37 @@
+{
+  "name": "general_asset_open_work",
+  "category": "general",
+  "intent": "triage",
+  "module": "assets",
+  "persona": "fixture",
+  "records": "general_ops_surface",
+  "mount": {
+    "module": "assets",
+    "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51"
+  },
+  "why": [
+    "A cross-module pivot: open tasks for THIS asset live in `tasks`, linked by",
+    "`assets`. The completed and deferred tasks belong to another asset."
+  ],
+  "steps": [
+    {
+      "user": "What open work is there on this asset?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "search_module_records"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "Patch OpenSSL",
+        "EDR triage package",
+        "Rotate VPN service-account credentials"
+      ]
+    },
+    "no_unserved_reads": true
+  }
+}

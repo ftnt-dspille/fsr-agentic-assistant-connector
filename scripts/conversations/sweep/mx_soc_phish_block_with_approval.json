@@ -1,0 +1,26 @@
+{
+  "name": "mx_soc_phish_block_with_approval",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "soc_phish_block_with_approval",
+  "why": [
+    "Product-path twin of eval-matrix task 'soc_phish_block_with_approval'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook. Trigger: an alert is created in the alerts module tagged 'phishing'. Behavior: for every IP listed in the alert's `iPAddresses` field, look it up via the VirusTotal connector's ip-reputation operation. If any IP's reputation score is above 50, pause on a manual_input step that asks an analyst whether to block (options: 'Block', 'Skip'). On 'Block', call the FortiGate connector's address-block operation for each high-score IP. Either way, finish by adding a comment to the originating alert summarizing which IPs were scored and what action was taken. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "soc_phish_block_with_approval"
+  }
+}

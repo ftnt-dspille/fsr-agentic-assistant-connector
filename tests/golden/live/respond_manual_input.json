@@ -1,0 +1,197 @@
+{
+  "ok": true,
+  "session_id": "live-harness-card-1785680206",
+  "turn_id": "59e18d38d14b4983bce33ac02f781715",
+  "stop_reason": "end_turn",
+  "contract_version": "2.8.0",
+  "transcript": [
+    {
+      "type": "text",
+      "text": "Acknowled"
+    },
+    {
+      "type": "text",
+      "text": "ged"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " declined"
+    },
+    {
+      "type": "text",
+      "text": " manual"
+    },
+    {
+      "type": "text",
+      "text": "-input"
+    },
+    {
+      "type": "text",
+      "text": " gate"
+    },
+    {
+      "type": "text",
+      "text": " '"
+    },
+    {
+      "type": "text",
+      "text": "146"
+    },
+    {
+      "type": "text",
+      "text": "'."
+    },
+    {
+      "type": "text",
+      "text": " The"
+    },
+    {
+      "type": "text",
+      "text": " gated"
+    },
+    {
+      "type": "text",
+      "text": " step"
+    },
+    {
+      "type": "text",
+      "text": " will"
+    },
+    {
+      "type": "text",
+      "text": " not"
+    },
+    {
+      "type": "text",
+      "text": " proceed"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " Please"
+    },
+    {
+      "type": "text",
+      "text": " let"
+    },
+    {
+      "type": "text",
+      "text": " me"
+    },
+    {
+      "type": "text",
+      "text": " know"
+    },
+    {
+      "type": "text",
+      "text": " how"
+    },
+    {
+      "type": "text",
+      "text": " you"
+    },
+    {
+      "type": "text",
+      "text": " would"
+    },
+    {
+      "type": "text",
+      "text": " like"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " continue"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " investigation"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " if"
+    },
+    {
+      "type": "text",
+      "text": " you"
+    },
+    {
+      "type": "text",
+      "text": " want"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " take"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " other"
+    },
+    {
+      "type": "text",
+      "text": " actions"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 23402,
+      "output_tokens": 41,
+      "cost_usd": 0.002745,
+      "cache_read": 22272,
+      "cache_write": 0
+    }
+  ],
+  "tags": {
+    "session_id": "live-harness-card-1785680206",
+    "intent": "triage",
+    "resume": "manual_input",
+    "case_state": {
+      "phase": "pushed",
+      "record_key": null,
+      "scenario": null,
+      "searched": 0,
+      "enriched": 0,
+      "unavailable_connectors": []
+    }
+  },
+  "error": null,
+  "input_id": 146,
+  "manual_input_forward": {
+    "forwarded": false,
+    "reason": "rejected"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "ztpf_create_action_from_similar",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_actions",
+  "persona": "fixture",
+  "records": "ztpf_profile_builder",
+  "mount": {
+    "module": "ztpf_automation_actions",
+    "uuid": "1d46beeb-2532-4817-84e1-4c57d6640322"
+  },
+  "why": [
+    "Author a new automation action by example: same category, type and output type as the one on screen (picklist links copied from the real record, not invented), a new name and script.",
+    "Exactly one new action named as asked; the source action is untouched.",
+    "Graded on the WORLD (`world_after`): the bundle is `writable`, each approved card applies, and the resulting records are read back. Card-level graders pass a build with an invented action link, duplicate stepSequence, or a copied firmware version; this does not."
+  ],
+  "steps": [
+    {
+      "user": "Create a new action like this one, called Get Performance Status, that runs get system performance status."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 2
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "world_after": [
+      {
+        "module": "ztpf_automation_actions",
+        "where": {
+          "name": "Get Performance Status"
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "script~": "get system performance status",
+            "category~": "0c257588",
+            "type~": "30276e5a"
+          }
+        ],
+        "min_writes": 1
+      },
+      {
+        "module": "ztpf_automation_actions",
+        "where": {
+          "name": "Get System Status"
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "script": "get system status"
+          }
+        ]
+      }
+    ]
+  }
+}

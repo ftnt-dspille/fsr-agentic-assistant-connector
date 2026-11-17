@@ -1,0 +1,433 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world (hand-authored in the shape of live responses).",
+  "I5 needle-in-a-ticket: the SIEM is configured and answers EMPTY for the source address,",
+  "threat intel is ambiguous (one suspicious engine, no category), and the only deciding",
+  "evidence is an earlier ServiceNow ticket: the external address belongs to the vendor",
+  "running an approved penetration test against this host. A distractor ticket on another",
+  "host (different address, reports a suspected compromise) must not be mistaken for it.",
+  "Answer: benign / false_positive. strict_ops: any op not recorded here is an honest miss.",
+  "ServiceNow is served for advance_search and fetch_incidents whatever the query, so the",
+  "agent must pick the right ticket out of what comes back.",
+  "search_record (table, column, value) is served per value: the alert's host or address returns the needle ticket, the other host's name or address returns the distractor, any other value is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301",
+    "@type": "Alert",
+    "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301",
+    "id": 93101,
+    "name": "Burst of requests from one external address against a DMZ web server",
+    "description": "A single external address requested 340 distinct URL paths on a DMZ web server within ten minutes, most answered 404. The address has not been seen against this server before.",
+    "sourceIp": "198.51.100.88",
+    "destinationIp": "10.40.5.30",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790550000.0,
+    "computerName": "web-dmz-03",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "Medium",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ]
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.88"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.88",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 1,
+        "harmless": 60,
+        "undetected": 29,
+        "timeout": 0
+       },
+       "reputation": -1,
+       "as_owner": "Example Cloud Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-9"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "7c3a91d4e06b4b28a5f7c2e91d03a8b6",
+       "number": "INC0044102",
+       "state": "In Progress",
+       "active": "true",
+       "short_description": "Suspected compromise of app-db-09",
+       "description": "app-db-09 (10.40.7.12) is sending large outbound transfers to 203.0.113.17 overnight. Credentials reset requested; host isolation under review.",
+       "opened_at": "2026-09-20 03:40:00",
+       "assignment_group": "Incident Response",
+       "priority": "1"
+      },
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a1",
+       "number": "INC0043817",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted security vendor, approved by the CISO office. The vendor scans from 198.51.100.88 and will enumerate URL paths on web-dmz-03 (10.40.5.30) over the week. Expect high-volume 404s from that address; no action needed from the SOC.",
+       "opened_at": "2026-09-02 08:15:00",
+       "closed_at": "2026-09-16 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c33",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "7c3a91d4e06b4b28a5f7c2e91d03a8b6",
+       "number": "INC0044102",
+       "state": "In Progress",
+       "active": "true",
+       "short_description": "Suspected compromise of app-db-09",
+       "description": "app-db-09 (10.40.7.12) is sending large outbound transfers to 203.0.113.17 overnight. Credentials reset requested; host isolation under review.",
+       "opened_at": "2026-09-20 03:40:00",
+       "assignment_group": "Incident Response",
+       "priority": "1"
+      },
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a1",
+       "number": "INC0043817",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted security vendor, approved by the CISO office. The vendor scans from 198.51.100.88 and will enumerate URL paths on web-dmz-03 (10.40.5.30) over the week. Expect high-volume 404s from that address; no action needed from the SOC.",
+       "opened_at": "2026-09-02 08:15:00",
+       "closed_at": "2026-09-16 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c33",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "web-dmz-03"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a1",
+       "number": "INC0043817",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted security vendor, approved by the CISO office. The vendor scans from 198.51.100.88 and will enumerate URL paths on web-dmz-03 (10.40.5.30) over the week. Expect high-volume 404s from that address; no action needed from the SOC.",
+       "opened_at": "2026-09-02 08:15:00",
+       "closed_at": "2026-09-16 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "198.51.100.88"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a1",
+       "number": "INC0043817",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted security vendor, approved by the CISO office. The vendor scans from 198.51.100.88 and will enumerate URL paths on web-dmz-03 (10.40.5.30) over the week. Expect high-volume 404s from that address; no action needed from the SOC.",
+       "opened_at": "2026-09-02 08:15:00",
+       "closed_at": "2026-09-16 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "10.40.5.30"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a1",
+       "number": "INC0043817",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted security vendor, approved by the CISO office. The vendor scans from 198.51.100.88 and will enumerate URL paths on web-dmz-03 (10.40.5.30) over the week. Expect high-volume 404s from that address; no action needed from the SOC.",
+       "opened_at": "2026-09-02 08:15:00",
+       "closed_at": "2026-09-16 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "app-db-09"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "7c3a91d4e06b4b28a5f7c2e91d03a8b6",
+       "number": "INC0044102",
+       "state": "In Progress",
+       "active": "true",
+       "short_description": "Suspected compromise of app-db-09",
+       "description": "app-db-09 (10.40.7.12) is sending large outbound transfers to 203.0.113.17 overnight. Credentials reset requested; host isolation under review.",
+       "opened_at": "2026-09-20 03:40:00",
+       "assignment_group": "Incident Response",
+       "priority": "1"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "203.0.113.17"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "7c3a91d4e06b4b28a5f7c2e91d03a8b6",
+       "number": "INC0044102",
+       "state": "In Progress",
+       "active": "true",
+       "short_description": "Suspected compromise of app-db-09",
+       "description": "app-db-09 (10.40.7.12) is sending large outbound transfers to 203.0.113.17 overnight. Credentials reset requested; host isolation under review.",
+       "opened_at": "2026-09-20 03:40:00",
+       "assignment_group": "Incident Response",
+       "priority": "1"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "10.40.7.12"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "7c3a91d4e06b4b28a5f7c2e91d03a8b6",
+       "number": "INC0044102",
+       "state": "In Progress",
+       "active": "true",
+       "short_description": "Suspected compromise of app-db-09",
+       "description": "app-db-09 (10.40.7.12) is sending large outbound transfers to 203.0.113.17 overnight. Credentials reset requested; host isolation under review.",
+       "opened_at": "2026-09-20 03:40:00",
+       "assignment_group": "Incident Response",
+       "priority": "1"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

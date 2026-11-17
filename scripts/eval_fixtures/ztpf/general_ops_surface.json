@@ -1,0 +1,339 @@
+{
+ "_README": [
+  "A GENERAL persona surface: ordinary work on ordinary modules (tasks, assets,",
+  "incidents) under custom module personas, presented the way an 8.0 box presents",
+  "them (`assistant_personas` module first, Key Store behind it). Every other sweep",
+  "row runs either the built-in Agentic assistant or a ZTP persona; nothing covered a",
+  "custom persona doing everyday record work. Values are invented; no box data.",
+  "Allowlists deliberately name RETIRED tools (find_record_actions, healthcheck_connector)",
+  "the way a persona written before a consolidation would -- they must still resolve."
+ ],
+ "persona_source": "both",
+ "modules": {
+  "tasks": [
+   {
+    "@id": "/api/3/tasks/5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c01",
+    "@type": "Task",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c01",
+    "id": 901,
+    "name": "Rotate VPN service-account credentials",
+    "description": "Follow-up from INC-2231: the vpn-svc account was used from a new ASN. Done: account disabled for interactive login. Remaining: rotate the password in the vault, update the SSL-VPN LDAP bind on the FortiGate, then confirm no failed binds for 24 hours.",
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "In Progress"
+    },
+    "priority": {
+     "@type": "Picklist",
+     "itemValue": "High"
+    },
+    "assignedTo": {
+     "@type": "Person",
+     "name": "Priya Raman"
+    },
+    "dueBy": 1791046800.0,
+    "createDate": 1756717200.0,
+    "assets": [
+     {
+      "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+      "@type": "Asset",
+      "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+      "name": "fin-app-02"
+     }
+    ],
+    "incidents": [
+     {
+      "@id": "/api/3/incidents/9d2f3e4a-5b6c-4d7e-8f90-1a2b3c4d5e61",
+      "@type": "Incident",
+      "uuid": "9d2f3e4a-5b6c-4d7e-8f90-1a2b3c4d5e61",
+      "name": "INC-2231 Suspicious VPN logins from a new ASN"
+     }
+    ]
+   },
+   {
+    "@id": "/api/3/tasks/5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c02",
+    "@type": "Task",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c02",
+    "id": 902,
+    "name": "Patch OpenSSL on fin-app-02",
+    "description": "OpenSSL 3.0.2 is below the fixed release.",
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "Open"
+    },
+    "priority": {
+     "@type": "Picklist",
+     "itemValue": "Critical"
+    },
+    "assignedTo": {
+     "@type": "Person",
+     "name": "Marcus Lee"
+    },
+    "dueBy": 1763226000.0,
+    "createDate": 1756717200.0,
+    "assets": [
+     {
+      "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+      "@type": "Asset",
+      "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+      "name": "fin-app-02"
+     }
+    ],
+    "incidents": []
+   },
+   {
+    "@id": "/api/3/tasks/5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c03",
+    "@type": "Task",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c03",
+    "id": 903,
+    "name": "Collect EDR triage package from fin-app-02",
+    "description": "Needed for the INC-2231 timeline.",
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "Open"
+    },
+    "priority": {
+     "@type": "Picklist",
+     "itemValue": "Medium"
+    },
+    "assignedTo": {
+     "@type": "Person",
+     "name": "Priya Raman"
+    },
+    "dueBy": 1764608400.0,
+    "createDate": 1756717200.0,
+    "assets": [
+     {
+      "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+      "@type": "Asset",
+      "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+      "name": "fin-app-02"
+     }
+    ],
+    "incidents": [
+     {
+      "@id": "/api/3/incidents/9d2f3e4a-5b6c-4d7e-8f90-1a2b3c4d5e61",
+      "@type": "Incident",
+      "uuid": "9d2f3e4a-5b6c-4d7e-8f90-1a2b3c4d5e61",
+      "name": "INC-2231 Suspicious VPN logins from a new ASN"
+     }
+    ]
+   },
+   {
+    "@id": "/api/3/tasks/5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c04",
+    "@type": "Task",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c04",
+    "id": 904,
+    "name": "Review firewall change request CR-5521",
+    "description": "Approved and implemented.",
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "Completed"
+    },
+    "priority": {
+     "@type": "Picklist",
+     "itemValue": "Low"
+    },
+    "assignedTo": {
+     "@type": "Person",
+     "name": "Jonas Weber"
+    },
+    "dueBy": 1759338000.0,
+    "createDate": 1756717200.0,
+    "assets": [
+     {
+      "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+      "@type": "Asset",
+      "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+      "name": "br-fgt-07"
+     }
+    ],
+    "incidents": []
+   },
+   {
+    "@id": "/api/3/tasks/5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c05",
+    "@type": "Task",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c05",
+    "id": 905,
+    "name": "Update asset inventory for the branch office",
+    "description": "",
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "Open"
+    },
+    "priority": {
+     "@type": "Picklist",
+     "itemValue": "Low"
+    },
+    "assignedTo": {
+     "@type": "Person",
+     "name": "Jonas Weber"
+    },
+    "dueBy": 1801501200.0,
+    "createDate": 1756717200.0,
+    "assets": [
+     {
+      "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+      "@type": "Asset",
+      "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+      "name": "br-fgt-07"
+     }
+    ],
+    "incidents": []
+   },
+   {
+    "@id": "/api/3/tasks/5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c06",
+    "@type": "Task",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c06",
+    "id": 906,
+    "name": "Decommission legacy jump host",
+    "description": "",
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "Deferred"
+    },
+    "priority": {
+     "@type": "Picklist",
+     "itemValue": "Medium"
+    },
+    "assignedTo": null,
+    "dueBy": null,
+    "createDate": 1756717200.0,
+    "assets": [
+     {
+      "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+      "@type": "Asset",
+      "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+      "name": "br-fgt-07"
+     }
+    ],
+    "incidents": []
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+    "@type": "Asset",
+    "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51",
+    "id": 801,
+    "name": "fin-app-02",
+    "hostname": "fin-app-02.corp.example",
+    "ip": "10.20.30.42",
+    "owner": "Finance IT",
+    "criticality": {
+     "@type": "Picklist",
+     "itemValue": "High"
+    },
+    "os": "Ubuntu 22.04",
+    "location": "DC-East"
+   },
+   {
+    "@id": "/api/3/assets/7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+    "@type": "Asset",
+    "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e52",
+    "id": 802,
+    "name": "br-fgt-07",
+    "hostname": "br-fgt-07.corp.example",
+    "ip": "10.70.0.1",
+    "owner": "Network Ops",
+    "criticality": {
+     "@type": "Picklist",
+     "itemValue": "Medium"
+    },
+    "os": "FortiOS 7.4.4",
+    "location": "Branch 7"
+   }
+  ],
+  "incidents": [
+   {
+    "@id": "/api/3/incidents/9d2f3e4a-5b6c-4d7e-8f90-1a2b3c4d5e61",
+    "@type": "Incident",
+    "uuid": "9d2f3e4a-5b6c-4d7e-8f90-1a2b3c4d5e61",
+    "id": 2231,
+    "name": "INC-2231 Suspicious VPN logins from a new ASN",
+    "severity": {
+     "@type": "Picklist",
+     "itemValue": "High"
+    },
+    "status": {
+     "@type": "Picklist",
+     "itemValue": "Investigating"
+    },
+    "createDate": 1756714500.0
+   }
+  ]
+ },
+ "personas": {
+  "tasks": {
+   "key": "fsr_assistant_profile:tasks",
+   "value": "You are the Operations Assistant for the `tasks` module. Help the analyst understand and move work forward: summarise the task on screen, find related tasks, assets and incidents, and update or create task records when asked. You can only change task records -- if asked to act on anything else (containment, editing incidents or assets), say plainly you can't from here.\n\nGround every answer in records: read the record on screen with get_record and anything related with search_module_records -- never guess a field value. Related records are linked by relationship fields: tasks carry `assets` and `incidents` (filter on e.g. `assets.uuid`); status and priority are picklists (filter on `status.itemValue`). Changes go through the approval card: say what you are about to change, and never claim a change happened until it is approved.",
+   "jSONValue": {
+    "label": "Operations Assistant",
+    "version": 1,
+    "tools": {
+     "allow": [
+      "get_record",
+      "search_module_records",
+      "update_record",
+      "create_record",
+      "list_module_playbooks",
+      "find_record_actions",
+      "healthcheck_connector"
+     ]
+    },
+    "may_write": [
+     "tasks"
+    ],
+    "bind_modules": [],
+    "ui": {
+     "label": "Operations Assistant",
+     "footer": null,
+     "greeting": "{name}",
+     "placeholder": "Ask about this record\u2026",
+     "quickActions": [
+      {
+       "key": "summary",
+       "label": "Summarise",
+       "sub": "What's left to do",
+       "prompt": "Summarise this task and what still needs doing."
+      }
+     ]
+    }
+   }
+  },
+  "assets": {
+   "key": "fsr_assistant_profile:assets",
+   "value": "You are the Asset Assistant for the `assets` module. Answer questions about the asset on screen and the work around it (its tasks and incidents). You may create follow-up tasks for it, but you do not change the asset itself and you cannot run containment -- say so plainly if asked.\n\nGround every answer in records: read the record on screen with get_record and anything related with search_module_records -- never guess a field value. Related records are linked by relationship fields: tasks carry `assets` and `incidents` (filter on e.g. `assets.uuid`); status and priority are picklists (filter on `status.itemValue`). Changes go through the approval card: say what you are about to change, and never claim a change happened until it is approved.",
+   "jSONValue": {
+    "label": "Asset Assistant",
+    "version": 1,
+    "tools": {
+     "allow": [
+      "get_record",
+      "search_module_records",
+      "create_record",
+      "find_record_actions"
+     ]
+    },
+    "may_write": [
+     "tasks"
+    ],
+    "bind_modules": [],
+    "ui": {
+     "label": "Asset Assistant",
+     "footer": null,
+     "greeting": "{name}",
+     "placeholder": "Ask about this record\u2026",
+     "quickActions": [
+      {
+       "key": "open_work",
+       "label": "Open work",
+       "sub": "Tasks on this asset",
+       "prompt": "What open tasks are there for this asset?"
+      }
+     ]
+    }
+   }
+  }
+ },
+ "skills": []
+}

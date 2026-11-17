@@ -1,0 +1,3937 @@
+{
+  "_README": [
+    "Scrubbed capture of the ZTPF surface from a live FortiSOAR 8.0 box.",
+    "Real SHAPE, published values: device/manager names, addresses and",
+    "serials are substituted; no credentials are present. Steps flagged",
+    "_staged were NOT captured -- see build note in the scenarios.",
+    "`playbooks` are the real record-action (Execute-menu) playbooks that target ztpf_* modules, captured active-only -- the list `list_module_playbooks` must discover a name from before running one.",
+    "skills: [] -- this box HAS the assistant_skills module and no house rules yet; served empty so the read is answered, not unserved (N5)."
+  ],
+  "skills": [],
+  "modules": {
+    "ztpf_devices": [
+      {
+        "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+        "@type": "ZtpfDevice",
+        "name": "branch-fgt-01",
+        "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+        "id": 54,
+        "adom": "example-adom",
+        "platform": "FortiGate-VM64-KVM",
+        "firmware": "7.6.6-build3652",
+        "managementIP": "198.51.100.10",
+        "managementMode": "fmgfaz",
+        "vdom": "root",
+        "productFamily": "FG VM series",
+        "policyPackage": null,
+        "description": null,
+        "ztpfRunning": false,
+        "createDate": 1784052208.181257,
+        "modifyDate": 1785337400.760032,
+        "status": {
+          "@id": "/api/3/picklists/2a2f34dc-4f3b-4434-aa58-ba995b2bf7c6",
+          "@type": "Picklist",
+          "itemValue": "Ok",
+          "color": "#34ca46",
+          "orderIndex": 0
+        },
+        "connectionStatus": null,
+        "configStatus": null
+      }
+    ],
+    "ztpf_device_automation_steps": [
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/5aa08237-6a91-416e-b360-9718b5ebf231",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface - render_script_on_create false",
+        "uuid": "5aa08237-6a91-416e-b360-9718b5ebf231",
+        "id": 132,
+        "stepNumber": 2,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "20s",
+        "stepTimeSeconds": 20,
+        "stepStartTimestamp": 1784832668,
+        "stepStopTimestamp": 1784832688,
+        "script": "config system interface\n  edit SingleLo6\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21531**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo6\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step132-1784832670) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1784832553.579295,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/20fe0178-41fc-4889-b112-dc03554f9720",
+          "name": "ztpf-1784832624",
+          "uuid": "20fe0178-41fc-4889-b112-dc03554f9720",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/30f23735-3ded-4cff-80cb-2720608994e5",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Install DeviceDB",
+        "uuid": "30f23735-3ded-4cff-80cb-2720608994e5",
+        "id": 135,
+        "stepNumber": 3,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": true,
+        "stepTime": "40s",
+        "stepTimeSeconds": 40,
+        "stepStartTimestamp": 1784832699,
+        "stepStopTimestamp": 1784832739,
+        "script": "",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1784832559.702537,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/20fe0178-41fc-4889-b112-dc03554f9720",
+          "name": "ztpf-1784832624",
+          "uuid": "20fe0178-41fc-4889-b112-dc03554f9720",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/3903a3ea-581e-419a-bc06-c858c74098a7",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Show config for SingleLo Interface",
+        "uuid": "3903a3ea-581e-419a-bc06-c858c74098a7",
+        "id": 138,
+        "stepNumber": 4,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "35s",
+        "stepTimeSeconds": 35,
+        "stepStartTimestamp": 1784832747,
+        "stepStopTimestamp": 1784832782,
+        "script": "show system interface | grep -f SingleLo",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21590**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  show system interface | grep -f SingleLo\nconfig system interface\n    edit \"SingleLo1\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 116\n    next\n    edit \"SingleLo2\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 117\n    next\n    edit \"SingleLo3\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 119\n    next\n    edit \"SingleLo4\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 120\n    next\n    edit \"SingleLo5\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 121\n    next\n    edit \"SingleLo6\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 122\n    next\nend\n\n```",
+        "outputText": null,
+        "createDate": 1784832562.13483,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/20fe0178-41fc-4889-b112-dc03554f9720",
+          "name": "ztpf-1784832624",
+          "uuid": "20fe0178-41fc-4889-b112-dc03554f9720",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "name": "Show Interface Config",
+          "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/b4dfdf6c-16da-485b-807b-d324e4790a37",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Get Routing Table via Remote CLI",
+        "uuid": "b4dfdf6c-16da-485b-807b-d324e4790a37",
+        "id": 157,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "43s",
+        "stepTimeSeconds": 43,
+        "stepStartTimestamp": 1785164057,
+        "stepStopTimestamp": 1785164100,
+        "script": "get router info routing-table all",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1785164024.334219,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/26108d62-c22a-445b-b51b-a63ee4b50870",
+          "name": "ztpf-1785164048",
+          "uuid": "26108d62-c22a-445b-b51b-a63ee4b50870",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/25007955-7211-4d30-82e0-0c96472b678c",
+          "name": "Get Routing Table",
+          "uuid": "25007955-7211-4d30-82e0-0c96472b678c",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/0dd1b53a-5401-4d45-a9fb-54a9968c2ac5",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface",
+        "uuid": "0dd1b53a-5401-4d45-a9fb-54a9968c2ac5",
+        "id": 143,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "20s",
+        "stepTimeSeconds": 20,
+        "stepStartTimestamp": 1784923384,
+        "stepStopTimestamp": 1784923404,
+        "script": "config system interface\n  edit SingleLo1\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21651**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo1\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step143-1784923387) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1784923213.905497,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/4667f169-eb2a-46ae-807d-9747b66c6e68",
+          "name": "ztpf-1784923376",
+          "uuid": "4667f169-eb2a-46ae-807d-9747b66c6e68",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/ec78bef0-d4cf-4e0a-b66f-c34392e90481",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Install DeviceDB",
+        "uuid": "ec78bef0-d4cf-4e0a-b66f-c34392e90481",
+        "id": 144,
+        "stepNumber": 2,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": true,
+        "stepTime": "53s",
+        "stepTimeSeconds": 53,
+        "stepStartTimestamp": 1784923414,
+        "stepStopTimestamp": 1784923467,
+        "script": "",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1784923219.920747,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/4667f169-eb2a-46ae-807d-9747b66c6e68",
+          "name": "ztpf-1784923376",
+          "uuid": "4667f169-eb2a-46ae-807d-9747b66c6e68",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/431df624-de91-4bb1-8213-9c631c94033b",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Show config for SingleLo Interface",
+        "uuid": "431df624-de91-4bb1-8213-9c631c94033b",
+        "id": 145,
+        "stepNumber": 3,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "44s",
+        "stepTimeSeconds": 44,
+        "stepStartTimestamp": 1784923474,
+        "stepStopTimestamp": 1784923518,
+        "script": "show system interface | grep -f SingleLo",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21670**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  show system interface | grep -f SingleLo\nconfig system interface\n    edit \"SingleLo1\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 123\n    next\n    edit \"SingleLo2\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 117\n    next\n    edit \"SingleLo3\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 119\n    next\n    edit \"SingleLo4\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 120\n    next\n    edit \"SingleLo5\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 121\n    next\n    edit \"SingleLo6\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 122\n    next\nend\n\n```",
+        "outputText": null,
+        "createDate": 1784923222.576451,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/4667f169-eb2a-46ae-807d-9747b66c6e68",
+          "name": "ztpf-1784923376",
+          "uuid": "4667f169-eb2a-46ae-807d-9747b66c6e68",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "name": "Show Interface Config",
+          "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/0061d850-05d2-4e8d-8868-c90bd76f8f11",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface",
+        "uuid": "0061d850-05d2-4e8d-8868-c90bd76f8f11",
+        "id": 171,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "22s",
+        "stepTimeSeconds": 22,
+        "stepStartTimestamp": 1785336660,
+        "stepStopTimestamp": 1785336682,
+        "script": "config system interface \n  edit SingleLo11 \n    set vdom root\n    set type loopback \n    set ip 192.0.2.1/32 \n    set allowaccess ssh https \n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next \nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21821**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo11\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step171-1785336662) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1785336471.644921,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/5ca094d5-d752-4d2b-96b0-482e58f918e6",
+          "name": "ztpf-1785336651",
+          "uuid": "5ca094d5-d752-4d2b-96b0-482e58f918e6",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/64415010-48e1-47a7-b901-ba2f5f733dc0",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Install DeviceDB",
+        "uuid": "64415010-48e1-47a7-b901-ba2f5f733dc0",
+        "id": 172,
+        "stepNumber": 2,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": true,
+        "stepTime": "47s",
+        "stepTimeSeconds": 47,
+        "stepStartTimestamp": 1785336691,
+        "stepStopTimestamp": 1785336738,
+        "script": "",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1785336477.230655,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/5ca094d5-d752-4d2b-96b0-482e58f918e6",
+          "name": "ztpf-1785336651",
+          "uuid": "5ca094d5-d752-4d2b-96b0-482e58f918e6",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/ccddbaea-2cdf-4025-bd70-06302408e52f",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Show config for SingleLo Interface",
+        "uuid": "ccddbaea-2cdf-4025-bd70-06302408e52f",
+        "id": 173,
+        "stepNumber": 3,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "47s",
+        "stepTimeSeconds": 47,
+        "stepStartTimestamp": 1785336749,
+        "stepStopTimestamp": 1785336796,
+        "script": "show system interface | grep -f SingleLo",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21840**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  show system interface | grep -f SingleLo\nconfig system interface\n    edit \"SingleLo1\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 123\n    next\n    edit \"SingleLo2\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 117\n    next\n    edit \"SingleLo3\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 119\n    next\n    edit \"SingleLo4\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 120\n    next\n    edit \"SingleLo5\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 121\n    next\n    edit \"SingleLo6\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 122\n    next\n    edit \"SingleLo7\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 124\n    next\n    edit \"SingleLo8\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 125\n    next\n    edit \"SingleLo9\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 126\n    next\n    edit \"SingleLo10\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 130\n    next\n    edit \"SingleLo11\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 131\n    next\nend\n\n```",
+        "outputText": null,
+        "createDate": 1785336479.716208,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/5ca094d5-d752-4d2b-96b0-482e58f918e6",
+          "name": "ztpf-1785336651",
+          "uuid": "5ca094d5-d752-4d2b-96b0-482e58f918e6",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "name": "Show Interface Config",
+          "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/648d3f8e-b7ad-409c-be69-6f842df1d0ae",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface #1",
+        "uuid": "648d3f8e-b7ad-409c-be69-6f842df1d0ae",
+        "id": 150,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "19s",
+        "stepTimeSeconds": 19,
+        "stepStartTimestamp": 1784926825,
+        "stepStopTimestamp": 1784926844,
+        "script": "config system interface\n  edit SingleLo7\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21681**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo7\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step150-1784926827) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1784926678.645714,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "name": "ztpf-1784926816",
+          "uuid": "609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/a5880079-6702-4dfa-b13a-3b4b0d4c4759",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface #2",
+        "uuid": "a5880079-6702-4dfa-b13a-3b4b0d4c4759",
+        "id": 151,
+        "stepNumber": 2,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "22s",
+        "stepTimeSeconds": 22,
+        "stepStartTimestamp": 1784926887,
+        "stepStopTimestamp": 1784926909,
+        "script": "config system interface\n  edit SingleLo8\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21691**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo8\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step151-1784926889) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1784926680.999886,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "name": "ztpf-1784926816",
+          "uuid": "609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/d4c3a20f-912e-4cfd-b91a-eefd13b3210c",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Install DeviceDB",
+        "uuid": "d4c3a20f-912e-4cfd-b91a-eefd13b3210c",
+        "id": 152,
+        "stepNumber": 3,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": true,
+        "stepTime": "52s",
+        "stepTimeSeconds": 52,
+        "stepStartTimestamp": 1784926918,
+        "stepStopTimestamp": 1784926970,
+        "script": "",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1784926686.39059,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "name": "ztpf-1784926816",
+          "uuid": "609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/efd8bdb3-f408-4413-a724-eff382c51cea",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Show config for SingleLo Interface",
+        "uuid": "efd8bdb3-f408-4413-a724-eff382c51cea",
+        "id": 153,
+        "stepNumber": 4,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "46s",
+        "stepTimeSeconds": 46,
+        "stepStartTimestamp": 1784926978,
+        "stepStopTimestamp": 1784927024,
+        "script": "show system interface | grep -f SingleLo",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21710**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  show system interface | grep -f SingleLo\nconfig system interface\n    edit \"SingleLo1\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 123\n    next\n    edit \"SingleLo2\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 117\n    next\n    edit \"SingleLo3\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 119\n    next\n    edit \"SingleLo4\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 120\n    next\n    edit \"SingleLo5\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 121\n    next\n    edit \"SingleLo6\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 122\n    next\n    edit \"SingleLo7\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 124\n    next\n    edit \"SingleLo8\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 125\n    next\nend\n\n```",
+        "outputText": null,
+        "createDate": 1784926688.55885,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "name": "ztpf-1784926816",
+          "uuid": "609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "name": "Show Interface Config",
+          "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/adf8a83c-1a2a-4804-ac81-9f0d7a5e7090",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface",
+        "uuid": "adf8a83c-1a2a-4804-ac81-9f0d7a5e7090",
+        "id": 174,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "19s",
+        "stepTimeSeconds": 19,
+        "stepStartTimestamp": 1785337137,
+        "stepStopTimestamp": 1785337156,
+        "script": "config system interface \n  edit SingleLo12 \n    set vdom root\n    set type loopback \n    set ip 192.0.2.1/32 \n    set allowaccess ssh https \n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next \nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21851**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo12\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step174-1785337139) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1785336880.039578,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "name": "ztpf-1785337128",
+          "uuid": "6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/67e5dbeb-8e60-4c41-b011-314eaf923e00",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Test Loopback from Input with Template",
+        "uuid": "67e5dbeb-8e60-4c41-b011-314eaf923e00",
+        "id": 177,
+        "stepNumber": 2,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "19s",
+        "stepTimeSeconds": 19,
+        "stepStartTimestamp": 1785337199,
+        "stepStopTimestamp": 1785337218,
+        "script": "config system interface \n  edit SingleLo13 \n    set vdom root\n    set type loopback \n    set ip 192.0.2.1/32 \n    set allowaccess ssh https \n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next \nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21861**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo13\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step177-1785337201) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1785336922.408623,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "name": "ztpf-1785337128",
+          "uuid": "6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/97d38428-1a34-4278-9b79-a05ba373b198",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Test Loopback from Input with Template",
+        "uuid": "97d38428-1a34-4278-9b79-a05ba373b198",
+        "id": 178,
+        "stepNumber": 3,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "20s",
+        "stepTimeSeconds": 20,
+        "stepStartTimestamp": 1785337262,
+        "stepStopTimestamp": 1785337282,
+        "script": "config system interface \n  edit SingleLo14 \n    set vdom root\n    set type loopback \n    set ip 192.0.2.1/32 \n    set allowaccess ssh https \n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next \nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21871**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo14\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step178-1785337264) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1785336928.728522,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "name": "ztpf-1785337128",
+          "uuid": "6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/e888f799-c53c-45fc-8773-80d5b8b771cb",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Install DeviceDB",
+        "uuid": "e888f799-c53c-45fc-8773-80d5b8b771cb",
+        "id": 175,
+        "stepNumber": 4,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": true,
+        "stepTime": "47s",
+        "stepTimeSeconds": 47,
+        "stepStartTimestamp": 1785337291,
+        "stepStopTimestamp": 1785337338,
+        "script": "",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1785336885.025038,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "name": "ztpf-1785337128",
+          "uuid": "6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/64127f90-25c6-411b-a276-0193f557f417",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Show config for SingleLo Interface",
+        "uuid": "64127f90-25c6-411b-a276-0193f557f417",
+        "id": 176,
+        "stepNumber": 5,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "47s",
+        "stepTimeSeconds": 47,
+        "stepStartTimestamp": 1785337345,
+        "stepStopTimestamp": 1785337392,
+        "script": "show system interface | grep -f SingleLo",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21890**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  show system interface | grep -f SingleLo\nconfig system interface\n    edit \"SingleLo1\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 123\n    next\n    edit \"SingleLo2\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 117\n    next\n    edit \"SingleLo3\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 119\n    next\n    edit \"SingleLo4\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 120\n    next\n    edit \"SingleLo5\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 121\n    next\n    edit \"SingleLo6\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 122\n    next\n    edit \"SingleLo7\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 124\n    next\n    edit \"SingleLo8\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 125\n    next\n    edit \"SingleLo9\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 126\n    next\n    edit \"SingleLo10\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 130\n    next\n    edit \"SingleLo11\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 131\n    next\n    edit \"SingleLo12\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 132\n    next\n    edit \"SingleLo13\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 133\n    next\n    edit \"SingleLo14\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 134\n    next\nend\n\n```",
+        "outputText": null,
+        "createDate": 1785336887.403863,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "name": "ztpf-1785337128",
+          "uuid": "6ac9d623-55b3-4017-aa73-ec14b314124a",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "name": "Show Interface Config",
+          "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/a65dc3c8-3e47-4d5b-8db7-fd5e98e93482",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Create Next SingleLo Interface",
+        "uuid": "a65dc3c8-3e47-4d5b-8db7-fd5e98e93482",
+        "id": 154,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": true,
+        "stepTime": "19s",
+        "stepTimeSeconds": 19,
+        "stepStartTimestamp": 1785159056,
+        "stepStopTimestamp": 1785159075,
+        "script": "config system interface\n  edit SingleLo9\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21721**:\n\n```\n\n\nStarting log (Run on database)\n\n config system interface\n edit SingleLo9\n set vdom root\n set type loopback\n set ip 192.0.2.1/32\n set allowaccess ssh https\n set description Test Looopback SingleLo for branch-fgt-01.\n next\n end\nRunning script(ztpf-branch-fgt-01-step154-1785159059) on DB success\n\n```",
+        "outputText": null,
+        "createDate": 1785158773.735252,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+          "name": "ztpf-1785159049",
+          "uuid": "9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "name": "Create Test Loopback from Input with Template",
+          "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/b1cfee16-2994-4eab-a62a-a22ca8a753a9",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Install DeviceDB",
+        "uuid": "b1cfee16-2994-4eab-a62a-a22ca8a753a9",
+        "id": 155,
+        "stepNumber": 2,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": true,
+        "stepTime": "56s",
+        "stepTimeSeconds": 56,
+        "stepStartTimestamp": 1785159084,
+        "stepStopTimestamp": 1785159140,
+        "script": "",
+        "outputMarkdown": "",
+        "outputText": null,
+        "createDate": 1785158778.817225,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+          "name": "ztpf-1785159049",
+          "uuid": "9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/0afe7bb1-e842-43d4-975e-b9f60d9d01ce",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Show config for SingleLo Interface",
+        "uuid": "0afe7bb1-e842-43d4-975e-b9f60d9d01ce",
+        "id": 156,
+        "stepNumber": 3,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "44s",
+        "stepTimeSeconds": 44,
+        "stepStartTimestamp": 1785159147,
+        "stepStopTimestamp": 1785159191,
+        "script": "show system interface | grep -f SingleLo",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21740**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  show system interface | grep -f SingleLo\nconfig system interface\n    edit \"SingleLo1\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 123\n    next\n    edit \"SingleLo2\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 117\n    next\n    edit \"SingleLo3\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 119\n    next\n    edit \"SingleLo4\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 120\n    next\n    edit \"SingleLo5\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 121\n    next\n    edit \"SingleLo6\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 122\n    next\n    edit \"SingleLo7\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 124\n    next\n    edit \"SingleLo8\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 125\n    next\n    edit \"SingleLo9\" <---\n        set vdom \"root\"\n        set ip 192.0.2.1 198.51.100.10\n        set allowaccess https ssh\n        set type loopback\n        set description \"Test Looopback SingleLo for branch-fgt-01.\" <---\n        set snmp-index 126\n    next\nend\n\n```",
+        "outputText": null,
+        "createDate": 1785158781.372047,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+          "name": "ztpf-1785159049",
+          "uuid": "9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "name": "Show Interface Config",
+          "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/3863fe04-7ac8-4657-8f27-140ca17f2f62",
+        "@type": "ZtpfDeviceAutomationStep",
+        "name": "Get Routing Table",
+        "uuid": "3863fe04-7ac8-4657-8f27-140ca17f2f62",
+        "id": 158,
+        "stepNumber": 1,
+        "triggerKey": "FortiManager Remote CLI",
+        "stepDone": true,
+        "stepTime": "42s",
+        "stepTimeSeconds": 42,
+        "stepStartTimestamp": 1785164259,
+        "stepStopTimestamp": 1785164301,
+        "script": "get router info routing-table all",
+        "outputMarkdown": "Script results for **branch-fgt-01** from **Task ID 21760**:\n\n```\n\n\nStarting log (Run on device)\n\nBRANCH101  get router info routing-table all\nCodes: K - kernel, C - connected, S - static, R - RIP, B - BGP\r\n       O - OSPF, IA - OSPF inter area\r\n       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2\r\n       E1 - OSPF external type 1, E2 - OSPF external type 2\r\n       i - IS-IS, L1 - IS-IS level-1, L2 - IS-IS level-2, ia - IS-IS inter area\r\n       V - BGP VPNv4\r\n       * - candidate default\r\n\r\nRouting table for VRF=0\r\nS*      198.51.100.10/0 [10/0] via 198.51.100.10, port2, [1/0]\r\n                  [10/0] via 198.51.100.10, port3, [1/0]\r\nC       198.51.100.10/24 is directly connected, port1\r\nC       192.0.2.1/32 is directly connected, SingleLo1\r\nC       192.0.2.1/32 is directly connected, SingleLo2\r\nC       192.0.2.1/32 is directly connected, SingleLo3\r\nC       192.0.2.1/32 is directly connected, SingleLo4\r\nC       192.0.2.1/32 is directly connected, SingleLo5\r\nC       192.0.2.1/32 is directly connected, SingleLo6\r\nC       192.0.2.1/32 is directly connected, SingleLo7\r\nC       192.0.2.1/32 is directly connected, SingleLo8\r\nC       192.0.2.1/32 is directly connected, SingleLo9\r\nC       198.51.100.10/24 is directly connected, port2\r\nC       198.51.100.10/24 is directly connected, port3\r\nC       198.51.100.10/26 is directly connected, VLAN101\r\n\n```",
+        "outputText": null,
+        "createDate": 1785164222.478185,
+        "queueStatus": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "status": {
+          "@id": "/api/3/picklists/1e63778c-8a03-4a74-a04f-37ead93d445e",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#34ca46",
+          "orderIndex": 6
+        },
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": {
+          "@id": "/api/3/ztpf_run_groups/d07928e0-0e7d-4f97-a97f-53ee8b568673",
+          "name": "ztpf-1785164250",
+          "uuid": "d07928e0-0e7d-4f97-a97f-53ee8b568673",
+          "@type": "ZtpfRunGroup"
+        },
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/25007955-7211-4d30-82e0-0c96472b678c",
+          "name": "Get Routing Table",
+          "uuid": "25007955-7211-4d30-82e0-0c96472b678c",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/aa000000-0000-4000-8000-00000000ab01",
+        "@type": "ZtpfDeviceAutomationStep",
+        "_staged": true,
+        "uuid": "aa000000-0000-4000-8000-00000000ab01",
+        "id": 9001,
+        "name": "Create Loopback Interface",
+        "stepNumber": 1,
+        "triggerKey": "FortiManager DeviceDB",
+        "stepDone": false,
+        "stepTime": null,
+        "stepTimeSeconds": null,
+        "stepStartTimestamp": null,
+        "stepStopTimestamp": null,
+        "script": "config system interface\n edit {{input.interface_name}}\n set type loopback\n set ip {{input.ip}}/32\nend",
+        "outputMarkdown": null,
+        "outputText": null,
+        "createDate": 1785340000.0,
+        "queueStatus": {
+          "@id": "/api/3/picklists/queued-added",
+          "@type": "Picklist",
+          "itemValue": "Added",
+          "color": "#411cdd",
+          "orderIndex": 0
+        },
+        "status": null,
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": null,
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/78b6fd75-397e-4ee3-b77d-cca5aae0df50",
+          "name": "Create Loopback Interface",
+          "uuid": "78b6fd75-397e-4ee3-b77d-cca5aae0df50",
+          "@type": "ZtpfAutomationAction"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_device_automation_steps/aa000000-0000-4000-8000-00000000ab02",
+        "@type": "ZtpfDeviceAutomationStep",
+        "_staged": true,
+        "uuid": "aa000000-0000-4000-8000-00000000ab02",
+        "id": 9002,
+        "name": "Install DeviceDB",
+        "stepNumber": 2,
+        "triggerKey": "FortiManager Install Device Config",
+        "stepDone": false,
+        "stepTime": null,
+        "stepTimeSeconds": null,
+        "stepStartTimestamp": null,
+        "stepStopTimestamp": null,
+        "script": null,
+        "outputMarkdown": null,
+        "outputText": null,
+        "createDate": 1785340000.0,
+        "queueStatus": {
+          "@id": "/api/3/picklists/queued-added",
+          "@type": "Picklist",
+          "itemValue": "Added",
+          "color": "#411cdd",
+          "orderIndex": 0
+        },
+        "status": null,
+        "ztpfDevices": {
+          "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+          "name": "branch-fgt-01",
+          "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+          "@type": "ZtpfDevice"
+        },
+        "ztpfRunGroups": null,
+        "ztpfAutomationActions": {
+          "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "name": "Install Device Config",
+          "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+          "@type": "ZtpfAutomationAction"
+        }
+      }
+    ],
+    "ztpf_run_groups": [
+      {
+        "@id": "/api/3/ztpf_run_groups/6ac9d623-55b3-4017-aa73-ec14b314124a",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1785337128",
+        "uuid": "6ac9d623-55b3-4017-aa73-ec14b314124a",
+        "id": 36,
+        "totalSteps": 5,
+        "totalStepsComplete": 5,
+        "totalRunningTime": "4m 15s",
+        "totalRunningTimeSeconds": 255,
+        "ztpfRunning": false,
+        "createDate": 1785337129.033088,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/5ca094d5-d752-4d2b-96b0-482e58f918e6",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1785336651",
+        "uuid": "5ca094d5-d752-4d2b-96b0-482e58f918e6",
+        "id": 35,
+        "totalSteps": 3,
+        "totalStepsComplete": 3,
+        "totalRunningTime": "2m 16s",
+        "totalRunningTimeSeconds": 136,
+        "ztpfRunning": false,
+        "createDate": 1785336651.171776,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/d07928e0-0e7d-4f97-a97f-53ee8b568673",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1785164250",
+        "uuid": "d07928e0-0e7d-4f97-a97f-53ee8b568673",
+        "id": 32,
+        "totalSteps": 1,
+        "totalStepsComplete": 1,
+        "totalRunningTime": "42s",
+        "totalRunningTimeSeconds": 42,
+        "ztpfRunning": false,
+        "createDate": 1785164250.796914,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/26108d62-c22a-445b-b51b-a63ee4b50870",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1785164048",
+        "uuid": "26108d62-c22a-445b-b51b-a63ee4b50870",
+        "id": 31,
+        "totalSteps": 1,
+        "totalStepsComplete": 1,
+        "totalRunningTime": "43s",
+        "totalRunningTimeSeconds": 43,
+        "ztpfRunning": false,
+        "createDate": 1785164049.08178,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1785159049",
+        "uuid": "9fa34c83-bc2f-4567-a533-29d6cf0e644b",
+        "id": 30,
+        "totalSteps": 3,
+        "totalStepsComplete": 3,
+        "totalRunningTime": "2m 15s",
+        "totalRunningTimeSeconds": 135,
+        "ztpfRunning": false,
+        "createDate": 1785159049.164593,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1784926816",
+        "uuid": "609a9c19-9da2-4e31-9bea-9d2d4818cd5a",
+        "id": 29,
+        "totalSteps": 4,
+        "totalStepsComplete": 4,
+        "totalRunningTime": "3m 19s",
+        "totalRunningTimeSeconds": 199,
+        "ztpfRunning": false,
+        "createDate": 1784926816.724093,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/4667f169-eb2a-46ae-807d-9747b66c6e68",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1784923376",
+        "uuid": "4667f169-eb2a-46ae-807d-9747b66c6e68",
+        "id": 28,
+        "totalSteps": 3,
+        "totalStepsComplete": 3,
+        "totalRunningTime": "2m 14s",
+        "totalRunningTimeSeconds": 134,
+        "ztpfRunning": false,
+        "createDate": 1784923376.403956,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      },
+      {
+        "@id": "/api/3/ztpf_run_groups/20fe0178-41fc-4889-b112-dc03554f9720",
+        "@type": "ZtpfRunGroup",
+        "name": "ztpf-1784832624",
+        "uuid": "20fe0178-41fc-4889-b112-dc03554f9720",
+        "id": 27,
+        "totalSteps": 12,
+        "totalStepsComplete": 12,
+        "totalRunningTime": "2m 41s",
+        "totalRunningTimeSeconds": 161,
+        "ztpfRunning": false,
+        "createDate": 1784832624.685268,
+        "status": {
+          "@id": "/api/3/picklists/a97657d2-0f71-42a8-8ff6-054063e88d45",
+          "@type": "Picklist",
+          "itemValue": "Complete",
+          "color": "#48f209",
+          "orderIndex": 3
+        },
+        "ztpfDevices": [
+          {
+            "@id": "/api/3/ztpf_devices/5b23794a-a657-4169-97d3-98698126d59f",
+            "name": "branch-fgt-01",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "@type": "ZtpfDevice"
+          },
+          {
+            "@id": "/api/3/ztpf_devices/09a44422-5f02-4c55-90a3-4a1965646550",
+            "name": "FG3",
+            "uuid": "09a44422-5f02-4c55-90a3-4a1965646550",
+            "@type": "ZtpfDevice"
+          },
+          {
+            "@id": "/api/3/ztpf_devices/2fe0d322-8731-4aea-b75d-87193b28d028",
+            "name": "FG2",
+            "uuid": "2fe0d322-8731-4aea-b75d-87193b28d028",
+            "@type": "ZtpfDevice"
+          }
+        ]
+      }
+    ],
+    "ztpf_automation_actions": [
+      {
+        "@id": "/api/3/ztpf_automation_actions/5481cc04-afc5-46dd-97df-9b6a55d2d318",
+        "@type": "ZtpfAutomationAction",
+        "name": "Show Interface Config",
+        "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318",
+        "id": 7,
+        "description": "",
+        "inputParameters": "interface_name",
+        "configParameters": null,
+        "script": "show system interface | grep -f {{input.interface_name}}",
+        "exampleScriptRendered": "show system interface | grep -f SingleLo",
+        "actionOutputTemplate": "Script results for **{{record.device.name}}** from **Task ID {{source.log.log_id}}**:\n\n```\n{{source.log.content}}\n```",
+        "outputTemplateMarkdown": "Script results for **{{record.device.name}}** from **Task ID {{source.log.log_id}}**:\n\n```\n{{source.log.content}}\n```",
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/30276e5a-600f-41d8-b58d-cd51e2660d02",
+          "@type": "Picklist",
+          "itemValue": "Remote CLI",
+          "color": null,
+          "orderIndex": 2
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/9c5462d7-049f-4853-90a8-6fa9ff5d3dab",
+          "@type": "Picklist",
+          "itemValue": "Markdown",
+          "color": null,
+          "orderIndex": 1
+        },
+        "exampleJinjaVars": {
+          "data": [],
+          "input": {
+            "interface_name": "SingleLo"
+          },
+          "record": {
+            "device": {
+              "id": 54,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 1,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_1"
+            },
+            "metadata": []
+          }
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/f4352506-9004-4572-bbb9-de42fcf4dd99",
+        "@type": "ZtpfAutomationAction",
+        "name": "Create Test Loopback from Input with Template",
+        "uuid": "f4352506-9004-4572-bbb9-de42fcf4dd99",
+        "id": 6,
+        "description": "Get a loopback name, `lo_name` and subnet `lo_supernet` and then find all loopbacks on the FG that use this name and create a new one with an auto-increment ID. ",
+        "inputParameters": "",
+        "configParameters": null,
+        "script": "{{template}}",
+        "exampleScriptRendered": "config system interface\n  edit SingleLo1\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "actionOutputTemplate": null,
+        "outputTemplateMarkdown": "Script results for **{{record.device.name}}** from **Task ID {{source.log.log_id}}**:\n\n```\n{{source.log.content}}\n```",
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/88c30ec2-a07c-4bb4-99b6-24f5d58e7545",
+          "@type": "Picklist",
+          "itemValue": "DeviceDB",
+          "color": null,
+          "orderIndex": 0
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": {
+          "data": {
+            "testloints": [
+              {
+                "ip": [
+                  "192.0.2.1",
+                  "198.51.100.10"
+                ],
+                "oid": 3864,
+                "name": "SingleLo",
+                "vdom": []
+              }
+            ],
+            "allowaccess_loopbacks": [
+              "ssh",
+              "https"
+            ]
+          },
+          "input": {
+            "lo_name": "SingleLo",
+            "lo_supernet": "192.0.2.1/24"
+          },
+          "record": {
+            "device": {
+              "id": 150,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [
+                "ztpfTEST"
+              ],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 3,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_3"
+            },
+            "metadata": {
+              "Test3ip": "198.51.100.10/32",
+              "Test3name": "LoTest3",
+              "Test4IntData": {
+                "ip": "198.51.100.10/32",
+                "name": "LoTest4"
+              }
+            }
+          },
+          "template": "config system interface\n  edit SingleLo1\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/2dc31ea6-4690-48c2-9f84-488f269da3c1",
+        "@type": "ZtpfAutomationAction",
+        "name": "Install Device Config",
+        "uuid": "2dc31ea6-4690-48c2-9f84-488f269da3c1",
+        "id": 5,
+        "description": null,
+        "inputParameters": "",
+        "configParameters": null,
+        "script": "{{template}}",
+        "exampleScriptRendered": "Example of a script being rendered with jinja vars.",
+        "actionOutputTemplate": "",
+        "outputTemplateMarkdown": null,
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/ffd3228e-420e-4fd3-afa4-965cd24450e2",
+          "@type": "Picklist",
+          "itemValue": "Install Device Config",
+          "color": null,
+          "orderIndex": 7
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": null
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/25007955-7211-4d30-82e0-0c96472b678c",
+        "@type": "ZtpfAutomationAction",
+        "name": "Get Routing Table",
+        "uuid": "25007955-7211-4d30-82e0-0c96472b678c",
+        "id": 13,
+        "description": null,
+        "inputParameters": null,
+        "configParameters": null,
+        "script": "get router info routing-table all",
+        "exampleScriptRendered": "get router info routing-table all",
+        "actionOutputTemplate": null,
+        "outputTemplateMarkdown": "Script results for **{{record.device.name}}** from **Task ID {{source.log.log_id}}**:\n\n```\n{{source.log.content}}\n```",
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/30276e5a-600f-41d8-b58d-cd51e2660d02",
+          "@type": "Picklist",
+          "itemValue": "Remote CLI",
+          "color": null,
+          "orderIndex": 2
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": {
+          "data": [],
+          "record": {
+            "device": {
+              "id": 54,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 1,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_1"
+            },
+            "metadata": {
+              "MySupernet": "192.0.2.1/20"
+            }
+          }
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/6ba936a8-d4fa-4556-901c-6fe180dfcb9a",
+        "@type": "ZtpfAutomationAction",
+        "name": "Delete Test Loopbacks from Input with Template",
+        "uuid": "6ba936a8-d4fa-4556-901c-6fe180dfcb9a",
+        "id": 8,
+        "description": "Get a loopback name, `lo_name` and and then find all loopbacks on the FG that use this name and delete them. ",
+        "inputParameters": "",
+        "configParameters": null,
+        "script": "{{template}}",
+        "exampleScriptRendered": "config system interface\n  edit SingleLo1\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend",
+        "actionOutputTemplate": null,
+        "outputTemplateMarkdown": "Script results for **{{record.device.name}}** from **Task ID {{source.log.log_id}}**:\n\n```\n{{source.log.content}}\n```",
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/88c30ec2-a07c-4bb4-99b6-24f5d58e7545",
+          "@type": "Picklist",
+          "itemValue": "DeviceDB",
+          "color": null,
+          "orderIndex": 0
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": {
+          "data": {
+            "testloints": [
+              {
+                "ip": [
+                  "192.0.2.1",
+                  "198.51.100.10"
+                ],
+                "oid": 3864,
+                "name": "SingleLo",
+                "vdom": []
+              }
+            ],
+            "allowaccess_loopbacks": [
+              "ssh",
+              "https"
+            ]
+          },
+          "input": {
+            "lo_name": "SingleLo",
+            "lo_supernet": "192.0.2.1/24"
+          },
+          "record": {
+            "device": {
+              "id": 150,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [
+                "ztpfTEST"
+              ],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 3,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_3"
+            },
+            "metadata": {
+              "Test3ip": "198.51.100.10/32",
+              "Test3name": "LoTest3",
+              "Test4IntData": {
+                "ip": "198.51.100.10/32",
+                "name": "LoTest4"
+              }
+            }
+          },
+          "template": "config system interface\n  edit SingleLo1\n    set vdom root\n    set type loopback\n    set ip 192.0.2.1/32\n    set allowaccess ssh https\n    set description \"Test Looopback SingleLo for branch-fgt-01.\" \n  next\nend"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/6c7bafe3-2974-494a-a91f-0ca697737385",
+        "@type": "ZtpfAutomationAction",
+        "name": "Edit VLAN Descriptions via Device DB",
+        "uuid": "6c7bafe3-2974-494a-a91f-0ca697737385",
+        "id": 11,
+        "description": null,
+        "inputParameters": null,
+        "configParameters": null,
+        "script": "# Update FG VLANs from template\n{{template}}",
+        "exampleScriptRendered": "# Update FG VLANs from template\n\nconfig system interface\nedit VLAN101\nset description \"Updated description for VLAN101\"\nnext\nend\n\nconfig system interface\nedit VLAN102\nset description \"Updated description for VLAN102\"\nnext\nend\n\nconfig system interface\nedit VLAN103\nset description \"Updated description for VLAN103\"\nnext\nend\n",
+        "actionOutputTemplate": null,
+        "outputTemplateMarkdown": null,
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/88c30ec2-a07c-4bb4-99b6-24f5d58e7545",
+          "@type": "Picklist",
+          "itemValue": "DeviceDB",
+          "color": null,
+          "orderIndex": 0
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": {
+          "data": {
+            "vlan_ints": [
+              {
+                "ip": [
+                  "198.51.100.10",
+                  "198.51.100.10"
+                ],
+                "oid": 3843,
+                "name": "VLAN101",
+                "vdom": []
+              },
+              {
+                "ip": [
+                  "198.51.100.10",
+                  "198.51.100.10"
+                ],
+                "oid": 3848,
+                "name": "VLAN102",
+                "vdom": []
+              },
+              {
+                "ip": [
+                  "198.51.100.10",
+                  "198.51.100.10"
+                ],
+                "oid": 3853,
+                "name": "VLAN103",
+                "vdom": []
+              }
+            ]
+          },
+          "record": {
+            "device": {
+              "id": 54,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 1,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_1"
+            },
+            "metadata": []
+          },
+          "template": "\nconfig system interface\nedit VLAN101\nset description \"Updated description for VLAN101\"\nnext\nend\n\nconfig system interface\nedit VLAN102\nset description \"Updated description for VLAN102\"\nnext\nend\n\nconfig system interface\nedit VLAN103\nset description \"Updated description for VLAN103\"\nnext\nend\n"
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/c87c4bf4-06ec-4faa-ac75-5bdca5fbee12",
+        "@type": "ZtpfAutomationAction",
+        "name": "Report Device Routing Table",
+        "uuid": "c87c4bf4-06ec-4faa-ac75-5bdca5fbee12",
+        "id": 10,
+        "description": "Retrieve the device routing table to report on it. ",
+        "inputParameters": null,
+        "configParameters": null,
+        "script": "Found {{data.routing_table|length}} routes.",
+        "exampleScriptRendered": "Found 16 routes.",
+        "actionOutputTemplate": null,
+        "outputTemplateMarkdown": "{%- set rt = [] -%}\n{%- for r in data.routing_table -%}\n{%- set row = [\n  r.ip_mask,\n  r.type,\n  r.interface\n] -%}\n{%- do rt.append(row) -%}\n{%- endfor -%}\n{{rt}}\n\n#### Routing Table for {{record.device.name}}\n\n| Network | Type | Interface |\n| ---------  | ------ | ---------- |\n{%- set tbl = [] -%}\n{%- for r in rt | sort %}\n{{r|join(\" | \")}}\n{%- endfor %}",
+        "category": {
+          "@id": "/api/3/picklists/2fb3ba4c-0d1c-4b4a-8060-9706d96d033e",
+          "@type": "Picklist",
+          "itemValue": "ZTPF",
+          "color": null,
+          "orderIndex": 2
+        },
+        "type": {
+          "@id": "/api/3/picklists/993cf550-ec4a-4069-95e5-ea711da59887",
+          "@type": "Picklist",
+          "itemValue": "Report",
+          "color": null,
+          "orderIndex": 11
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": {
+          "data": {
+            "routing_table": [
+              {
+                "vrf": 0,
+                "type": "static",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/0",
+                "distance": 10,
+                "priority": 1,
+                "interface": "port2",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "static",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/0",
+                "distance": 10,
+                "priority": 1,
+                "interface": "port3",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/24",
+                "distance": 0,
+                "priority": 0,
+                "interface": "port1",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo1",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo2",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo3",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo4",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo5",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo6",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "192.0.2.1/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "SingleLo7",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/24",
+                "distance": 0,
+                "priority": 0,
+                "interface": "port2",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/24",
+                "distance": 0,
+                "priority": 0,
+                "interface": "port3",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/26",
+                "distance": 0,
+                "priority": 0,
+                "interface": "VLAN101",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/26",
+                "distance": 0,
+                "priority": 0,
+                "interface": "VLAN102",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/26",
+                "distance": 0,
+                "priority": 0,
+                "interface": "VLAN103",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              },
+              {
+                "vrf": 0,
+                "type": "connect",
+                "metric": 0,
+                "origin": "unspecified",
+                "gateway": "198.51.100.10",
+                "ip_mask": "198.51.100.10/32",
+                "distance": 0,
+                "priority": 0,
+                "interface": "VLAN101",
+                "ip_version": 4,
+                "non_rc_gateway": "198.51.100.10"
+              }
+            ]
+          },
+          "record": {
+            "device": {
+              "id": 54,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 1,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_1"
+            },
+            "metadata": []
+          }
+        }
+      },
+      {
+        "@id": "/api/3/ztpf_automation_actions/78b6fd75-397e-4ee3-b77d-cca5aae0df50",
+        "@type": "ZtpfAutomationAction",
+        "name": "Create Loopback Interface",
+        "uuid": "78b6fd75-397e-4ee3-b77d-cca5aae0df50",
+        "id": 9,
+        "description": "Simple create a loopback interface as-is without a template. ",
+        "inputParameters": "lo_name\nlo_ip",
+        "configParameters": null,
+        "script": "config system interface\n  edit {{input.lo_name}}\n    set vdom root\n    set type loopback\n    {%- if net %}\n    set ip {{input.lo_ip}}/32\n    {%- endif %}\n    set allowaccess {{data.allowaccess_loopbacks|join(\" \")}}\n    set description \"Test Looopback {{input.lo_name}} for {{record.device.name}}.\" \n  next\nend",
+        "exampleScriptRendered": "config system interface\n  edit AdHoc1\n    set vdom root\n    set type loopback\n    set allowaccess ssh https\n    set description \"Test Looopback AdHoc1 for branch-fgt-01.\" \n  next\nend",
+        "actionOutputTemplate": null,
+        "outputTemplateMarkdown": "Script results for **{{record.device.name}}** from **Task ID {{source.log.log_id}}**:\n\n```\n{{source.log.content}}\n```",
+        "category": {
+          "@id": "/api/3/picklists/0c257588-09a6-4e03-88d5-425a25dcaf8b",
+          "@type": "Picklist",
+          "itemValue": "FortiManager",
+          "color": null,
+          "orderIndex": 0
+        },
+        "type": {
+          "@id": "/api/3/picklists/88c30ec2-a07c-4bb4-99b6-24f5d58e7545",
+          "@type": "Picklist",
+          "itemValue": "DeviceDB",
+          "color": null,
+          "orderIndex": 0
+        },
+        "actionOutputType": {
+          "@id": "/api/3/picklists/d859d6fd-cef6-431a-b4f6-fbcd90c9a654",
+          "@type": "Picklist",
+          "itemValue": "Text",
+          "color": null,
+          "orderIndex": 0
+        },
+        "exampleJinjaVars": {
+          "data": {
+            "allowaccess_loopbacks": [
+              "ssh",
+              "https"
+            ]
+          },
+          "input": {
+            "lo_ip": "198.51.100.10",
+            "lo_name": "AdHoc1"
+          },
+          "record": {
+            "device": {
+              "id": 54,
+              "adom": "example-adom",
+              "name": "branch-fgt-01",
+              "tags": [],
+              "vdom": "root",
+              "mgmt_ip": "198.51.100.10",
+              "firmware": "7.6.6-build3652",
+              "platform": "FortiGate-VM64-KVM"
+            },
+            "manager": {
+              "id": 1,
+              "name": "fortimanager.example.com",
+              "firmware": "v8.0.0-build0105 260420 (GA.F)",
+              "platform": "FMG-VM64-KVM",
+              "connector_config": "managerID_1"
+            },
+            "metadata": []
+          }
+        }
+      }
+    ],
+    "ztpf_templates": [
+      {
+        "@id": "/api/3/ztpf_templates/a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+        "@type": "ZtpfTemplate",
+        "name": "Loopback Interface Template",
+        "uuid": "a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+        "id": 1,
+        "description": "Creates a loopback interface on a FortiGate device",
+        "script": "config system interface\n  edit {{input.interface_name}}\n    set type loopback\n    set ip {{input.ip_address}} {{input.subnet_mask}}\n  next\nend",
+        "inputParameters": "interface_name,ip_address,subnet_mask",
+        "exampleJinjaVars": "{\"interface_name\": \"loopback1\", \"ip_address\": \"10.0.0.1\", \"subnet_mask\": \"255.255.255.0\"}",
+        "createDate": 1784052208.0,
+        "modifyDate": 1785337400.0
+      }
+    ],
+    "ztpf_metadata_sources": [
+      {
+        "@id": "/api/3/ztpf_metadata_sources/b2c3d4e5-f6a7-4890-bcde-f12345678901",
+        "@type": "ZtpfMetadataSource",
+        "name": "Interface Status",
+        "uuid": "b2c3d4e5-f6a7-4890-bcde-f12345678901",
+        "id": 1,
+        "description": "Collects interface status from a FortiGate device",
+        "connector": "fortinet-fortimanager",
+        "action": "get_device_config",
+        "datakey": "interface_status",
+        "inputParameters": "device_name",
+        "createDate": 1784052208.0,
+        "modifyDate": 1785337400.0
+      }
+    ],
+    "ztpf_automation_profiles": [
+      {
+        "@id": "/api/3/ztpf_automation_profiles/c3d4e5f6-a7b8-4901-cdef-23456789012a",
+        "@type": "ZtpfAutomationProfile",
+        "name": "Branch Office Onboarding",
+        "uuid": "c3d4e5f6-a7b8-4901-cdef-23456789012a",
+        "id": 1,
+        "description": "Provisions a branch FortiGate with baseline config",
+        "createDate": 1784052208.0,
+        "modifyDate": 1785337400.0
+      }
+    ]
+  },
+  "personas": {
+    "ztpf_templates": {
+      "key": "fsr_assistant_profile:ztpf_templates",
+      "value": "You are the ZTPF Template Author \u2014 an assistant for authoring and validating zero-touch-provisioning templates in FortiSOAR. A `ztpf_templates` record's `script` field is a Jinja template that generates device config; it reads `input.*` (its declared inputParameters) and `data.*`, and it carries its own sample render context in `exampleJinjaVars`.\n\nGround every answer in the record on screen (read it with get_record / search_module_records first). To check a template, CALL `test_template` \u2014 it renders the `script` against its `exampleJinjaVars` and lints the Jinja (syntax errors + unknown filters). Never eyeball a template for correctness; run it. Report the rendered output and any findings plainly, and explain how to fix errors you find (an undefined-variable error usually means a missing entry in inputParameters or exampleJinjaVars).\n\nWhen the analyst asks you to change the template body, edit the `script` and CALL update_record with the new value (or create_record for a new template) \u2014 do NOT draft it in prose and ask them to confirm; the platform gates the write behind a tier-3 approval card, which is where they confirm. Prefer to `test_template` your drafted `script` (pass it directly) BEFORE proposing the write. Never touch alert/case triage tooling \u2014 you author templates.",
+      "jSONValue": {
+        "ui": {
+          "label": "ZTPF Template Author",
+          "footer": null,
+          "greeting": "Authoring {module}: {name}",
+          "placeholder": "Ask me to render, check, or edit this template\u2026",
+          "quickActions": [
+            {
+              "key": "explain",
+              "sub": "What it provisions + its inputs",
+              "label": "Explain this template",
+              "prompt": "Explain what this ZTPF template's script provisions and which inputs it consumes, step by step."
+            },
+            {
+              "key": "test_render",
+              "sub": "Render against its example vars",
+              "label": "Test render",
+              "prompt": "Render this template against its example vars and show the output plus any errors."
+            },
+            {
+              "key": "lint",
+              "sub": "Syntax errors + unknown filters",
+              "label": "Check the Jinja",
+              "prompt": "Check this template's Jinja for syntax errors and unknown filters, and explain how to fix anything you find."
+            },
+            {
+              "key": "edit_body",
+              "sub": "Describe the change; I'll draft + save",
+              "label": "Edit the template",
+              "prompt": "I want to change this template's body. Ask me what should change, draft the new script, test-render it, then save it."
+            }
+          ]
+        },
+        "label": "ZTPF Template Author",
+        "tools": {
+          "allow": [
+            "get_record",
+            "search_module_records",
+            "test_template",
+            "create_record",
+            "update_record"
+          ]
+        },
+        "version": 1,
+        "may_write": [
+          "ztpf_templates"
+        ],
+        "bind_modules": []
+      }
+    },
+    "ztpf_automation_profiles": {
+      "key": "fsr_assistant_profile:ztpf_automation_profiles",
+      "value": "You are the ZTPF Orchestration assistant \u2014 you help build automation profiles and their steps: the ordering layer that runs the config actions against devices.\n\nTHE DATA MODEL (follow the links; never wire a step against an action you have not fetched):\n- A ztpf_automation_profiles record is an ordered sequence of ztpf_automation_profile_steps.\n- Each ztpf_automation_profile_steps record: `stepSequence` (order within the profile), `ztpfAutomationProfiles` (the profile it belongs to), `ztpfAutomationActions` (the action it runs), and `stepARGS` \u2014 the input.* values handed to that action's template at run time.\n- The action (ztpf_automation_actions) defines the work, and almost always carries it ITSELF: `type` / `category` (what kind of work), `script` (the Jinja payload it renders; it reads `input.*`, `config.*` and `data.*`), `inputParameters` (the input.* it declares), `ztpfMetadataSources` (the device data it reads, as `data.<datakey>`), and `outputStatusTemplate` (the rule that decides pass or fail). Only a few actions also link templates via `ztpfTemplates`; when one does, that template's inputParameters count too. A step's stepARGS MUST supply every input.* the action's script (or linked template) uses; an empty stepARGS is right for an action that uses none.\n- What a step actually DID is one hop further. Every run of a step on a device is a `ztpf_device_automation_steps` record: `ztpfAutomationActions` (the action), `ztpfDevices` (the device), `stepStartTimestamp`, `queueStatus`, and the results: `outputStatusMessage` (the pass/fail reason), `outputMarkdown` / `outputText`, `outputSourceData`.\n\nHOW TO WORK:\n- Ground in the profile/step on screen \u2014 read it with get_record / search_module_records first.\n- To wire or fix a step, get_record the linked ztpfAutomationActions and read the input.* its script uses and its inputParameters (plus its ztpfTemplates' inputParameters when it links any), so you build stepARGS that satisfy every input.* (you may test_template the action's template against a candidate stepARGS to confirm it renders before writing). Report missing/extra args plainly.\n- To add, reorder, or edit a step or profile, EDIT the record and CALL update_record / create_record \u2014 do not draft in prose. The tier-3 approval card is where the analyst confirms. Keep stepSequence contiguous when inserting/reordering.\n- You orchestrate profiles and steps. Authoring the templates / metadata sources / actions themselves is a separate assistant \u2014 read them, but do not create or edit them here.",
+      "jSONValue": {
+        "ui": {
+          "label": "ZTPF Orchestration",
+          "footer": null,
+          "greeting": "Orchestrating {module}: {name}",
+          "placeholder": "Ask me to explain, add, reorder, or fix a step\u2026",
+          "quickActions": [
+            {
+              "key": "explain",
+              "sub": "Steps, order, and actions",
+              "label": "Explain this profile",
+              "prompt": "Explain this profile: walk through its steps in order. For each, say what its action actually does, what stepARGS it passes, and how its latest run went."
+            },
+            {
+              "key": "check_args",
+              "sub": "Do stepARGS cover the action's inputs?",
+              "label": "Check the step args",
+              "prompt": "For each step, read its linked action (the input.* its script uses and its inputParameters, plus any linked template's) and tell me whether stepARGS supplies every required input.*; flag any missing or extra args."
+            },
+            {
+              "key": "add_step",
+              "sub": "Wire an action into this profile",
+              "label": "Add a step",
+              "prompt": "Help me add a step to this profile. Ask which action to run, read the inputs its script uses, build the stepARGS, then save it."
+            }
+          ]
+        },
+        "label": "ZTPF Orchestration",
+        "tools": {
+          "allow": [
+            "get_record",
+            "search_module_records",
+            "test_template",
+            "create_record",
+            "update_record"
+          ]
+        },
+        "version": 1,
+        "may_write": [
+          "ztpf_automation_profiles",
+          "ztpf_automation_profile_steps"
+        ],
+        "bind_modules": [
+          "ztpf_automation_profile_steps"
+        ]
+      }
+    },
+    "ztpf_devices": {
+      "key": "fsr_assistant_profile:ztpf_devices",
+      "value": "You are the ZTPF Device Assistant \u2014 you help review and drive automation for a `ztpf_devices` record (a network device onboarded via Zero-Touch Provisioning). Ground every answer in the device on screen; read it and its related records with the tools before answering.\n\nRELATED RECORDS \u2014 the device's automation steps live in the `ztpf_device_automation_steps` module, NOT on the device record itself. To find them, search that module by the RELATIONSHIP fields (exact names \u2014 do not guess `device_id`/`ztpf_run_group`):\n  \u2022 steps on THIS device:\n      search_module_records(module=\"ztpf_device_automation_steps\",\n        filters={\"ztpfDevices.uuid\": \"<this device's uuid>\"})\n  \u2022 steps with NO run group (pending / not yet grouped):\n      filters=[{\"field\": \"ztpfRunGroups\", \"value\": null}]\n  \u2022 by status (status is a PICKLIST \u2014 filter its itemValue):\n      filters={\"status.itemValue\": \"Ready\"}\nYou may AND several conditions by passing the list form, e.g.\n  filters=[{\"field\":\"ztpfDevices.uuid\",\"value\":\"<uuid>\"},{\"field\":\"ztpfRunGroups\",\"value\":null}].\nA `null` value means IS-EMPTY, not the literal string 'null'. Run groups themselves are `ztpf_run_groups`; a device may reference recent ones.\n\nWhen a search returns zero rows, that is an authoritative answer (there are no such records) \u2014 report it plainly, do NOT retry the same query in other syntaxes. If the user says records exist that you cannot find, list a few with an empty query to confirm the field/value rather than guessing.\n\nRUNNING PLAYBOOKS \u2014 to see what you can run on this device, CALL `list_module_playbooks` (it defaults to this module). To run one, CALL `run_playbook` with the exact name it returned; the device on screen is supplied automatically as the selected record, so you need not restate its IRI. If a run PAUSES with code \"awaiting_input\" and a run_pk, continue it with `resume_playbook`. Never invent a playbook name \u2014 discover it first.\n\nYou only work with ZTPF devices and their automation \u2014 never touch alert or case triage tooling.",
+      "jSONValue": {
+        "ui": {
+          "label": "ZTPF Device Assistant",
+          "footer": null,
+          "greeting": "Device: {name}",
+          "placeholder": "Ask me about this device's automation steps\u2026",
+          "quickActions": [
+            {
+              "key": "steps",
+              "sub": "Latest steps on this device",
+              "label": "Review automation steps",
+              "prompt": "Summarize the latest automation steps for this device \u2014 group them by run group and status."
+            },
+            {
+              "key": "pending",
+              "sub": "Pending / ungrouped steps",
+              "label": "Steps with no run group",
+              "prompt": "List this device's automation steps that have no run group yet."
+            },
+            {
+              "key": "runnable",
+              "sub": "Playbooks for this device",
+              "label": "What can I run?",
+              "prompt": "What playbooks can I run on this device?"
+            }
+          ]
+        },
+        "label": "ZTPF Device Assistant",
+        "tools": {
+          "allow": [
+            "get_record",
+            "search_module_records",
+            "list_module_playbooks",
+            "run_playbook",
+            "resume_playbook",
+            "create_record",
+            "update_record"
+          ]
+        },
+        "version": 1,
+        "may_write": [
+          "assistant_skills"
+        ],
+        "bind_modules": [],
+        "run_playbook": {
+          "auto": [],
+          "allow": []
+        }
+      }
+    },
+    "ztpf_metadata_sources": {
+      "key": "fsr_assistant_profile:ztpf_metadata_sources",
+      "value": "You are the ZTPF Metadata Source Assistant \u2014 you help author and VALIDATE `ztpf_metadata_sources` records. Such a record describes how to collect a piece of device metadata (e.g. interface stats, routing table): it names a connector action / command and the datakey the result is stored under.\n\nGround every answer in the record on screen (read it with get_record / search_module_records first).\n\nTo validate a metadata source \u2014 to prove it actually returns data from a device \u2014 run the *Get Metadata Source Data on Device* playbook. When the analyst asks you to validate, test, or run this metadata source, immediately CALL the `run_playbook` tool with playbook set to exactly \"Get Metadata Source Data on Device\". Do NOT describe running it or ask the analyst to run it themselves and do NOT ask for confirmation first \u2014 CALL run_playbook now. The platform decides whether it auto-runs or needs an approval card; that is not your concern.\n\nThis validation playbook PAUSES on a manual-input step to have a device selected \u2014 run_playbook returns code \"awaiting_input\" with a run_pk. When that happens, CALL the `resume_playbook` tool with run set to that run_pk. Use decision=\"approve\" (choose the primary 'Ok' option) only if the analyst gave you a device to proceed with; otherwise use decision=\"reject\" to cancel the paused run cleanly. After it resolves, report the outcome plainly. You only work with metadata sources \u2014 never touch alert or case triage tooling.",
+      "jSONValue": {
+        "ui": {
+          "label": "ZTPF Metadata Source Assistant",
+          "footer": null,
+          "greeting": "Metadata source: {name}",
+          "placeholder": "Ask me to validate or explain this metadata source\u2026",
+          "quickActions": [
+            {
+              "key": "validate",
+              "sub": "Run the collection playbook",
+              "label": "Validate on a device",
+              "prompt": "Validate this metadata source by running the 'Get Metadata Source Data on Device' playbook and report whether it returned data."
+            },
+            {
+              "key": "explain",
+              "sub": "What it collects + how",
+              "label": "Explain this source",
+              "prompt": "Explain what device metadata this source collects and how (which action/command and datakey)."
+            }
+          ]
+        },
+        "label": "ZTPF Metadata Source Assistant",
+        "tools": {
+          "allow": [
+            "get_record",
+            "search_module_records",
+            "list_module_playbooks",
+            "run_playbook",
+            "resume_playbook",
+            "create_record",
+            "update_record"
+          ]
+        },
+        "version": 1,
+        "may_write": [
+          "assistant_skills"
+        ],
+        "bind_modules": [],
+        "run_playbook": {
+          "auto": [
+            "Get Metadata Source Data on Device",
+            "d4f71a01-d1c4-4955-ae51-310a061a0eb5"
+          ],
+          "allow": [
+            "Get Metadata Source Data on Device",
+            "d4f71a01-d1c4-4955-ae51-310a061a0eb5"
+          ]
+        }
+      }
+    },
+    "ztpf_automation_actions": {
+      "key": "fsr_assistant_profile:ztpf_automation_actions",
+      "value": "You are the ZTPF Automation-Action Author. On this screen you AUTHOR and review `ztpf_automation_actions` records \u2014 reusable templates keyed by Category + Type that call the right playbook for a class of device work. Ground every answer in the record on screen and its related data; read it with the tools before answering.\n\nYOU DO NOT BUILD PLAYBOOKS HERE, and you never touch alert/case triage or device-containment tooling. If asked to 'build a playbook', clarify that here you author the automation-ACTION record (the template) that references an existing playbook \u2014 you do not compile or design playbooks.\n\nWHERE AN ACTION RAN \u2014 an action's executions live in the `ztpf_device_automation_steps` module (real field names, live-verified on 8.0): the action relationship is `ztpfAutomationActions`, the device is `ztpfDevices`, the run group is `ztpfRunGroups`; step order is `stepNumber`; results are `outputMarkdown` / `outputSourceData`. To find every device an action ran on, search that module for steps where `ztpfAutomationActions.uuid` = this action, then collect the DISTINCT `ztpfDevices` from those steps, e.g.\n  search_module_records(module=\"ztpf_device_automation_steps\",\n    filters={\"ztpfAutomationActions.uuid\": \"<this action's uuid>\"}).\nShow each step's `outputMarkdown` / `outputSourceData` for the results.\n\nWhen a search returns zero rows that is an authoritative answer \u2014 report it plainly, do not retry the same query in other syntaxes.",
+      "jSONValue": {
+        "ui": {
+          "label": "ZTPF Automation-Action Author",
+          "footer": null,
+          "greeting": "Automation action: {name}",
+          "placeholder": "Ask about this automation action or author a new one\u2026",
+          "quickActions": [
+            {
+              "key": "where",
+              "sub": "Devices this action touched",
+              "label": "Where has this run?",
+              "prompt": "Which devices has this automation action run on? Traverse the device automation steps for this action and list the distinct devices, with each step's result."
+            },
+            {
+              "key": "author",
+              "sub": "Template keyed by Category + Type",
+              "label": "Author a new action",
+              "prompt": "Help me author a new automation-action record: ask me for the Category, Type, and the playbook it should call, then create it."
+            }
+          ]
+        },
+        "label": "ZTPF Automation-Action Author",
+        "tools": {
+          "allow": [
+            "get_record",
+            "search_module_records",
+            "create_record",
+            "update_record"
+          ]
+        },
+        "version": 1,
+        "may_write": [
+          "ztpf_automation_actions",
+          "assistant_skills"
+        ],
+        "bind_modules": [],
+        "run_playbook": {
+          "auto": [],
+          "allow": []
+        }
+      }
+    }
+  },
+  "playbooks": [
+    {
+      "name": "Render Script Payload - Action",
+      "uuid": "067207c8-81dd-462c-8656-6f673fb1605a",
+      "description": "From a record offer a button to render a jinja script.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_automation_actions"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_actions": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manual Input Demo - Collect Note",
+      "uuid": "2704c84a-53f2-52b6-a67d-dab73f8ee463",
+      "description": "Run from a ztpf_devices record; pauses for a manual-input form, then stamps it back.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prepare Payload on Step",
+      "uuid": "2ac6283e-bfc7-433d-9f12-22eae015960a",
+      "description": "Prepare the payload on this step.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_device_automation_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "stepDone",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  },
+                  {
+                    "type": "object",
+                    "field": "status",
+                    "value": [
+                      "/api/3/picklists/757ec310-af08-4602-8205-1f789310cd13",
+                      "/api/3/picklists/5886b03a-c911-42b4-a065-d69fe3c6be88",
+                      "/api/3/picklists/0102f438-8c8e-4a81-840d-a68a58e242d6",
+                      "/api/3/picklists/feea7c72-3743-49ad-baf8-46bf1f1fca0e"
+                    ],
+                    "module": "status",
+                    "display": "",
+                    "operator": "in",
+                    "template": "multiselectpicklist",
+                    "OPERATOR_KEY": "$",
+                    "useInOperator": true,
+                    "displayTemplate": "",
+                    "previousOperator": "in",
+                    "previousTemplate": "multiselectpicklist"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add Step from Action to Device",
+      "uuid": "3ebf17b8-3554-4e63-baf9-5b6b3ee2571d",
+      "description": "Add an step action record to a device that will be run when queued.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "ztpfRunning",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Run Script Payload - Action",
+      "uuid": "4189c810-7e66-46ea-a1a7-b47aa8b37552",
+      "description": "From a record offer a button to run the test script",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_automation_actions"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_actions": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "FMG System Action Options",
+      "uuid": "4514a5e7-7b1a-4f34-8115-9f20a4153431",
+      "description": "Options for FMG system level actions such as synchronizing system info or retrieving device info.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_managers"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              },
+              "action_options": "[\n\"Synch System Status\",\n\"Retrieve New Devices\"\n]"
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_managers": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "array",
+                    "field": "status",
+                    "value": [
+                      "/api/3/picklists/83db709f-e76b-4f0a-883b-e5c0dbb0f6da",
+                      "/api/3/picklists/286ba1d0-2aa4-4919-a418-5363e59077dc",
+                      "/api/3/picklists/a8dfb595-14cc-4f83-bafa-ce328bddb612",
+                      "/api/3/picklists/fb778ac2-a7ab-4fff-ba44-fe95b22ddc62"
+                    ],
+                    "module": "status",
+                    "display": "",
+                    "operator": "nin",
+                    "template": "multiselectpicklist",
+                    "OPERATOR_KEY": "$",
+                    "previousOperator": "nin",
+                    "previousTemplate": "multiselectpicklist"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manage Tags on Templates",
+      "uuid": "46c1ec8a-6541-43ec-b73d-b9553a56565d",
+      "description": "Manage Tags of the selected record(s)",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_metadata_sources",
+              "ztpf_templates",
+              "ztpf_automation_actions",
+              "ztpf_automation_profiles",
+              "ztpf_automation_profile_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_actions": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_profiles": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_profile_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure Template Script Help",
+      "uuid": "513f3db1-41b1-47b6-ab7f-3045fad2d2e6",
+      "description": "Help user build a template using existing linked metadata sources.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_templates"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure stepARGS via YAML",
+      "uuid": "5f56422c-9f28-4b36-8823-69cad0847000",
+      "description": "Update Step Input on selected records.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_device_automation_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "stepDone",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Synch FMG System Info",
+      "uuid": "6afb35d4-b6c1-442e-97b7-b7c5e2113a30",
+      "description": "Button to synch system data from a manager record.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_managers"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_managers": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure Metadata Source Data - FMG API",
+      "uuid": "76c51068-3965-489e-a947-779b77fd2826",
+      "description": "Help user manage the Metadata Source Data field based on the type.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_metadata_sources"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "type",
+                    "value": "/api/3/picklists/de4cab3c-5bcf-40be-accf-7c420f348569",
+                    "_value": {
+                      "@id": "/api/3/picklists/de4cab3c-5bcf-40be-accf-7c420f348569",
+                      "display": "FortiManager API",
+                      "itemValue": "FortiManager API"
+                    },
+                    "operator": "eq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure Action Script Help",
+      "uuid": "7dfafe5f-36c1-4d79-80d7-10ee82e068ff",
+      "description": "Help user build a template using existing linked metadata sources.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_automation_actions"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_actions": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Synch FMG Devices (New)",
+      "uuid": "7f0f8d4e-6446-4343-8289-48b62322bfcd",
+      "description": "Button to synch new devices from FMG using a manager record.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_managers"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_managers": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "array",
+                    "field": "status",
+                    "value": [
+                      "/api/3/picklists/2a2f34dc-4f3b-4434-aa58-ba995b2bf7c6",
+                      "/api/3/picklists/ccb22d23-bdab-425c-960a-66b9bf59a0b2"
+                    ],
+                    "module": "status",
+                    "display": "",
+                    "operator": "in",
+                    "template": "multiselectpicklist",
+                    "OPERATOR_KEY": "$",
+                    "useInOperator": true,
+                    "previousOperator": "in",
+                    "previousTemplate": "multiselectpicklist"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Move Device Step Number",
+      "uuid": "8c995534-cad0-4cb2-860a-55ea2016cf10",
+      "description": "Moving a step number requires touching all pending step numbers.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_device_automation_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": {
+                  "newStepNumber": "{{vars.request.data[\"newStepNumber\"]}}"
+                },
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "stepDone",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure Metadata Source Data - Playbook",
+      "uuid": "8ed93dc4-49b9-4079-a2fb-36e5f3cee8e9",
+      "description": "Help user manage the Metadata Source Data field based on the type.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_metadata_sources"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "type",
+                    "value": "/api/3/picklists/07852a0b-ed4d-436f-98b5-b5d5087e088b",
+                    "_value": {
+                      "@id": "/api/3/picklists/07852a0b-ed4d-436f-98b5-b5d5087e088b",
+                      "display": "Playbook",
+                      "itemValue": "Playbook"
+                    },
+                    "operator": "eq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add Steps to Device from Profile",
+      "uuid": "8fb90083-a8b7-4e03-aa5b-87b87e1bee92",
+      "description": "Add Step Actions from Profile to a Device",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "ztpfRunning",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure stepARGS Helper",
+      "uuid": "9240ad5e-e906-47f3-ae01-5afcf67f7bd6",
+      "description": "Help user with stepARGS for config option",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_device_automation_steps",
+              "ztpf_automation_profile_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "stepDone",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  }
+                ]
+              },
+              "ztpf_automation_profile_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Run Group and Execute Steps",
+      "uuid": "959638c2-2584-479f-80b7-368ae94bdc07",
+      "description": "Queue Pending Action Steps on a Device",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "ztpfRunning",
+                    "value": true,
+                    "operator": "neq",
+                    "_operator": "neq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Device from Manager",
+      "uuid": "9b6cff59-7e0e-4c24-94cb-4c3af7d164fc",
+      "description": "Delete devices from FMG and re-synch the device record.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "status",
+                    "value": [
+                      "/api/3/picklists/a8dfb595-14cc-4f83-bafa-ce328bddb612",
+                      "/api/3/picklists/fb778ac2-a7ab-4fff-ba44-fe95b22ddc62"
+                    ],
+                    "module": "status",
+                    "display": "",
+                    "operator": "nin",
+                    "template": "multiselectpicklist",
+                    "OPERATOR_KEY": "$",
+                    "displayTemplate": "",
+                    "previousOperator": "nin",
+                    "previousTemplate": "multiselectpicklist"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Synch Device DVMDB info from FMG",
+      "uuid": "9d1a83d1-e9a6-4d6d-986f-173edf129617",
+      "description": "Button to update devices by record ID.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Render Script - Template",
+      "uuid": "9ee2afbc-ce5c-4b32-9f2c-3ffbf5654204",
+      "description": "From a record offer a button to render a jinja script.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_templates"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_automation_actions": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "primitive",
+                    "field": "script",
+                    "value": "false",
+                    "operator": "isnull",
+                    "_operator": "isnull"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete RunGroup and Device Automation Step Records",
+      "uuid": "a296b50d-3bf5-421b-bf7f-a1be5705ad84",
+      "description": "Delete one or more rungroup records and linked steps on demand.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_run_groups"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              },
+              "group_fqids": "{{vars.input.records|json_query('[].\"@id\"')}}"
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_run_groups": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              },
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create/Update FMG Connector Config from Manager Record",
+      "uuid": "a9051804-9230-4c21-a735-487669ad56ae",
+      "description": "Manager records create connector configs if ready with enough fields.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_managers"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_managers": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "array",
+                    "field": "status",
+                    "value": [
+                      "/api/3/picklists/286ba1d0-2aa4-4919-a418-5363e59077dc",
+                      "/api/3/picklists/fb778ac2-a7ab-4fff-ba44-fe95b22ddc62"
+                    ],
+                    "module": "status",
+                    "display": "",
+                    "operator": "nin",
+                    "template": "multiselectpicklist",
+                    "OPERATOR_KEY": "$",
+                    "previousOperator": "nin",
+                    "previousTemplate": "multiselectpicklist"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manual Input Demo - Two Gates",
+      "uuid": "b29c1d22-d788-5b38-bcd9-87f478d02e89",
+      "description": "Run from a ztpf_devices record; pauses for a manual-input form, then stamps it back.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_devices"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": true,
+            "displayConditions": {
+              "ztpf_devices": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure Metadata Source Data - Step Output",
+      "uuid": "bffa3cc5-b3f8-47ac-9046-a8ee348e22dd",
+      "description": "Help user manage the Metadata Source Data field based on the type.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_metadata_sources"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "type",
+                    "value": "/api/3/picklists/f3595833-7d82-4111-8c94-75a110eb464b",
+                    "_value": {
+                      "@id": "/api/3/picklists/f3595833-7d82-4111-8c94-75a110eb464b",
+                      "display": "Step Output",
+                      "itemValue": "Step Output"
+                    },
+                    "operator": "eq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Payload from Step",
+      "uuid": "c0c325ae-f0a7-4aad-acf2-79a4467eff6e",
+      "description": "Delete payload from a step to force a re-rendering of the payload from the input args.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_device_automation_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "OR",
+                "filters": [
+                  {
+                    "type": "array",
+                    "field": "status",
+                    "value": [
+                      "/api/3/picklists/757ec310-af08-4602-8205-1f789310cd13",
+                      "/api/3/picklists/feea7c72-3743-49ad-baf8-46bf1f1fca0e",
+                      "/api/3/picklists/5886b03a-c911-42b4-a065-d69fe3c6be88",
+                      "/api/3/picklists/0102f438-8c8e-4a81-840d-a68a58e242d6"
+                    ],
+                    "module": "status",
+                    "display": "",
+                    "operator": "in",
+                    "template": "multiselectpicklist",
+                    "OPERATOR_KEY": "$",
+                    "useInOperator": true,
+                    "previousOperator": "in",
+                    "previousTemplate": "multiselectpicklist"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Example Data from Templates",
+      "uuid": "c20bc0cd-1b5d-494e-8027-63317210f69d",
+      "description": "Delete fields that hold example data for this record.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_templates",
+              "ztpf_metadata_sources",
+              "ztpf_automation_actions"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_templates": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "exampleJinjaVars",
+                    "value": "false",
+                    "_value": {
+                      "@id": "false",
+                      "display": "",
+                      "itemValue": ""
+                    },
+                    "operator": "isnull"
+                  }
+                ]
+              },
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "exampleJinjaVars",
+                    "value": "false",
+                    "_value": {
+                      "@id": "false",
+                      "display": "",
+                      "itemValue": ""
+                    },
+                    "operator": "isnull"
+                  }
+                ]
+              },
+              "ztpf_automation_actions": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "exampleJinjaVars",
+                    "value": "false",
+                    "_value": {
+                      "@id": "false",
+                      "display": "",
+                      "itemValue": ""
+                    },
+                    "operator": "isnull"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Metadata Source Data on Device",
+      "uuid": "d4f71a01-d1c4-4955-ae51-310a061a0eb5",
+      "description": "Render any jinja in the config and get the metasource data on a device for this record.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_metadata_sources"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              },
+              "datakey": "{{vars.input.records[0].datakey}}"
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configure Metadata Source Data - FMG Proxy API",
+      "uuid": "d9254536-0cc1-41c6-9372-0e32b60a6bf3",
+      "description": "Help user manage the Metadata Source Data field based on the type.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_metadata_sources"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_metadata_sources": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": [
+                  {
+                    "type": "object",
+                    "field": "type",
+                    "value": "/api/3/picklists/b15ebb92-6e8c-49cd-a585-84f1a9971b4f",
+                    "_value": {
+                      "@id": "/api/3/picklists/b15ebb92-6e8c-49cd-a585-84f1a9971b4f",
+                      "display": "FortiManager Proxy API",
+                      "itemValue": "FortiManager Proxy API"
+                    },
+                    "operator": "eq"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete Device Automation Step Record",
+      "uuid": "ecf2298d-93a8-4af3-809e-334ebd76f692",
+      "description": "Delete one or more step records on demand.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_device_automation_steps"
+            ],
+            "step_variables": {
+              "input": {
+                "params": [],
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_device_automation_steps": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Purge Device Records from Manager",
+      "uuid": "f5e903ad-b232-4f6b-a137-49acb7781f3d",
+      "description": "Delete all device records associated to a manager.",
+      "isActive": true,
+      "steps": [
+        {
+          "stepType": {
+            "name": "cybersponse.action"
+          },
+          "arguments": {
+            "resources": [
+              "ztpf_managers"
+            ],
+            "step_variables": {
+              "input": {
+                "params": {
+                  "purgeDeviceType": "{{vars.request.data[\"purgeDeviceType\"]}}"
+                },
+                "records": "{{vars.input.records}}"
+              }
+            },
+            "singleRecordExecution": false,
+            "displayConditions": {
+              "ztpf_managers": {
+                "sort": [],
+                "limit": 30,
+                "logic": "AND",
+                "filters": []
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

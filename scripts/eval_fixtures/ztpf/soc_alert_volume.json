@@ -1,0 +1,1219 @@
+{
+ "_README": [
+  "Alert VOLUME for N6 (truncation relay): the mounted capture from",
+  "soc_alert_surface plus 59 synthetic alerts in four kinds, so a",
+  "question about every alert returns a page of many -- the state a",
+  "summary can silently cover only part of. Four kinds, fixed counts",
+  "(Data Exfiltration 23 incl. the capture, Malware 18, Brute Force",
+  "Attempt 12, Policy Violation 7), TEST-NET / private addresses only.",
+  "Other modules are soc_alert_surface's, by $file reference.",
+  "assets: the alert's internal source host (10.50.60.70), so a containment turn's asset lookup is ANSWERED, not unserved (N5).",
+  "comments: [] -- the mounted alerts carry no comments; served empty so a turn that reads them is answered (N5)."
+ ],
+ "persona_source": "module",
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "$file": "alert_c2_exfil"
+   },
+   {
+    "@id": "/api/3/alerts/53add574-537a-5cbc-9337-61a2dbc3c16e",
+    "@type": "Alert",
+    "uuid": "53add574-537a-5cbc-9337-61a2dbc3c16e",
+    "id": 20001,
+    "name": "Traffic from 10.20.1.11 to FortiGuard Malware IP 203.0.113.11",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790003600,
+    "modifyDate": 1790003600
+   },
+   {
+    "@id": "/api/3/alerts/5570f144-c856-5c75-a845-50b0e670eb14",
+    "@type": "Alert",
+    "uuid": "5570f144-c856-5c75-a845-50b0e670eb14",
+    "id": 20002,
+    "name": "Traffic from 10.20.2.12 to FortiGuard Malware IP 203.0.113.12",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790007200,
+    "modifyDate": 1790007200
+   },
+   {
+    "@id": "/api/3/alerts/44b9f5d0-3c71-5a08-8896-907afb6bbcb3",
+    "@type": "Alert",
+    "uuid": "44b9f5d0-3c71-5a08-8896-907afb6bbcb3",
+    "id": 20003,
+    "name": "Traffic from 10.20.3.13 to FortiGuard Malware IP 203.0.113.13",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790010800,
+    "modifyDate": 1790010800
+   },
+   {
+    "@id": "/api/3/alerts/f88464ea-912f-5421-830f-b6506a886c7b",
+    "@type": "Alert",
+    "uuid": "f88464ea-912f-5421-830f-b6506a886c7b",
+    "id": 20004,
+    "name": "Traffic from 10.20.4.14 to FortiGuard Malware IP 203.0.113.14",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790014400,
+    "modifyDate": 1790014400
+   },
+   {
+    "@id": "/api/3/alerts/c01b0949-c661-5092-9a99-e9f6fb41f8f6",
+    "@type": "Alert",
+    "uuid": "c01b0949-c661-5092-9a99-e9f6fb41f8f6",
+    "id": 20005,
+    "name": "Traffic from 10.20.5.15 to FortiGuard Malware IP 203.0.113.15",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790018000,
+    "modifyDate": 1790018000
+   },
+   {
+    "@id": "/api/3/alerts/655d9b48-6086-5c20-bcb8-a389589b5a69",
+    "@type": "Alert",
+    "uuid": "655d9b48-6086-5c20-bcb8-a389589b5a69",
+    "id": 20006,
+    "name": "Traffic from 10.20.6.16 to FortiGuard Malware IP 203.0.113.16",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790021600,
+    "modifyDate": 1790021600
+   },
+   {
+    "@id": "/api/3/alerts/7accfc8f-96d2-594f-a130-185eb31fb1b0",
+    "@type": "Alert",
+    "uuid": "7accfc8f-96d2-594f-a130-185eb31fb1b0",
+    "id": 20007,
+    "name": "Traffic from 10.20.0.17 to FortiGuard Malware IP 203.0.113.17",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790025200,
+    "modifyDate": 1790025200
+   },
+   {
+    "@id": "/api/3/alerts/5396be6a-4501-56c3-b516-0c480d869a4d",
+    "@type": "Alert",
+    "uuid": "5396be6a-4501-56c3-b516-0c480d869a4d",
+    "id": 20008,
+    "name": "Traffic from 10.20.1.18 to FortiGuard Malware IP 203.0.113.18",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790028800,
+    "modifyDate": 1790028800
+   },
+   {
+    "@id": "/api/3/alerts/db91f878-4483-51e8-ab2b-3dfa21cc914f",
+    "@type": "Alert",
+    "uuid": "db91f878-4483-51e8-ab2b-3dfa21cc914f",
+    "id": 20009,
+    "name": "Traffic from 10.20.2.19 to FortiGuard Malware IP 203.0.113.19",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790032400,
+    "modifyDate": 1790032400
+   },
+   {
+    "@id": "/api/3/alerts/18266003-38db-56f0-be74-5d5fa55908b4",
+    "@type": "Alert",
+    "uuid": "18266003-38db-56f0-be74-5d5fa55908b4",
+    "id": 20010,
+    "name": "Traffic from 10.20.3.20 to FortiGuard Malware IP 203.0.113.20",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790036000,
+    "modifyDate": 1790036000
+   },
+   {
+    "@id": "/api/3/alerts/8874c064-c2bf-50fe-997e-e057d15aa952",
+    "@type": "Alert",
+    "uuid": "8874c064-c2bf-50fe-997e-e057d15aa952",
+    "id": 20011,
+    "name": "Traffic from 10.20.4.21 to FortiGuard Malware IP 203.0.113.21",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790039600,
+    "modifyDate": 1790039600
+   },
+   {
+    "@id": "/api/3/alerts/70fe3f6e-983e-54ac-b61c-9fca16d68a68",
+    "@type": "Alert",
+    "uuid": "70fe3f6e-983e-54ac-b61c-9fca16d68a68",
+    "id": 20012,
+    "name": "Traffic from 10.20.5.22 to FortiGuard Malware IP 203.0.113.22",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790043200,
+    "modifyDate": 1790043200
+   },
+   {
+    "@id": "/api/3/alerts/806b7420-a029-556d-bf70-ffec2af179bf",
+    "@type": "Alert",
+    "uuid": "806b7420-a029-556d-bf70-ffec2af179bf",
+    "id": 20013,
+    "name": "Traffic from 10.20.6.23 to FortiGuard Malware IP 203.0.113.23",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790046800,
+    "modifyDate": 1790046800
+   },
+   {
+    "@id": "/api/3/alerts/bad8d17a-4161-56ff-a33f-5eafc1203984",
+    "@type": "Alert",
+    "uuid": "bad8d17a-4161-56ff-a33f-5eafc1203984",
+    "id": 20014,
+    "name": "Traffic from 10.20.0.24 to FortiGuard Malware IP 203.0.113.24",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790050400,
+    "modifyDate": 1790050400
+   },
+   {
+    "@id": "/api/3/alerts/fd37e79e-5e23-5c45-9800-0d4900f3e8e4",
+    "@type": "Alert",
+    "uuid": "fd37e79e-5e23-5c45-9800-0d4900f3e8e4",
+    "id": 20015,
+    "name": "Traffic from 10.20.1.25 to FortiGuard Malware IP 203.0.113.25",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790054000,
+    "modifyDate": 1790054000
+   },
+   {
+    "@id": "/api/3/alerts/f2b5c5c7-7a0b-5cfe-a549-481385d3cf58",
+    "@type": "Alert",
+    "uuid": "f2b5c5c7-7a0b-5cfe-a549-481385d3cf58",
+    "id": 20016,
+    "name": "Traffic from 10.20.2.26 to FortiGuard Malware IP 203.0.113.26",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790057600,
+    "modifyDate": 1790057600
+   },
+   {
+    "@id": "/api/3/alerts/742b03d5-5996-501f-b430-141898b3c2bc",
+    "@type": "Alert",
+    "uuid": "742b03d5-5996-501f-b430-141898b3c2bc",
+    "id": 20017,
+    "name": "Traffic from 10.20.3.27 to FortiGuard Malware IP 203.0.113.27",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790061200,
+    "modifyDate": 1790061200
+   },
+   {
+    "@id": "/api/3/alerts/6d236702-6b88-52d6-b6a7-1d3fa8096dc6",
+    "@type": "Alert",
+    "uuid": "6d236702-6b88-52d6-b6a7-1d3fa8096dc6",
+    "id": 20018,
+    "name": "Traffic from 10.20.4.28 to FortiGuard Malware IP 203.0.113.28",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790064800,
+    "modifyDate": 1790064800
+   },
+   {
+    "@id": "/api/3/alerts/e960c873-6cb5-5808-b9b4-122448a3f354",
+    "@type": "Alert",
+    "uuid": "e960c873-6cb5-5808-b9b4-122448a3f354",
+    "id": 20019,
+    "name": "Traffic from 10.20.5.29 to FortiGuard Malware IP 203.0.113.29",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790068400,
+    "modifyDate": 1790068400
+   },
+   {
+    "@id": "/api/3/alerts/d91441fc-c7af-5c11-a1ab-05aaf9ec09e4",
+    "@type": "Alert",
+    "uuid": "d91441fc-c7af-5c11-a1ab-05aaf9ec09e4",
+    "id": 20020,
+    "name": "Traffic from 10.20.6.30 to FortiGuard Malware IP 203.0.113.30",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790072000,
+    "modifyDate": 1790072000
+   },
+   {
+    "@id": "/api/3/alerts/b2ebc6f9-6c2f-5fd7-ac3e-0669dd6725bd",
+    "@type": "Alert",
+    "uuid": "b2ebc6f9-6c2f-5fd7-ac3e-0669dd6725bd",
+    "id": 20021,
+    "name": "Traffic from 10.20.0.31 to FortiGuard Malware IP 203.0.113.31",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790075600,
+    "modifyDate": 1790075600
+   },
+   {
+    "@id": "/api/3/alerts/cb1d57f4-dc21-5b06-93bb-ecce3193ced9",
+    "@type": "Alert",
+    "uuid": "cb1d57f4-dc21-5b06-93bb-ecce3193ced9",
+    "id": 20022,
+    "name": "Traffic from 10.20.1.32 to FortiGuard Malware IP 203.0.113.32",
+    "type": {
+     "itemValue": "Data Exfiltration"
+    },
+    "severity": {
+     "itemValue": "High"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790079200,
+    "modifyDate": 1790079200
+   },
+   {
+    "@id": "/api/3/alerts/400d7df7-b923-513e-a954-d6f6aefc4b10",
+    "@type": "Alert",
+    "uuid": "400d7df7-b923-513e-a954-d6f6aefc4b10",
+    "id": 20023,
+    "name": "Malware detected on host WS-023",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790082800,
+    "modifyDate": 1790082800
+   },
+   {
+    "@id": "/api/3/alerts/bd1b404a-b150-5f2e-aef5-1bb4fde7dd66",
+    "@type": "Alert",
+    "uuid": "bd1b404a-b150-5f2e-aef5-1bb4fde7dd66",
+    "id": 20024,
+    "name": "Malware detected on host WS-024",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790086400,
+    "modifyDate": 1790086400
+   },
+   {
+    "@id": "/api/3/alerts/f052e886-20e0-58b5-aa21-298b6932979b",
+    "@type": "Alert",
+    "uuid": "f052e886-20e0-58b5-aa21-298b6932979b",
+    "id": 20025,
+    "name": "Malware detected on host WS-025",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790090000,
+    "modifyDate": 1790090000
+   },
+   {
+    "@id": "/api/3/alerts/9fa84568-ad19-578b-ac6a-f8ce11cae56d",
+    "@type": "Alert",
+    "uuid": "9fa84568-ad19-578b-ac6a-f8ce11cae56d",
+    "id": 20026,
+    "name": "Malware detected on host WS-026",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790093600,
+    "modifyDate": 1790093600
+   },
+   {
+    "@id": "/api/3/alerts/68333ffd-16e4-5ccf-b455-affda9b57eeb",
+    "@type": "Alert",
+    "uuid": "68333ffd-16e4-5ccf-b455-affda9b57eeb",
+    "id": 20027,
+    "name": "Malware detected on host WS-027",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790097200,
+    "modifyDate": 1790097200
+   },
+   {
+    "@id": "/api/3/alerts/887f6d5c-1162-5221-8f3d-3ad42650f4b0",
+    "@type": "Alert",
+    "uuid": "887f6d5c-1162-5221-8f3d-3ad42650f4b0",
+    "id": 20028,
+    "name": "Malware detected on host WS-028",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790100800,
+    "modifyDate": 1790100800
+   },
+   {
+    "@id": "/api/3/alerts/2af143ab-dedc-59ce-97e2-55dae9afa776",
+    "@type": "Alert",
+    "uuid": "2af143ab-dedc-59ce-97e2-55dae9afa776",
+    "id": 20029,
+    "name": "Malware detected on host WS-029",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790104400,
+    "modifyDate": 1790104400
+   },
+   {
+    "@id": "/api/3/alerts/9fad42f3-4a16-5caf-84cf-a9f7b8f8ecfa",
+    "@type": "Alert",
+    "uuid": "9fad42f3-4a16-5caf-84cf-a9f7b8f8ecfa",
+    "id": 20030,
+    "name": "Malware detected on host WS-030",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790108000,
+    "modifyDate": 1790108000
+   },
+   {
+    "@id": "/api/3/alerts/834e0575-b449-58c3-8777-b7fbc36205a0",
+    "@type": "Alert",
+    "uuid": "834e0575-b449-58c3-8777-b7fbc36205a0",
+    "id": 20031,
+    "name": "Malware detected on host WS-031",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790111600,
+    "modifyDate": 1790111600
+   },
+   {
+    "@id": "/api/3/alerts/90b03a58-62e4-53e7-be9f-8380c282962d",
+    "@type": "Alert",
+    "uuid": "90b03a58-62e4-53e7-be9f-8380c282962d",
+    "id": 20032,
+    "name": "Malware detected on host WS-032",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790115200,
+    "modifyDate": 1790115200
+   },
+   {
+    "@id": "/api/3/alerts/c0e99911-c26e-5f58-b9eb-337bf7a52c0e",
+    "@type": "Alert",
+    "uuid": "c0e99911-c26e-5f58-b9eb-337bf7a52c0e",
+    "id": 20033,
+    "name": "Malware detected on host WS-033",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790118800,
+    "modifyDate": 1790118800
+   },
+   {
+    "@id": "/api/3/alerts/9b7c7b55-4b1e-5900-8f11-dd289245a971",
+    "@type": "Alert",
+    "uuid": "9b7c7b55-4b1e-5900-8f11-dd289245a971",
+    "id": 20034,
+    "name": "Malware detected on host WS-034",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790122400,
+    "modifyDate": 1790122400
+   },
+   {
+    "@id": "/api/3/alerts/a2f52c7e-284b-57e1-a8cb-5c58a2633fa2",
+    "@type": "Alert",
+    "uuid": "a2f52c7e-284b-57e1-a8cb-5c58a2633fa2",
+    "id": 20035,
+    "name": "Malware detected on host WS-035",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790126000,
+    "modifyDate": 1790126000
+   },
+   {
+    "@id": "/api/3/alerts/63c3de8b-80c3-5080-947d-1cb78f9b54c4",
+    "@type": "Alert",
+    "uuid": "63c3de8b-80c3-5080-947d-1cb78f9b54c4",
+    "id": 20036,
+    "name": "Malware detected on host WS-036",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790129600,
+    "modifyDate": 1790129600
+   },
+   {
+    "@id": "/api/3/alerts/152c3141-d4f8-5e81-81bf-23e672196853",
+    "@type": "Alert",
+    "uuid": "152c3141-d4f8-5e81-81bf-23e672196853",
+    "id": 20037,
+    "name": "Malware detected on host WS-037",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790133200,
+    "modifyDate": 1790133200
+   },
+   {
+    "@id": "/api/3/alerts/7b30c904-2b60-5407-a13f-5259e7c56456",
+    "@type": "Alert",
+    "uuid": "7b30c904-2b60-5407-a13f-5259e7c56456",
+    "id": 20038,
+    "name": "Malware detected on host WS-038",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790136800,
+    "modifyDate": 1790136800
+   },
+   {
+    "@id": "/api/3/alerts/f72ac743-e8ea-53d7-bc24-970916c36fb5",
+    "@type": "Alert",
+    "uuid": "f72ac743-e8ea-53d7-bc24-970916c36fb5",
+    "id": 20039,
+    "name": "Malware detected on host WS-039",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790140400,
+    "modifyDate": 1790140400
+   },
+   {
+    "@id": "/api/3/alerts/7875d6a7-c639-52ba-bd0e-fba3d111e379",
+    "@type": "Alert",
+    "uuid": "7875d6a7-c639-52ba-bd0e-fba3d111e379",
+    "id": 20040,
+    "name": "Malware detected on host WS-040",
+    "type": {
+     "itemValue": "Malware"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790144000,
+    "modifyDate": 1790144000
+   },
+   {
+    "@id": "/api/3/alerts/3af6eb0b-db94-5a51-acf4-a354467df497",
+    "@type": "Alert",
+    "uuid": "3af6eb0b-db94-5a51-acf4-a354467df497",
+    "id": 20041,
+    "name": "Repeated failed logins from 198.51.100.51",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790147600,
+    "modifyDate": 1790147600
+   },
+   {
+    "@id": "/api/3/alerts/eb39db44-5470-545a-8993-bebb23a3ef29",
+    "@type": "Alert",
+    "uuid": "eb39db44-5470-545a-8993-bebb23a3ef29",
+    "id": 20042,
+    "name": "Repeated failed logins from 198.51.100.52",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790151200,
+    "modifyDate": 1790151200
+   },
+   {
+    "@id": "/api/3/alerts/16d8ebab-0f99-5cd8-af67-10a3515fe38a",
+    "@type": "Alert",
+    "uuid": "16d8ebab-0f99-5cd8-af67-10a3515fe38a",
+    "id": 20043,
+    "name": "Repeated failed logins from 198.51.100.53",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790154800,
+    "modifyDate": 1790154800
+   },
+   {
+    "@id": "/api/3/alerts/ab0c2f19-c89b-5977-bfaa-bcebbe82edb5",
+    "@type": "Alert",
+    "uuid": "ab0c2f19-c89b-5977-bfaa-bcebbe82edb5",
+    "id": 20044,
+    "name": "Repeated failed logins from 198.51.100.54",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790158400,
+    "modifyDate": 1790158400
+   },
+   {
+    "@id": "/api/3/alerts/50d11528-4216-5dcf-8835-61a147d995ec",
+    "@type": "Alert",
+    "uuid": "50d11528-4216-5dcf-8835-61a147d995ec",
+    "id": 20045,
+    "name": "Repeated failed logins from 198.51.100.55",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790162000,
+    "modifyDate": 1790162000
+   },
+   {
+    "@id": "/api/3/alerts/96ad3cf4-97c1-5ecd-8798-3b47da69ab67",
+    "@type": "Alert",
+    "uuid": "96ad3cf4-97c1-5ecd-8798-3b47da69ab67",
+    "id": 20046,
+    "name": "Repeated failed logins from 198.51.100.56",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790165600,
+    "modifyDate": 1790165600
+   },
+   {
+    "@id": "/api/3/alerts/30eb81fe-8b24-5252-8042-be8fba5b0052",
+    "@type": "Alert",
+    "uuid": "30eb81fe-8b24-5252-8042-be8fba5b0052",
+    "id": 20047,
+    "name": "Repeated failed logins from 198.51.100.57",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790169200,
+    "modifyDate": 1790169200
+   },
+   {
+    "@id": "/api/3/alerts/a74a4696-d1d6-5567-ac4f-2a9d6f95575c",
+    "@type": "Alert",
+    "uuid": "a74a4696-d1d6-5567-ac4f-2a9d6f95575c",
+    "id": 20048,
+    "name": "Repeated failed logins from 198.51.100.58",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790172800,
+    "modifyDate": 1790172800
+   },
+   {
+    "@id": "/api/3/alerts/6f685282-d609-56d5-9b04-21f4a39eab44",
+    "@type": "Alert",
+    "uuid": "6f685282-d609-56d5-9b04-21f4a39eab44",
+    "id": 20049,
+    "name": "Repeated failed logins from 198.51.100.59",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790176400,
+    "modifyDate": 1790176400
+   },
+   {
+    "@id": "/api/3/alerts/c2a771e7-744b-593d-b3f1-e9b60d239e16",
+    "@type": "Alert",
+    "uuid": "c2a771e7-744b-593d-b3f1-e9b60d239e16",
+    "id": 20050,
+    "name": "Repeated failed logins from 198.51.100.60",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790180000,
+    "modifyDate": 1790180000
+   },
+   {
+    "@id": "/api/3/alerts/524680d0-916e-505e-a406-b956edc552b0",
+    "@type": "Alert",
+    "uuid": "524680d0-916e-505e-a406-b956edc552b0",
+    "id": 20051,
+    "name": "Repeated failed logins from 198.51.100.61",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790183600,
+    "modifyDate": 1790183600
+   },
+   {
+    "@id": "/api/3/alerts/48c1054f-71c2-5faa-9743-bcad77281379",
+    "@type": "Alert",
+    "uuid": "48c1054f-71c2-5faa-9743-bcad77281379",
+    "id": 20052,
+    "name": "Repeated failed logins from 198.51.100.62",
+    "type": {
+     "itemValue": "Brute Force Attempt"
+    },
+    "severity": {
+     "itemValue": "Medium"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790187200,
+    "modifyDate": 1790187200
+   },
+   {
+    "@id": "/api/3/alerts/b4a4c180-19a4-5431-8d91-4ddf7e1e3af8",
+    "@type": "Alert",
+    "uuid": "b4a4c180-19a4-5431-8d91-4ddf7e1e3af8",
+    "id": 20053,
+    "name": "Unapproved application on WS-053",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790190800,
+    "modifyDate": 1790190800
+   },
+   {
+    "@id": "/api/3/alerts/233e9409-d1d9-507c-9c42-3d3f43bf3191",
+    "@type": "Alert",
+    "uuid": "233e9409-d1d9-507c-9c42-3d3f43bf3191",
+    "id": 20054,
+    "name": "Unapproved application on WS-054",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790194400,
+    "modifyDate": 1790194400
+   },
+   {
+    "@id": "/api/3/alerts/4e893514-55ec-5da8-9354-ea5bb4175fc0",
+    "@type": "Alert",
+    "uuid": "4e893514-55ec-5da8-9354-ea5bb4175fc0",
+    "id": 20055,
+    "name": "Unapproved application on WS-055",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790198000,
+    "modifyDate": 1790198000
+   },
+   {
+    "@id": "/api/3/alerts/7dbfe363-350f-54a8-88e6-f2fcd7f6b975",
+    "@type": "Alert",
+    "uuid": "7dbfe363-350f-54a8-88e6-f2fcd7f6b975",
+    "id": 20056,
+    "name": "Unapproved application on WS-056",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790201600,
+    "modifyDate": 1790201600
+   },
+   {
+    "@id": "/api/3/alerts/b750c30c-11b9-5a79-9920-c6b6003e9a81",
+    "@type": "Alert",
+    "uuid": "b750c30c-11b9-5a79-9920-c6b6003e9a81",
+    "id": 20057,
+    "name": "Unapproved application on WS-057",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Closed"
+    },
+    "createDate": 1790205200,
+    "modifyDate": 1790205200
+   },
+   {
+    "@id": "/api/3/alerts/f64b4df3-fb0e-52f0-8536-c42b9dc0ed04",
+    "@type": "Alert",
+    "uuid": "f64b4df3-fb0e-52f0-8536-c42b9dc0ed04",
+    "id": 20058,
+    "name": "Unapproved application on WS-058",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790208800,
+    "modifyDate": 1790208800
+   },
+   {
+    "@id": "/api/3/alerts/6da3ac09-4e6c-5800-9970-6aa4f3cbfb18",
+    "@type": "Alert",
+    "uuid": "6da3ac09-4e6c-5800-9970-6aa4f3cbfb18",
+    "id": 20059,
+    "name": "Unapproved application on WS-059",
+    "type": {
+     "itemValue": "Policy Violation"
+    },
+    "severity": {
+     "itemValue": "Low"
+    },
+    "status": {
+     "itemValue": "Open"
+    },
+    "createDate": 1790212400,
+    "modifyDate": 1790212400
+   }
+  ],
+  "incidents": [
+   {
+    "$file": "incident_smithdesktop"
+   },
+   {
+    "@id": "/api/3/incidents/a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+    "@type": "Incident",
+    "name": "C2 Communication from smithDesktop",
+    "uuid": "a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+    "id": 201,
+    "title": "C2 Communication from smithDesktop to 102.220.160.21",
+    "description": " smithDesktop (10.50.60.70) observed communicating with known C2 IP 102.220.160.21. Correlated with alert d39ecc9a-2968-42d5-948d-ce96fd76b227.",
+    "sourceIP": "10.50.60.70",
+    "destinationIP": "102.220.160.21",
+    "severity": "High",
+    "state": "Open",
+    "phase": "Detection",
+    "source": "Fortinet FortiSIEM",
+    "creator": "FortiSIEM",
+    "createDate": 1780079500,
+    "modifyDate": 1780079600,
+    "alerts": {
+     "@id": "/api/3/alerts/d39ecc9a-2968-42d5-948d-ce96fd76b227",
+     "name": "Traffic from 10.50.60.70 to FortiGuard Malware IP 102.220.160.21",
+     "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227",
+     "@type": "Alert"
+    }
+   }
+  ],
+  "indicators": [
+   {
+    "@id": "/api/3/indicators/d1e2f3a4-b5c6-4d78-9abc-def012345678",
+    "@type": "Indicator",
+    "name": "102.220.160.21",
+    "uuid": "d1e2f3a4-b5c6-4d78-9abc-def012345678",
+    "id": 1,
+    "value": "102.220.160.21",
+    "type": "IPv4",
+    "reputation": "Malicious",
+    "source": "FortiGuard Malware IP List",
+    "description": "Known C2 server associated with T1041 Exfiltration Over C2 Channel",
+    "createDate": 1784000000.0,
+    "modifyDate": 1785000000.0
+   },
+   {
+    "@id": "/api/3/indicators/e2f3a4b5-c6d7-489a-bcde-f01234567890",
+    "@type": "Indicator",
+    "name": "10.50.60.70",
+    "uuid": "e2f3a4b5-c6d7-489a-bcde-f01234567890",
+    "id": 2,
+    "value": "10.50.60.70",
+    "type": "IPv4",
+    "reputation": "Suspicious",
+    "source": "Internal SOC",
+    "description": "Internal host showing C2 beaconing behavior",
+    "createDate": 1784100000.0,
+    "modifyDate": 1785100000.0
+   }
+  ],
+  "siem_events": [
+   {
+    "@id": "/api/3/siem_events/evt-001",
+    "@type": "SiemEvent",
+    "uuid": "evt-001",
+    "id": 101,
+    "phRecvTime": "2026-05-29T18:31:02Z",
+    "srcIpAddr": "10.50.60.70",
+    "destIpAddr": "102.220.160.21",
+    "eventType": "connection",
+    "eventName": "HTTPS Session",
+    "sentBytes64": 1900000000,
+    "rcvdBytes64": 4510000000,
+    "hostName": "smithDesktop",
+    "destPort": 443,
+    "action": "accept",
+    "firewallPolicy": "Inside-To-Outside",
+    "deviceName": "FGT_Edge"
+   },
+   {
+    "@id": "/api/3/siem_events/evt-002",
+    "@type": "SiemEvent",
+    "uuid": "evt-002",
+    "id": 102,
+    "phRecvTime": "2026-05-29T18:31:02Z",
+    "srcIpAddr": "10.50.60.70",
+    "destIpAddr": "102.220.160.21",
+    "eventType": "dns",
+    "eventName": "DNS Query",
+    "sentBytes64": 55,
+    "rcvdBytes64": 128,
+    "hostName": "smithDesktop",
+    "destPort": 53,
+    "action": "accept",
+    "firewallPolicy": "Inside-To-Outside",
+    "deviceName": "FGT_Edge"
+   },
+   {
+    "@id": "/api/3/siem_events/evt-003",
+    "@type": "SiemEvent",
+    "uuid": "evt-003",
+    "id": 103,
+    "phRecvTime": "2026-05-29T18:35:00Z",
+    "srcIpAddr": "10.50.60.70",
+    "destIpAddr": "10.10.100.1",
+    "eventType": "connection",
+    "eventName": "Internal Connection",
+    "sentBytes64": 12000,
+    "rcvdBytes64": 8000,
+    "hostName": "smithDesktop",
+    "destPort": 443,
+    "action": "accept",
+    "firewallPolicy": "Inside-To-Management",
+    "deviceName": "FGT_Edge"
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/3e8b1c52-7d4a-4f19-9a60-2c5d8e71b0a4",
+    "@type": "Asset",
+    "uuid": "3e8b1c52-7d4a-4f19-9a60-2c5d8e71b0a4",
+    "id": 802,
+    "name": "finance-ws-12",
+    "hostname": "finance-ws-12.corp.example",
+    "ip": "10.50.60.70",
+    "owner": "Finance",
+    "criticality": {
+     "@type": "Picklist",
+     "itemValue": "Medium"
+    },
+    "os": "Windows 11",
+    "location": "HQ-Floor3"
+   }
+  ],
+  "comments": []
+ }
+}

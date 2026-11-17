@@ -1,0 +1,24 @@
+{
+ "name": "lifecycle_debug_wrong_containment_param",
+ "why": "Debug leg (explain-only): analyst asks why a containment step is not acting. Inherits the wrong-containment-param broken playbook. Graded on the diagnosis naming the wrong/empty containment parameter, not on reaching a diagnostic tool.",
+ "inherit_matrix": "repair_wrong_containment_param",
+ "goal": "The containment step on this playbook runs but blocks nothing. Explain why -- what is wrong with it? Do not edit the playbook.",
+ "explain_only": true,
+ "diagnosis_contains": [
+  [
+   "param",
+   "parameter",
+   "argument",
+   "field"
+  ],
+  [
+   "empty",
+   "wrong",
+   "not set",
+   "missing",
+   "mismatch"
+  ]
+ ],
+ "records": "soc_alert_surface_servicenow",
+ "defect": "The FortiGate block_ip_new step uses the Address Based method with the singular `ip` parameter instead of Quarantine Based with the plural `ip_addresses`, so the appliance reports success but bans nothing."
+}

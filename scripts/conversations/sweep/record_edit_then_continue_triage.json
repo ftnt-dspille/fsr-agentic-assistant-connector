@@ -1,0 +1,31 @@
+{
+  "name": "record_edit_then_continue_triage",
+  "category": "record_ops",
+  "intent": "triage",
+  "module": "incidents",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "incidents",
+    "uuid": "b4a62c3b-3f60-44a5-b44d-f53a9244fa55"
+  },
+  "why": [
+    "A write followed by more reading. After a mutating attempt the agent",
+    "must still be able to answer about the record -- a write should not",
+    "cost it the context."
+  ],
+  "steps": [
+    {
+      "user": "Set this incident's status to closed and add a note that it was benign."
+    },
+    {
+      "user": "What was its original severity again?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "claims_backed": { "require_attempt": true },
+    "answers_from_record": {
+      "severity": "Medium"
+    }
+  }
+}

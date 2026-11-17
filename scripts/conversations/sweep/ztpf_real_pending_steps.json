@@ -1,0 +1,33 @@
+{
+  "name": "ztpf_real_pending_steps",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. Early in the history the agent answered 'no pending steps' while the engineer could see three. Pending = steps with no run group (the engineer's own definition, FIXME). One such step exists here."
+  ],
+  "steps": [
+    {
+      "user": "Are there pending steps?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "search_module_records"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "Extract from Planning Spreadsheet"
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+collection: Eval Run Failures
+uuid: 027687d4-511d-5b39-9fca-8c79e685c3ca
+description: ''
+visible: true
+playbooks:
+- name: Refresh Latest Alert Details
+  uuid: 3106d4a5-7143-515d-8ef5-aedc1b55ec7c
+  description: Fetch the newest alert and re-read its full record.
+  is_active: true
+  trigger_step_id: start
+  steps:
+  - type: find_record
+    name: Fetch Alert
+    module: alerts?$limit=1
+    filters:
+    - field: name
+      value: '%'
+      operator: like
+    limit: 1
+    next: read_full_alert
+    uuid: 2b9a55f1-331a-5e08-b392-847853da0c98
+    top: '250'
+    left: '200'
+  - type: set_variable
+    name: Keep Severity
+    vars:
+      severity: '{{ vars.steps.Read_Full_Alert.data.severity.itemValue }}'
+    uuid: 241070e5-a26c-569e-8143-2777411010ac
+    top: '510'
+    left: '200'
+  - type: connector
+    name: Read Full Alert
+    pickFromTenant: false
+    params:
+      iri: /api/3/alerts/{{ vars.steps.Fetch_Alert[0]['@id'] }}
+      method: GET
+    connector: cyops_utilities
+    operation: make_cyops_request
+    next: keep_severity
+    uuid: 58fe0a83-6730-5fa4-ab27-8d8e3a9bd9ff
+    top: '380'
+    left: '200'
+  - type: start
+    name: Start
+    next: fetch_alert
+    uuid: d7e230f9-8429-5f83-bb43-bd75cc150af6
+    top: '120'
+    left: '200'

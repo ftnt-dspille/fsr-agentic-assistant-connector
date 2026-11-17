@@ -1,0 +1,35 @@
+{
+  "ok": true,
+  "session_id": "live-harness-build",
+  "turn": 23,
+  "turn_id": "df582e86120d4862aef68fdcaadc6251",
+  "stop_reason": "end_turn",
+  "transcript": [
+    {
+      "type": "text",
+      "text": "A FortiSOAR playbook"
+    },
+    {
+      "type": "text",
+      "text": " is a YAML-defined workflow automation that orchestrates security operations by chaining together connector"
+    },
+    {
+      "type": "text",
+      "text": " operations, conditional logic, and data transformations to respond to incidents or threats."
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 338,
+      "output_tokens": 45,
+      "cost_usd": 0.00045
+    }
+  ],
+  "last_assistant_yaml": null,
+  "tags": {
+    "session_id": "live-harness-build",
+    "intent": "build",
+    "intent_text": "In one sentence, what is a FortiSOAR playbook?"
+  },
+  "error": null
+}

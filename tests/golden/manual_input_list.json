@@ -1,0 +1,200 @@
+{
+  "@context": "/wf/api/manual-wf-input/list_wfinput/context/",
+  "hydra:nextPage": null,
+  "hydra:previousPage": null,
+  "hydra:totalItems": 9,
+  "hydra:itemsPerPage": 200,
+  "hydra:firstPage": "/wf/api/manual-wf-input/list_wfinput/?format=json&limit=200",
+  "hydra:lastPage": "/wf/api/manual-wf-input/list_wfinput/?format=json&limit=200&offset=0",
+  "hydra:member": [
+    {
+      "id": 408,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-25T17:20:42.118937Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5702458,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfy0EZ_ZKw-ZHpeQPIgHW5MqiNsWeBlkA31brtEQ5xGHE9G426kxDxDqf0F8c8FN1ZS6cOLIzCl8dp8OCYlGGtVhw==",
+      "title": "Review & Decide"
+    },
+    {
+      "id": 412,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-29T11:58:47.615754Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5706624,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyBk9Y6W24NY5BqcNK-3hV4a86yDrG_0X012u8hwjLeVc0UA8HTOQoX6yaWI5PLdOQnG0DI7l2xePmGjJLhCRKlw==",
+      "title": null
+    },
+    {
+      "id": 414,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-29T12:20:13.879565Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5706637,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyolHSr6M0IA9_xR46loNYVIWaRHD3LP_BG0rQ1R1n5MhjrBuN_A3ZtNmqvzoEbq-5whyCY_SchgxnCpGOMHWqIQ==",
+      "title": null
+    },
+    {
+      "id": 409,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-25T17:24:19.760874Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5702464,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyf3469uR6W4xjkLNCDjEgzM1SR8fDiEG76ZhypKftQg_PeCCLNgICzgYxOSnqC3vMcY51Vu427XE-DKFuwlz0Xg==",
+      "title": "Approve Block Action?"
+    },
+    {
+      "id": 410,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-25T17:28:40.559970Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5702470,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyf1ccKS8pBjMPmthvMmOv0sVNez_mPlIR7FfoJjbRiAPOEION_0Pq28mufu7cZDbOu0gWGlJb6VDtXGKDyqo5yw==",
+      "title": "IP Address Action"
+    },
+    {
+      "id": 415,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-29T12:31:08.966017Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5706641,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyQvWxNXGdbUgEuoqjj_G587fuTfxXanR4sCdHVACzkA1T7IWmmuqmdfpZmT6TJ_uHEDEqirxIfg0pho1zAt116w==",
+      "title": "Probe gate"
+    },
+    {
+      "id": 416,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-29T12:31:11.906775Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5706645,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyCzOqKXtFtELlC7MKzRUcK5aSk6qDsgf2LndsteyLWlmsUgSfnaMuMo6PH4DeS4ebvT-EVT3Qq65IUheRw4rduw==",
+      "title": "Probe gate"
+    },
+    {
+      "id": 417,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-29T12:31:14.923024Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5706649,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfyyKaVHL_OIJMEdL3YrC7aKEWZyz1xOr2jyq4dqQ006iXESSuFhVirJqO80IcMVOaMUd1g8W_BTzKQwA0QQ8a-Gg==",
+      "title": "Probe gate"
+    },
+    {
+      "id": 420,
+      "record": "",
+      "type": "InputBased",
+      "external_channel_list": [],
+      "inline_channel_list": [],
+      "owners": [],
+      "assignment_type": "none",
+      "owner_details": {
+        "isAssigned": false
+      },
+      "created": "2026-05-29T12:34:48.403434Z",
+      "timeout": null,
+      "timeout_details": null,
+      "step_id": 5706661,
+      "unauthenticated_input": false,
+      "agent_id": null,
+      "is_approval": false,
+      "workflow": "gAAAAABqGYfy35nEppRIuCKKZbItJBImcJIXvlKfrVJt-HPCkIJ9seWpMvvXFf-mHbC087eW0cwpPmYdYoDoKhgAQzSmWLEy2w==",
+      "title": "Probe gate"
+    }
+  ]
+}

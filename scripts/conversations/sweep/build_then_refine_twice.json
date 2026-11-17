@@ -1,0 +1,31 @@
+{
+  "name": "build_then_refine_twice",
+  "category": "build",
+  "intent": "build",
+  "why": [
+    "Iterative authoring. Each refinement must be a delta on the last",
+    "answer; the widget saves the final fence over the record, so a turn-3",
+    "fragment silently deletes turns 1-2."
+  ],
+  "steps": [
+    {
+      "user": "Write a playbook that creates an incident when an alert is escalated."
+    },
+    {
+      "user": "Add a step before that which sets a variable named source to 'auto'."
+    },
+    {
+      "user": "Now also set a variable named notified to true at the end. Keep everything else."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "no_beg_for_yaml": true,
+    "state_carried": {
+      "must_keep": "source",
+      "added": "notified"
+    },
+    "yaml_compiles": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "halt_then_resume",
+  "why": [
+    "The halt/resume round-trip -- the surface that was reachable only on a box,",
+    "and where approve-never-executes hid: dispatch() never materialized the",
+    "tools on the resume path and chat_resume never applied the allowlist, so an",
+    "approved action came back 'unknown tool' and silently did nothing.",
+    "",
+    "What this can prove OFFLINE is the round-trip itself: the turn halts with a",
+    "resumable handle, chat_resume accepts that handle, and the connector answers",
+    "coherently instead of crashing or losing the session. The WRITE it would",
+    "perform on accept needs an appliance, so a clean, named error there is the",
+    "expected offline outcome -- 'unknown tool' or a traceback is not."
+  ],
+  "intent": "build",
+  "persona": "none",
+  "playbook": "broken_create_record_missing_module.yaml",
+  "records": "run_failed_missing_module",
+  "steps": [
+    {"user": "This playbook never creates the record. Diagnose it and offer me the fix."},
+    {"resume": {"decision": "accept"}}
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "_readme": "Native unified-scenario form (Phase 0.1). Drives fully in-process via local_turn (llm=fake) OR live (llm=anthropic). One file, gradable by the verdict registry. `expect` may be nested (below) or flat keys.",
+  "module": "incidents",
+  "scenarios": [
+    {
+      "id": "U1",
+      "kind": "triage",
+      "intent": "triage",
+      "prompt": "Triage this incident: summarize severity, indicators, next steps.",
+      "module": "incidents",
+      "llm": "fake",
+      "persona": "none",
+      "tools": "cassette",
+      "expect": {
+        "expected_cards": ["info_card"],
+        "min_tools": 1,
+        "gate": "strict"
+      }
+    },
+    {
+      "id": "U2",
+      "kind": "build",
+      "intent": "build",
+      "prompt": "Add error handling to the open playbook.",
+      "module": "workflows",
+      "llm": "fake",
+      "persona": "none",
+      "expect": {
+        "gate": "strict",
+        "forbid_red_flags": ["triage_tool_in_build", "mount_module_leaked_into_start"]
+      }
+    }
+  ]
+}

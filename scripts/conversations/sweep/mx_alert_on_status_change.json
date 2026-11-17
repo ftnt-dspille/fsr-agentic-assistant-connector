@@ -1,0 +1,26 @@
+{
+  "name": "mx_alert_on_status_change",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "alert_on_status_change",
+  "why": [
+    "Product-path twin of eval-matrix task 'alert_on_status_change'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook that fires when an alert's status changes. Use a start_on_update trigger watching the status field. When the new status is Closed, update the alert's resolution field. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "alert_on_status_change"
+  }
+}

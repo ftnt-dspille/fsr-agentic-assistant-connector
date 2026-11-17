@@ -1,0 +1,30 @@
+{
+  "name": "triage_summarize_every_alert",
+  "category": "triage",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_volume",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "N6: a question whose honest answer spans the whole module. The search",
+    "returns one page of many; a summary built on it reads exactly like a",
+    "complete one unless the reply says what it covers. The row must actually",
+    "exceed the limit (require), or it tests nothing.",
+    "Mounted on one alert: the question is about ALL of them."
+  ],
+  "steps": [
+    {
+      "user": "Summarize every alert we have: what are the most common kinds of alert, and how many of each?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "no_excessive_fan_out": true,
+    "relays_truncation": {
+      "require": true
+    }
+  }
+}

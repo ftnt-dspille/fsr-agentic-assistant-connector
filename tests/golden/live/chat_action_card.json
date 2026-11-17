@@ -1,0 +1,2874 @@
+{
+  "ok": true,
+  "session_id": "live-harness-card-1785680206",
+  "turn": 1,
+  "turn_id": "3a961277f8db4b4083e811a09e5f143f",
+  "stop_reason": "awaiting_action_card",
+  "contract_version": "2.8.0",
+  "transcript": [
+    {
+      "type": "tool_use",
+      "id": "call_XQep9rTURD3LVbRbtev95Nnz",
+      "name": "find_containment_actions",
+      "input": {
+        "target_type": "ip",
+        "probe": true
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_XQep9rTURD3LVbRbtev95Nnz",
+      "content": {
+        "ok": false,
+        "kind": "guard_redirect",
+        "hunt_floor_guard": true,
+        "investigation_calls": 0,
+        "required": 3,
+        "resume_call": "find_containment_actions",
+        "error": "Deferred, not cancelled: `find_containment_actions` was NOT executed yet. You've run 0 of 3 required investigation steps, and staging containment now would act on an alert you haven't scoped. Your NEXT call must be: `search_module_records` on the `incidents` module for the host and external IP from the alert (then again on `alerts`). Then, after ~3 more evidence call(s), CALL `find_containment_actions` AGAIN with the same arguments -- that retry is required and will succeed. Do not call `find_containment_actions` again before those evidence calls, and do not end your turn without staging the card the analyst asked for."
+      },
+      "duration_ms": 1
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 17666,
+      "output_tokens": 21,
+      "cost_usd": 0.001954,
+      "cache_read": 17152,
+      "cache_write": 0
+    },
+    {
+      "type": "text",
+      "text": "To"
+    },
+    {
+      "type": "text",
+      "text": " proceed"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " blocking"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": " at"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " perimeter"
+    },
+    {
+      "type": "text",
+      "text": " firewall"
+    },
+    {
+      "type": "text",
+      "text": ","
+    },
+    {
+      "type": "text",
+      "text": " I"
+    },
+    {
+      "type": "text",
+      "text": " first"
+    },
+    {
+      "type": "text",
+      "text": " need"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " gather"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " scope"
+    },
+    {
+      "type": "text",
+      "text": " relevant"
+    },
+    {
+      "type": "text",
+      "text": " evidence"
+    },
+    {
+      "type": "text",
+      "text": " about"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " from"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " alerts"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " modules"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " I"
+    },
+    {
+      "type": "text",
+      "text": " will"
+    },
+    {
+      "type": "text",
+      "text": " start"
+    },
+    {
+      "type": "text",
+      "text": " by"
+    },
+    {
+      "type": "text",
+      "text": " searching"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " involving"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " so"
+    },
+    {
+      "type": "text",
+      "text": " that"
+    },
+    {
+      "type": "text",
+      "text": " we"
+    },
+    {
+      "type": "text",
+      "text": " can"
+    },
+    {
+      "type": "text",
+      "text": " understand"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " impact"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " context"
+    },
+    {
+      "type": "text",
+      "text": " before"
+    },
+    {
+      "type": "text",
+      "text": " containment"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "tool_use",
+      "id": "call_FVcVABEijbGCSqUrQlLXEJSN",
+      "name": "search_module_records",
+      "input": {
+        "module": "incidents",
+        "q": "198.51.100.7",
+        "limit": 10
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_use",
+      "id": "call_UhdIeVfxvllxHyPzXeKHEewd",
+      "name": "search_module_records",
+      "input": {
+        "module": "alerts",
+        "q": "198.51.100.7",
+        "limit": 10
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_FVcVABEijbGCSqUrQlLXEJSN",
+      "content": {
+        "ok": true,
+        "module": "incidents",
+        "total": 0,
+        "showing": 0,
+        "results": [],
+        "url": "/api/3/incidents?$limit=10&$search=198.51.100.7",
+        "hint": "no records matched. If you used an exact field filter, confirm the field/value (list a few with an empty q to see what exists); if you used free-text q, it is a substring $search -- for an exact field match pass filters={field: value}."
+      },
+      "duration_ms": 205
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_UhdIeVfxvllxHyPzXeKHEewd",
+      "content": {
+        "ok": true,
+        "module": "alerts",
+        "total": 2,
+        "showing": 2,
+        "results": [
+          {
+            "iri": "/api/3/alerts/c6812a8a-64c9-42db-a0dd-5f8346e3ea42",
+            "label": "Traffic from 192.168.0.40 to ThreatFox Malware URL https://sip.hanyasm188.top/",
+            "id": 6620
+          },
+          {
+            "iri": "/api/3/alerts/04720d2f-2169-4031-be3d-f551fcf2a5fd",
+            "label": "Traffic from 192.168.0.40 to OpenPhish Malware URL https://s4w.in/www-roblox-com-users-265428699691-profile",
+            "id": 4024
+          }
+        ],
+        "url": "/api/3/alerts?$limit=10&$search=198.51.100.7",
+        "available_fields": [
+          "aISummary",
+          "aIVerdict",
+          "ackDate",
+          "ackSLApausedon",
+          "ackSlaStatus",
+          "alertDetectionDate",
+          "alertRemainingAckSLA",
+          "alertRemainingRespSLA",
+          "assignedTo",
+          "assigneddate",
+          "attachmentNames",
+          "bucketName",
+          "bytesTransferred",
+          "closureNotes",
+          "closureReason",
+          "commandLine",
+          "computerName",
+          "conflict",
+          "createDate",
+          "createUser",
+          "decodedCommandLine",
+          "description",
+          "destinationID",
+          "destinationIp",
+          "destinationPort",
+          "deviceOwner",
+          "deviceSerialNo",
+          "deviceType",
+          "deviceUID",
+          "domain",
+          "dueBy",
+          "emailBody",
+          "emailClassification",
+          "emailFrom",
+          "emailHeaders",
+          "emailSubject",
+          "emailTo",
+          "epochTime",
+          "escalatedtoincident",
+          "escalationReason",
+          "eventTime",
+          "fileEmail",
+          "fileHash",
+          "fileHashes",
+          "fileName",
+          "fileNames",
+          "filePath",
+          "fsrQueue",
+          "hostCountry",
+          "hostIPAddress",
+          "hostMACAddress",
+          "hostName",
+          "iPAddresses",
+          "id",
+          "jiraTicketID",
+          "killChainPhase",
+          "latestLogin",
+          "metrics",
+          "mitreTechnique",
+          "mitreattackid"
+        ],
+        "relationship_fields": [
+          "aIVerdict",
+          "ackSlaStatus",
+          "createUser",
+          "escalatedtoincident",
+          "modifyUser",
+          "respSlaStatus",
+          "severity",
+          "state",
+          "status",
+          "tenant",
+          "type"
+        ],
+        "hint": "these rows carry only iri/label/id. To summarize, group, sort or compare, re-run this search with `fields=[...]` from `available_fields` -- do NOT call get_record on each hit. To group rows, or say WHICH related record each row belongs to, you must include the relationship field itself: aIVerdict, ackSlaStatus, createUser, escalatedtoincident, modifyUser, respSlaStatus, severity, state, status, tenant, type. Omitting it does not make the answer shorter, it makes it unattributable."
+      },
+      "duration_ms": 2181
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 17880,
+      "output_tokens": 137,
+      "cost_usd": 0.00211,
+      "cache_read": 17536,
+      "cache_write": 0
+    },
+    {
+      "type": "text",
+      "text": "No"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " were"
+    },
+    {
+      "type": "text",
+      "text": " found"
+    },
+    {
+      "type": "text",
+      "text": " involving"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": ","
+    },
+    {
+      "type": "text",
+      "text": " but"
+    },
+    {
+      "type": "text",
+      "text": " there"
+    },
+    {
+      "type": "text",
+      "text": " are"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "2"
+    },
+    {
+      "type": "text",
+      "text": " alerts"
+    },
+    {
+      "type": "text",
+      "text": " mentioning"
+    },
+    {
+      "type": "text",
+      "text": " traffic"
+    },
+    {
+      "type": "text",
+      "text": " from"
+    },
+    {
+      "type": "text",
+      "text": " another"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " malware"
+    },
+    {
+      "type": "text",
+      "text": " URLs"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " Since"
+    },
+    {
+      "type": "text",
+      "text": " no"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " are"
+    },
+    {
+      "type": "text",
+      "text": " found"
+    },
+    {
+      "type": "text",
+      "text": ","
+    },
+    {
+      "type": "text",
+      "text": " I"
+    },
+    {
+      "type": "text",
+      "text": " will"
+    },
+    {
+      "type": "text",
+      "text": " proceed"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " additional"
+    },
+    {
+      "type": "text",
+      "text": " sc"
+    },
+    {
+      "type": "text",
+      "text": "oping"
+    },
+    {
+      "type": "text",
+      "text": " steps"
+    },
+    {
+      "type": "text",
+      "text": " on"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " gather"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " needed"
+    },
+    {
+      "type": "text",
+      "text": " context"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " evidence"
+    },
+    {
+      "type": "text",
+      "text": " before"
+    },
+    {
+      "type": "text",
+      "text": " staging"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " block"
+    },
+    {
+      "type": "text",
+      "text": " action"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "tool_use",
+      "id": "call_4tJB6XZQtTYSW1NEBjUeV9jq",
+      "name": "mcp_fortisiem__get_incidents_by_entity",
+      "input": {
+        "params": {
+          "ip": "198.51.100.7",
+          "time_value": 24,
+          "time_unit": "hours"
+        }
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_4tJB6XZQtTYSW1NEBjUeV9jq",
+      "content": {
+        "_meta": null,
+        "content": [
+          {
+            "type": "text",
+            "text": "[]",
+            "annotations": null,
+            "_meta": null
+          }
+        ],
+        "structuredContent": null,
+        "isError": false
+      },
+      "duration_ms": 1185
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 18793,
+      "output_tokens": 112,
+      "cost_usd": 0.00232,
+      "cache_read": 17920,
+      "cache_write": 0
+    },
+    {
+      "type": "text",
+      "text": "There"
+    },
+    {
+      "type": "text",
+      "text": " are"
+    },
+    {
+      "type": "text",
+      "text": " no"
+    },
+    {
+      "type": "text",
+      "text": " active"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": " in"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " last"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "24"
+    },
+    {
+      "type": "text",
+      "text": " hours"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " I"
+    },
+    {
+      "type": "text",
+      "text": " will"
+    },
+    {
+      "type": "text",
+      "text": " now"
+    },
+    {
+      "type": "text",
+      "text": " check"
+    },
+    {
+      "type": "text",
+      "text": " whether"
+    },
+    {
+      "type": "text",
+      "text": " we"
+    },
+    {
+      "type": "text",
+      "text": " have"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " enrichment"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " threat"
+    },
+    {
+      "type": "text",
+      "text": " reputation"
+    },
+    {
+      "type": "text",
+      "text": " information"
+    },
+    {
+      "type": "text",
+      "text": " on"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " help"
+    },
+    {
+      "type": "text",
+      "text": " assess"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " risk"
+    },
+    {
+      "type": "text",
+      "text": " before"
+    },
+    {
+      "type": "text",
+      "text": " blocking"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "tool_use",
+      "id": "call_hOUWxPRIdS8XSdZC65xh1Li2",
+      "name": "find_enrichment_actions",
+      "input": {
+        "target_type": "ip"
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_hOUWxPRIdS8XSdZC65xh1Li2",
+      "content": {
+        "ok": true,
+        "target_type": "ip",
+        "actions": [
+          {
+            "connector": "fortinet-fortiguard-ioc",
+            "op": "get_selected_ioc_fields",
+            "title": "Get Selected IOC Fields",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "indicator",
+                "type": "text",
+                "label": "Indicator"
+              },
+              {
+                "name": "fields",
+                "type": "text",
+                "label": "Fields"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-ioc",
+            "op": "ioc_search",
+            "title": "IOC Search",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "indicator",
+                "type": "text",
+                "label": "Indicator"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-outbreak",
+            "op": "bulk_ingest_outbreak_alert_iocs",
+            "title": "Bulk Ingest Outbreak Alert IOCs",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "tag_name",
+                "type": "text"
+              },
+              {
+                "name": "create_pb_id",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "tag_name",
+                "required": true,
+                "type": "text",
+                "label": "Outbreak Alert Tag Name"
+              },
+              {
+                "name": "create_pb_id",
+                "required": true,
+                "type": "text",
+                "label": "Record Creation Playbook IRI"
+              },
+              {
+                "name": "pb_env_params",
+                "type": "json",
+                "label": "Playbook Environment Parameters"
+              },
+              {
+                "name": "dedup_field",
+                "type": "text",
+                "label": "Deduplicate Field"
+              },
+              {
+                "name": "demo_mode",
+                "type": "checkbox",
+                "label": "Demo Mode"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-outbreak",
+            "op": "get_outbreak_alert_iocs",
+            "title": "Get Outbreak Alert IOCs",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "tag_name",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "tag_name",
+                "required": true,
+                "type": "text",
+                "label": "Outbreak Alert Tag Name"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-outbreak",
+            "op": "get_outbreak_alert_threat_actor_details_by_id",
+            "title": "Get Outbreak Alert Threat Actor Details by ID",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "document_id",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "document_id",
+                "required": true,
+                "type": "text",
+                "label": "Threat Actor ID"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-threat-intelligence",
+            "op": "get_encyclopedia_lookup",
+            "title": "Get Encyclopedia Lookup",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "source",
+                "type": "select"
+              },
+              {
+                "name": "id",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "source",
+                "required": true,
+                "type": "select",
+                "label": "Source",
+                "options": [
+                  "Viruses",
+                  "Intrusion Prevention",
+                  "Botnet",
+                  "Endpoint Vulnerabilities",
+                  "Mobile",
+                  "Application",
+                  "Internet Services"
+                ]
+              },
+              {
+                "name": "id",
+                "required": true,
+                "type": "text",
+                "label": "ID"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-threat-intelligence",
+            "op": "get_threat_categories",
+            "title": "Get Threat Categories",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "title",
+                "type": "text",
+                "label": "Title"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-threat-intelligence",
+            "op": "get_threat_signal_report",
+            "title": "Get Threat Signal Report by Slug Name",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "slug",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "slug",
+                "required": true,
+                "type": "text",
+                "label": "Threat Signal Slug Name"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "virustotal",
+            "op": "query_ip",
+            "title": "Get IP Reputation",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "ip",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "ip",
+                "required": true,
+                "type": "text",
+                "label": "IP"
+              },
+              {
+                "name": "relationships",
+                "type": "multiselect",
+                "label": "Relationships to Include",
+                "options": [
+                  "Comments",
+                  "Historical SSL Certificates",
+                  "Graphs",
+                  "Historical Whois",
+                  "Referrer Files",
+                  "Resolutions",
+                  "Votes",
+                  "Related Comments"
+                ]
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "cicd-utils",
+            "op": "unzip_export_template",
+            "title": "Unzip Export Template",
+            "category": "utilities",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "filepath",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "filepath",
+                "required": true,
+                "type": "text",
+                "label": "Filepath"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "cyops_utilities",
+            "op": "get_ioc_parsing_regex",
+            "title": "Get IOC Parsing Regex",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "file-content-extraction",
+            "op": "extract_indicators",
+            "title": "Extract Artifacts",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "file_iri",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "file_iri",
+                "required": true,
+                "type": "text",
+                "label": "File IRI/Path"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortigate-firewall",
+            "op": "get_blocked_ip",
+            "title": "Get Blocked IP Addresses",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "method",
+                "type": "select"
+              },
+              {
+                "name": "ip_block_policy",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "method",
+                "required": true,
+                "type": "select",
+                "label": "Block Method",
+                "options": [
+                  "Quarantine Based",
+                  "Policy Based"
+                ]
+              },
+              {
+                "name": "ip_block_policy",
+                "required": true,
+                "type": "text",
+                "label": "Policy Name"
+              },
+              {
+                "name": "ip_group_name",
+                "type": "text",
+                "label": "Address Group Name"
+              },
+              {
+                "name": "vdom",
+                "type": "text",
+                "label": "VDOM"
+              },
+              {
+                "name": "ngfw_mode",
+                "type": "select",
+                "label": "NGFW Mode",
+                "options": [
+                  "Profile Based",
+                  "Policy Based"
+                ]
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiedr",
+            "op": "search_ioc",
+            "title": "Search IOC",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "fromTime",
+                "type": "datetime"
+              },
+              {
+                "name": "field",
+                "type": "text"
+              },
+              {
+                "name": "toTime",
+                "type": "datetime"
+              },
+              {
+                "name": "order",
+                "type": "select"
+              },
+              {
+                "name": "priority",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "fromTime",
+                "required": true,
+                "type": "datetime",
+                "label": "From Time"
+              },
+              {
+                "name": "field",
+                "required": true,
+                "type": "text",
+                "label": "Field"
+              },
+              {
+                "name": "toTime",
+                "required": true,
+                "type": "datetime",
+                "label": "To Time"
+              },
+              {
+                "name": "order",
+                "required": true,
+                "type": "select",
+                "label": "Order",
+                "options": [
+                  "Ascending",
+                  "Descending"
+                ]
+              },
+              {
+                "name": "priority",
+                "required": true,
+                "type": "text",
+                "label": "Priority"
+              },
+              {
+                "name": "organization",
+                "type": "text",
+                "label": "Organization"
+              },
+              {
+                "name": "category",
+                "type": "select",
+                "label": "Category",
+                "options": [
+                  "Process",
+                  "File",
+                  "Registry",
+                  "Network",
+                  "Event Log",
+                  "All"
+                ]
+              },
+              {
+                "name": "devices",
+                "type": "text",
+                "label": "Devices"
+              },
+              {
+                "name": "time",
+                "type": "select",
+                "label": "Time",
+                "options": [
+                  "Last Hour",
+                  "Last 12 Hours",
+                  "Last 24 Hours",
+                  "Last 7 Days",
+                  "Last 30 Days",
+                  "Custom"
+                ]
+              },
+              {
+                "name": "filters",
+                "type": "json",
+                "label": "Filters"
+              },
+              {
+                "name": "query",
+                "type": "text",
+                "label": "Query"
+              },
+              {
+                "name": "sorting",
+                "type": "checkbox",
+                "label": "Sorting"
+              },
+              {
+                "name": "pageNumber",
+                "type": "integer",
+                "label": "Page Number"
+              },
+              {
+                "name": "itemsPerPage",
+                "type": "integer",
+                "label": "Items Per Page"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortisiemv2",
+            "op": "get_all_lookup_tables",
+            "title": "Get All Lookup Table",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "stat",
+                "type": "integer",
+                "label": "Offset"
+              },
+              {
+                "name": "size",
+                "type": "integer",
+                "label": "Number Of Items To Return"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortisiemv2",
+            "op": "get_devices_details_in_address",
+            "title": "Get All Devices For Specified IP Address Range",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "includeIps",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "includeIps",
+                "required": true,
+                "type": "text",
+                "label": "Include IP SET"
+              },
+              {
+                "name": "excludeIps",
+                "type": "text",
+                "label": "Exclude IP SET"
+              },
+              {
+                "name": "org",
+                "type": "text",
+                "label": "Organization"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortisiemv2",
+            "op": "get_entity_context",
+            "title": "Get Entity Context",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "entity_type",
+                "type": "select"
+              }
+            ],
+            "params": [
+              {
+                "name": "entity_type",
+                "required": true,
+                "type": "select",
+                "label": "Entity Type",
+                "options": [
+                  "IP",
+                  "Hostname",
+                  "Username"
+                ]
+              },
+              {
+                "name": "ip",
+                "type": "text",
+                "label": "IP Address"
+              },
+              {
+                "name": "hostname",
+                "type": "text",
+                "label": "Hostname"
+              },
+              {
+                "name": "username",
+                "type": "text",
+                "label": "Username"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortisoar-soc-simulator",
+            "op": "bad_ip",
+            "title": "Fetch Malicious IP",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "random",
+                "type": "checkbox",
+                "label": "Random"
+              }
+            ],
+            "runs_on_agent": false
+          }
+        ],
+        "count": 18,
+        "probed": true,
+        "_timing": {
+          "n": 12,
+          "live": 0,
+          "cached": 12,
+          "timed_out": [],
+          "probe_ms": 51.5,
+          "slowest": [
+            [
+              "file-content-extraction",
+              47.5,
+              "cache"
+            ],
+            [
+              "fortinet-fortiguard-ioc",
+              42.0,
+              "cache"
+            ],
+            [
+              "fortinet-fortiedr",
+              41.4,
+              "cache"
+            ],
+            [
+              "cyops_utilities",
+              40.9,
+              "cache"
+            ],
+            [
+              "fortinet-fortiguard-outbreak",
+              36.8,
+              "cache"
+            ]
+          ]
+        }
+      },
+      "duration_ms": 3330
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 18969,
+      "output_tokens": 66,
+      "cost_usd": 0.002087,
+      "cache_read": 18688,
+      "cache_write": 0
+    },
+    {
+      "type": "tool_use",
+      "id": "call_pmIEKY7AIxwfZbA0u6WRREzF",
+      "name": "run_op",
+      "input": {
+        "connector": "fortinet-fortiguard-ioc",
+        "op": "ioc_search",
+        "params": {
+          "indicator": "198.51.100.7"
+        },
+        "step_name": "IP Reputation Check"
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_pmIEKY7AIxwfZbA0u6WRREzF",
+      "content": {
+        "ok": true,
+        "data": [
+          {
+            "@context": "/api/3/contexts/IOCSearch",
+            "@type": "IOCSearch",
+            "uuid": null,
+            "createUser": null,
+            "createDate": null,
+            "modifyUser": null,
+            "modifyDate": null,
+            "recordTags": null,
+            "risk_distribution_total_domains": null,
+            "aisummary_description": null,
+            "countryvisitcounts": null,
+            "sub_type": "ip",
+            "risk_distribution_profile_date": null,
+            "risk_distribution_avg_risk": null,
+            "risk_distribution_item": null,
+            "risk_distribution_type": null,
+            "riskDistribution": null,
+            "app_id": null,
+            "version": null,
+            "reputation_rating": null,
+            "app_name": null,
+            "ptr_domain": null,
+            "geoip_location": null,
+            "asn_data": null,
+            "riskinfo": null,
+            "geoip": null,
+            "isdb": null,
+            "ptr": null,
+            "asn": null,
+            "threatinfo": null,
+            "wf_cate": null,
+            "spam_cate": null,
+            "reference_url": null,
+            "modified": null,
+            "malwareName": null,
+            "kill_chain_phases": null,
+            "ioc_tags": null,
+            "ioc_cate": null,
+            "created": null,
+            "confidence": null,
+            "risk_level": null,
+            "risk_score": null,
+            "av_cate": null,
+            "cve_tags": null,
+            "outbreak_tags": null,
+            "threatactor_tags": null,
+            "id": "198.51.100.7",
+            "@id": "/api/3/ioc_searches/198.51.100.7"
+          }
+        ],
+        "output_shape": [
+          {
+            "@context": "str",
+            "@type": "str",
+            "uuid": "null",
+            "createUser": "null",
+            "createDate": "null",
+            "modifyUser": "null",
+            "modifyDate": "null",
+            "recordTags": "null",
+            "risk_distribution_total_domains": "null",
+            "aisummary_description": "null",
+            "countryvisitcounts": "null",
+            "sub_type": "str",
+            "risk_distribution_profile_date": "null",
+            "risk_distribution_avg_risk": "null",
+            "risk_distribution_item": "null",
+            "risk_distribution_type": "null",
+            "riskDistribution": "null",
+            "app_id": "null",
+            "version": "null",
+            "reputation_rating": "null",
+            "app_name": "null",
+            "ptr_domain": "null",
+            "geoip_location": "null",
+            "asn_data": "null",
+            "riskinfo": "null",
+            "geoip": "null",
+            "isdb": "null",
+            "ptr": "null",
+            "asn": "null",
+            "threatinfo": "null",
+            "wf_cate": "null",
+            "spam_cate": "null",
+            "reference_url": "null",
+            "modified": "null",
+            "malwareName": "null",
+            "kill_chain_phases": "null",
+            "ioc_tags": "null",
+            "ioc_cate": "null",
+            "created": "null",
+            "confidence": "null",
+            "risk_level": "null",
+            "risk_score": "null",
+            "av_cate": "null",
+            "cve_tags": "null",
+            "outbreak_tags": "null",
+            "threatactor_tags": "null",
+            "id": "str",
+            "@id": "str"
+          }
+        ],
+        "output_top_keys": [
+          "@context",
+          "@id",
+          "@type",
+          "aisummary_description",
+          "app_id",
+          "app_name",
+          "asn",
+          "asn_data",
+          "av_cate",
+          "confidence",
+          "countryvisitcounts",
+          "createDate",
+          "createUser",
+          "created",
+          "cve_tags",
+          "geoip",
+          "geoip_location",
+          "id",
+          "ioc_cate",
+          "ioc_tags",
+          "isdb",
+          "kill_chain_phases",
+          "malwareName",
+          "modified",
+          "modifyDate",
+          "modifyUser",
+          "outbreak_tags",
+          "ptr",
+          "ptr_domain",
+          "recordTags",
+          "reference_url",
+          "reputation_rating",
+          "riskDistribution",
+          "risk_distribution_avg_risk",
+          "risk_distribution_item",
+          "risk_distribution_profile_date",
+          "risk_distribution_total_domains",
+          "risk_distribution_type",
+          "risk_level",
+          "risk_score",
+          "riskinfo",
+          "spam_cate",
+          "sub_type",
+          "threatactor_tags",
+          "threatinfo",
+          "uuid",
+          "version",
+          "wf_cate"
+        ],
+        "output_is_list": true,
+        "schema_cached": true
+      },
+      "duration_ms": 7165
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 22036,
+      "output_tokens": 46,
+      "cost_usd": 0.003205,
+      "cache_read": 18944,
+      "cache_write": 0
+    },
+    {
+      "type": "text",
+      "text": "Re"
+    },
+    {
+      "type": "text",
+      "text": "putation"
+    },
+    {
+      "type": "text",
+      "text": " lookup"
+    },
+    {
+      "type": "text",
+      "text": " on"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": " returned"
+    },
+    {
+      "type": "text",
+      "text": " no"
+    },
+    {
+      "type": "text",
+      "text": " specific"
+    },
+    {
+      "type": "text",
+      "text": " threat"
+    },
+    {
+      "type": "text",
+      "text": " intelligence"
+    },
+    {
+      "type": "text",
+      "text": ","
+    },
+    {
+      "type": "text",
+      "text": " risk"
+    },
+    {
+      "type": "text",
+      "text": " score"
+    },
+    {
+      "type": "text",
+      "text": ","
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " malware"
+    },
+    {
+      "type": "text",
+      "text": " association"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " The"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " does"
+    },
+    {
+      "type": "text",
+      "text": " not"
+    },
+    {
+      "type": "text",
+      "text": " have"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " known"
+    },
+    {
+      "type": "text",
+      "text": " adverse"
+    },
+    {
+      "type": "text",
+      "text": " reputation"
+    },
+    {
+      "type": "text",
+      "text": " in"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " threat"
+    },
+    {
+      "type": "text",
+      "text": " intel"
+    },
+    {
+      "type": "text",
+      "text": " sources"
+    },
+    {
+      "type": "text",
+      "text": " queried"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " \n\n"
+    },
+    {
+      "type": "text",
+      "text": "Despite"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " lack"
+    },
+    {
+      "type": "text",
+      "text": " of"
+    },
+    {
+      "type": "text",
+      "text": " active"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " negative"
+    },
+    {
+      "type": "text",
+      "text": " reputation"
+    },
+    {
+      "type": "text",
+      "text": ","
+    },
+    {
+      "type": "text",
+      "text": " you"
+    },
+    {
+      "type": "text",
+      "text": " requested"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " block"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " at"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " perimeter"
+    },
+    {
+      "type": "text",
+      "text": " firewall"
+    },
+    {
+      "type": "text",
+      "text": " immediately"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " I"
+    },
+    {
+      "type": "text",
+      "text": " will"
+    },
+    {
+      "type": "text",
+      "text": " now"
+    },
+    {
+      "type": "text",
+      "text": " find"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " containment"
+    },
+    {
+      "type": "text",
+      "text": " action"
+    },
+    {
+      "type": "text",
+      "text": " configured"
+    },
+    {
+      "type": "text",
+      "text": " here"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " block"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " prepare"
+    },
+    {
+      "type": "text",
+      "text": " an"
+    },
+    {
+      "type": "text",
+      "text": " action"
+    },
+    {
+      "type": "text",
+      "text": " card"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " your"
+    },
+    {
+      "type": "text",
+      "text": " approval"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "tool_use",
+      "id": "call_Nt6rLQOB09lgJjp4lwe0NRUz",
+      "name": "find_containment_actions",
+      "input": {
+        "target_type": "ip"
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_Nt6rLQOB09lgJjp4lwe0NRUz",
+      "content": {
+        "ok": true,
+        "target_type": "ip",
+        "actions": [
+          {
+            "connector": "fortigate-firewall",
+            "op": "block_ip_new",
+            "title": "Block IP Address",
+            "category": "containment",
+            "tier": 4,
+            "requires_approval": true,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "method",
+                "type": "select"
+              },
+              {
+                "name": "ip_block_policy",
+                "type": "text"
+              },
+              {
+                "name": "ip_group_name",
+                "type": "text"
+              },
+              {
+                "name": "ip_addresses",
+                "type": "text"
+              },
+              {
+                "name": "duration",
+                "type": "integer"
+              },
+              {
+                "name": "ip_type",
+                "type": "select"
+              },
+              {
+                "name": "ip",
+                "type": "text"
+              },
+              {
+                "name": "time_to_live",
+                "type": "select"
+              }
+            ],
+            "params": [
+              {
+                "name": "method",
+                "required": true,
+                "type": "select",
+                "label": "Block Method",
+                "options": [
+                  "Quarantine Based",
+                  "Policy Based"
+                ]
+              },
+              {
+                "name": "ip_block_policy",
+                "required": true,
+                "type": "text",
+                "label": "Policy Name"
+              },
+              {
+                "name": "ip_group_name",
+                "required": true,
+                "type": "text",
+                "label": "Address Group Name"
+              },
+              {
+                "name": "ip_addresses",
+                "required": true,
+                "type": "text",
+                "label": "IP Addresses"
+              },
+              {
+                "name": "duration",
+                "required": true,
+                "type": "integer",
+                "label": "Time to Live"
+              },
+              {
+                "name": "ip_type",
+                "required": true,
+                "type": "select",
+                "label": "IP Type",
+                "options": [
+                  "IPv4",
+                  "IPv6"
+                ]
+              },
+              {
+                "name": "ip",
+                "required": true,
+                "type": "text",
+                "label": "IP Address"
+              },
+              {
+                "name": "time_to_live",
+                "required": true,
+                "type": "select",
+                "label": "Time to Live",
+                "options": [
+                  "1 Hour",
+                  "6 Hour",
+                  "12 Hour",
+                  "1 Day",
+                  "6 Months",
+                  "1 Year",
+                  "Never",
+                  "Custom Time"
+                ]
+              },
+              {
+                "name": "ngfw_mode",
+                "type": "select",
+                "label": "NGFW Mode",
+                "options": [
+                  "Profile Based",
+                  "Policy Based"
+                ]
+              },
+              {
+                "name": "vdom",
+                "type": "text",
+                "label": "VDOM"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortigate-firewall",
+            "op": "block_ip",
+            "title": "Block IP Address (Deprecated)",
+            "category": "containment",
+            "tier": 4,
+            "requires_approval": true,
+            "status": "Available",
+            "deprecated": true,
+            "required_params": [
+              {
+                "name": "method",
+                "type": "select"
+              },
+              {
+                "name": "ip_block_policy",
+                "type": "text"
+              },
+              {
+                "name": "ip_group_name",
+                "type": "text"
+              },
+              {
+                "name": "ip_addresses",
+                "type": "text"
+              },
+              {
+                "name": "duration",
+                "type": "integer"
+              },
+              {
+                "name": "ip_type",
+                "type": "select"
+              },
+              {
+                "name": "ip",
+                "type": "text"
+              },
+              {
+                "name": "time_to_live",
+                "type": "select"
+              }
+            ],
+            "params": [
+              {
+                "name": "method",
+                "required": true,
+                "type": "select",
+                "label": "Block Method",
+                "options": [
+                  "Quarantine Based",
+                  "Policy Based"
+                ]
+              },
+              {
+                "name": "ip_block_policy",
+                "required": true,
+                "type": "text",
+                "label": "Policy Name"
+              },
+              {
+                "name": "ip_group_name",
+                "required": true,
+                "type": "text",
+                "label": "Address Group Name"
+              },
+              {
+                "name": "ip_addresses",
+                "required": true,
+                "type": "text",
+                "label": "IP Addresses"
+              },
+              {
+                "name": "duration",
+                "required": true,
+                "type": "integer",
+                "label": "Time to Live"
+              },
+              {
+                "name": "ip_type",
+                "required": true,
+                "type": "select",
+                "label": "IP Type",
+                "options": [
+                  "IPv4",
+                  "IPv6"
+                ]
+              },
+              {
+                "name": "ip",
+                "required": true,
+                "type": "text",
+                "label": "IP Address"
+              },
+              {
+                "name": "time_to_live",
+                "required": true,
+                "type": "select",
+                "label": "Time to Live",
+                "options": [
+                  "1 Hour",
+                  "6 Hour",
+                  "12 Hour",
+                  "1 Day",
+                  "6 Months",
+                  "1 Year",
+                  "Never",
+                  "Custom Time"
+                ]
+              },
+              {
+                "name": "ngfw_mode",
+                "type": "select",
+                "label": "NGFW Mode",
+                "options": [
+                  "Profile Based",
+                  "Policy Based"
+                ]
+              },
+              {
+                "name": "vdom",
+                "type": "text",
+                "label": "VDOM"
+              }
+            ],
+            "runs_on_agent": false
+          }
+        ],
+        "count": 2,
+        "probed": true,
+        "_timing": {
+          "n": 1,
+          "live": 0,
+          "cached": 1,
+          "timed_out": [],
+          "probe_ms": 2.6,
+          "slowest": [
+            [
+              "fortigate-firewall",
+              1.5,
+              "cache"
+            ]
+          ]
+        }
+      },
+      "duration_ms": 1650
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 23019,
+      "output_tokens": 105,
+      "cost_usd": 0.002771,
+      "cache_read": 22016,
+      "cache_write": 0
+    },
+    {
+      "type": "tool_use",
+      "id": "call_aUcsO0BcScGAyV3kYSDmKmGL",
+      "name": "emit_action_card",
+      "input": {
+        "id": "block-ip-198.51.100.7",
+        "connector": "fortigate-firewall",
+        "operation": "block_ip_new",
+        "summary": "Block IP address 198.51.100.7 at the perimeter firewall",
+        "args": {
+          "method": "Quarantine Based",
+          "ip_block_policy": "default_policy",
+          "ip_group_name": "default_group",
+          "ip_addresses": "198.51.100.7",
+          "duration": 1440,
+          "ip_type": "IPv4",
+          "ip": "198.51.100.7",
+          "time_to_live": "1 Day"
+        },
+        "editable_fields": [
+          "method",
+          "ip_block_policy",
+          "ip_group_name",
+          "duration",
+          "time_to_live"
+        ]
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_aUcsO0BcScGAyV3kYSDmKmGL",
+      "content": {
+        "ok": true,
+        "card": {
+          "type": "action_card",
+          "id": "block-ip-198.51.100.7",
+          "connector": "fortigate-firewall",
+          "operation": "block_ip_new",
+          "summary": "Block IP address 198.51.100.7 at the perimeter firewall",
+          "args": {
+            "method": "Quarantine Based",
+            "ip_block_policy": "default_policy",
+            "ip_group_name": "default_group",
+            "ip_addresses": "198.51.100.7",
+            "duration": 1440,
+            "ip_type": "IPv4",
+            "ip": "198.51.100.7",
+            "time_to_live": "1 Day"
+          },
+          "editable_fields": [
+            "method",
+            "ip_block_policy",
+            "ip_group_name",
+            "duration",
+            "time_to_live"
+          ]
+        }
+      },
+      "duration_ms": 10
+    },
+    {
+      "param_schema": [
+        {
+          "name": "method",
+          "title": "Block Method",
+          "type": "select",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "default": "Quarantine Based",
+          "options": [
+            "Quarantine Based",
+            "Policy Based"
+          ],
+          "description": "Method to be used for blocking IP addresses using Fortinet FortiGate. You can choose from following options: Quarantine Based, Policy Based",
+          "tooltip": "Specify the method to be used for blocking IP addresses using Fortinet FortiGate."
+        },
+        {
+          "name": "ip_block_policy",
+          "title": "Policy Name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "description": "Specify the name of the policy specified on Fortinet FortiGate for blocking or unblocking IP addresses. Based on our example, enter FortiSOAR_Blocked_Policy in this field. See the Blocking or Unblocking IP addresses, URLs, or applications on Fortinet FortiGate section.",
+          "tooltip": "Specify the name of the policy specified on Fortinet FortiGate for blocking or unblocking IP addresses.",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Policy Based"
+            }
+          ]
+        },
+        {
+          "name": "ip_group_name",
+          "title": "Address Group Name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "description": "Specify the IPv4 address group name, that you have specified in Fortinet FortiGate for blocking or unblocking IP addresses. User can specify source or destination address group name.  Based on our example, enter Blocked_IPs in this field. See the Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate section.",
+          "tooltip": "Specify the IPv4 address group name, that you have specified in Fortinet FortiGate for blocking or unblocking IP addresses. User can specify source or destination address group name.  Based on our example, enter Blocked_IPs in this field. See the Blocking or Unblocking IP addresses, URLs, or applications in Fortinet FortiGate section.",
+          "applies_when": [
+            {
+              "parent": "ip_type",
+              "value": "IPv4"
+            },
+            {
+              "parent": "ip_type",
+              "value": "IPv6"
+            }
+          ]
+        },
+        {
+          "name": "ip_addresses",
+          "title": "IP Addresses",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "description": "Specify the IP addresses to block using Fortinet FortiGate in CSV(\"1.1.1.1\", \"2.2.2.2\") or list([\"1.1.1.1\", \"2.2.2.2\"]) format.",
+          "tooltip": "Specify the IP addresses that you want to block using Fortinet FortiGate, in the \"CSV\" or \"list\" format.",
+          "placeholder": "[\"1.1.1.1\", \"2.2.2.2\"] or \"1.1.1.1\", \"2.2.2.2\"",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Quarantine Based"
+            }
+          ]
+        },
+        {
+          "name": "duration",
+          "title": "Time to Live",
+          "type": "integer",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "default": 21600,
+          "description": " Specify a value, in seconds, in the Time to Live field.",
+          "tooltip": "User must specify the Time to Live in seconds. If you specified 0 then ip will be banned for indefinite time.",
+          "applies_when": [
+            {
+              "parent": "time_to_live",
+              "value": "Custom Time"
+            }
+          ]
+        },
+        {
+          "name": "ip_type",
+          "title": "IP Type",
+          "type": "select",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "default": "IPv4",
+          "options": [
+            "IPv4",
+            "IPv6"
+          ],
+          "description": "Select the type of IP address to block. You can select from the following options: IPv4, IPv6",
+          "tooltip": "Specify the IP Type that you want to block on the FortiOS server.",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Policy Based"
+            }
+          ]
+        },
+        {
+          "name": "ip",
+          "title": "IP Address",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "description": "Specify the IP addresses that you want to block using Fortinet FortiGate in the \"CSV\" or \"list\" format.For example, [\"1.1.1.1\", \"2.2.2.2\"] or \"1.1.1.1\", \"2.2.2.2\".",
+          "tooltip": "Specify the IP addresses that you want to block using Fortinet FortiGate in the \"CSV\" or \"list\" format.",
+          "placeholder": "[\"1.1.1.1\", \"2.2.2.2\"] or \"1.1.1.1\", \"2.2.2.2\"",
+          "applies_when": [
+            {
+              "parent": "ip_type",
+              "value": "IPv4"
+            },
+            {
+              "parent": "ip_type",
+              "value": "IPv6"
+            }
+          ]
+        },
+        {
+          "name": "time_to_live",
+          "title": "Time to Live",
+          "type": "select",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "default": "12 Hour",
+          "options": [
+            "1 Hour",
+            "6 Hour",
+            "12 Hour",
+            "1 Day",
+            "6 Months",
+            "1 Year",
+            "Never",
+            "Custom Time"
+          ],
+          "description": "Specify the time till when the IP addresses are blocked. You can choose between the following options: 1 Hour, 6 Hour, 12 Hour, 1 Day, 6 Months, 1 Year, Custom.",
+          "tooltip": "Specify the time period till IP addresses will remain in the Block status. If you select Never then ip will be banned for indefinite time.",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Quarantine Based"
+            }
+          ]
+        },
+        {
+          "name": "ngfw_mode",
+          "title": "NGFW Mode",
+          "type": "select",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "default": "Profile Based",
+          "options": [
+            "Profile Based",
+            "Policy Based"
+          ],
+          "description": "Specify the next-generation firewall(NGFW) mode of the VDOM where the specified policy is present on Fortinet FortiGate for blocking or unblocking IP addresses. You can choose from following options: Profile Based, Policy Based. By default it is Profile Based.",
+          "tooltip": "Specify the NGFW mode of the vdom in which policy that you have specified is present in Fortinet FortiGate for blocking IP addresses. By default it will be Profile Based.",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Policy Based"
+            }
+          ]
+        },
+        {
+          "name": "vdom",
+          "title": "VDOM",
+          "type": "text",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "description": "(Optional) Specify the VDOM to use for blocking IP address on Fortinet FortiGate.\nNOTE: The VDOM value that you specify in this field overwrites the VDOM(s) values that you have specified in the Configuration Parameters while configuring this connector.",
+          "tooltip": "Specify the VDOM to use for blocking IP address on Fortinet FortiGate. This VDOM list override configuration VDOM list",
+          "placeholder": "\"VDOM_1\", \"VDOM_2\" OR [\"VDOM_1\", \"VDOM_2\"]",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Quarantine Based"
+            },
+            {
+              "parent": "method",
+              "value": "Policy Based"
+            }
+          ]
+        },
+        {
+          "name": "is_new",
+          "title": "Use Members API",
+          "type": "checkbox",
+          "required": false,
+          "visible": false,
+          "editable": true,
+          "default": true,
+          "description": "Select whether you want to use IP address group members API or not. By default it is set to True",
+          "tooltip": "Select whether you want to use IP address group members API or not.",
+          "applies_when": [
+            {
+              "parent": "method",
+              "value": "Policy Based"
+            }
+          ]
+        }
+      ],
+      "visibility": {
+        "always": [
+          "method"
+        ],
+        "when": {
+          "method=Policy Based": [
+            "ip_block_policy",
+            "ip_type",
+            "ngfw_mode",
+            "is_new",
+            "vdom"
+          ],
+          "ip_type=IPv4": [
+            "ip_group_name",
+            "ip"
+          ],
+          "ip_type=IPv6": [
+            "ip_group_name",
+            "ip"
+          ],
+          "method=Quarantine Based": [
+            "ip_addresses",
+            "time_to_live",
+            "vdom"
+          ],
+          "time_to_live=Custom Time": [
+            "duration"
+          ]
+        }
+      },
+      "param_groups_by_select": {
+        "method": {
+          "Quarantine Based": {
+            "params": [
+              "ip_addresses",
+              "time_to_live",
+              "vdom"
+            ],
+            "nested_selects": {
+              "time_to_live": {
+                "Custom Time": [
+                  "duration"
+                ]
+              }
+            }
+          },
+          "Policy Based": {
+            "params": [
+              "ip_block_policy",
+              "ip_type",
+              "ngfw_mode",
+              "is_new",
+              "vdom"
+            ],
+            "nested_selects": {
+              "ip_type": {
+                "IPv4": [
+                  "ip_group_name",
+                  "ip"
+                ],
+                "IPv6": [
+                  "ip_group_name",
+                  "ip"
+                ]
+              }
+            }
+          },
+          "_options": [
+            "Quarantine Based",
+            "Policy Based"
+          ],
+          "_default": "Quarantine Based"
+        }
+      },
+      "type": "action_card",
+      "id": "block-ip-198.51.100.7",
+      "connector": "fortigate-firewall",
+      "operation": "block_ip_new",
+      "summary": "Block IP address 198.51.100.7 at the perimeter firewall",
+      "args": {
+        "method": "Quarantine Based",
+        "ip_block_policy": "default_policy",
+        "ip_group_name": "default_group",
+        "ip_addresses": "198.51.100.7",
+        "duration": 1440,
+        "ip_type": "IPv4",
+        "ip": "198.51.100.7",
+        "time_to_live": "1 Day"
+      },
+      "editable_fields": [
+        "method",
+        "ip_block_policy",
+        "ip_group_name",
+        "duration",
+        "time_to_live"
+      ],
+      "preceding_tool_use_id": "call_Nt6rLQOB09lgJjp4lwe0NRUz"
+    }
+  ],
+  "last_assistant_yaml": null,
+  "tags": {
+    "session_id": "live-harness-card-1785680206",
+    "intent": "triage",
+    "intent_text": "Block the IP 198.51.100.7 at the perimeter firewall right now.",
+    "case_state": {
+      "phase": "awaiting_approval",
+      "record_key": null,
+      "scenario": null,
+      "searched": 0,
+      "enriched": 0,
+      "unavailable_connectors": []
+    }
+  },
+  "error": null
+}

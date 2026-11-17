@@ -1,0 +1,111 @@
+{
+  "_README": [
+    "soc_alert_faz_empty: the FAZ-hunt world. The mounted alert is the SAME capture as",
+    "soc_alert_surface (alerts $file alert_c2_exfil), so the pivot is 10.50.60.70.",
+    "siem_events is served EMPTY, so SIEM answers nothing and the only hunt",
+    "evidence is in faz_logs, answered by _faz_from_box (local_turn.py) for",
+    "run_op fortinet-fortianalyzer / start_and_fetch_bulk_device_logs, filtered",
+    "by srcip/dstip. Time window is not applied. Declared configured_connectors",
+    "is FAZ only, so faz_* tools advertise offline.",
+    "CONTROL: faz_logs is empty. A correct answer says nothing was found."
+  ],
+  "persona_source": "module",
+  "personas": {},
+  "skills": [],
+  "modules": {
+    "alerts": [
+      {
+        "$file": "alert_c2_exfil"
+      }
+    ],
+    "incidents": [
+      {
+        "$file": "incident_smithdesktop"
+      },
+      {
+        "@id": "/api/3/incidents/a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+        "@type": "Incident",
+        "name": "C2 Communication from smithDesktop",
+        "uuid": "a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+        "id": 201,
+        "title": "C2 Communication from smithDesktop to 102.220.160.21",
+        "description": " smithDesktop (10.50.60.70) observed communicating with known C2 IP 102.220.160.21. Correlated with alert d39ecc9a-2968-42d5-948d-ce96fd76b227.",
+        "sourceIP": "10.50.60.70",
+        "destinationIP": "102.220.160.21",
+        "severity": "High",
+        "state": "Open",
+        "phase": "Detection",
+        "source": "Fortinet FortiSIEM",
+        "creator": "FortiSIEM",
+        "createDate": 1780079500,
+        "modifyDate": 1780079600,
+        "alerts": {
+          "@id": "/api/3/alerts/d39ecc9a-2968-42d5-948d-ce96fd76b227",
+          "name": "Traffic from 10.50.60.70 to FortiGuard Malware IP 102.220.160.21",
+          "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227",
+          "@type": "Alert"
+        }
+      }
+    ],
+    "indicators": [
+      {
+        "@id": "/api/3/indicators/d1e2f3a4-b5c6-4d78-9abc-def012345678",
+        "@type": "Indicator",
+        "name": "102.220.160.21",
+        "uuid": "d1e2f3a4-b5c6-4d78-9abc-def012345678",
+        "id": 1,
+        "value": "102.220.160.21",
+        "type": "IPv4",
+        "reputation": "Malicious",
+        "source": "FortiGuard Malware IP List",
+        "description": "Known C2 server associated with T1041 Exfiltration Over C2 Channel",
+        "createDate": 1784000000.0,
+        "modifyDate": 1785000000.0
+      },
+      {
+        "@id": "/api/3/indicators/e2f3a4b5-c6d7-489a-bcde-f01234567890",
+        "@type": "Indicator",
+        "name": "10.50.60.70",
+        "uuid": "e2f3a4b5-c6d7-489a-bcde-f01234567890",
+        "id": 2,
+        "value": "10.50.60.70",
+        "type": "IPv4",
+        "reputation": "Suspicious",
+        "source": "Internal SOC",
+        "description": "Internal host showing C2 beaconing behavior",
+        "createDate": 1784100000.0,
+        "modifyDate": 1785100000.0
+      }
+    ],
+    "siem_events": [],
+    "assets": [
+      {
+        "@id": "/api/3/assets/3e8b1c52-7d4a-4f19-9a60-2c5d8e71b0a4",
+        "@type": "Asset",
+        "uuid": "3e8b1c52-7d4a-4f19-9a60-2c5d8e71b0a4",
+        "id": 802,
+        "name": "finance-ws-12",
+        "hostname": "finance-ws-12.corp.example",
+        "ip": "10.50.60.70",
+        "owner": "Finance",
+        "criticality": {
+          "@type": "Picklist",
+          "itemValue": "Medium"
+        },
+        "os": "Windows 11",
+        "location": "HQ-Floor3"
+      }
+    ],
+    "comments": [],
+    "faz_logs": []
+  },
+  "configured_connectors": [
+    {
+      "name": "fortinet-fortianalyzer",
+      "status": "Completed",
+      "version": "4.0.1",
+      "label": "Fortinet FortiAnalyzer",
+      "config_count": 1
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# Reproduces the live shape from the session that motivated the
+# change-affordance gate: a playbook whose Start step's `next` does not match
+# the following step's NAME, so only Start ever executes.
+#
+# The defect is the point. A model asked to EXPLAIN this playbook will notice it
+# while explaining -- that is correct and desirable. What it must not do is go
+# on to author and offer the fix on a turn where the analyst only asked for an
+# explanation.
+playbooks:
+  - name: ConvertTimeAndCreateAlert
+    steps:
+      - name: Start
+        type: start
+        module: alerts
+        button_label: Run Playbook
+        # The defect: the step below is named "Convert Time to Minutes".
+        next: convert_time_to_minutes
+      - name: Convert Time to Minutes
+        type: set_variable
+        variables:
+          minutes: "{{ (vars.input.records[0].duration | int) // 60 }}"
+        next: Create Alert
+      - name: Create Alert
+        type: create_record
+        module: alerts
+        fields:
+          name: "Converted {{ vars.steps.Convert_Time_to_Minutes.minutes }} minutes"
+          severity: Minor

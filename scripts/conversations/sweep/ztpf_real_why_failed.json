@@ -1,0 +1,32 @@
+{
+  "name": "ztpf_real_why_failed",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. Follow-up shape from the history ('show me what id 221 did'). The cause is in the failed step's output: the FortiManager task was never created. A FortiManager task id is not a FortiSOAR record (engineer FIXME) and must not be looked up as one."
+  ],
+  "steps": [
+    {
+      "user": "Why did the last run group fail?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reports": {
+      "any_of": [
+        "Object does not exist",
+        "No devices"
+      ],
+      "all_of": [
+        "Upgrade Firmware via Target Firmware in Spreadsheets"
+      ]
+    }
+  }
+}

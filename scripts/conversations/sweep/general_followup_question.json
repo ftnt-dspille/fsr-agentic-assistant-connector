@@ -1,0 +1,37 @@
+{
+  "name": "general_followup_question",
+  "category": "general",
+  "intent": "triage",
+  "module": "tasks",
+  "persona": "fixture",
+  "records": "general_ops_surface",
+  "mount": {
+    "module": "tasks",
+    "uuid": "5a6b7c8d-9e0f-4a1b-8c2d-3e4f5a6b7c01"
+  },
+  "why": [
+    "A follow-up that depends on the first answer. Turn 2 must be answered from the",
+    "record already read, not by re-deriving or guessing."
+  ],
+  "steps": [
+    {
+      "user": "Summarise this task."
+    },
+    {
+      "user": "Which incident is it tied to, and how severe is that incident?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reports": {
+      "all_of": [
+        "INC-2231"
+      ],
+      "any_of": [
+        "High",
+        "high"
+      ]
+    },
+    "no_unserved_reads": true
+  }
+}

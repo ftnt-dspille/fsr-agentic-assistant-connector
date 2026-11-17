@@ -1,0 +1,14 @@
+{
+  "_doc": [
+    "Findings from `make tool-sweep` that are KNOWN and triaged, so the gate can",
+    "be green without the finding being forgotten. Each entry is still printed on",
+    "every run, under 'acknowledged'.",
+    "",
+    "Key format: '<invariant>:<tool>'. The value is why it is acknowledged and",
+    "what would close it -- not 'wontfix'.",
+    "",
+    "This file CANNOT rot: an entry that no longer matches a live finding fails",
+    "the sweep as a STALE acknowledgement, so fixing the defect forces the",
+    "acknowledgement to be deleted in the same change."
+  ]
+}

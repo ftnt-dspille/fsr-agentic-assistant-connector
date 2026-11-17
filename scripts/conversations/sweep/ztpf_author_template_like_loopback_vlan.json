@@ -1,0 +1,71 @@
+{
+  "name": "ztpf_author_template_like_loopback_vlan",
+  "category": "ztpf_author",
+  "intent": "triage",
+  "module": "ztpf_templates",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_templates",
+    "uuid": "7d762bbe-580d-4618-b174-f76ed5823fcf"
+  },
+  "why": [
+    "Generate a new template by example. From the engineer's history: \"Use an existing template to find the next loopback but create this script to find the next vlan interface to use.\"",
+    "A template only sees the data its linked metadata sources collect, so the new one must link the VLAN source (DeviceDB System Interfaces - VLAN), not the loopback one. The source template is untouched.",
+    "Every VLAN the device already has sits on a parent port (the VLAN source's real output shows `interface`), and FortiOS rejects a VLAN without one: the new template must `set interface`. Early runs copied the loopback shape and left it out."
+  ],
+  "steps": [
+    {
+      "user": "Use this template as an example and make a new template called Create Next VLAN Interface that finds the next free VLAN id on the device and creates that VLAN interface."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 2
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": [
+      "test_template"
+    ],
+    "world_after": [
+      {
+        "module": "ztpf_templates",
+        "where": {
+          "name": "Create Next VLAN Interface"
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "script~": "vlan",
+            "ztpfMetadataSources~": "7a12bb5f"
+          },
+          {
+            "script~": "set interface"
+          }
+        ],
+        "min_writes": 1
+      },
+      {
+        "module": "ztpf_templates",
+        "where": {
+          "name": "Create Next Test Loopback Interface"
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "script~": "set type loopback"
+          }
+        ]
+      }
+    ]
+  }
+}

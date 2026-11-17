@@ -1,0 +1,26 @@
+{
+  "name": "mx_decision_branch",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "decision_branch",
+  "why": [
+    "Product-path twin of eval-matrix task 'decision_branch'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook with a manual trigger that takes an alert severity from `vars.input.params.severity`, runs a Decision step, and routes to one of two `end` steps depending on whether severity equals 'High'. Use `next:` for the catch-all branch -- do NOT write inverse conditions. Output the complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "decision_branch"
+  }
+}

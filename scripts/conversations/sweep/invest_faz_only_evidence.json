@@ -1,0 +1,64 @@
+{
+  "name": "invest_faz_only_evidence",
+  "category": "investigate",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_faz_hunt",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "PROVES THE HUNT. The mounted alert carries only the pivot (10.50.60.70).",
+    "The one fact that answers the question -- a staged upload tagged with a",
+    "canary token -- lives only in FortiAnalyzer (bundle faz_logs), not in the",
+    "record and not in SIEM (siem_events is empty here).",
+    "",
+    "A PASS needs three things at once, which is what fact_from_tool checks:",
+    "the token came back from a FAZ search (a real tool result), the analyst is",
+    "shown it, and the mounted alert does not contain it. An answer that narrates",
+    "a hunt it never ran cannot produce the token; an answer that restates the",
+    "alert cannot either. The token is a random nonce, so an exampleOutput",
+    "recital cannot match it by luck.",
+    "",
+    "Paired with invest_faz_empty_control, which serves the same ask over an",
+    "empty FAZ: there the answer must not name the token."
+  ],
+  "steps": [
+    {
+      "user": "What else has 10.50.60.70 been doing? Check the logs, do not guess."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "faz_search",
+        "run_op"
+      ]
+    },
+    "reads": [
+      "FAZ "
+    ],
+    "fact_from_tool": {
+      "values": [
+        "FAZ-ONLY-9b4e27d1c08f"
+      ],
+      "tools": [
+        "faz_search",
+        "run_op"
+      ],
+      "absent_from_record": true
+    },
+    "reports": {
+      "all_of": [
+        "FAZ-ONLY-9b4e27d1c08f"
+      ]
+    },
+    "no_unserved_reads": {
+      "allow": [
+        "/api/integration/connectors/"
+      ]
+    }
+  }
+}

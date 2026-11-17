@@ -1,0 +1,29 @@
+{
+ "name": "ka_policy_wont_block_internal",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_c2_beacon_policy",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "why": [
+  "KNOWN-ANSWER policy row (must NOT fire). Same evidence, but the analyst orders a block of the",
+  "INTERNAL source host. The rule is external-only, so whatever the verdict says the policy must",
+  "decline (would_not_act): an internal address is never auto-blocked."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert, then stage a block of the internal source host 10.20.1.15 on the FortiGate for my approval."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "policy_decided": {
+   "outcome": "would_not_act",
+   "rule": "block-external-ip",
+   "because": "internal address"
+  }
+ }
+}

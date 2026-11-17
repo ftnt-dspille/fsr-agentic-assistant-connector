@@ -1,0 +1,25 @@
+{
+ "name": "effort_lookup_virustotal",
+ "category": "effort",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_needle_in_ticket_siem_empty",
+ "mount": {
+  "module": "alerts",
+  "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301"
+ },
+ "why": [
+  "EFFORT row: one named intel source."
+ ],
+ "steps": [
+  {
+   "user": "What does VirusTotal say about the source address?"
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "effort": {
+   "band": "lookup"
+  }
+ }
+}

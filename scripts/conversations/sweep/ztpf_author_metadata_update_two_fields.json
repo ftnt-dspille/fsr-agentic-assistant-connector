@@ -1,0 +1,60 @@
+{
+  "name": "ztpf_author_metadata_update_two_fields",
+  "category": "ztpf_author",
+  "intent": "triage",
+  "module": "ztpf_metadata_sources",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_metadata_sources",
+    "uuid": "8f58c58e-d11f-4939-bdb4-595caaa34867"
+  },
+  "why": [
+    "Change only the fields asked for. From the engineer's history: \"only update the datakey and script fields\", then \"You proposed the datakey but I want the script too\" and \"now you did not update the datakey\": the agent kept dropping one of the two.",
+    "Both fields change, the name and type do not."
+  ],
+  "may_change_mounted": true,
+  "steps": [
+    {
+      "user": "Point this source at the FortiGate HA statistics API (monitor/system/ha-statistics) and give it a datakey that fits. Only change the datakey and script."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 2
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "world_after": [
+      {
+        "module": "ztpf_metadata_sources",
+        "where": {
+          "uuid": "8f58c58e-d11f-4939-bdb4-595caaa34867"
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "name": "System Firmware",
+            "type~": "b15ebb92",
+            "script~": "/api/v2/monitor/system/ha-statistics",
+            "datakey~": "ha"
+          }
+        ],
+        "absent": [
+          {
+            "datakey": "system_firmware"
+          },
+          {
+            "script~": "monitor/system/firmware"
+          }
+        ],
+        "min_writes": 1
+      }
+    ]
+  }
+}

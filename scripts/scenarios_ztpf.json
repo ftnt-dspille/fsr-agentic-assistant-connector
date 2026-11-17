@@ -1,0 +1,51 @@
+{
+  "_doc": "ZTPF live scenarios for prompt_loop.py. Drive with --entity /api/3/ztpf_devices/<uuid> to mount the device persona. Anchored on records that exist on a ZTPF box (automation actions, templates, metadata sources).",
+
+  "ztpf_add_actions_run": {
+    "intent": "build",
+    "turns": [
+      "Add an action to this device to create a loopback interface.",
+      "Now add an action to install the config to the device.",
+      "Run the pending steps for this device.",
+      "Tell me about the last run group for this device. Summarize each step in it and what output each step produced."
+    ]
+  },
+
+  "ztpf_change_history": {
+    "intent": "triage",
+    "turns": [
+      "On this device, what have we done to make changes? Give me a list of the changes, grouped by run group, based on what the steps actually output."
+    ]
+  },
+
+  "ztpf_last_run_group": {
+    "intent": "triage",
+    "turns": [
+      "Tell me about the last run group on this device -- which steps ran, in what order, their status, and the output each one produced."
+    ]
+  },
+
+  "ztpf_clone_action": {
+    "intent": "build",
+    "turns": [
+      "Show me the automation action 'Get Routing Table' and how it is put together.",
+      "Make me a new automation action that looks like that one, but retrieves the ARP table from the device instead."
+    ]
+  },
+
+  "ztpf_clone_template": {
+    "intent": "build",
+    "turns": [
+      "Show me the template 'Delete Test Loopback Interfaces' and how it works.",
+      "Make me a new template that follows the same pattern, but deletes test VLAN interfaces instead of loopbacks."
+    ]
+  },
+
+  "ztpf_clone_metadata_source": {
+    "intent": "build",
+    "turns": [
+      "Show me the metadata source 'Get VLAN Interfaces from Device'.",
+      "Make me a new metadata source that looks like that one, but returns the device's DNS settings instead."
+    ]
+  }
+}

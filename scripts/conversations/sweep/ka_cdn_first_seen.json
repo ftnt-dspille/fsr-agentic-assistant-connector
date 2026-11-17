@@ -1,0 +1,31 @@
+{
+ "name": "ka_cdn_first_seen",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_cdn_first_seen",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e03"
+ },
+ "why": [
+  "KNOWN-ANSWER row: its records bundle fixes the evidence (strict_ops),",
+  "so the verdict is graded against a right answer, not a vibe.",
+  "",
+  "'Newly observed domain' fires on a CDN edge: 0/94 engines, categorized content delivery, and six different workstations use it. A model primed to see threats calls this suspicious; the evidence says false_positive."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "false_positive",
+    "benign"
+   ]
+  }
+ }
+}

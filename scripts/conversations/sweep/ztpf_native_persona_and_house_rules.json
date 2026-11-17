@@ -1,0 +1,74 @@
+{
+  "name": "ztpf_native_persona_and_house_rules",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_device_surface_native",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "5b23794a-a657-4169-97d3-98698126d59f"
+  },
+  "why": [
+    "Two SHIPPED read paths had never been driven by any tier: the 8.0 native",
+    "persona read (`/api/3/assistant_personas`) and the learned-house-rules read",
+    "(`/api/3/assistant_skills`). Every offline row fell back to the legacy",
+    "`/api/3/keys`, and nothing anywhere loaded a skill.",
+    "",
+    "That gap is invisible to every other grader by construction: both persona",
+    "substrates resolve the SAME persona, so the tools, the prose and the",
+    "verdicts are identical whichever one answered. Only the read list can tell",
+    "them apart, which is what the `reads` expectation is for -- and why it",
+    "asserts `/api/3/keys` was NOT reached. Without that half, a module read",
+    "that returned nothing would still pass, rescued by the fallback.",
+    "",
+    "The house rules are the second half. This bundle's rules are scoped to",
+    "`ztpf_devices` and one of them names the real playbook by name, so a turn",
+    "that loaded them can reach `run_playbook` without a discovery detour --",
+    "but discovery is still allowed, because a model that verifies a name it",
+    "was told is behaving BETTER, not worse (see ztpf_run_pending_steps, where",
+    "refusing to invent a name was the correct outcome).",
+    "",
+    "`both_called_in_order` rather than `called_before`: the point of this arc",
+    "is that the playbook RAN. `called_before` passes when the second call never",
+    "happened, which graded a run-nothing arc green once already."
+  ],
+  "steps": [
+    {
+      "user": "What steps are pending on this device?"
+    },
+    {
+      "user": "Run the pending steps."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reads": {
+      "required": [
+        "/api/3/assistant_personas",
+        "/api/3/assistant_skills"
+      ],
+      "absent": [
+        "/api/3/keys"
+      ]
+    },
+    "no_unserved_reads": {
+      "allow": [
+        "/api/3/assistant_skills"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "Create Loopback Interface",
+        "Install DeviceDB"
+      ],
+      "any_of": [
+        "Create Run Group and Execute Steps"
+      ]
+    },
+    "both_called_in_order": [
+      "search_module_records",
+      "run_playbook"
+    ]
+  }
+}

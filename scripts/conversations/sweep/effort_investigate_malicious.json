@@ -1,0 +1,25 @@
+{
+ "name": "effort_investigate_malicious",
+ "category": "effort",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_needle_in_ticket_siem_empty",
+ "mount": {
+  "module": "alerts",
+  "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301"
+ },
+ "why": [
+  "EFFORT row: a reputation question about one address is a lookup (one or two intel checks, <= 6 calls, no verdict card), not a triage."
+ ],
+ "steps": [
+  {
+   "user": "Is the source address of this alert malicious?"
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "effort": {
+   "band": "lookup"
+  }
+ }
+}

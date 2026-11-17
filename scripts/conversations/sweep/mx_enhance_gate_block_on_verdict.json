@@ -1,0 +1,32 @@
+{
+  "name": "mx_enhance_gate_block_on_verdict",
+  "category": "enhance_matrix",
+  "intent": "build",
+  "from_task": "enhance_gate_block_on_verdict",
+  "playbook": "matrix:enhance_gate_block_on_verdict",
+  "why": [
+    "Eval-matrix enhance task on the product path: the task's before-state",
+    "playbook is OPEN in the designer, as the matrix harness mounts it, and",
+    "the analyst asks for one change. The bare matrix loop re-typed some of",
+    "these via validate_yaml instead of edit_playbook (S8); this row asks",
+    "whether the product's guards deliver the edit as an Apply. Graded by",
+    "the task's own ir_assertions (behaves)."
+  ],
+  "steps": [
+    {
+      "user": "Only block the IP if the reputation came back malicious -- otherwise just end. Leave every other step exactly as it is."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true,
+    "delivered_terminal": true,
+    "behaves": "enhance_gate_block_on_verdict",
+    "called": [
+      "edit_playbook"
+    ]
+  }
+}

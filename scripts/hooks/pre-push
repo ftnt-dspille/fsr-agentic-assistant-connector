@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# pre-push gate (tracker #65) -- ruff + full pytest suite before anything leaves
+# this machine (the pinned-wheel CI-mirror is opt-in: PREPUSH_CI_MIRROR=1).
+#
+# Why a hook AND CI: the GitHub Actions run is authoritative, but it only tells you
+# after the push. This catches the same red before it lands on a shared branch,
+# and it works when the runner doesn't. Neither replaces `deploy.sh` step 0b --
+# that one gates the *ship*; this one gates the *push*.
+#
+# Install with `make hooks` (scripts/install_hooks.sh). Bypass with
+# `git push --no-verify` -- it prints that it was bypassed rather than passing
+# quietly, because an unrunnable gate that looks green is the failure mode #64
+# was filed for.
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+TEST_PY="${TEST_PY:-$(bash "$ROOT/scripts/dev_env.sh" python)}" || exit 1
+
+# The suite's widget-parity tests read the fsr_all_widgets checkout; without it
+# they skip, and the skip-policy (a skip is not a pass) fails the run. Mirror the
+# defaults `make test` sets so a bare `git push` runs them instead of skipping.
+: "${FSR_ALL_WIDGETS:=$HOME/WebstormProjects/fsr_all_widgets}"
+: "${FSR_WIDGET_HARNESS:=$FSR_ALL_WIDGETS/fortisoar-widget-harness}"
+export FSR_ALL_WIDGETS FSR_WIDGET_HARNESS
+
+if [[ "${SKIP_TESTS:-0}" == "1" ]]; then
+    echo ">> pre-push: SKIP_TESTS=1 -- pushing UNGATED" >&2
+    exit 0
+fi
+
+# What is being pushed (git feeds "<local ref> <local sha> <remote ref> <remote sha>").
+ZERO=0000000000000000000000000000000000000000
+HEAD_SHA="$(git rev-parse HEAD)"
+deletes_only=1; pushes_head=1
+while read -r _lref lsha _rref _rsha; do
+    [[ -z "${lsha:-}" ]] && continue
+    [[ "$lsha" == "$ZERO" ]] && continue
+    deletes_only=0
+    [[ "$lsha" == "$HEAD_SHA" ]] || pushes_head=0
+done
+if [[ "$deletes_only" == "1" ]]; then
+    echo ">> pre-push: only deleting remote refs -- no code leaves, no suite to run"
+    exit 0
+fi
+CACHE_SH="$ROOT/scripts/hooks/test_pass_cache.sh"
+# A recorded pass counts only when the pushed commit is the checked-out, clean HEAD:
+# the suite runs against the working tree, so that is the code it proved.
+cached() { [[ "$pushes_head" == "1" ]] && bash "$CACHE_SH" has "$1"; }
+export PREPUSH_PUSHES_HEAD="$pushes_head"
+
+# 1. Ruff lint (Pyflakes F-rules: undefined names, unused imports, etc.)
+# ~1s. Catches real bugs that pytest doesn't.
+if command -v ruff &>/dev/null; then
+    echo ">> pre-push: ruff check (Pyflakes F-rules)"
+    if ! ( cd "$ROOT" && ruff check scripts/ tests/ connector-fsr-agentic-assistant/ --select F ); then
+        echo ">> pre-push ABORT: ruff found issues -- nothing pushed." >&2
+        echo "   Fix with 'ruff check --fix', or push with --no-verify / SKIP_TESTS=1." >&2
+        exit 1
+    fi
+else
+    echo ">> pre-push: ruff not found -- skipping lint (install: pip install ruff)" >&2
+fi
+
+# 2. Full pytest suite (editable framework, always latest)
+if [[ ! -x "$TEST_PY" ]] || ! "$TEST_PY" -c 'import pytest' >/dev/null 2>&1; then
+    echo ">> pre-push ERROR: no pytest-capable python at $TEST_PY" >&2
+    echo "   Set TEST_PY=/path/to/python, or push with --no-verify." >&2
+    exit 1
+fi
+
+# Bare, from $ROOT: a path ARGUMENT would override `testpaths` in pyproject.toml,
+# which is what decides both suites get collected.
+XDIST=""; "$TEST_PY" -c 'import xdist' 2>/dev/null && XDIST="-n auto"
+if cached editable; then
+    echo ">> pre-push: full suite already passed on this exact code (make test / earlier push) -- skipped"
+else
+    echo ">> pre-push: full pytest suite (outer + connector), ${XDIST:-serial}, ~2 min"
+    if ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST ); then
+        echo ">> pre-push ABORT: suite is red -- nothing pushed." >&2
+        echo "   Fix it, or push with --no-verify / SKIP_TESTS=1." >&2
+        exit 1
+    fi
+    [[ "$pushes_head" == "1" ]] && bash "$CACHE_SH" mark editable
+fi
+
+# 3. CI-mirror check (opt-in): the same suite against the pinned wheel. GitHub Actions CI
+# runs exactly that on every push (requirements.txt install), so it is
+# authoritative there and repeating it here doubled the push time. Run it before
+# a push with PREPUSH_CI_MIRROR=1, e.g. right after bumping the framework pin.
+if [[ "${PREPUSH_CI_MIRROR:-0}" == "1" && -x "$ROOT/scripts/hooks/pre-push-ci-mirror" ]]; then
+    if ! "$ROOT/scripts/hooks/pre-push-ci-mirror"; then
+        exit 1
+    fi
+else
+    echo ">> pre-push: CI-mirror (pinned wheel) left to GitHub Actions CI; PREPUSH_CI_MIRROR=1 runs it here"
+fi

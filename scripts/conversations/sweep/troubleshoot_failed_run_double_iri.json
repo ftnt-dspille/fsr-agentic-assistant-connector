@@ -1,0 +1,68 @@
+{
+  "name": "troubleshoot_failed_run_double_iri",
+  "category": "troubleshoot",
+  "intent": "build",
+  "playbook": "run_failed_double_iri.yaml",
+  "records": "run_failed_double_iri",
+  "why": [
+    "A playbook that FAILED on the box, with its real run history replayed",
+    "(recorded from a live 8.0 appliance by scripts/record_runs.py). The",
+    "defect is invisible to static checks -- verify_playbook passes it clean --",
+    "and only the run says what happened: 'Read Full Alert' 404s on",
+    "/api/3/alerts//api/3/alerts/<uuid>, because the step prefixes an '@id'",
+    "that is already a full IRI. A right answer reads the run, names that",
+    "step, and delivers a fix that drops the prefix. A guess that never",
+    "looks at the run cannot see the doubled path.",
+    "",
+    "behaves: the iri reads the record's @id and the doubled prefix is gone",
+    "from it; the steps are kept (no_step_loss). reads: the turn consulted",
+    "the recorded run history, not only the YAML."
+  ],
+  "steps": [
+    {
+      "user": "This playbook fails every time I run it. Work out why and fix it."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true,
+    "delivered_terminal": true,
+    "reads": {
+      "required": [
+        "/api/wf/api/"
+      ]
+    },
+    "behaves": {
+      "assertions": [
+        {
+          "kind": "arg_text_contains",
+          "type": "connector",
+          "contains": "fetch_alert[0]['@id']",
+          "note": "the request still reads the found alert's @id"
+        },
+        {
+          "kind": "arg_text_absent",
+          "type": "connector",
+          "contains": "/api/3/alerts/{{",
+          "note": "the doubled prefix is gone -- @id is already a full IRI"
+        },
+        {
+          "kind": "connector_op",
+          "connector": "cyops_utilities",
+          "operation_contains": "make_cyops_request",
+          "note": "the read is still there -- not deleted to silence it"
+        },
+        {
+          "kind": "arg_text_absent",
+          "type": "connector",
+          "contains": ".split(",
+          "note": "iri is the full IRI as-is -- make_cyops_request requests exactly that path, so a bare uuid cut out of @id 404s too"
+        }
+      ]
+    }
+  },
+  "box_only": true
+}

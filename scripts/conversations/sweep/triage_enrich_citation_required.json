@@ -1,0 +1,30 @@
+{
+  "name": "triage_enrich_citation_required",
+  "category": "triage",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "The deck's most-repeated claim is 'cited verdicts, never invented'.",
+    "This scenario asks for an enrichment verdict (VirusTotal IP reputation).",
+    "The verdicts_cited grader must fire: if the model states a risk score or",
+    "reputation rating, it must trace to a real run_op tool result. A model",
+    "that invents the verdict without calling the enrichment tool fails.",
+    "A model that calls the tool and cites the real result passes. This is",
+    "the non-vacuous citation gate -- removing the tool call must fail the row."
+  ],
+  "steps": [
+    {
+      "user": "Enrich the source IP with VirusTotal. What's the reputation and risk score for this indicator?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdicts_cited": true,
+    "no_unserved_reads": true
+  }
+}

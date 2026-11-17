@@ -1,0 +1,39 @@
+{
+  "name": "troubleshoot_bad_args_then_verify",
+  "category": "troubleshoot",
+  "intent": "build",
+  "playbook": "broken_create_record_bad_args.yaml",
+  "why": [
+    "Fix, then be asked to justify it. Turn 2 is where an agent that",
+    "guessed rather than diagnosed gets caught, because it has to explain",
+    "a change it never reasoned about.",
+    "`called` accepts the verifying edit/verify tools: edit_playbook runs verify_enhancement on the result, so a fix through it IS a checked fix."
+  ],
+  "steps": [
+    {
+      "user": "Something is wrong with this playbook's arguments. Diagnose and fix it."
+    },
+    {
+      "user": "Why was that broken? Be specific about which field."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "diagnosed_first": true,
+    "no_step_loss": true,
+    "yaml_compiles": true,
+    "called": {
+      "any_of": [
+        "validate_yaml",
+        "analyze_playbook",
+        "compile_yaml",
+        "diagnose_yaml_against_pb_execution",
+        "verify_playbook",
+        "verify_enhancement",
+        "edit_playbook"
+      ]
+    }
+  }
+}

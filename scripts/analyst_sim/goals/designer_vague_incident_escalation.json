@@ -1,0 +1,37 @@
+{
+  "name": "designer_vague_incident_escalation",
+  "why": "An under-specified ask: the assistant must ask the right questions, not guess.",
+  "playbook": "designer_empty_playbook.yaml",
+  "goal": "You want a playbook that, when an alert is escalated to Critical severity, creates an incident from it and emails soc-leads@example.com. You only half know what you want at first -- let the assistant ask, and answer its questions.",
+  "requirements": [
+    {
+      "kind": "step_type_present",
+      "type": "create_record",
+      "note": "creates the incident"
+    },
+    {
+      "kind": "connector_op",
+      "connector": "smtp",
+      "note": "emails the leads"
+    },
+    {
+      "kind": "arg_text_contains",
+      "contains": "soc-leads@example.com",
+      "note": "right address"
+    },
+    {
+      "kind": "arg_text_absent",
+      "type": "start",
+      "contains": "workflows",
+      "note": "trigger is not the designer's own record"
+    },
+    {
+      "kind": "arg_text_absent",
+      "type": "start_on_create",
+      "contains": "workflows",
+      "note": "trigger is not the designer's own record"
+    }
+  ],
+  "intent": "build",
+  "max_turns": 10
+}

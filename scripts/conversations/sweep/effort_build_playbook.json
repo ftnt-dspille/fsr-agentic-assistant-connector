@@ -1,0 +1,21 @@
+{
+ "name": "effort_build_playbook",
+ "category": "effort",
+ "intent": "build",
+ "why": [
+  "EFFORT row (build): an explicit build ask still builds and delivers.",
+  "yaml_compiles is graded by the existing build rows; this row grades effort and delivery."
+ ],
+ "steps": [
+  {
+   "user": "Write me a playbook that runs every hour, finds open incidents past their SLA, and emails a summary."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "delivered_terminal": true,
+  "effort": {
+   "band": "build"
+  }
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "name": "designer_new_reusable_child",
+ "why": "Reference playbook that does NOT exist yet: the build has to create a child and call it from the open playbook.",
+ "playbook": "designer_empty_playbook.yaml",
+ "records": "soc_alert_surface_servicenow",
+ "goal": "Build a playbook that runs when an alert is created and blocks the alert's source IP on the FortiGate. Put the blocking in its own separate, reusable playbook that takes the IP as an input, because other playbooks will call it too, and have this playbook call that one.",
+ "requirements": [
+  {
+   "kind": "step_type_present",
+   "type": "workflow_reference",
+   "note": "calls the child"
+  },
+  {
+   "kind": "step_type_absent",
+   "type": "connector",
+   "note": "the block lives in the child, not the parent"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start_on_create",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  }
+ ],
+ "intent": "build",
+ "max_turns": 10
+}

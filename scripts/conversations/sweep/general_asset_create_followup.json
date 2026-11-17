@@ -1,0 +1,32 @@
+{
+  "name": "general_asset_create_followup",
+  "category": "general",
+  "intent": "triage",
+  "module": "assets",
+  "persona": "fixture",
+  "records": "general_ops_surface",
+  "mount": {
+    "module": "assets",
+    "uuid": "7c1e2d3f-4a5b-4c6d-8e9f-0a1b2c3d4e51"
+  },
+  "why": [
+    "An in-scope write from a read-mostly persona: it may create TASKS. The record",
+    "must be proposed through create_record, not narrated as done."
+  ],
+  "steps": [
+    {
+      "user": "Create a follow-up task to re-scan this host after the OpenSSL patch, and assign it to Marcus Lee."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "create_record"
+      ]
+    },
+    "claims_backed": {
+      "require_attempt": true
+    }
+  }
+}

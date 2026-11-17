@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "ir": {
+    "playbooks": [
+      {
+        "name": "Route Severity Live",
+        "uuid": null,
+        "steps": [
+          {
+            "name": "start",
+            "type": "start",
+            "uuid": null
+          },
+          {
+            "name": "Read severity",
+            "type": "set_variable",
+            "uuid": null
+          },
+          {
+            "name": "Branch on severity",
+            "type": "decision",
+            "uuid": null
+          },
+          {
+            "name": "Escalate to Tier 2",
+            "type": "set_variable",
+            "uuid": null
+          },
+          {
+            "name": "No action low severity",
+            "type": "end",
+            "uuid": null
+          }
+        ]
+      }
+    ]
+  },
+  "errors": []
+}

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Infra-leak pre-commit guard (tracker #87).
+# Blocks internal host strings from entering the tracked tree.
+# Bypass with `git commit --no-verify`.
+set -uo pipefail
+ROOT="$(git rev-parse --show-toplevel)"
+SCRIPT="$ROOT/scripts/check_infra_leaks.py"
+PY="${TEST_PY:-$(bash "$ROOT/scripts/dev_env.sh" venv)/bin/python}"
+
+if [[ ! -f "$SCRIPT" ]]; then
+    echo ">> pre-commit: check_infra_leaks.py not found -- skipping" >&2
+    exit 0
+fi
+
+if [[ ! -x "$PY" ]] || ! "$PY" -c 'import re' >/dev/null 2>&1; then
+    echo ">> pre-commit: no python at $PY -- skipping" >&2
+    exit 0
+fi
+
+exec "$PY" "$SCRIPT"

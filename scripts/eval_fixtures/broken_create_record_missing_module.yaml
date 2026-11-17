@@ -1,0 +1,48 @@
+# DELIBERATELY BROKEN fixture — S6's anchor (apply the fix so the playbook runs).
+#
+# A create_record step whose record body (`resource:`) IS correctly nested under
+# `arguments:`, but whose `module:` is MISSING. Like the S5 fixture it compiles
+# clean (`validate_yaml`/`compile_yaml` pass) and fails only at runtime — but for
+# a different, deliberately chosen reason.
+#
+# Why S6 needs its OWN fixture and cannot share S5's
+# (`broken_create_record_bad_args.yaml`): that bug puts `resource:` OUTSIDE
+# `arguments:`, so the parser DROPS the record body at compile time. The stored
+# playbook — and therefore the `decompile_playbook` seed the assistant sees — then
+# has no record content at all. Applying the fix there cannot recreate the
+# original record because its name/fields no longer exist anywhere; the model is
+# forced to INVENT a body, and half the time it invents a placeholder
+# (`field_name: field_value`) that fails at runtime. Live-observed on 206: S6 on
+# that fixture grades the model's guess, not its fix, and flakes (1/3).
+#
+# This fixture keeps the body intact and moves the defect somewhere that survives
+# a compile: the missing `module`. The fix is then purely STRUCTURAL — add
+# `module: alerts` to Emit's arguments — and the record it creates is
+# DETERMINISTIC (`ZZ Eval emitted` / `ALPHA`), so S6 can grade the fixed run by
+# the exact record it must produce (and sweep it by name), with no dependence on
+# what the model chooses to type.
+#
+# The CORRECT shape is `eval_fixtures/marker_emitter.yaml` (module present);
+# adding the one missing key is the fix.
+
+collection: ZZ FSRPB Eval Fixtures
+description: Throwaway fixtures for the build-persona eval harness. Safe to delete.
+visible: true
+playbooks:
+  - name: ZZ Eval Missing Module
+    description: create_record whose module is missing (fails at runtime, body intact).
+    is_active: true
+    steps:
+      - name: Start
+        type: start
+        next: Emit
+        module: alerts
+        button_label: Emit marker
+
+      - name: Emit
+        type: create_record
+        # BUG: `module: alerts` is missing here. The record body is correct, but
+        # create_record has no target module, so it fails at runtime and creates
+        # nothing. The fix is to add `module: alerts` to this arguments block.
+        fields:
+          description: created by the eval harness

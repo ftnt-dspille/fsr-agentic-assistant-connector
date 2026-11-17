@@ -1,0 +1,23 @@
+{
+  "name": "enhance_real_decision_branches",
+  "category": "enhance",
+  "intent": "build",
+  "playbook": "real_decision_indicator_port_reputation.yaml",
+  "why": [
+    "A real playbook with decision branches and declared parameters --",
+    "the other silent-loss class. A rewrite that drops a branch or the",
+    "`parameters:` block is destructive on save."
+  ],
+  "steps": [
+    {
+      "user": "Add a description to this playbook explaining what it does. Leave the logic exactly as it is."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true
+  }
+}

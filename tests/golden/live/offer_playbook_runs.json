@@ -1,0 +1,16 @@
+{
+  "ok": false,
+  "status": "awaiting",
+  "task_id": "507c6cce-8893-444c-8a0b-684744e52f39",
+  "wf_uuid": "368cc890-4d64-5437-b1c1-c720f95cdc4a",
+  "wf_pk": "64335",
+  "collection_uuid": "0bac2744-5d51-5e95-90a5-1235a7bffffc",
+  "cleaned_up": false,
+  "awaiting_steps": [],
+  "gate": {
+    "id": 146,
+    "title": "Confirm Containment",
+    "answered": "answered 'Stop'",
+    "final_status": "finished"
+  }
+}

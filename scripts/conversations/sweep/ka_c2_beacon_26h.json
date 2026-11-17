@@ -1,0 +1,29 @@
+{
+ "name": "ka_c2_beacon_26h",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_c2_beacon_26h",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "why": [
+  "KNOWN-ANSWER row, time-aware: the alert is 26h old and the SIEM serves only events inside the query's timeRange. A 2h default lookback is empty; the verdict needs the window to reach the alert (I1), and an empty answer must read as unknown, not clean (I2).",
+  "",
+  "Same evidence as ka_c2_beacon: Threat intel names the destination a Cobalt Strike C2 (47/94 engines) and SIEM shows the host calling it every two minutes. The only correct call is true_positive."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive"
+   ]
+  }
+ }
+}

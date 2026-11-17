@@ -1,0 +1,21 @@
+{
+  "name": "build_plain_request_no_record",
+  "category": "build",
+  "intent": "build",
+  "why": [
+    "Authoring with NO record mounted -- the designer-page case. Nothing",
+    "grounds the agent, so this is where invented connectors and invented",
+    "step types surface most readily."
+  ],
+  "steps": [
+    {
+      "user": "Write me a playbook that runs every hour, finds open incidents past their SLA, and emails a summary."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true,
+    "delivered_terminal": true
+  }
+}

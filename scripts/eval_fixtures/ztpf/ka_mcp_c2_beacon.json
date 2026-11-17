@@ -1,0 +1,473 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, MCP edition. Tool names, descriptions, input schemas and",
+  "the reputation response SHAPE are captured from a live FortiSIEM MCP server",
+  "(v1.24); the values are hand-authored. The live server only ever answered",
+  "'Safe (IOC not found)' in capture; the hit wording 'Malware (IOC found)'",
+  "follows its own description ('Returns reputation (Malware/Safe)').",
+  "Same alert as ka_c2_beacon, but the evidence is reachable ONLY through the",
+  "FortiSIEM MCP server: no connector op is recorded (strict_ops) and no TI",
+  "connector is configured, so a right verdict means the agent investigated",
+  "through mcp_fortisiem__* tools.",
+  "Answer: true_positive. Reputation: Malware on two feeds; incidents:",
+  "fin-ws-07 beacons every 2 minutes, ~600 bytes each."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "fortigate-firewall",
+   "status": "Completed",
+   "version": "5.4.0",
+   "label": "Fortinet FortiGate",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {},
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01",
+    "@type": "Alert",
+    "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01",
+    "id": 91001,
+    "name": "Outbound connection from 10.20.1.15 to 198.51.100.77",
+    "description": "FortiGate flagged repeated outbound HTTPS sessions from 10.20.1.15 to 198.51.100.77.",
+    "sourceIp": "10.20.1.15",
+    "destinationIp": "198.51.100.77",
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "orderIndex": 3,
+     "color": "#DE7A13",
+     "icon": null,
+     "listName": "/api/3/picklist_names/4e80cba3-032f-48b4-ac03-17e3ec247aac",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb",
+     "id": 444,
+     "importedBy": []
+    },
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "orderIndex": 1,
+     "color": null,
+     "icon": null,
+     "listName": "/api/3/picklist_names/33e964a9-d607-49f2-813c-7ce46141815a",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146",
+     "id": 201,
+     "importedBy": []
+    },
+    "type": {
+     "@id": "/api/3/picklists/a043fb35-f373-44c0-bfa9-5bce2f711141",
+     "@type": "Picklist",
+     "itemValue": "Data Exfiltration",
+     "orderIndex": 5,
+     "color": null,
+     "icon": null,
+     "listName": "/api/3/picklist_names/a7087b9c-5660-495f-a8ac-c3b198ddb8c2",
+     "uuid": "a043fb35-f373-44c0-bfa9-5bce2f711141",
+     "id": 228,
+     "importedBy": []
+    },
+    "source": "Fortinet FortiSIEM",
+    "sourceId": "141001",
+    "createDate": 1790550000.0,
+    "hostName": "fin-ws-07"
+   }
+  ]
+ },
+ "ops": [],
+ "mcp_servers": {
+  "fortisiem": {
+   "tools": [
+    {
+     "name": "get_reputation_by_entity",
+     "description": "Look up the threat reputation of an entity (IP, domain, URL, file hash) against\nexternal threat intelligence feeds configured in FortiSIEM.\n    - Input must contain exactly one entity type: ip, url, domain, or hash\n    - Returns reputation (Malware/Safe) and list of matching external threat feeds.\n\nExample:\n    - Get the reputation for IP \"10.1.1.1\", the params would be like:\n        {\n            \"ip\": [\"10.1.1.1\"]\n        }",
+     "input_schema": {
+      "$defs": {
+       "EntityReputationQuery": {
+        "description": "Threat reputation lookup.\nExactly one entity type: ip, url, domain, or hash must be provided.",
+        "properties": {
+         "ip": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "IPv4 or IPv6 address to look up",
+          "title": "Ip"
+         },
+         "url": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "URL to look up (e.g. 'http://evil.com/path')",
+          "title": "Url"
+         },
+         "domain": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Domain or hostname to look up (e.g. 'evil.example.com')",
+          "title": "Domain"
+         },
+         "hash": {
+          "anyOf": [
+           {
+            "items": {
+             "type": "string"
+            },
+            "type": "array"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Hash value to look up (e.g. 'a1b2c3d4e5f6g7h8i9j0')",
+          "title": "Hash"
+         }
+        },
+        "title": "EntityReputationQuery",
+        "type": "object"
+       }
+      },
+      "properties": {
+       "params": {
+        "$ref": "#/$defs/EntityReputationQuery"
+       }
+      },
+      "required": [
+       "params"
+      ],
+      "type": "object"
+     },
+     "responses": [
+      {
+       "mentions": "198.51.100.77",
+       "response": [
+        {
+         "ip": "198.51.100.77",
+         "whoisInfo": {
+          "organization": "HOSTKEY-B.V.",
+          "countryCode": "NL"
+         },
+         "location": {
+          "countryCode": "NL"
+         },
+         "malwareGroups": [
+          {
+           "name": "198.51.100.77",
+           "verdict": "Malware (IOC found)",
+           "source": "C2 Tracker Malware IP"
+          },
+          {
+           "name": "198.51.100.77",
+           "verdict": "Malware (IOC found)",
+           "source": "Cobalt Strike Beacon IP"
+          }
+         ],
+         "virusTotalFail": {
+          "type": "NotConfigured",
+          "message": "VirusTotal is not configured"
+         }
+        }
+       ]
+      },
+      {
+       "mentions": "10.20.1.15",
+       "response": [
+        {
+         "ip": "10.20.1.15",
+         "whoisInfo": {
+          "organization": "private range",
+          "countryCode": ""
+         },
+         "location": {
+          "countryCode": ""
+         },
+         "malwareGroups": [
+          {
+           "name": "10.20.1.15",
+           "verdict": "Safe (IOC not found)",
+           "source": "C2 Tracker Malware IP"
+          }
+         ],
+         "virusTotalFail": {
+          "type": "NotConfigured",
+          "message": "VirusTotal is not configured"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "get_incidents_by_entity",
+     "description": "Retrieve Active Incidents for the last N hours or days current time. If a specific entity\n(e.g. IP address, hostname, or user) is provided, then only Incidents related to that entity\nwill be retrieved.\n    - Input is a time period (e.g. 2 hours or 1 day) and optionally one entity. The entity\n    should be exactly one of \"ip, hostname, or username\" can be provided. The match is\n    case-insensitive.\n    - Returns incident ID, incident title, severity, status, first and last seen times\n    for matching each incident.\n\nUse this as the starting point for any incident investigation for an entity.\nExample:\n    - Get all the incident on host 'abc.com' for the past 24 hours, the params would be like:\n        {\n            \"time_value\": 24,\n            \"time_unit\": \"hours\",\n            \"hostname\": \"abc.com\"\n        }",
+     "input_schema": {
+      "$defs": {
+       "EntityIncidentQuery": {
+        "description": "Filter parameters for querying incidents over a time window.\nExactly one of ip, hostname, or username must be provided.",
+        "properties": {
+         "time_value": {
+          "default": 24,
+          "description": "Number of time units to look back (e.g. 24)",
+          "exclusiveMinimum": 0,
+          "title": "Time Value",
+          "type": "integer"
+         },
+         "time_unit": {
+          "default": "hours",
+          "description": "Time unit: 'hours' or 'days'",
+          "pattern": "^(hours|days)$",
+          "title": "Time Unit",
+          "type": "string"
+         },
+         "ip": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Filter by source/destination IP address (e.g. '192.168.1.5')",
+          "title": "Ip"
+         },
+         "hostname": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Filter by hostname or FQDN (e.g. 'server01.corp')",
+          "title": "Hostname"
+         },
+         "username": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Filter by username or UPN (e.g. 'jsmith')",
+          "title": "Username"
+         }
+        },
+        "title": "EntityIncidentQuery",
+        "type": "object"
+       }
+      },
+      "properties": {
+       "params": {
+        "$ref": "#/$defs/EntityIncidentQuery"
+       }
+      },
+      "required": [
+       "params"
+      ],
+      "type": "object"
+     },
+     "responses": [
+      {
+       "mentions": "198.51.100.77",
+       "response": [
+        {
+         "incidentId": 41207,
+         "incidentTitle": "Periodic outbound connection to known C2",
+         "eventSeverityCat": "HIGH",
+         "incidentSrc": "srcIpAddr:10.20.1.15,",
+         "incidentTarget": "destIpAddr:198.51.100.77,",
+         "hostName": "fin-ws-07",
+         "count": 12,
+         "incidentFirstSeen": "2026-09-27T09:00:00Z",
+         "incidentLastSeen": "2026-09-27T09:22:01Z",
+         "incidentDetail": "12 sessions to 198.51.100.77:443, one every ~120 s, 612-634 bytes sent each"
+        }
+       ]
+      },
+      {
+       "mentions": "10.20.1.15",
+       "response": [
+        {
+         "incidentId": 41207,
+         "incidentTitle": "Periodic outbound connection to known C2",
+         "eventSeverityCat": "HIGH",
+         "incidentSrc": "srcIpAddr:10.20.1.15,",
+         "hostName": "fin-ws-07",
+         "count": 12
+        }
+       ]
+      },
+      {
+       "mentions": "fin-ws-07",
+       "response": [
+        {
+         "incidentId": 41207,
+         "incidentTitle": "Periodic outbound connection to known C2",
+         "eventSeverityCat": "HIGH",
+         "hostName": "fin-ws-07",
+         "count": 12
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "get_context_by_entity",
+     "description": "Retrieve enriched context for a specific entity (e.g. IP address, hostname, or user).\n    - Input is one entity. Exactly one of ip, hostname, or username must be provided.\n    - Returns host Name, Device type, importance, incidents, top event types,\n        risk for the provided entity\n\nExample:\n    - Get all the context for ip \"10.1.1.1\", the params would be like:\n        {\n            \"ip\": \"10.1.1.1\"\n        }",
+     "input_schema": {
+      "$defs": {
+       "EntityContextQuery": {
+        "description": "Entity selector for context enrichment.\nExactly one of ip, hostname, or username must be provided.",
+        "properties": {
+         "ip": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "IP address to look up",
+          "title": "Ip"
+         },
+         "hostname": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Hostname or FQDN to look up",
+          "title": "Hostname"
+         },
+         "username": {
+          "anyOf": [
+           {
+            "type": "string"
+           },
+           {
+            "type": "null"
+           }
+          ],
+          "default": null,
+          "description": "Username or UPN to look up",
+          "title": "Username"
+         }
+        },
+        "title": "EntityContextQuery",
+        "type": "object"
+       }
+      },
+      "properties": {
+       "params": {
+        "$ref": "#/$defs/EntityContextQuery"
+       }
+      },
+      "required": [
+       "params"
+      ],
+      "type": "object"
+     },
+     "responses": [
+      {
+       "mentions": "10.20.1.15",
+       "response": {
+        "ip": "10.20.1.15",
+        "hostName": "fin-ws-07",
+        "os": "Windows 11",
+        "owner": "finance",
+        "criticality": "Medium"
+       }
+      },
+      {
+       "mentions": "fin-ws-07",
+       "response": {
+        "ip": "10.20.1.15",
+        "hostName": "fin-ws-07",
+        "os": "Windows 11",
+        "owner": "finance",
+        "criticality": "Medium"
+       }
+      }
+     ]
+    },
+    {
+     "name": "update_incident_severity_by_id",
+     "description": "Set a FortiSIEM incident's severity.",
+     "input_schema": {
+      "type": "object",
+      "properties": {
+       "params": {
+        "type": "object",
+        "properties": {
+         "incident_id": {
+          "type": "integer"
+         },
+         "severity": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "required": [
+       "params"
+      ]
+     },
+     "responses": []
+    }
+   ]
+  }
+ }
+}

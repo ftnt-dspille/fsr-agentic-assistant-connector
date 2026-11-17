@@ -1,0 +1,21 @@
+{
+  "contract_version": "2.8.0",
+  "error": "provider returned 503",
+  "last_assistant_yaml": null,
+  "ok": false,
+  "stop_reason": "error",
+  "tags": {
+    "case_state": {
+      "enriched": 0,
+      "phase": "investigating",
+      "record_key": null,
+      "scenario": null,
+      "searched": 0,
+      "unavailable_connectors": []
+    },
+    "intent": "triage"
+  },
+  "transcript": [],
+  "turn_id": "<uuid>",
+  "type": "stream_end"
+}

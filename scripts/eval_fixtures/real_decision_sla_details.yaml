@@ -1,0 +1,128 @@
+collection: 06 - IRP - Case Management
+description: SLA management and other case management playbooks
+visible: true
+playbooks:
+- name: Fetch SLA Details
+  description: Fetches SLA Details for incidents as per Service, that is, for MSSP
+    or Enterprise.
+  tag: '#Subroutine  #system'
+  is_active: true
+  trigger_step_id: start
+  parameters:
+  - inc_severity
+  - tenant_iri
+  steps:
+  - type: connector
+    name: Do Nothing
+    params: []
+    connector: cyops_utilities
+    operation: no_op
+  - type: find_record
+    name: Get SLA Details Enterprise
+    step_variables:
+      is_mssp: 'false'
+      sla_data: '{{vars.result}}'
+    module: sla_template?$limit=30
+    query:
+      sort: []
+      limit: 30
+      logic: AND
+      filters:
+      - type: object
+        field: incSeverity
+        value: '{{("Severity" | picklist(vars.input.params[''inc_severity'']))["@id"]}}'
+        _value:
+          '@id': '{{("Severity" | picklist(vars.input.params[''inc_severity'']))["@id"]}}'
+          display: ''
+          itemValue: ''
+        operator: eq
+    next: select_sla
+  - type: find_record
+    name: Get SLA Details MSSP
+    step_variables:
+      is_mssp: 'true'
+      sla_data: '{% if vars.steps.Get_SLA_Details_MSSP | length > 0 %}{% set tenant_name
+        = ( vars.input.params[''tenant_iri''] | fromIRI ).name %}{{vars.steps.Get_SLA_Details_MSSP
+        | json_query("[?contains(tenant.name, ''"+tenant_name+"'')]") or vars.steps.Get_SLA_Details_MSSP
+        }}{% else %}[]{% endif %}'
+    module: sla_template?$limit=30
+    query:
+      sort: []
+      limit: 30
+      logic: AND
+      filters:
+      - type: primitive
+        field: incSeverity
+        value: '{{("Severity" | picklist(vars.input.params[''inc_severity'']))["@id"]}}'
+        operator: eq
+        _operator: eq
+      - logic: OR
+        filters:
+        - type: object
+          field: tenant
+          value: /api/3/tenants/b3a700f7-00be-4ef9-90c6-3c8fe6e1be63
+          _value:
+            '@id': /api/3/tenants/b3a700f7-00be-4ef9-90c6-3c8fe6e1be63
+            display: Self
+          operator: eq
+        - type: object
+          field: tenant
+          value: '{{vars.input.params[''tenant_iri'']}}'
+          _value:
+            '@id': '{{vars.input.params[''tenant_iri'']}}'
+            display: ''
+            itemValue: ''
+          operator: eq
+    next: select_sla
+  - type: decision
+    name: Is MSSP
+    conditions:
+    - display: MSSP
+      when: '{{ vars.input.params[''tenant_iri''] is not none }}'
+      next: get_sla_details_mssp
+    - display: Enterprise
+      default: true
+      next: get_sla_details_enterprise
+  - type: decision
+    name: Select SLA
+    step_variables: []
+    conditions:
+    - display: Do Nothing
+      default: true
+      next: do_nothing
+    - display: Return SLA
+      when: '{{ vars.sla_data | length > 0 }}'
+      next: set_conditions_for_sla
+  - type: set_variable
+    name: Set Conditions for SLA
+    vars:
+      default_sla: '{% if vars.is_mssp %}{% if ( vars.input.params[''tenant_iri'']
+        | fromIRI ).name != vars.sla_data[0].tenant.name %}true{% else %}false{% endif
+        %}{% else %}false{% endif %}'
+    next: sla_time_list
+  - type: set_variable
+    name: SLA Time List
+    vars:
+      sla_time_list: "{\n  \"defaultSLA\" : {{vars.default_sla}},\n  \"incAckTime\"\
+        \ : \"{{vars.sla_data[0].ackSlaTime}}\",\n  \"incResTime\" : \"{{vars.sla_data[0].resTime}}\"\
+        ,\n  \"incAckTrackedOn\" : \"{{vars.sla_data[0].slaTrackedOn.itemValue}}\"\
+        ,\n  \"incResTrackedOn\" : \"{{vars.sla_data[0].resSlaTrackedOn.itemValue}}\"\
+        ,\n  \"alertAckTime\" : \"{{vars.sla_data[0].alertAckTime}}\",\n  \"alertResTime\"\
+        \ : \"{{vars.sla_data[0].alertResTime}}\",\n  \"alertAckTrackedOn\" : \"{{vars.sla_data[0].alertAckTrackedOn.itemValue}}\"\
+        ,\n  \"alertResTrackedOn\" : \"{{vars.sla_data[0].alertResTrackedOn.itemValue}}\"\
+        ,\n  \"altPauseSLAOn\" : {% if vars.sla_data[0].altPauseSLAOn | type_debug\
+        \ == 'list' %}{{vars.sla_data[0].altPauseSLAOn | json_query('[].itemValue')}}{%\
+        \ else %}\"{{vars.sla_data[0].altPauseSLAOn.itemValue}}\"{% endif %},\n  \"\
+        incPauseSLAOn\" : {% if vars.sla_data[0].incPauseSLAOn | type_debug == 'list'\
+        \ %}{{vars.sla_data[0].incPauseSLAOn | json_query('[].itemValue')}}{% else\
+        \ %}\"{{vars.sla_data[0].incPauseSLAOn.itemValue}}\"{% endif %}\n}"
+  - type: start
+    name: Start
+    step_variables:
+      input:
+        params:
+          tenant_id: '{{ vars.tenant_id }}'
+          tenant_iri: '{{ vars.tenant_iri }}'
+          tenant_name: '{{ vars.tenant_name }}'
+          inc_severity: '{{ vars.inc_severity }}'
+    next: is_mssp

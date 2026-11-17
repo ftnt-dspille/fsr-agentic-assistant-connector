@@ -1,0 +1,49 @@
+{
+ "name": "designer_severity_router",
+ "why": "Harder: a three-way decision with different work on each arm, plus a failure path.",
+ "playbook": "designer_empty_playbook.yaml",
+ "records": "soc_alert_surface_servicenow",
+ "goal": "Build a playbook that runs when an alert is created and routes it by severity. Critical: create an incident from the alert and email soc-leads@example.com. High: set the alert's status to In Progress and add a comment saying it needs tier 2 review. Anything else: close the alert. If creating the incident fails, the playbook should still email soc-leads@example.com saying it failed, instead of just stopping.",
+ "requirements": [
+  {
+   "kind": "branch_count",
+   "type": "decision",
+   "min": 3,
+   "note": "three-way severity routing"
+  },
+  {
+   "kind": "step_type_present",
+   "type": "create_record",
+   "note": "creates the incident"
+  },
+  {
+   "kind": "connector_op",
+   "connector": "smtp",
+   "note": "emails the leads"
+  },
+  {
+   "kind": "arg_text_contains",
+   "contains": "soc-leads@example.com",
+   "note": "right address"
+  },
+  {
+   "kind": "step_type_present",
+   "type": "update_record",
+   "note": "In Progress / close"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start_on_create",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  }
+ ],
+ "intent": "build",
+ "max_turns": 12
+}

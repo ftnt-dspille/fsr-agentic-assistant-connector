@@ -1,0 +1,25 @@
+{
+  "name": "mx_soc_ueba_three_way_decision",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "soc_ueba_three_way_decision",
+  "why": [
+    "Product-path twin of eval-matrix task 'soc_ueba_three_way_decision'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook. Trigger: an event is created in the events module tagged 'impossible_travel'. Behavior: call our internal risk-scoring connector's score-user operation, passing the event's `user_iri` field as input. Branch on the returned `risk_score` integer with three buckets: above 80 \u2192 lock the user's account via the Okta connector AND set the event's status to 'Auto-Contained'; between 50 and 80 inclusive \u2192 set status to 'Pending Tier-2 Review' and add the tag 'manual_review_required'; below 50 \u2192 set status to 'Closed - Low Risk' and add the tag 'auto_dismissed'. Every path must end with a set_variable that stamps the playbook's outcome string into a workflow var for downstream auditing. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true
+  },
+  "behaves_waived": "the task's premise is 'our internal risk-scoring connector', which no box has and the catalog does not know; a capability-gap card and a build around the gap are both right, so neither behaves nor yaml_compiles can grade it. Graded on delivering one of them (delivered_terminal)."
+}

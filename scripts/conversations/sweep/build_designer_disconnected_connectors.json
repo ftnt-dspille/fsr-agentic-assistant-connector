@@ -1,0 +1,60 @@
+{
+  "name": "build_designer_disconnected_connectors",
+  "category": "build",
+  "intent": "build",
+  "playbook": "designer_empty_playbook.yaml",
+  "records": "soc_alert_surface_disconnected",
+  "why": [
+    "Live (main lab box): from an empty playbook open in the designer the",
+    "analyst asked for a manual-input IP prompt, a ServiceNow ticket and a",
+    "FortiGate block. Both connectors were configured but Disconnected; the",
+    "model called that a blocker, built a placeholder alert record (then",
+    "VirusTotal) instead, dropped the prompt, and triggered on `workflows`",
+    "(the designer's own record). Configured is the bar for authoring.",
+    "The ask is the analyst's own words from that session, typo included."
+  ],
+  "steps": [
+    {
+      "user": "Create a new playbook triggered from an alert: enrihc and human approval and contain on a fortigate, then lets open a ticket on servicenow"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": {
+      "assertions": [
+        {
+          "kind": "step_type_present",
+          "type": "connector",
+          "min": 3,
+          "note": "enrichment + containment + ticket are all connector steps"
+        },
+        {
+          "kind": "step_type_present",
+          "type": "manual_input",
+          "note": "human approval"
+        },
+        {
+          "kind": "connector_op",
+          "connector": "servicenow",
+          "operation_contains": "incident",
+          "note": "creates the ServiceNow incident"
+        },
+        {
+          "kind": "connector_op",
+          "connector": "fortigate-firewall",
+          "operation_contains": "block",
+          "note": "blocks on FortiGate"
+        },
+        {
+          "kind": "arg_text_absent",
+          "type": "start",
+          "contains": "workflows",
+          "note": "trigger is not the designer's own record"
+        }
+      ]
+    }
+  },
+  "box_only": true
+}

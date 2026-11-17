@@ -1,0 +1,10 @@
+{
+ "name": "designer_deadend_missing_connector",
+ "why": "A deliberate dead end: the ask needs an endpoint/EDR connector the offline world does not carry (only abuseipdb, activedirectory, cyops_utilities, file-content-extraction, fortigate-firewall, fortinet-fortisiem, ipinfo, ipstack, openai, smtp, ssh, virustotal exist). The build cannot reach a clean save. This is the one goal that exercises the unfinished-build path: with the fix the turn ends on a choice card ('not ready, keep going or stop'), not on bare prose. Unmet requirements here are EXPECTED, so this goal carries none -- grade it by reading the terminal card, not by the canvas.",
+ "playbook": "designer_empty_playbook.yaml",
+ "records": "soc_alert_surface_servicenow",
+ "goal": "Build a playbook that runs when an alert is created and, for a confirmed-malicious host, isolates that endpoint by calling CrowdStrike Falcon's host-isolation operation. The containment must go through CrowdStrike Falcon specifically; do not substitute a firewall or any other product.",
+ "intent": "build",
+ "max_turns": 10,
+ "deadend": true
+}

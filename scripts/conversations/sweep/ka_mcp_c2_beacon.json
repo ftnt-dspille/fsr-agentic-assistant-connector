@@ -1,0 +1,37 @@
+{
+ "name": "ka_mcp_c2_beacon",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_mcp_c2_beacon",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "why": [
+  "KNOWN-ANSWER row through MCP (roadmap S11). The world serves its evidence",
+  "only from the FortiSIEM MCP server, so the verdict is graded against a",
+  "right answer AND the agent must have used mcp_fortisiem__* tools to get it.",
+  "Before this, no eval drove an investigation through MCP: zero mcp_* calls",
+  "across 15,693 recorded local sessions."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive"
+   ]
+  },
+  "called": {
+   "any_of": [
+    "mcp_fortisiem__get_reputation_by_entity",
+    "mcp_fortisiem__get_incidents_by_entity"
+   ]
+  }
+ }
+}

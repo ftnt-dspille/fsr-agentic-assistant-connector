@@ -1,0 +1,29 @@
+{
+ "name": "effort_es_lookup_malicious",
+ "category": "effort",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_needle_in_ticket_siem_empty",
+ "mount": {
+  "module": "alerts",
+  "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301"
+ },
+ "why": [
+  "EFFORT row, non-English ask: Spanish, a reputation question. The declared scope, the band and the reply language are graded; the fact is graded by value."
+ ],
+ "steps": [
+  {
+   "user": "¿La dirección de origen de esta alerta es maliciosa?"
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "effort": {
+   "band": "lookup",
+   "not_english": true
+  },
+  "reports": [
+   "198.51.100.88"
+  ]
+ }
+}

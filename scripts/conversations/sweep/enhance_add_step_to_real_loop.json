@@ -1,0 +1,23 @@
+{
+  "name": "enhance_add_step_to_real_loop",
+  "category": "enhance",
+  "intent": "build",
+  "playbook": "real_loop_check_sla_violations.yaml",
+  "why": [
+    "A REAL shipped playbook with a loop. Enhancement must preserve the",
+    "loop and every untouched step -- the for_each field-loss class that",
+    "was found by accident twice."
+  ],
+  "steps": [
+    {
+      "user": "Add a step at the end of this playbook that sets a variable named reviewed to true. Change nothing else."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true
+  }
+}

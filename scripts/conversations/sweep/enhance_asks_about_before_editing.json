@@ -1,0 +1,26 @@
+{
+  "name": "enhance_asks_about_before_editing",
+  "category": "enhance",
+  "intent": "build",
+  "playbook": "real_manual_input_block_ipv4.yaml",
+  "why": [
+    "Question first, edit second -- on a manual_input playbook. Turn 1 is",
+    "a read; the agent must answer it without begging for the YAML it",
+    "already has. Turn 2 then edits, and must not have lost anything."
+  ],
+  "steps": [
+    {
+      "user": "What does this playbook do, step by step?"
+    },
+    {
+      "user": "Add a step at the end that sets a variable named done to true."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true
+  }
+}

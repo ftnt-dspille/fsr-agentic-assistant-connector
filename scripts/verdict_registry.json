@@ -1,0 +1,48 @@
+{
+  "$comment": "Canonical verdict/finding registry — the single grading vocabulary for the unified turn-drive harness (Phase 0.2, stability-and-scalability-plan.md). Every code the framework scoring gates, the widget exportGrader red-flags, and the connector eval Checks can produce maps to ONE canonical code here via `aliases`. A finding fires when something is WRONG (a gate failed / a red-flag tripped / an assertion failed); `default_severity` sets how hard it bites. Severity: block (hard FAIL) | warn (DEGRADED under soft gate, FAIL under strict) | info (recorded, never blocks) | skip (not applicable). `lever` points at what to edit to fix it (ported from framework levers.py). Sources: framework | connector-eval | widget.",
+  "version": 1,
+  "severities": ["block", "warn", "info", "skip"],
+  "codes": [
+    {"code": "authoring.compile_ok", "dimension": "authoring", "title": "YAML failed to compile", "default_severity": "block", "lever": "compiler error surface / model YAML syntax", "aliases": {"framework": ["draft"]}},
+    {"code": "authoring.verify_ok", "dimension": "authoring", "title": "Static verification did not pass", "default_severity": "warn", "lever": "verify_playbook diagnostics vs authored YAML", "aliases": {"framework": ["verified"]}},
+    {"code": "authoring.runs", "dimension": "authoring", "title": "Playbook did not run to completion", "default_severity": "warn", "lever": "runtime step error (why_did_playbook_fail)", "aliases": {"framework": ["live_tested"]}},
+    {"code": "authoring.matches_gold", "dimension": "authoring", "title": "Authored YAML did not match the gold reference", "default_severity": "warn", "lever": "task gold_yaml_path vs build prompt", "aliases": {"framework": ["matches_example"]}},
+    {"code": "authoring.yaml_present", "dimension": "authoring", "title": "Final message carried no ```yaml fence", "default_severity": "warn", "lever": "build prompt adherence (always end with a fence / offer)", "aliases": {"framework": ["adherence"]}},
+    {"code": "authoring.verify_before_submit", "dimension": "authoring", "title": "verify_playbook never called before submit", "default_severity": "warn", "lever": "build prompt: verify before you push", "aliases": {"framework": ["verify_called_before_submit"]}},
+    {"code": "authoring.verify_ready", "dimension": "authoring", "title": "Final verify did not report ready_to_push", "default_severity": "warn", "lever": "verify loop until ready", "aliases": {"framework": ["final_verify_ready_to_push"]}},
+    {"code": "authoring.verify_iterations", "dimension": "authoring", "title": "verify iterations until ready (informational)", "default_severity": "info", "lever": "n/a", "aliases": {"framework": ["verify_iterations_until_ready"]}},
+
+    {"code": "discipline.tool_budget", "dimension": "discipline", "title": "Exceeded the tool-call budget", "default_severity": "warn", "lever": "TOOL_BUDGET_MAX / prompt tightening", "aliases": {"framework": ["tool_budget"]}},
+    {"code": "discipline.no_spiral", "dimension": "discipline", "title": "Repeated the same tool call in a spiral", "default_severity": "warn", "lever": "NO_SPIRAL_MAX_CONSECUTIVE / prompt anti-loop", "aliases": {"framework": ["no_spiral"]}},
+    {"code": "discipline.investigation_tool_budget", "dimension": "discipline", "title": "Investigation exceeded its tool-call budget", "default_severity": "warn", "lever": "INVESTIGATION_TOOL_BUDGET_MAX / triage prompt", "aliases": {"framework": ["investigation_tool_budget"], "widget": ["over_tool_budget"]}},
+    {"code": "discipline.no_param_flail", "dimension": "discipline", "title": "Retried an op with new params too many times (flail)", "default_severity": "warn", "lever": "INVESTIGATION_MAX_PARAM_RETRIES / schema-lookup guidance", "aliases": {"framework": ["investigation_no_param_flail"]}},
+    {"code": "discipline.no_blind_retry", "dimension": "discipline", "title": "Retried an op without a prior schema lookup", "default_severity": "warn", "lever": "triage prompt: look up the schema before retrying", "aliases": {"framework": ["investigation_blind_param_retry"]}},
+
+    {"code": "investigate.recall", "dimension": "investigate", "title": "Did not recall the required investigation pivots", "default_severity": "warn", "lever": "fixture required_facts vs system_prompt_triage.md pivot guidance", "aliases": {"framework": ["investigation_recall"]}},
+    {"code": "investigate.hunt_depth", "dimension": "investigate", "title": "Did not reach the required hunt depth", "default_severity": "warn", "lever": "hunt_chain fixture vs triage hunt-depth guidance", "aliases": {"framework": ["hunt_depth"]}},
+    {"code": "investigate.deliverable", "dimension": "investigate", "title": "Staged no investigation deliverable card", "default_severity": "warn", "lever": "triage prompt: end on an action/choice/capability card", "aliases": {"framework": ["investigation_deliverable"], "widget": ["no_deliverable"]}},
+
+    {"code": "build.fidelity", "dimension": "build", "title": "Built playbook not grounded in the investigation", "default_severity": "warn", "lever": "build_fidelity: grounding + action coverage", "aliases": {"framework": ["build_fidelity"]}},
+    {"code": "build.offer_timing", "dimension": "build", "title": "emit_playbook_offer timing off (informational)", "default_severity": "info", "lever": "offer after ≥1 destructive op, exactly once", "aliases": {"framework": ["offer_timing"]}},
+    {"code": "build.wiring_resolves", "dimension": "build", "title": "A Jinja wire in the built playbook did not resolve", "default_severity": "warn", "lever": "skill_verify wiring vs authored refs", "aliases": {"framework": ["wiring_resolves"]}},
+    {"code": "build.trace_empty", "dimension": "build", "title": "build_playbook_from_trace ran on an empty trace", "default_severity": "warn", "lever": "earned-handoff: require real triage tool use first", "aliases": {"widget": ["trace_tool_no_trace"]}},
+    {"code": "build.crud_as_connector_op", "dimension": "build", "title": "Searched for a native CRUD action as a connector op", "default_severity": "warn", "lever": "build prompt: create_record/update_record are native step types", "aliases": {"widget": ["crud_searched_as_connector_op"]}},
+    {"code": "build.wrong_step_type", "dimension": "build", "title": "Record mutation authored as the wrong step type", "default_severity": "block", "lever": "build prompt: use create_record/update_record step types", "aliases": {"widget": ["native_action_as_wrong_step_type"]}},
+    {"code": "build.hallucinated_endpoint", "dimension": "build", "title": "Playbook calls a placeholder/invented HTTP endpoint", "default_severity": "block", "lever": "build prompt: never invent endpoints; ground in connector metadata", "aliases": {"widget": ["hallucinated_http_endpoint"]}},
+
+    {"code": "scope.triage_tool_in_build", "dimension": "scope", "title": "A triage-only tool was called in build intent", "default_severity": "block", "lever": "_advertised_tools(intent='build') exclusion (C5)", "aliases": {"widget": ["triage_tool_in_build"]}},
+    {"code": "scope.triage_guard_in_build", "dimension": "scope", "title": "A triage guard fired in build intent", "default_severity": "block", "lever": "build slice must not carry triage guards", "aliases": {"widget": ["triage_guard_in_build"]}},
+    {"code": "scope.mount_module_leak", "dimension": "scope", "title": "Mounted module leaked into a Start step / build call", "default_severity": "block", "lever": "entity module must not seed a non-workflows build", "aliases": {"widget": ["mount_module_leaked_into_start"]}},
+
+    {"code": "approval.count_ok", "dimension": "approval", "title": "Tier-3 approval request count did not match expectation", "default_severity": "warn", "lever": "tier gate vs task approval expectation", "aliases": {"framework": ["appropriate_approval_requests"]}},
+
+    {"code": "harness.drive_error", "dimension": "harness", "title": "Harness failed to drive/capture the turn (not agent behavior)", "default_severity": "block", "lever": "harness/transport — not a model or prompt fix", "aliases": {"widget": ["drive_error", "no_turn_captured"]}},
+    {"code": "env.capability_missing", "dimension": "env", "title": "A required backend capability was unavailable (env-skip)", "default_severity": "skip", "lever": "backend/gateway availability — not the widget", "aliases": {"widget": ["containment_gap", "env_skip"]}},
+
+    {"code": "skip.manual_input_blocks_dry_run", "dimension": "skip", "title": "Dry-run skipped: playbook has a manual_input step", "default_severity": "skip", "lever": "n/a", "aliases": {"framework": ["manual_input_blocks_dry_run"]}},
+    {"code": "skip.record_trigger_requires_record", "dimension": "skip", "title": "Dry-run skipped: record-trigger needs a record", "default_severity": "skip", "lever": "n/a", "aliases": {"framework": ["record_trigger_requires_record"]}},
+    {"code": "skip.no_dry_run_target", "dimension": "skip", "title": "Dry-run skipped: no target playbook name", "default_severity": "skip", "lever": "n/a", "aliases": {"framework": ["no_dry_run_target"]}},
+
+    {"code": "eval.assertion_failed", "dimension": "eval", "title": "A connector eval assertion failed", "default_severity": "block", "lever": "the specific behavioural oracle in the eval_s* scenario", "aliases": {"connector-eval": ["assertion", "check_failure"]}}
+  ]
+}

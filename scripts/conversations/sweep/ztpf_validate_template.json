@@ -1,0 +1,33 @@
+{
+  "name": "ztpf_validate_template",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_templates",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {
+    "module": "ztpf_templates",
+    "uuid": "a1b2c3d4-e5f6-4789-abcd-ef0123456789"
+  },
+  "why": [
+    "The template persona's core ask: 'validate this template'. The agent",
+    "must CALL test_template (which renders the script against",
+    "exampleJinjaVars) -- not eyeball it. A model that describes the template",
+    "without running it is the failure this row catches."
+  ],
+  "steps": [
+    {
+      "user": "Validate this template -- does it render correctly?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": ["test_template", "get_record", "search_module_records"]
+    },
+    "claims_backed": {
+      "claim_verbs": ["the template", "the rendered", "it renders", "the script"],
+      "write_tools": ["test_template", "get_record", "search_module_records"]
+    }
+  }
+}

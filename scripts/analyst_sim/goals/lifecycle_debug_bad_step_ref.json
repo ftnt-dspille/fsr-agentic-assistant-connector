@@ -1,0 +1,26 @@
+{
+ "name": "lifecycle_debug_bad_step_ref",
+ "why": "Debug leg (explain-only): the analyst stands on a playbook that ran green but did nothing and asks WHY, without asking for a change. Graded on whether the diagnosis names the REAL defect (a Jinja reference to the step's YAML id instead of its underscore-joined display name, so the block received an empty ip_addresses), not on whether why_did_playbook_fail was merely called -- the coverage gap the repair-task notes flag.",
+ "inherit_matrix": "repair_bad_step_ref",
+ "goal": "This playbook ran on the box and reported success, but the FortiGate block did nothing -- the run shows the IP addresses arrived empty. Explain WHY it failed. Do not change the playbook, just tell me the cause.",
+ "explain_only": true,
+ "diagnosis_contains": [
+  [
+   " id",
+   "yaml id",
+   "step id",
+   "display name",
+   "display-name",
+   "underscore"
+  ],
+  [
+   "ip_addresses",
+   "empty",
+   "blank",
+   "no ip",
+   "nothing to block"
+  ]
+ ],
+ "records": "soc_alert_surface_servicenow",
+ "defect": "The block step's ip_addresses Jinja reference uses the step's lowercase yaml id (analyst_ip_action) instead of the underscore-joined display name (Analyst_IP_Action), so it resolves to nothing and the firewall is handed an empty IP."
+}

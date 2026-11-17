@@ -1,0 +1,408 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world (hand-authored in the shape of live responses).",
+  "The evidence below decides the alert; the alert itself does not name the answer.",
+  "strict_ops: any op not recorded here returns an honest miss, never the canned",
+  "'malicious' default -- that default would decide the verdict for the agent.",
+  "Answer: benign / false_positive. The source is the org's Tenable scanner",
+  "(assets record), scanning inside its documented Sunday 02:00 window.",
+  "get_incidents: no SIEM incidents for this source -- a documented scanner raises none (N5)."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "fortigate-firewall",
+   "status": "Completed",
+   "version": "5.4.0",
+   "label": "Fortinet FortiGate",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02",
+    "@type": "Alert",
+    "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02",
+    "id": 91002,
+    "name": "Port scan detected from 10.20.5.50",
+    "description": "FortiSIEM detected one source probing 20 distinct ports across 4 internal subnets.",
+    "sourceIp": "10.20.5.50",
+    "destinationIp": "10.20.1.10",
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "Medium",
+     "orderIndex": 3,
+     "color": "#DE7A13",
+     "icon": null,
+     "listName": "/api/3/picklist_names/4e80cba3-032f-48b4-ac03-17e3ec247aac",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb",
+     "id": 444,
+     "importedBy": []
+    },
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "orderIndex": 1,
+     "color": null,
+     "icon": null,
+     "listName": "/api/3/picklist_names/33e964a9-d607-49f2-813c-7ce46141815a",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146",
+     "id": 201,
+     "importedBy": []
+    },
+    "type": {
+     "@id": "/api/3/picklists/ebc1de7c-4089-4ac6-99be-cdbc441b0d91",
+     "@type": "Picklist",
+     "itemValue": "Reconnaissance",
+     "orderIndex": 15,
+     "color": null,
+     "icon": null,
+     "listName": "/api/3/picklist_names/a7087b9c-5660-495f-a8ac-c3b198ddb8c2",
+     "uuid": "ebc1de7c-4089-4ac6-99be-cdbc441b0d91",
+     "id": 216,
+     "importedBy": []
+    },
+    "source": "Fortinet FortiSIEM",
+    "sourceId": "141002",
+    "createDate": 1790550000.0,
+    "hostName": "vuln-scanner-01"
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e12",
+    "@type": "Asset",
+    "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e12",
+    "id": 7001,
+    "name": "vuln-scanner-01",
+    "ipAddress": "10.20.5.50",
+    "hostName": "vuln-scanner-01",
+    "description": "Tenable Nessus vulnerability scanner owned by the Security team. Authorized to run network discovery and credentialed scans against all internal subnets every Sunday 02:00-03:00 UTC (change CHG-2291).",
+    "owner": "Security Engineering",
+    "criticality": "Medium"
+   }
+  ]
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.20.5.50"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T02:00:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.10",
+      "destIpPort": 22,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:02:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.12",
+      "destIpPort": 80,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:04:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.14",
+      "destIpPort": 443,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:06:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.16",
+      "destIpPort": 445,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:08:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.18",
+      "destIpPort": 3389,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:10:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.20",
+      "destIpPort": 8080,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:12:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.22",
+      "destIpPort": 21,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:14:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.24",
+      "destIpPort": 25,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:16:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.26",
+      "destIpPort": 53,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:18:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.28",
+      "destIpPort": 110,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:20:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.30",
+      "destIpPort": 135,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:22:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.32",
+      "destIpPort": 139,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:24:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.34",
+      "destIpPort": 143,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:26:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.36",
+      "destIpPort": 993,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:28:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.38",
+      "destIpPort": 995,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:30:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.40",
+      "destIpPort": 1433,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:32:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.42",
+      "destIpPort": 3306,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:34:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.44",
+      "destIpPort": 5432,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:36:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.1.46",
+      "destIpPort": 5900,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:38:00Z",
+      "srcIpAddr": "10.20.5.50",
+      "destIpAddr": "10.20.3.48",
+      "destIpPort": 8443,
+      "sentBytes64": 60,
+      "hostName": "vuln-scanner-01",
+      "eventType": "TCP port scan probe"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "get_incidents",
+   "match": {},
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  }
+ ]
+}

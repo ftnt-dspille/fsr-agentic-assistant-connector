@@ -1,0 +1,37 @@
+{
+  "name": "interleave_record_then_build_then_record",
+  "category": "interleave",
+  "intent": "triage",
+  "module": "incidents",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "incidents",
+    "uuid": "b4a62c3b-3f60-44a5-b44d-f53a9244fa55"
+  },
+  "why": [
+    "The same trap on INCIDENTS rather than alerts, and with the flip",
+    "happening mid-conversation in both directions. Three turns is the",
+    "minimum to show the latch is escapable rather than one-way."
+  ],
+  "steps": [
+    {
+      "user": "What is this incident about?"
+    },
+    {
+      "user": "Build a playbook that tags the host for follow-up.",
+      "intent": "build"
+    },
+    {
+      "user": "Before I save -- what phase is this incident in?",
+      "intent": "build"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "answers_from_record": {
+      "phase": "Detection"
+    },
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true
+  }
+}

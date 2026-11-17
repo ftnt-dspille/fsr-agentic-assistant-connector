@@ -1,0 +1,15 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world for the policy's protected list (tier-1 phase D rail).",
+  "The C2-beacon evidence and policy, with the C2 address itself on protected_ips.",
+  "Every other check of block-external-ip holds, so the protected list is the only thing",
+  "standing between this block and would_act."
+ ],
+ "extends": "ka_c2_beacon_policy",
+ "keys": [
+  {
+   "key": "fsr_autonomy_policy",
+   "value": "{\"version\": 1, \"enabled\": true, \"mode\": \"shadow\", \"rules\": [{\"id\": \"block-external-ip\", \"action\": {\"connector\": \"fortigate-firewall\", \"op\": \"block_ip_new\"}, \"when\": {\"verdict\": {\"disposition\": [\"true_positive\"], \"min_confidence\": 0.9}, \"target\": {\"kind\": \"ip\", \"external_only\": true, \"not_in\": \"protected_ips\"}, \"evidence\": {\"cites_tool_kind\": \"enrichment\"}}, \"undo\": {\"connector\": \"fortigate-firewall\", \"op\": \"unblock_ip\"}}], \"protected\": {\"protected_ips\": [\"198.51.100.77\"]}}"
+  }
+ ]
+}

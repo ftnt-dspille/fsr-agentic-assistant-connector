@@ -1,0 +1,33 @@
+{
+  "name": "ztpf_real_last_upgrade_result",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. Asked after an upgrade run. Here the last upgrade FAILED: the FortiManager task could not be created ('Object does not exist', 'No devices'). The answer must say it failed and why, from the step's own output, not call it a success."
+  ],
+  "steps": [
+    {
+      "user": "What was the result of the last upgrade? Compare the get system status steps."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reports": {
+      "any_of": [
+        "Object does not exist",
+        "No devices"
+      ],
+      "all_of": [
+        "fail"
+      ]
+    },
+    "no_unserved_reads": true
+  }
+}

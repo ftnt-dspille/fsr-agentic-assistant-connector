@@ -1,0 +1,26 @@
+{
+  "name": "build_from_alert_context",
+  "category": "build",
+  "intent": "build",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "Authoring grounded in the record on screen -- the GA demo arc. The",
+    "playbook must be real enough to compile-shaped, and the agent must",
+    "not silently invent a connector to reach the outcome."
+  ],
+  "steps": [
+    {
+      "user": "Build me a playbook that blocks the external IP from this alert on the firewall."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true
+  }
+}

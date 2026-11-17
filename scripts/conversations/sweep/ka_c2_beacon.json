@@ -1,0 +1,30 @@
+{
+ "name": "ka_c2_beacon",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_c2_beacon",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "why": [
+  "KNOWN-ANSWER row: its records bundle fixes the evidence (strict_ops),",
+  "so the verdict is graded against a right answer, not a vibe.",
+  "",
+  "Threat intel names the destination a Cobalt Strike C2 (47/94 engines) and SIEM shows the host calling it every two minutes with ~600-byte sessions -- textbook beaconing. The only correct call is true_positive; 'suspicious' here is the under-confidence failure (a hedge on unambiguous evidence)."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive"
+   ]
+  }
+ }
+}

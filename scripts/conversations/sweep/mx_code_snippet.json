@@ -1,0 +1,26 @@
+{
+  "name": "mx_code_snippet",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "code_snippet",
+  "why": [
+    "Product-path twin of eval-matrix task 'code_snippet'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook with a manual trigger that takes a 'first_name' parameter, runs a Python code_snippet step that builds a greeting string ('Hello <first_name>'), then a set_variable step that records the greeting. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "code_snippet"
+  }
+}

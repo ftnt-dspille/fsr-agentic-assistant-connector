@@ -1,0 +1,16 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world for the autonomy policy (tier-1 phase C, shadow).",
+  "The C2-beacon evidence, plus the admin's policy as a Key Store record. The",
+  "policy decision depends on the verdict the agent delivers and on which",
+  "lookups it cites, so both the evidence and the policy are fixed here.",
+  "No `limits` here: the offline store persists across runs, so a per-day cap would grade the harness's own history. Limits are unit-tested (test_autonomy_shadow, test_autonomy_shadow_table)."
+ ],
+ "extends": "ka_c2_beacon",
+ "keys": [
+  {
+   "key": "fsr_autonomy_policy",
+   "value": "{\"version\": 1, \"enabled\": true, \"mode\": \"shadow\", \"rules\": [{\"id\": \"block-external-ip\", \"action\": {\"connector\": \"fortigate-firewall\", \"op\": \"block_ip_new\"}, \"when\": {\"verdict\": {\"disposition\": [\"true_positive\"], \"min_confidence\": 0.9}, \"target\": {\"kind\": \"ip\", \"external_only\": true, \"not_in\": \"protected_ips\"}, \"evidence\": {\"cites_tool_kind\": \"enrichment\"}}, \"undo\": {\"connector\": \"fortigate-firewall\", \"op\": \"unblock_ip\"}}], \"protected\": {\"protected_ips\": []}}"
+  }
+ ]
+}

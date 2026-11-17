@@ -1,0 +1,41 @@
+# The base fixture for the build-persona evals (P2 harness, scenario S2).
+#
+# Deliberately tiny, and deliberately OBSERVABLE: its only job is to create an
+# alert carrying a marker string. That is what lets a scenario prove "the edited
+# playbook actually does the new thing" from the created record itself, with no
+# dependency on global workflow debug logging (runtime `set_variable` values are
+# only persisted when that appliance-wide setting is on, so a set_variable probe
+# would silently couple every eval to it).
+#
+# Self-contained on purpose: it never reads `vars.input.records`, so it can be
+# fired by uuid alone. The `notrigger` route cannot deliver record context — a
+# step reading `vars.input.records[0]` would fail with CS-WF-35 Record IRI is
+# empty.
+#
+# The marker lives in exactly ONE place (Emit's `description`), so "modify this
+# playbook" is a one-field ask with an unambiguous diff_versions oracle: the
+# scenario asserts Emit.arguments changed and that NOTHING else did.
+#
+# Scenarios clone() this rather than mutating it, so the fixture stays pristine
+# across a suite and two scenarios can never collide.
+
+collection: ZZ FSRPB Eval Fixtures
+description: Throwaway fixtures for the build-persona eval harness. Safe to delete.
+visible: true
+playbooks:
+  - name: ZZ Eval Marker Emitter
+    description: Creates an alert whose description is the current marker.
+    is_active: true
+    steps:
+      - name: Start
+        type: start
+        next: Emit
+        module: alerts
+        button_label: Emit marker
+
+      - name: Emit
+        type: create_record
+        module: alerts
+        fields:
+          name: ZZ Eval emitted
+          description: ALPHA

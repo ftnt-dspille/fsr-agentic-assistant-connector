@@ -1,0 +1,36 @@
+{
+  "name": "triage_multi_turn_pivot",
+  "category": "triage",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "Analysts drill down. Turn 2 must build on turn 1 rather than restart,",
+    "and must still be anchored to THIS record three turns in -- context",
+    "decay is the multi-turn failure a single-turn suite cannot see."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert for me."
+    },
+    {
+      "user": "What is the MITRE technique here?"
+    },
+    {
+      "user": "And remind me which external IP it was talking to?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "answers_from_record": {
+      "destinationIp": "102.220.160.21"
+    },
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true,
+    "relays_truncation": true
+  }
+}

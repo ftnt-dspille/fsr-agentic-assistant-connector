@@ -1,0 +1,84 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world for the false-positive close rule (tier-1 phase F, shadow).",
+  "The authorized-scanner evidence (the org's own scanner, in its change window),",
+  "plus the admin's close policy as a Key Store record. The decision depends on the",
+  "verdict the agent delivers and on whether it cites a successful read, so both",
+  "the evidence and the policy are fixed here.",
+  "No `limits`: the offline store persists across runs (see ka_c2_beacon_policy).",
+  "closureNotes is allowed: an analyst's close (and the model's) writes a note with it, and a rule that omits a field the close writes does not cover the close at all.",
+  "cyops_utilities is configured, as on every box (it ships with FortiSOAR and cannot be uninstalled). The alerts persona may write alerts and offers update_record: the setup a close policy needs, since without it no record-write tool is offered at all."
+ ],
+ "extends": "ka_authorized_scanner",
+ "keys": [
+  {
+   "key": "fsr_autonomy_policy",
+   "value": "{\"version\": 1, \"enabled\": true, \"mode\": \"shadow\", \"rules\": [{\"id\": \"close-false-positive\", \"action\": {\"tool\": \"update_record\", \"module\": \"alerts\", \"fields\": [\"status\", \"closureReason\", \"closureNotes\"], \"values\": {\"status\": [\"Closed\"]}}, \"when\": {\"verdict\": {\"disposition\": [\"false_positive\", \"benign\"], \"min_confidence\": 0.9}, \"target\": {\"kind\": \"record\"}, \"evidence\": {\"cites_tool_kind\": \"read\"}}}], \"protected\": {}}"
+  }
+ ],
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "fortigate-firewall",
+   "status": "Completed",
+   "version": "5.4.0",
+   "label": "Fortinet FortiGate",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "cyops_utilities",
+   "status": "Completed",
+   "version": "3.3.0",
+   "label": "FSR Utilities",
+   "config_count": 1
+  }
+ ],
+ "personas": {
+  "alerts": {
+   "key": "fsr_assistant_profile:alerts",
+   "value": "You are the SOC triage assistant for alerts. Investigate the alert on screen with the tools, deliver a cited verdict, and stage any change to the alert for the analyst's approval.",
+   "jSONValue": {
+    "version": 1,
+    "label": "Alert Triage",
+    "tools": {
+     "allow": [
+      "get_record",
+      "search_module_records",
+      "find",
+      "picklist",
+      "emit_card",
+      "list_configured_connectors",
+      "siem_search",
+      "run_op",
+      "get_op_schema",
+      "update_record"
+     ]
+    },
+    "may_write": [
+     "alerts"
+    ],
+    "bind_modules": []
+   }
+  }
+ }
+}

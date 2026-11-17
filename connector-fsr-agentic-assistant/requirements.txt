@@ -1,0 +1,53 @@
+# Pinned exact: the worker must run against the ONE fsr_playbooks the connector
+# was built and tested against. The FSR installer pip-installs this version into
+# the connector venv at deploy time; no vendored tree (de-vendored 2026-06-23).
+# This line is the SINGLE SOURCE OF TRUTH for the version: operations.py reads
+# the pin back from here and asserts the imported build matches. Bump it here and
+# nowhere else.
+fsr-playbooks==0.12.0
+# The agent layer, built on the same fsr-playbooks pin above. ops_tools registers
+# its 7 workflows into the library REGISTRY (withheld from the model). Pinned exact
+# like fsr-playbooks: the worker runs against ONE toolkit build. Pulls pyfsr>=0.28.0
+# (compatible with the floor below) and mcp 2.x (already pinned below). DO NOT MERGE
+# until 0.1.6 is on PyPI -- the deploy pip-install fails on a pin the index lacks.
+# 0.1.6 (not 0.1.5): 0.1.5 shipped without the arg-gate signature fix, so the
+# contract sweep (test_tool_sweep invariant V) fails against it; 0.1.6 carries it.
+fsr-agentic-toolkit==0.1.6
+# pyfsr supplies the typed `.connectors` / `.playbooks` resource APIs that a few
+# fsr_playbooks MCP tools call through the crudhub bridge (see
+# fsr_soc_triage/_live_crudhub._attach_pyfsr_apis). Pip-installed into the
+# connector venv at deploy; wheel also materialized into wheels/ by build.sh for
+# air-gapped boxes. Floor 0.23.0: PlaybooksAPI.upsert_playbooks, which Apply
+# uses to save a new child playbook (a box on 0.16.1 refused the create).
+pyfsr>=0.23.0
+# Pinned to the current majors the box runs (anthropic 1.x, openai 3.x). Both
+# moved their transport to httpx2; the box already installed these majors, so
+# the floors record what is verified and the upper bounds stop a reinstall from
+# silently jumping to the next SDK major underneath our call sites.
+anthropic>=1.13,<2
+openai>=3.27,<4
+pyyaml>=6.0
+# The FortiAI proxy provider in fsr-playbooks imports httpx at module level.
+# The SDK majors above moved to httpx2 and no longer bring httpx with them, so
+# a freshly built box had none and every chat turn on a proxy config failed at
+# import. Declared here so the box install does not depend on leftovers.
+httpx>=0.27,<1
+# Native MCP gateway client (on-box /mcp/* via the mcp SDK streamable-HTTP
+# transport). Used by fsr_soc_triage._live_mcp to materialize configured
+# connector-op + built-in-MCP-server tools as first-class agent tools.
+#
+# Now on the 2.x major. 2.0.0 renamed `streamablehttp_client` to
+# `streamable_http_client` (our `_streamablehttp_client` accepts either name) and
+# moved the client transport to httpx2; the full 2.x stack imports cleanly under
+# the box's platform typing_extensions 4.15.0 (no `sentinel` symbol needed), and
+# mcp 2.x only requires anyio>=4.9 so the anyio<4.15 cap below still holds. Upper
+# bound stays so a reinstall does not jump to a 3.x before it is verified.
+mcp>=2,<3
+# Upper bound is deliberate and STILL required on mcp 2.x. anyio 4.15 imports
+# `typing_extensions.sentinel` and needs typing_extensions>=4.16. The connector
+# venv gets 4.16, but the integrations worker has already imported the
+# platform's older typing_extensions (4.15.0 on the box, which has no `sentinel`),
+# so `import anyio` raises ImportError and every chat turn fails. mcp 2.x only
+# requires anyio>=4.9, so 4.14.x satisfies it. Lift the bound only when the
+# platform's own typing_extensions carries `sentinel`.
+anyio<4.15

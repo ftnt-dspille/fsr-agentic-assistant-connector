@@ -1,0 +1,50 @@
+{
+ "name": "designer_loop_indicators_block_malicious",
+ "why": "Harder: a loop with a per-item decision, then ONE action after the loop (aggregation), not one ticket per item.",
+ "playbook": "designer_empty_playbook.yaml",
+ "records": "soc_alert_surface_servicenow",
+ "goal": "Build a playbook that runs when an alert is created. The alert can carry several IP addresses. For EACH IP, look up its reputation on VirusTotal, and block it on the FortiGate only if VirusTotal says it is malicious. After all the IPs are processed, open ONE ServiceNow incident that lists which IPs were blocked. Not one ticket per IP.",
+ "requirements": [
+  {
+   "kind": "for_each_over",
+   "contains": "vars",
+   "note": "loops over the alert's IPs"
+  },
+  {
+   "kind": "connector_op",
+   "connector": "virustotal",
+   "note": "VirusTotal lookup"
+  },
+  {
+   "kind": "connector_op",
+   "connector": "fortigate-firewall",
+   "operation_contains": "block",
+   "note": "FortiGate block"
+  },
+  {
+   "kind": "step_type_present",
+   "type": "decision",
+   "note": "malicious gate"
+  },
+  {
+   "kind": "connector_op",
+   "connector": "servicenow",
+   "operation_contains": "incident",
+   "note": "one ServiceNow incident"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start_on_create",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  }
+ ],
+ "intent": "build",
+ "max_turns": 12
+}

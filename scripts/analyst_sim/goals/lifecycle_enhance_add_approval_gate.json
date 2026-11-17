@@ -1,0 +1,6 @@
+{
+ "name": "lifecycle_enhance_add_approval_gate",
+ "why": "Continue/enhance leg: modify an existing playbook open in the designer. Inherits the framework's enhance_add_approval_gate task (prompt + ir_assertions + before-state) so the sim runs the authoritative enhance scenario and grades the delivered edit, preserving untouched steps.",
+ "inherit_matrix": "enhance_add_approval_gate",
+ "records": "soc_alert_surface_servicenow"
+}

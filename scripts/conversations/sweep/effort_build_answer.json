@@ -1,0 +1,24 @@
+{
+ "name": "effort_build_answer",
+ "category": "effort",
+ "intent": "build",
+ "playbook": "real_manual_input_block_ipv4.yaml",
+ "why": [
+  "EFFORT row (build): a question about the open playbook is answered in text,",
+  "with no edit, no offer card and no research spree."
+ ],
+ "steps": [
+  {
+   "user": "What is the name of this playbook?"
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "effort": {
+   "band": "answer"
+  },
+  "reports": [
+   "Block Threat Feeds"
+  ]
+ }
+}

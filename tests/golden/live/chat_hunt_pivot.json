@@ -1,0 +1,3534 @@
+{
+  "ok": true,
+  "session_id": "live-harness-hunt",
+  "turn": 9,
+  "turn_id": "89ebc982f32644449d0fe3db8308d1e8",
+  "stop_reason": "max_tool_turns",
+  "transcript": [
+    {
+      "type": "text",
+      "text": "I'll hunt"
+    },
+    {
+      "type": "text",
+      "text": " this incident in FortiSIEM, starting with context on the suspected C2 IP and the"
+    },
+    {
+      "type": "text",
+      "text": " host, then pivot to find related activity and affected users."
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01CFvT8nzM95TDHMip9xBFgf",
+      "name": "list_configured_connectors",
+      "input": {},
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01CFvT8nzM95TDHMip9xBFgf",
+      "content": {
+        "configured": [
+          {
+            "name": "slacalculator",
+            "status": "Completed"
+          },
+          {
+            "name": "cyops_utilities",
+            "status": "Completed"
+          },
+          {
+            "name": "cyops-schedule-report",
+            "status": "Completed"
+          },
+          {
+            "name": "smtp",
+            "status": "Completed"
+          },
+          {
+            "name": "aiassistant-utils",
+            "status": "Completed"
+          },
+          {
+            "name": "mitre-attack",
+            "status": "Completed"
+          },
+          {
+            "name": "openai",
+            "status": "Completed"
+          },
+          {
+            "name": "cyops-system-monitoring",
+            "status": "Completed"
+          },
+          {
+            "name": "fortisoar-soc-simulator",
+            "status": "Completed"
+          },
+          {
+            "name": "cisa-advisory",
+            "status": "Completed"
+          },
+          {
+            "name": "slack",
+            "status": "Completed"
+          },
+          {
+            "name": "nist-nvd",
+            "status": "Completed"
+          },
+          {
+            "name": "exploit-prediction-scoring-system",
+            "status": "Completed"
+          },
+          {
+            "name": "elasticsearch",
+            "status": "Completed"
+          },
+          {
+            "name": "fortirecon-easm",
+            "status": "Completed"
+          },
+          {
+            "name": "shodan",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortimanager-json-rpc",
+            "status": "Completed"
+          },
+          {
+            "name": "armis_dev",
+            "status": "Completed"
+          },
+          {
+            "name": "file-content-extraction",
+            "status": "Completed"
+          },
+          {
+            "name": "servicenow",
+            "status": "Completed"
+          },
+          {
+            "name": "rss-feed",
+            "status": "Completed"
+          },
+          {
+            "name": "virustotal",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortiauthenticator",
+            "status": "Completed"
+          },
+          {
+            "name": "fortigate-firewall",
+            "status": "Completed"
+          },
+          {
+            "name": "armis",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortianalyzer",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortimanager",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortisase",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortimanager-policy-management",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortirecon-easm",
+            "status": "Completed"
+          },
+          {
+            "name": "aws-feed",
+            "status": "Completed"
+          },
+          {
+            "name": "ssp-portal",
+            "status": "Completed"
+          },
+          {
+            "name": "splunk",
+            "status": "Completed"
+          },
+          {
+            "name": "cisco-asa",
+            "status": "Completed"
+          },
+          {
+            "name": "imap",
+            "status": "Completed"
+          },
+          {
+            "name": "ssh",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortiguard-ioc",
+            "status": "Completed"
+          },
+          {
+            "name": "code-snippet",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortisiem",
+            "status": "Completed"
+          },
+          {
+            "name": "abnormal-security",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortiguard-threat-intelligence",
+            "status": "Completed"
+          },
+          {
+            "name": "http",
+            "status": "Completed"
+          },
+          {
+            "name": "connector-fsr-agentic-assistant",
+            "status": "Completed"
+          },
+          {
+            "name": "fortinet-fortiguard-outbreak",
+            "status": "Completed"
+          },
+          {
+            "name": "ghost-handler",
+            "status": "Completed"
+          }
+        ],
+        "probed": false,
+        "count": 45
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_011WBcJgnoUyFarJiWsmVoGA",
+      "name": "find_connector",
+      "input": {
+        "q": "FortiSIEM"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_011WBcJgnoUyFarJiWsmVoGA",
+      "content": {
+        "matches": [
+          {
+            "name": "fortinet-fortisiem",
+            "label": "Fortinet FortiSIEM",
+            "category": "analytics and siem"
+          }
+        ]
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 4428,
+      "output_tokens": 116,
+      "cost_usd": 0.004006
+    },
+    {
+      "type": "text",
+      "text": "Good"
+    },
+    {
+      "type": "text",
+      "text": " \u2014 FortiSIEM is configured. Let me discover the available operations"
+    },
+    {
+      "type": "text",
+      "text": " and then pull context on the IP,"
+    },
+    {
+      "type": "text",
+      "text": " host, and related events."
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01YUhKpRVwrBArFQsm84QGLK",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "q": "context ip"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01YUhKpRVwrBArFQsm84QGLK",
+      "content": {
+        "matches": [],
+        "suggestion": "no operations matching 'context ip' on 'fortinet-fortisiem'; closest: ['get_ip_context', 'get_user_context', 'get_host_context', 'get_incident_details']",
+        "near": [
+          "get_ip_context",
+          "get_user_context",
+          "get_host_context",
+          "get_incident_details"
+        ]
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01QNAL4XKnFHMPpeaov2kwyG",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "q": "host context"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01QNAL4XKnFHMPpeaov2kwyG",
+      "content": {
+        "matches": [
+          {
+            "op_name": "get_host_context",
+            "title": "Get Host Context"
+          }
+        ],
+        "schema": {
+          "op_name": "get_host_context",
+          "connector_name": "fortinet-fortisiem",
+          "markdown": "# `get_host_context` \u2014 Get Host Context\nconnector: fortinet-fortisiem\n_Retrieves the contextual data of the specified hostname such as device type, and domain lookup information if an FQDN is supplied._\n\n## when  = \u2026\n### \n- value (text, required) \u2014 Specify the host name for which to retrieve context from FortiSIEM server\n\n## skeleton\n```yaml\n- type: connector\n  name: get_host_context\n  connector: fortinet-fortisiem\n  operation: get_host_context\n  params:\n```",
+          "output_schema": "available \u2014 pass verbose=True for full shape"
+        }
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01Rnu6FVwemrxBS1eQevwBN2",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "q": "events"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01Rnu6FVwemrxBS1eQevwBN2",
+      "content": {
+        "matches": [
+          {
+            "op_name": "get_associated_events",
+            "title": "Get Events For Incident (Deprecated)"
+          },
+          {
+            "op_name": "get_associated_events_new",
+            "title": "Get Events For Incident"
+          },
+          {
+            "op_name": "get_events_by_query_id",
+            "title": "Get Events Data By Query ID"
+          },
+          {
+            "op_name": "search_events",
+            "title": "Search Events"
+          }
+        ]
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 5472,
+      "output_tokens": 224,
+      "cost_usd": 0.005274
+    },
+    {
+      "type": "text",
+      "text": "Perfect"
+    },
+    {
+      "type": "text",
+      "text": ". Now let me pull context on the C2 IP, the"
+    },
+    {
+      "type": "text",
+      "text": " host, and search for related events involving both the IP and the host."
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_015df5Sd6w4QuJY2pjb7dHxA",
+      "name": "get_op_schema",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "op": "get_ip_context"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_015df5Sd6w4QuJY2pjb7dHxA",
+      "content": {
+        "op_name": "get_ip_context",
+        "connector_name": "fortinet-fortisiem",
+        "markdown": "# `get_ip_context` \u2014 Get IP Context\nconnector: fortinet-fortisiem\n_Retrieves the contextual data of the specified IP such as hostname, device type, location, device properties and known device information._\n\n## when  = \u2026\n### \n- value (text, required) \u2014 Specify the IP address for which to retrieve context from FortiSIEM server\n\n## skeleton\n```yaml\n- type: connector\n  name: get_ip_context\n  connector: fortinet-fortisiem\n  operation: get_ip_context\n  params:\n```",
+        "output_schema": "available \u2014 pass verbose=True for full shape"
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01PXNHiYAY4Qcc7CwhVcTDtW",
+      "name": "get_op_schema",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "op": "get_host_context"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01PXNHiYAY4Qcc7CwhVcTDtW",
+      "content": {
+        "op_name": "get_host_context",
+        "connector_name": "fortinet-fortisiem",
+        "markdown": "# `get_host_context` \u2014 Get Host Context\nconnector: fortinet-fortisiem\n_Retrieves the contextual data of the specified hostname such as device type, and domain lookup information if an FQDN is supplied._\n\n## when  = \u2026\n### \n- value (text, required) \u2014 Specify the host name for which to retrieve context from FortiSIEM server\n\n## skeleton\n```yaml\n- type: connector\n  name: get_host_context\n  connector: fortinet-fortisiem\n  operation: get_host_context\n  params:\n```",
+        "output_schema": "available \u2014 pass verbose=True for full shape"
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01E7NT31JVMXijsXdm9Zk1RR",
+      "name": "get_op_schema",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "op": "search_events"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01E7NT31JVMXijsXdm9Zk1RR",
+      "content": {
+        "op_name": "search_events",
+        "connector_name": "fortinet-fortisiem",
+        "markdown": "# `search_events` \u2014 Search Events\nconnector: fortinet-fortisiem\n_Searches for events in the Fortinet FortiSIEM server based on search attributes and other input parameters you have specified._\n\n## when  = \u2026\n### \n- attribute (multiselect, required) [default=Reporting IP] \u2014 Select one or multiple search attributes to prepare your search query\n- select_clause (text, required) [default=phRecvTime,reptDevIpAddr,eventType,eventName,srcIpAddr,destIpAddr,user,rawEventMsg] \u2014 Specify the comma-separated list of event fields that you want to include in the response retrieved from the FortiSIE\n- time_selection (select(Relative Time | Absolute Time), optional) [default=Relative Time] \u2014 Specify the time duration to search for reports to run on the Fortinet FortiSIEM server\n- perPage (integer, optional) [default=50] \u2014 Specify the maximum number of events that you want this operation to return in the response\n- start (integer, optional) [default=0] \u2014 Specify the index of the first item to be returned by this operation\n\n## skeleton\n```yaml\n- type: connector\n  name: search_events\n  connector: fortinet-fortisiem\n  operation: search_events\n  params:\n```",
+        "output_schema": "available \u2014 pass verbose=True for full shape"
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 748,
+      "output_tokens": 238,
+      "cost_usd": 0.00155
+    },
+    {
+      "type": "text",
+      "text": "Now"
+    },
+    {
+      "type": "text",
+      "text": " let me execute the context and event searches. I"
+    },
+    {
+      "type": "text",
+      "text": "'ll query for:\n1. IP context on the C2 IP"
+    },
+    {
+      "type": "text",
+      "text": " (185.220.101.47)\n2. Host context on WIN-HR-04\n3. Events"
+    },
+    {
+      "type": "text",
+      "text": " linking both the host and the C2 IP"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01Hqhb3CS7dktL7MFvdYrRFA",
+      "name": "run_op",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "op": "get_ip_context",
+        "params": {
+          "value": "185.220.101.47"
+        }
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01Hqhb3CS7dktL7MFvdYrRFA",
+      "content": {
+        "ok": false,
+        "code": "connector_unhealthy",
+        "message": "'fortinet-fortisiem' is configured but its healthcheck is failing (status: 'Disconnected'). The request timed out while trying to connect to the remote server",
+        "suggestions": [
+          "Check the 'fortinet-fortisiem' connector configuration (credentials, host, network reachability) and re-run its health check, then retry."
+        ],
+        "connector": "fortinet-fortisiem",
+        "version": "5.4.2",
+        "health_status": "Disconnected"
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01K9rtnTWy3mBiuqKEyFqYBt",
+      "name": "run_op",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "op": "get_host_context",
+        "params": {
+          "value": "WIN-HR-04"
+        }
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01K9rtnTWy3mBiuqKEyFqYBt",
+      "content": {
+        "ok": false,
+        "code": "connector_unhealthy",
+        "message": "'fortinet-fortisiem' is configured but its healthcheck is failing (status: 'Disconnected'). The request timed out while trying to connect to the remote server",
+        "suggestions": [
+          "Check the 'fortinet-fortisiem' connector configuration (credentials, host, network reachability) and re-run its health check, then retry."
+        ],
+        "connector": "fortinet-fortisiem",
+        "version": "5.4.2",
+        "health_status": "Disconnected"
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01BBG3VQDojqQcfcdZcCqAT4",
+      "name": "run_op",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "op": "search_events",
+        "params": {
+          "attribute": [
+            "destIpAddr",
+            "srcIpAddr"
+          ],
+          "select_clause": "phRecvTime,reptDevIpAddr,eventType,eventName,srcIpAddr,destIpAddr,user,rawEventMsg",
+          "time_selection": "Relative Time",
+          "perPage": 25
+        }
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01BBG3VQDojqQcfcdZcCqAT4",
+      "content": {
+        "ok": false,
+        "code": "connector_unhealthy",
+        "message": "'fortinet-fortisiem' is configured but its healthcheck is failing (status: 'Disconnected'). The request timed out while trying to connect to the remote server",
+        "suggestions": [
+          "Check the 'fortinet-fortisiem' connector configuration (credentials, host, network reachability) and re-run its health check, then retry."
+        ],
+        "connector": "fortinet-fortisiem",
+        "version": "5.4.2",
+        "health_status": "Disconnected"
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1898,
+      "output_tokens": 412,
+      "cost_usd": 0.003166
+    },
+    {
+      "type": "text",
+      "text": "**"
+    },
+    {
+      "type": "text",
+      "text": "FortiSIEM is configured but currently disconnected** \u2014"
+    },
+    {
+      "type": "text",
+      "text": " the connector is timing out on connect. This is a network"
+    },
+    {
+      "type": "text",
+      "text": "/configuration issue that needs to be fixed on the FortiSIEM side before I can query it.\n\nLet me check if"
+    },
+    {
+      "type": "text",
+      "text": " Elasticsearch or Splunk are available as alternatives for event hunting:"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_017Y53imrtvNPJ8reXyY1q66",
+      "name": "find_operation",
+      "input": {
+        "connector": "elasticsearch",
+        "q": "search"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_017Y53imrtvNPJ8reXyY1q66",
+      "content": {
+        "matches": [
+          {
+            "op_name": "apply_alert_tags",
+            "title": "Apply Alert Tags"
+          },
+          {
+            "op_name": "assign_unassign_users_from_alert",
+            "title": "Assign or Unassign Users from Alerts"
+          },
+          {
+            "op_name": "execute_lucene_query",
+            "title": "Execute Lucene Query"
+          },
+          {
+            "op_name": "execute_query",
+            "title": "Execute Query"
+          },
+          {
+            "op_name": "get_alerts_list",
+            "title": "Get Alerts List"
+          },
+          {
+            "op_name": "get_cluster_details",
+            "title": "Get Cluster Details"
+          },
+          {
+            "op_name": "get_mapping",
+            "title": "Get Mapping"
+          },
+          {
+            "op_name": "get_saved_search",
+            "title": "Get Saved Search"
+          },
+          {
+            "op_name": "set_alert_status",
+            "title": "Set Alert Status"
+          }
+        ]
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01RuBdxZULhjBk8ZVuAuY3jH",
+      "name": "find_operation",
+      "input": {
+        "connector": "splunk",
+        "q": "search"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01RuBdxZULhjBk8ZVuAuY3jH",
+      "content": {
+        "matches": [
+          {
+            "op_name": "get_events",
+            "title": "Get Events for a Search"
+          },
+          {
+            "op_name": "get_results",
+            "title": "Get Results for a Search"
+          },
+          {
+            "op_name": "get_search_info",
+            "title": "Get Details for a Search"
+          },
+          {
+            "op_name": "invoke_alert_action",
+            "title": "Run Splunk Action"
+          },
+          {
+            "op_name": "invoke_search",
+            "title": "Invoke Search"
+          }
+        ]
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 2031,
+      "output_tokens": 192,
+      "cost_usd": 0.002393
+    },
+    {
+      "type": "text",
+      "text": "Good"
+    },
+    {
+      "type": "text",
+      "text": " \u2014 both Elasticsearch and Splunk are available. Let me try Splunk to search for events involving the host"
+    },
+    {
+      "type": "text",
+      "text": " and the C2 IP:"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01Ew3eQ6WzKtgFXbMf1cQMUK",
+      "name": "get_op_schema",
+      "input": {
+        "connector": "splunk",
+        "op": "invoke_search",
+        "verbose": true
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01Ew3eQ6WzKtgFXbMf1cQMUK",
+      "content": {
+        "connector_name": "splunk",
+        "op_name": "invoke_search",
+        "title": "Invoke Search",
+        "annotation": "search_query",
+        "category": "investigation",
+        "description": "Invokes a search on the Splunk server.",
+        "visible": 1,
+        "enabled": 1,
+        "output_schema_json": {},
+        "conditional_output_schema_json": [
+          {
+            "condition": "{{this['exec_mode'] === 'Blocking' || this['exec_mode'] === 'Normal'}}",
+            "output_schema": {
+              "sid": ""
+            }
+          },
+          {
+            "condition": "{{this['exec_mode'] === 'One Shot'}}",
+            "output_schema": {
+              "fields": [],
+              "preview": "",
+              "results": [],
+              "messages": [],
+              "highlighted": {},
+              "init_offset": ""
+            }
+          }
+        ],
+        "output_schema_observed": "",
+        "params": [
+          {
+            "param_name": "query",
+            "title": "Search Query",
+            "type": "textarea",
+            "required": 1,
+            "editable": 1,
+            "visible": 1,
+            "description": "Query for the search that you want to run on the Splunk server.Defaults to \\\"search host=\\\"{{vars.result.data.host}}\\\"",
+            "tooltip": "Query for the search that you want to run on the Splunk server.Defaults to \\\"search host=\\\"{{vars.result.data.host}}\\\"",
+            "placeholder": "",
+            "default_value": "\"search host=\\\"{{vars.result.data.host}}\\\"\"",
+            "options_json": []
+          },
+          {
+            "param_name": "app",
+            "title": "Application Namespace",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "(Optional) Namespace to be used for invoking all of the Splunk APIs. For more information about namespaces, see Splunk Documentation. Note: The application namespace that you specify here overrides the configuration application namespace that you have specified on the Connector Configuration page.",
+            "tooltip": "This namespace override configuration application namespace.",
+            "placeholder": "",
+            "default_value": "\"-\"",
+            "options_json": []
+          },
+          {
+            "param_name": "earliest_time",
+            "title": "Earliest Time",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "(Optional) Start time for the search. The input type is a string. If this parameter is left empty, it is set to the current time. For example, -30m or -14d@d. 'm' stands for minutes, 'd' stands for days. Therefore, when you say -30m it means last 30 minutes and -14 days means last 14 days. For time format see, http://docs.splunk.com/Documentation/Splunk/6.6.0/SearchReference/SearchTimeModifiers.",
+            "tooltip": "The start time for the search. Input type is string. If this parameter is left empty, it is set to the current time. For eg. -30m, -14d@d",
+            "placeholder": "",
+            "default_value": "\"-24h\"",
+            "options_json": []
+          },
+          {
+            "param_name": "latest_time",
+            "title": "Latest Time",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "(Optional) The end time for the search. The input type is a string. If this parameter is left empty, it is set to the current time. For time format see, http://docs.splunk.com/Documentation/Splunk/6.6.0/SearchReference/SearchTimeModifiers.",
+            "tooltip": "The end time for the search. Input type is string. If this parameter is left empty, it is set to the current time. For eg. -30m, -14d@d",
+            "placeholder": "",
+            "default_value": "\"-24h\"",
+            "options_json": []
+          },
+          {
+            "param_name": "exec_mode",
+            "title": "Execution Mode",
+            "type": "select",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "(Optional) Specify the mode of execution for this operation. You can choose from the following options: Normal: Select to run an asynchronous search. Blocking: Select to return the SID when the job is complete. Select the search mode in Adhoc Search Level field.Currently, only smart mode is supported with fast mode as the default setting. One Shot: To return results in the same call. The output format is JSON.",
+            "tooltip": "Specify the mode of execution for this operation. You can choose from the following options: Normal: Select to run an asynchronous search. Blocking: Select to return the SID when the job is complete. Select the search mode in Adhoc Search Level field.Currently, only smart mode is supported with fast mode as the default setting. One Shot: To return results in the same call. The output format is JSON.",
+            "placeholder": "",
+            "default_value": "\"One Shot\"",
+            "options_json": [
+              "One Shot",
+              "Blocking",
+              "Normal"
+            ]
+          },
+          {
+            "param_name": "auto_cancel",
+            "title": "Timeout",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "(Optional) Time, in seconds, of inactivity, after which the search job automatically cancels (0 = Never auto-cancel).",
+            "tooltip": "Time, in seconds, of inactivity, after which the search job automatically cancels (0 = Never auto-cancel).",
+            "placeholder": "",
+            "default_value": "\"0\"",
+            "options_json": []
+          },
+          {
+            "param_name": "additional_search_args",
+            "title": "Additional Search Arguments",
+            "type": "json",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "Additional parameters for the search. You can specify additional parameters, such as time windows, to your search query to get specific search results. For more information, see the Splunk REST API Reference Manual. Note: To run a search in the verbose mode, add the following parameter: {adhoc_search_level:verbose}.",
+            "tooltip": "Search arguments in JSON format",
+            "placeholder": "{\"search_mode\": \"realtime\", \"max_count\": 10}",
+            "default_value": "\"{\\\"max_count\\\": \\\"10\\\"}\"",
+            "options_json": []
+          }
+        ],
+        "visibility": {
+          "always": [],
+          "when": {
+            "=": [
+              "query",
+              "app",
+              "earliest_time",
+              "latest_time",
+              "exec_mode",
+              "auto_cancel",
+              "additional_search_args"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1455,
+      "output_tokens": 125,
+      "cost_usd": 0.001664
+    },
+    {
+      "type": "text",
+      "text": "Now"
+    },
+    {
+      "type": "text",
+      "text": " let me run a Splunk search to find events linking WIN-HR-04"
+    },
+    {
+      "type": "text",
+      "text": " (10.10.20.55) to the C2 IP"
+    },
+    {
+      "type": "text",
+      "text": " (185.220.101.47):"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01LhoHN7tZbU6o9tSSXYtqE8",
+      "name": "run_op",
+      "input": {
+        "connector": "splunk",
+        "op": "invoke_search",
+        "params": {
+          "query": "search (src_ip=10.10.20.55 OR dest_ip=10.10.20.55) AND (src_ip=185.220.101.47 OR dest_ip=185.220.101.47) | fields _time, src_ip, dest_ip, src_host, dest_host, action, protocol, user | sort _time desc",
+          "earliest_time": "-24h",
+          "latest_time": "now",
+          "exec_mode": "One Shot"
+        }
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01LhoHN7tZbU6o9tSSXYtqE8",
+      "content": {
+        "ok": false,
+        "code": "connector_unhealthy",
+        "message": "'splunk' is configured but its healthcheck is failing (status: 'Disconnected'). Error fetching information from Splunk API. Exception: HTTPSConnectionPool(host='1.1.1.1', port=8089): Max retries exceeded with url: /servicesNS/asdf/-/alerts/alert_actions?output_mode=json (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f634d9798b0>: Failed to establish a new connection: [Errno 110] Connection timed out'))",
+        "suggestions": [
+          "Check the 'splunk' connector configuration (credentials, host, network reachability) and re-run its health check, then retry."
+        ],
+        "connector": "splunk",
+        "version": "2.0.2",
+        "health_status": "Disconnected"
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 2235,
+      "output_tokens": 259,
+      "cost_usd": 0.002824
+    },
+    {
+      "type": "text",
+      "text": "**"
+    },
+    {
+      "type": "text",
+      "text": "Splunk is also disconnected.** Let me try Elasticsearch:"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01Qe9CWSem1ExUzpSohpMCuM",
+      "name": "get_op_schema",
+      "input": {
+        "connector": "elasticsearch",
+        "op": "execute_query",
+        "verbose": true
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01Qe9CWSem1ExUzpSohpMCuM",
+      "content": {
+        "connector_name": "elasticsearch",
+        "op_name": "execute_query",
+        "title": "Execute Query",
+        "annotation": "execute_query",
+        "category": "investigation",
+        "description": "Executes a query and fetches data from your ElasticSearch instance, based on the input filters.",
+        "visible": 1,
+        "enabled": 1,
+        "output_schema_json": {
+          "hits": "",
+          "took": "",
+          "_shards": "",
+          "timed_out": "",
+          "aggregations": ""
+        },
+        "conditional_output_schema_json": {},
+        "output_schema_observed": "",
+        "params": [
+          {
+            "param_name": "query",
+            "title": "Query",
+            "type": "text",
+            "required": 1,
+            "editable": 1,
+            "visible": 1,
+            "description": "Specify a stringified JSON formatted query used for searching data in ElasticSearch. For example: {\"id\": \"template_1\", \"params\": {\"query_string\": \"search for these words\" }}",
+            "tooltip": "Specify a stringified JSON formatted query used for searching data in ElasticSearch",
+            "placeholder": "{\"id\": \"template_1\", \"params\": {\"query_string\": \"search for these words\" }}",
+            "default_value": "\"\"",
+            "options_json": []
+          },
+          {
+            "param_name": "index",
+            "title": "Index",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "Specify a particular index, based on which you want to run the query. An index is a logical namespace that maps to one or more primary shards and can have zero or more replica shards.",
+            "tooltip": "An index is a logical namespace that maps to one or more primary shards and can have zero or more replica shards. Specify a particular index, based on which you want to run the query.",
+            "placeholder": "",
+            "default_value": "\"\"",
+            "options_json": []
+          },
+          {
+            "param_name": "doc_type",
+            "title": "Type",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "Specify the type of indices, based on which you want to run the query. Type in ElasticSearch represents a class of similar documents.",
+            "tooltip": "Type in ElasticSearch represents a class of similar documents. Specify the type of indices, based on which you want to run the query.",
+            "placeholder": "",
+            "default_value": "\"\"",
+            "options_json": []
+          },
+          {
+            "param_name": "routing",
+            "title": "Routing",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "Specify the name of the shard for which you want to retrieve data.",
+            "tooltip": "Name of the shard for which you want to retrieve data.",
+            "placeholder": "",
+            "default_value": "\"\"",
+            "options_json": []
+          },
+          {
+            "param_name": "run_as_user",
+            "title": "Run As User",
+            "type": "text",
+            "required": 0,
+            "editable": 1,
+            "visible": 1,
+            "description": "Specify the user being impersonated for executing the query. Run As User is a kind of delegation of an account, i.e., the account access is delegated to a different account or an admin account. For example, User X takes on the role of User Y with the help of the run as user mechanism.",
+            "tooltip": "Run as user is kind of a delegation of account access to a different account or an admin account. For example, User X take on the role of User Y with the help of run as user mechanism",
+            "placeholder": "",
+            "default_value": "\"\"",
+            "options_json": []
+          }
+        ],
+        "visibility": {
+          "always": [],
+          "when": {
+            "=": [
+              "query",
+              "index",
+              "doc_type",
+              "routing",
+              "run_as_user"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 2134,
+      "output_tokens": 108,
+      "cost_usd": 0.002139
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01VhTn2q1BMxvrkuqCjqA4zN",
+      "name": "run_op",
+      "input": {
+        "connector": "elasticsearch",
+        "op": "execute_query",
+        "params": {
+          "query": "{\"bool\": {\"must\": [{\"match\": {\"source_ip\": \"10.10.20.55\"}}, {\"match\": {\"destination_ip\": \"185.220.101.47\"}}]}}",
+          "index": "*"
+        }
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01VhTn2q1BMxvrkuqCjqA4zN",
+      "content": {
+        "ok": false,
+        "code": "connector_unhealthy",
+        "message": "'elasticsearch' is configured but its healthcheck is failing (status: 'Disconnected'). aggregate of per-config checks",
+        "suggestions": [
+          "Check the 'elasticsearch' connector configuration (credentials, host, network reachability) and re-run its health check, then retry."
+        ],
+        "connector": "elasticsearch",
+        "version": "4.0.0",
+        "health_status": "Disconnected"
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1488,
+      "output_tokens": 153,
+      "cost_usd": 0.001802
+    },
+    {
+      "type": "text",
+      "text": "**"
+    },
+    {
+      "type": "text",
+      "text": "All three primary SIEM/log connectors ("
+    },
+    {
+      "type": "text",
+      "text": "FortiSIEM, Splunk, Elasticsearch) are disconnected.** I cannot"
+    },
+    {
+      "type": "text",
+      "text": " access raw event data from the log stores at this moment"
+    },
+    {
+      "type": "text",
+      "text": ". However, I can still perform threat intelligence lookups and pivot on the indicators"
+    },
+    {
+      "type": "text",
+      "text": " using available connectors.\n\nLet me shift to enrichment: I"
+    },
+    {
+      "type": "text",
+      "text": "'ll look up the C2 IP against threat intelligence sources ("
+    },
+    {
+      "type": "text",
+      "text": "VirusTotal, FortiGuard) and check for any other hosts that may have"
+    },
+    {
+      "type": "text",
+      "text": " contacted it:"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01YFtndk9kREeFFcEqzgxBHQ",
+      "name": "find_operation",
+      "input": {
+        "connector": "virustotal",
+        "q": "ip"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01YFtndk9kREeFFcEqzgxBHQ",
+      "content": {
+        "matches": [
+          {
+            "op_name": "analysis_file",
+            "title": "Get Analysis Details"
+          },
+          {
+            "op_name": "domain_re_analyze",
+            "title": "Reanalyze Domain"
+          },
+          {
+            "op_name": "file_re_analyze",
+            "title": "Reanalyze File"
+          },
+          {
+            "op_name": "get_output_schema_ip",
+            "title": "Get Output Schema for IP Reputation"
+          },
+          {
+            "op_name": "ip_re_analyze",
+            "title": "Reanalyze IP"
+          },
+          {
+            "op_name": "query_ip",
+            "title": "Get IP Reputation"
+          },
+          {
+            "op_name": "url_re_analyze",
+            "title": "Reanalyze URL"
+          }
+        ]
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01GSCReyVVDMTSgnjEiXUK3Y",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortiguard-threat-intelligence",
+        "q": "ip reputation"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01GSCReyVVDMTSgnjEiXUK3Y",
+      "content": {
+        "matches": [],
+        "suggestion": "no operations matching 'ip reputation' on 'fortinet-fortiguard-threat-intelligence'; closest: ['top_threat_countries', 'top_threats', 'top_threat_industries', 'top_threats_by_country']",
+        "near": [
+          "top_threat_countries",
+          "top_threats",
+          "top_threat_industries",
+          "top_threats_by_country"
+        ]
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01YJHcT2Dna4ZvUQMa1cLExK",
+      "name": "find_operation",
+      "input": {
+        "connector": "shodan",
+        "q": "host ip"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01YJHcT2Dna4ZvUQMa1cLExK",
+      "content": {
+        "matches": [],
+        "suggestion": "no operations matching 'host ip' on 'shodan'; this connector has 2 ops total \u2014 omit `q=` to list them all (or pass a more general keyword)."
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 1286,
+      "output_tokens": 299,
+      "cost_usd": 0.002225
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_018tg2tdHq3LSKQkfunu8Mkw",
+      "name": "run_op",
+      "input": {
+        "connector": "virustotal",
+        "op": "query_ip",
+        "params": {
+          "ip": "185.220.101.47"
+        }
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_018tg2tdHq3LSKQkfunu8Mkw",
+      "content": {
+        "ok": true,
+        "data": {
+          "id": "185.220.101.47",
+          "type": "ip_address",
+          "links": {
+            "self": "https://www.virustotal.com/gui/ip-address/185.220.101.47"
+          },
+          "attributes": {
+            "asn": 60729,
+            "last_https_certificate": {
+              "public_key": {
+                "rsa": {
+                  "key_size": 2048,
+                  "modulus": "00b84f627961d757280f87a1e9e7436c489eb2e32d27b2517b88c7808e9afd65d488a29b6a78bba19a7b458bdc86ab613a39b9c6181b38f7fc2bea5e2ab2b76a78eddc02d4f3f4768dbf4cb7ba1a113a437a8a7a8ab062de22f7792f124e411229c66744015a712d992853c4f397eeec633fe4e185d25b00769e6844bdfea2abe5ce853d9d0e9a54862697e7340c63939617c2bd01b45b369e3d75b11a7231d9dc98637716061ee348f1e5fde2cd6be7ea4b0c75428c8add916834bd62f45bce273529db714e76a9485446e5e60c9ff89e8f30200c3813a0a742d3f20fe1361c61c46e7af141dfe4dfeff6a3b006f54fea78dc1308199ee3b98a443990f927ca9f",
+                  "exponent": "010001"
+                },
+                "algorithm": "RSA"
+              },
+              "thumbprint_sha256": "a03734d960917adec56ee4b4798aeef925b86df31eb4e598f7d9646dbe479d8f",
+              "tags": [],
+              "signature_algorithm": "sha256RSA",
+              "subject": {
+                "CN": "*.feralhosting.com"
+              },
+              "validity": {
+                "not_after": "2021-02-12 12:00:00",
+                "not_before": "2020-02-13 00:00:00"
+              },
+              "version": "V3",
+              "extensions": {
+                "certificate_policies": [
+                  "2.16.840.1.114412.1.2",
+                  "2.23.140.1.2.1"
+                ],
+                "extended_key_usage": [
+                  "serverAuth",
+                  "clientAuth"
+                ],
+                "authority_key_identifier": {
+                  "keyid": "53ca1759fc6bc003212f1aaee4aaa81c8256da75"
+                },
+                "subject_alternative_name": [
+                  "*.feralhosting.com",
+                  "feralhosting.com"
+                ],
+                "tags": [],
+                "subject_key_identifier": "57bbcdfd94db2c30d83094849d635888e3c3216d",
+                "crl_distribution_points": [
+                  "http://cdp.rapidssl.com/RapidSSLRSACA2018.crl"
+                ],
+                "key_usage": [
+                  "ff"
+                ],
+                "1.3.6.1.4.1.11129.2.4.2": "0481f300f1007700bbd9dfbc1f8a71b593942397aa927b473857950aab52e81a",
+                "CA": true,
+                "ca_information_access": {
+                  "CA Issuers": "http://cacerts.rapidssl.com/RapidSSLRSACA2018.crt",
+                  "OCSP": "http://status.rapidssl.com"
+                }
+              },
+              "cert_signature": {
+                "signature": "ba3c94d8f8c71f71e3518f7bacd33f23b59df823885a10a86f3d4932c045294a261c8ca9508c65f2c51580dbaeb7dcb8a9e4f98e4e89fb3627d6b9bd45cc41084ee873427d2c87cdc576f3a90479cb0ad8e47f350689904a48227ed3f91452b0e4ad4879a6ed628e85ba87c7732fe211bdbc7a0ee0551bdd05a02ee6370a9a7908ae2d4add6238b42916e5525c112f611f2c50abc1dd1f7f3500eb15122c24e16ad63be4601bf2746e89ba1bf088e13d6d246cd3ad25580a2fd6be6434a400bf68d5c2b70d48a70cbcdc875ea6779037fdc91ee48d51f30d30bef28790711ef2c0ff24cba28c16edaaf0c0762c01ef70c49eee21a7e816c1748862a36f7a454c",
+                "signature_algorithm": "sha256RSA"
+              },
+              "serial_number": "6fa9b7862f6628b36760c15cb82a4fa",
+              "thumbprint": "a60a38b70efcc4ba6ef81b873dbfc57a5ea18b66",
+              "issuer": {
+                "C": "US",
+                "CN": "RapidSSL RSA CA 2018",
+                "O": "DigiCert Inc",
+                "OU": "www.digicert.com"
+              },
+              "size": 1480
+            },
+            "last_https_certificate_date": 1583967863,
+            "rdap": {
+              "object_class_name": "ip network",
+              "handle": "185.220.101.32 - 185.220.101.63",
+              "start_address": "185.220.101.32",
+              "end_address": "185.220.101.63",
+              "ip_version": "v4",
+              "name": "TOR-EXIT",
+              "type": "ASSIGNED PA",
+              "country": "DE",
+              "parent_handle": "185.220.100.0 - 185.220.103.255",
+              "status": [
+                "active"
+              ],
+              "links": [
+                {
+                  "href": "https://rdap.db.ripe.net/ips/rirSearch1/rdap-up/185.220.101.32%20-%20185.220.101.63",
+                  "rel": "rdap-up",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "https://rdap.db.ripe.net/ips/rirSearch1/rdap-up/185.220.101.32%20-%20185.220.101.63?status=active",
+                  "rel": "rdap-up rdap-active",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "https://rdap.db.ripe.net/ips/rirSearch1/rdap-down/185.220.101.32%20-%20185.220.101.63",
+                  "rel": "rdap-down",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "https://rdap.db.ripe.net/ips/rirSearch1/rdap-top/185.220.101.32%20-%20185.220.101.63",
+                  "rel": "rdap-top",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "https://rdap.db.ripe.net/ips/rirSearch1/rdap-top/185.220.101.32%20-%20185.220.101.63?status=active",
+                  "rel": "rdap-top rdap-active",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "https://rdap.db.ripe.net/ips/rirSearch1/rdap-bottom/185.220.101.32%20-%20185.220.101.63",
+                  "rel": "rdap-bottom",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "rel": "self",
+                  "type": "application/rdap+json",
+                  "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                },
+                {
+                  "href": "http://www.ripe.net/data-tools/support/documentation/terms",
+                  "rel": "copyright",
+                  "value": "http://www.ripe.net/data-tools/support/documentation/terms",
+                  "type": "",
+                  "title": "",
+                  "media": "",
+                  "href_lang": []
+                }
+              ],
+              "notices": [
+                {
+                  "title": "Filtered",
+                  "description": [
+                    "This output has been filtered."
+                  ],
+                  "links": [],
+                  "type": ""
+                },
+                {
+                  "title": "Whois Inaccuracy Reporting",
+                  "description": [
+                    "If you see inaccuracies in the results, please visit:"
+                  ],
+                  "links": [
+                    {
+                      "href": "https://www.ripe.net/contact-form?topic=ripe_dbm&show_form=true",
+                      "rel": "inaccuracy-report",
+                      "type": "text/html",
+                      "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    }
+                  ],
+                  "type": ""
+                },
+                {
+                  "title": "Source",
+                  "description": [
+                    "Objects returned came from source",
+                    "RIPE"
+                  ],
+                  "links": [],
+                  "type": ""
+                },
+                {
+                  "title": "Terms and Conditions",
+                  "description": [
+                    "This is the RIPE Database query service. The objects are in RDAP format."
+                  ],
+                  "links": [
+                    {
+                      "href": "http://www.ripe.net/db/support/db-terms-conditions.pdf",
+                      "rel": "terms-of-service",
+                      "type": "application/pdf",
+                      "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    }
+                  ],
+                  "type": ""
+                }
+              ],
+              "events": [
+                {
+                  "event_action": "registration",
+                  "event_date": "2021-08-31T19:06:52Z",
+                  "event_actor": "",
+                  "links": []
+                },
+                {
+                  "event_action": "last changed",
+                  "event_date": "2021-08-31T19:06:52Z",
+                  "event_actor": "",
+                  "links": []
+                }
+              ],
+              "rdap_conformance": [
+                "geofeed1",
+                "rirSearch1",
+                "ips",
+                "cidr0",
+                "rdap_level_0",
+                "nro_rdap_profile_0",
+                "redacted"
+              ],
+              "entities": [
+                {
+                  "object_class_name": "entity",
+                  "handle": "FORPRIVACYNET-MNT",
+                  "vcard_array": [
+                    {
+                      "name": "version",
+                      "type": "text",
+                      "values": [
+                        "4.0"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "fn",
+                      "type": "text",
+                      "values": [
+                        "FORPRIVACYNET-MNT"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "kind",
+                      "type": "text",
+                      "values": [
+                        "individual"
+                      ],
+                      "parameters": {}
+                    }
+                  ],
+                  "roles": [
+                    "registrant"
+                  ],
+                  "links": [
+                    {
+                      "href": "https://rdap.db.ripe.net/entity/FORPRIVACYNET-MNT",
+                      "rel": "self",
+                      "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    },
+                    {
+                      "href": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "rel": "copyright",
+                      "value": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    }
+                  ],
+                  "public_ids": [],
+                  "entities": [],
+                  "remarks": [],
+                  "events": [],
+                  "as_event_actor": [],
+                  "status": [],
+                  "port43": "",
+                  "networks": [],
+                  "autnums": [],
+                  "url": "",
+                  "lang": "",
+                  "rdap_conformance": []
+                },
+                {
+                  "object_class_name": "entity",
+                  "handle": "MM55214-RIPE",
+                  "vcard_array": [
+                    {
+                      "name": "version",
+                      "type": "text",
+                      "values": [
+                        "4.0"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "fn",
+                      "type": "text",
+                      "values": [
+                        "Marco Maske"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "kind",
+                      "type": "text",
+                      "values": [
+                        "individual"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "adr",
+                      "parameters": {
+                        "label": [
+                          "Steinweg 18/20\n53121 Bonn\nGermany"
+                        ]
+                      },
+                      "type": "text",
+                      "values": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                      ]
+                    },
+                    {
+                      "name": "tel",
+                      "parameters": {
+                        "type": [
+                          "voice"
+                        ]
+                      },
+                      "type": "text",
+                      "values": [
+                        "+49"
+                      ]
+                    },
+                    {
+                      "name": "tel",
+                      "parameters": {
+                        "type": [
+                          "fax"
+                        ]
+                      },
+                      "type": "text",
+                      "values": [
+                        "+49 228 92934876"
+                      ]
+                    }
+                  ],
+                  "roles": [
+                    "administrative",
+                    "technical"
+                  ],
+                  "links": [
+                    {
+                      "href": "https://rdap.db.ripe.net/entity/MM55214-RIPE",
+                      "rel": "self",
+                      "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    },
+                    {
+                      "href": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "rel": "copyright",
+                      "value": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    }
+                  ],
+                  "public_ids": [],
+                  "entities": [],
+                  "remarks": [],
+                  "events": [],
+                  "as_event_actor": [],
+                  "status": [],
+                  "port43": "",
+                  "networks": [],
+                  "autnums": [],
+                  "url": "",
+                  "lang": "",
+                  "rdap_conformance": []
+                },
+                {
+                  "object_class_name": "entity",
+                  "handle": "ORG-FA1168-RIPE",
+                  "vcard_array": [
+                    {
+                      "name": "version",
+                      "type": "text",
+                      "values": [
+                        "4.0"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "fn",
+                      "type": "text",
+                      "values": [
+                        "ForPrivacyNET"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "kind",
+                      "type": "text",
+                      "values": [
+                        "org"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "adr",
+                      "parameters": {
+                        "label": [
+                          "Steinweg 18/20\n53121 Bonn\nGermany"
+                        ]
+                      },
+                      "type": "text",
+                      "values": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                      ]
+                    }
+                  ],
+                  "roles": [
+                    "registrant"
+                  ],
+                  "links": [
+                    {
+                      "href": "https://rdap.db.ripe.net/entity/ORG-FA1168-RIPE",
+                      "rel": "self",
+                      "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    },
+                    {
+                      "href": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "rel": "copyright",
+                      "value": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    }
+                  ],
+                  "public_ids": [],
+                  "entities": [],
+                  "remarks": [],
+                  "events": [],
+                  "as_event_actor": [],
+                  "status": [],
+                  "port43": "",
+                  "networks": [],
+                  "autnums": [],
+                  "url": "",
+                  "lang": "",
+                  "rdap_conformance": []
+                },
+                {
+                  "object_class_name": "entity",
+                  "handle": "ZWIEBELFREUNDE",
+                  "vcard_array": [
+                    {
+                      "name": "version",
+                      "type": "text",
+                      "values": [
+                        "4.0"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "fn",
+                      "type": "text",
+                      "values": [
+                        "ZWIEBELFREUNDE"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "kind",
+                      "type": "text",
+                      "values": [
+                        "individual"
+                      ],
+                      "parameters": {}
+                    }
+                  ],
+                  "roles": [
+                    "registrant"
+                  ],
+                  "links": [
+                    {
+                      "href": "https://rdap.db.ripe.net/entity/ZWIEBELFREUNDE",
+                      "rel": "self",
+                      "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    },
+                    {
+                      "href": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "rel": "copyright",
+                      "value": "http://www.ripe.net/data-tools/support/documentation/terms",
+                      "type": "",
+                      "title": "",
+                      "media": "",
+                      "href_lang": []
+                    }
+                  ],
+                  "public_ids": [],
+                  "entities": [],
+                  "remarks": [],
+                  "events": [],
+                  "as_event_actor": [],
+                  "status": [],
+                  "port43": "",
+                  "networks": [],
+                  "autnums": [],
+                  "url": "",
+                  "lang": "",
+                  "rdap_conformance": []
+                },
+                {
+                  "object_class_name": "entity",
+                  "handle": "ACRO42986-RIPE",
+                  "vcard_array": [
+                    {
+                      "name": "version",
+                      "type": "text",
+                      "values": [
+                        "4.0"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "fn",
+                      "type": "text",
+                      "values": [
+                        "Abuse contact role object"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "kind",
+                      "type": "text",
+                      "values": [
+                        "group"
+                      ],
+                      "parameters": {}
+                    },
+                    {
+                      "name": "adr",
+                      "parameters": {
+                        "label": [
+                          "Steinweg 18/20, 53121 Bonn, Germany"
+                        ]
+                      },
+                      "type": "text",
+                      "values": [
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        ""
+                      ]
+                    },
+                    {
+                      "name": "email",
+                      "parameters": {
+                        "type": [
+                          "abuse"
+                        ]
+                      },
+                      "type": "text",
+                      "values": [
+                        "abuse@for-privacy.net"
+                      ]
+                    }
+                  ],
+                  "roles": [
+                    "abuse"
+                  ],
+                  "entities": [
+                    {
+                      "object_class_name": "entity",
+                      "handle": "FORPRIVACYNET-MNT",
+                      "vcard_array": [
+                        {
+                          "name": "version",
+                          "type": "text",
+                          "values": [
+                            "4.0"
+                          ],
+                          "parameters": {}
+                        },
+                        {
+                          "name": "fn",
+                          "type": "text",
+                          "values": [
+                            "FORPRIVACYNET-MNT"
+                          ],
+                          "parameters": {}
+                        },
+                        {
+                          "name": "kind",
+                          "type": "text",
+                          "values": [
+                            "individual"
+                          ],
+                          "parameters": {}
+                        }
+                      ],
+                      "roles": [
+                        "registrant"
+                      ],
+                      "links": [
+                        {
+                          "href": "https://rdap.db.ripe.net/entity/FORPRIVACYNET-MNT",
+                          "rel": "self",
+                          "value": "https://rdap.db.ripe.net/ip/185.220.101.47",
+                          "type": "",
+                          "title": "",
+                          "media": "",
+                          "href_lang": []
+                        },
+                        {
+                          "href": "http://www.ripe.net/data-tools/support/documentation/terms",
+                          "rel": "copyright",
+                          "value": "http://www.ripe.net/data-tools/support/documentation/terms",
+                          "type": "",
+                          "title": "",
+                          "media": "",
+                          "href_lang": []
+                        }
+                      ],
+                      "public_ids": [],
+                      "entities": [],
+                      "remarks": [],
+                      "events": [],
+                      "as_event_actor": [],
+                      "status": [],
+                      "port43": "",
+                      "networks": [],
+                      "autnums": [],
+                      "url": "",
+                      "lang": "",
+                      "rdap_conformance": []
+                    }
+                  ],
+                  "public_ids": [],
+                  "remarks": [],
+                  "links": [],
+                  "events": [],
+                  "as_event_actor": [],
+                  "status": [],
+                  "port43": "",
+                  "networks": [],
+                  "autnums": [],
+                  "url": "",
+                  "lang": "",
+                  "rdap_conformance": []
+                }
+              ],
+              "port43": "whois.ripe.net",
+              "cidr0_cidrs": [
+                {
+                  "v4prefix": "185.220.101.32",
+                  "length": 27,
+                  "v6prefix": ""
+                }
+              ],
+              "remarks": [
+                {
+                  "description": [
+                    "Network for Tor-Exit traffic.",
+                    "-----------------------------------",
+                    "This network is used for Tor Exits.",
+                    "We do not have any logs at all.",
+                    "For more information please visit:",
+                    "https://www.torproject.org",
+                    "Dieses Netz hostet nur Tor-Exits.",
+                    "Wir haben keinerlei Logs.",
+                    "Mehr Informationen unter:"
+                  ],
+                  "title": "",
+                  "links": [],
+                  "type": ""
+                }
+              ],
+              "arin_originas0_originautnums": []
+            },
+            "reputation": -21,
+            "whois_date": 1778868003,
+            "last_analysis_stats": {
+              "malicious": 14,
+              "suspicious": 1,
+              "undetected": 29,
+              "harmless": 47,
+              "timeout": 0
+            },
+            "last_analysis_date": 1780090173,
+            "whois": {
+              "raw": [],
+              "data": "inetnum: 185.220.101.32 - 185.220.101.63\ndescr: Network for Tor-Exit traffic.\nremarks: -----------------------------------\nremarks: This network is used for Tor Exits.\nremarks: We do not have any logs at all.\nremarks: For more information please visit:\nremarks: https://www.torproject.org\nremarks: -----------------------------------\nremarks: Dieses Netz hostet nur Tor-Exits.\nremarks: Wir haben keinerlei Logs.\nremarks: Mehr Informationen unter:\nremarks: https://www.torproject.org\nremarks: -----------------------------------\nnetname: TOR-EXIT\ncountry: DE\nadmin-c: MM55214-RIPE\ntech-c: MM55214-RIPE\nstatus: ASSIGNED PA\nmnt-by: ZWIEBELFREUNDE\nmnt-by: FORPRIVACYNET-MNT\ncreated: 2021-08-31T19:06:52Z\nlast-modified: 2021-08-31T19:06:52Z\nsource: RIPE\norg: ORG-FA1168-RIPE\norganisation: ORG-FA1168-RIPE\norg-name: ForPrivacyNET\norg-type: OTHER\naddress: Steinweg 18/20\naddress: 53121 Bonn\naddress: Germany\nabuse-c: ACRO42986-RIPE\nmnt-ref: ZWIEBELFREUNDE\nmnt-by: FORPRIVACYNET-MNT\nmnt-by: ZWIEBELFREUNDE\ncreated: 2021-08-26T17:37:00Z\nlast-modified: 2021-09-27T18:22:06Z\nsource: RIPE # Filtered\nperson: Marco Maske\naddress: Steinweg 18/20\naddress: 53121 Bonn\naddress: Germany\nphone: +49\nfax-no: +49 228 92934876\nnic-hdl: MM55214-RIPE\nmnt-by: FORPRIVACYNET-MNT\ncreated: 2021-08-26T20:47:07Z\nlast-modified: 2021-09-27T17:52:49Z\nsource: RIPE\nroute: 185.220.101.0/24\norigin: AS60729\nmnt-by: ZWIEBELFREUNDE\nmnt-by: lir-de-renewablefreedom-1-MNT\ncreated: 2022-01-22T11:20:57Z\nlast-modified: 2024-02-12T10:24:45Z\nsource: RIPE\n"
+            },
+            "country": "DE",
+            "last_analysis_results": {
+              "Acronis": {
+                "method": "blacklist",
+                "engine_name": "Acronis",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "0xSI_f33d": {
+                "method": "blacklist",
+                "engine_name": "0xSI_f33d",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Abusix": {
+                "method": "blacklist",
+                "engine_name": "Abusix",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "ADMINUSLabs": {
+                "method": "blacklist",
+                "engine_name": "ADMINUSLabs",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "Axur": {
+                "method": "blacklist",
+                "engine_name": "Axur",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "ChainPatrol": {
+                "method": "blacklist",
+                "engine_name": "ChainPatrol",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Criminal IP": {
+                "method": "blacklist",
+                "engine_name": "Criminal IP",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "AILabs (MONITORAPP)": {
+                "method": "blacklist",
+                "engine_name": "AILabs (MONITORAPP)",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "AlienVault": {
+                "method": "blacklist",
+                "engine_name": "AlienVault",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "alphaMountain.ai": {
+                "method": "blacklist",
+                "engine_name": "alphaMountain.ai",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "AlphaSOC": {
+                "method": "blacklist",
+                "engine_name": "AlphaSOC",
+                "category": "suspicious",
+                "result": "suspicious"
+              },
+              "Antiy-AVL": {
+                "method": "blacklist",
+                "engine_name": "Antiy-AVL",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "ArcSight Threat Intelligence": {
+                "method": "blacklist",
+                "engine_name": "ArcSight Threat Intelligence",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "AutoShun": {
+                "method": "blacklist",
+                "engine_name": "AutoShun",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Bfore.Ai PreCrime": {
+                "method": "blacklist",
+                "engine_name": "Bfore.Ai PreCrime",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "BitDefender": {
+                "method": "blacklist",
+                "engine_name": "BitDefender",
+                "category": "malicious",
+                "result": "phishing"
+              },
+              "Bkav": {
+                "method": "blacklist",
+                "engine_name": "Bkav",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Blueliv": {
+                "method": "blacklist",
+                "engine_name": "Blueliv",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Certego": {
+                "method": "blacklist",
+                "engine_name": "Certego",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Chong Lua Dao": {
+                "method": "blacklist",
+                "engine_name": "Chong Lua Dao",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "CINS Army": {
+                "method": "blacklist",
+                "engine_name": "CINS Army",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Cluster25": {
+                "method": "blacklist",
+                "engine_name": "Cluster25",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "CRDF": {
+                "method": "blacklist",
+                "engine_name": "CRDF",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "CSIS Security Group": {
+                "method": "blacklist",
+                "engine_name": "CSIS Security Group",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Snort IP sample list": {
+                "method": "blacklist",
+                "engine_name": "Snort IP sample list",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "CMC Threat Intelligence": {
+                "method": "blacklist",
+                "engine_name": "CMC Threat Intelligence",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "CTX AI": {
+                "method": "blacklist",
+                "engine_name": "CTX AI",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Cyan": {
+                "method": "blacklist",
+                "engine_name": "Cyan",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Cyble": {
+                "method": "blacklist",
+                "engine_name": "Cyble",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "CyRadar": {
+                "method": "blacklist",
+                "engine_name": "CyRadar",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "DNS8": {
+                "method": "blacklist",
+                "engine_name": "DNS8",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Dr.Web": {
+                "method": "blacklist",
+                "engine_name": "Dr.Web",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Ermes": {
+                "method": "blacklist",
+                "engine_name": "Ermes",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "ESET": {
+                "method": "blacklist",
+                "engine_name": "ESET",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "ESTsecurity": {
+                "method": "blacklist",
+                "engine_name": "ESTsecurity",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "EmergingThreats": {
+                "method": "blacklist",
+                "engine_name": "EmergingThreats",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Emsisoft": {
+                "method": "blacklist",
+                "engine_name": "Emsisoft",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Forcepoint ThreatSeeker": {
+                "method": "blacklist",
+                "engine_name": "Forcepoint ThreatSeeker",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Fortinet": {
+                "method": "blacklist",
+                "engine_name": "Fortinet",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "G-Data": {
+                "method": "blacklist",
+                "engine_name": "G-Data",
+                "category": "malicious",
+                "result": "phishing"
+              },
+              "GCP Abuse Intelligence": {
+                "method": "blacklist",
+                "engine_name": "GCP Abuse Intelligence",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Google Safebrowsing": {
+                "method": "blacklist",
+                "engine_name": "Google Safebrowsing",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "GreenSnow": {
+                "method": "blacklist",
+                "engine_name": "GreenSnow",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "GreyNoise": {
+                "method": "blacklist",
+                "engine_name": "GreyNoise",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "Gridinsoft": {
+                "method": "blacklist",
+                "engine_name": "Gridinsoft",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Guardpot": {
+                "method": "blacklist",
+                "engine_name": "Guardpot",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "Heimdal Security": {
+                "method": "blacklist",
+                "engine_name": "Heimdal Security",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Hunt.io Intelligence": {
+                "method": "blacklist",
+                "engine_name": "Hunt.io Intelligence",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "IPsum": {
+                "method": "blacklist",
+                "engine_name": "IPsum",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Juniper Networks": {
+                "method": "blacklist",
+                "engine_name": "Juniper Networks",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Kaspersky": {
+                "method": "blacklist",
+                "engine_name": "Kaspersky",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "LevelBlue": {
+                "method": "blacklist",
+                "engine_name": "LevelBlue",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Lionic": {
+                "method": "blacklist",
+                "engine_name": "Lionic",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "Lumu": {
+                "method": "blacklist",
+                "engine_name": "Lumu",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "MalwarePatrol": {
+                "method": "blacklist",
+                "engine_name": "MalwarePatrol",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "MalwareURL": {
+                "method": "blacklist",
+                "engine_name": "MalwareURL",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Malwared": {
+                "method": "blacklist",
+                "engine_name": "Malwared",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Mimecast": {
+                "method": "blacklist",
+                "engine_name": "Mimecast",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Netcraft": {
+                "method": "blacklist",
+                "engine_name": "Netcraft",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "OpenPhish": {
+                "method": "blacklist",
+                "engine_name": "OpenPhish",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Phishing Database": {
+                "method": "blacklist",
+                "engine_name": "Phishing Database",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "PhishFort": {
+                "method": "blacklist",
+                "engine_name": "PhishFort",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "PhishLabs": {
+                "method": "blacklist",
+                "engine_name": "PhishLabs",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Phishtank": {
+                "method": "blacklist",
+                "engine_name": "Phishtank",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "PREBYTES": {
+                "method": "blacklist",
+                "engine_name": "PREBYTES",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "PrecisionSec": {
+                "method": "blacklist",
+                "engine_name": "PrecisionSec",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Quick Heal": {
+                "method": "blacklist",
+                "engine_name": "Quick Heal",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Quttera": {
+                "method": "blacklist",
+                "engine_name": "Quttera",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "SafeToOpen": {
+                "method": "blacklist",
+                "engine_name": "SafeToOpen",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Sansec eComscan": {
+                "method": "blacklist",
+                "engine_name": "Sansec eComscan",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Scantitan": {
+                "method": "blacklist",
+                "engine_name": "Scantitan",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "SCUMWARE.org": {
+                "method": "blacklist",
+                "engine_name": "SCUMWARE.org",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Seclookup": {
+                "method": "blacklist",
+                "engine_name": "Seclookup",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "SecureBrain": {
+                "method": "blacklist",
+                "engine_name": "SecureBrain",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "SOCRadar": {
+                "method": "blacklist",
+                "engine_name": "SOCRadar",
+                "category": "malicious",
+                "result": "phishing"
+              },
+              "Sophos": {
+                "method": "blacklist",
+                "engine_name": "Sophos",
+                "category": "malicious",
+                "result": "malware"
+              },
+              "StopForumSpam": {
+                "method": "blacklist",
+                "engine_name": "StopForumSpam",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Sucuri SiteCheck": {
+                "method": "blacklist",
+                "engine_name": "Sucuri SiteCheck",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "ThreatHive": {
+                "method": "blacklist",
+                "engine_name": "ThreatHive",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "URLhaus": {
+                "method": "blacklist",
+                "engine_name": "URLhaus",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "URLQuery": {
+                "method": "blacklist",
+                "engine_name": "URLQuery",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "Viettel Threat Intelligence": {
+                "method": "blacklist",
+                "engine_name": "Viettel Threat Intelligence",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "VIPRE": {
+                "method": "blacklist",
+                "engine_name": "VIPRE",
+                "category": "malicious",
+                "result": "malware"
+              },
+              "VX Vault": {
+                "method": "blacklist",
+                "engine_name": "VX Vault",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "ViriBack": {
+                "method": "blacklist",
+                "engine_name": "ViriBack",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Webroot": {
+                "method": "blacklist",
+                "engine_name": "Webroot",
+                "category": "malicious",
+                "result": "malicious"
+              },
+              "Yandex Safebrowsing": {
+                "method": "blacklist",
+                "engine_name": "Yandex Safebrowsing",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "ZeroCERT": {
+                "method": "blacklist",
+                "engine_name": "ZeroCERT",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "desenmascara.me": {
+                "method": "blacklist",
+                "engine_name": "desenmascara.me",
+                "category": "harmless",
+                "result": "clean"
+              },
+              "Xcitium Verdict Cloud": {
+                "method": "blacklist",
+                "engine_name": "Xcitium Verdict Cloud",
+                "category": "undetected",
+                "result": "unrated"
+              },
+              "ZeroFox": {
+                "method": "blacklist",
+                "engine_name": "ZeroFox",
+                "category": "undetected",
+                "result": "unrated"
+              }
+            },
+            "total_votes": {
+              "harmless": 0,
+              "malicious": 10
+            },
+            "as_owner": "Stiftung Erneuerbare Freiheit",
+            "regional_internet_registry": "RIPE NCC",
+            "continent": "EU",
+            "network": "185.220.101.0/24",
+            "tags": [
+              "tor"
+            ],
+            "last_modification_date": 1780090484
+          }
+        },
+        "output_shape": {
+          "id": "str",
+          "type": "str",
+          "links": {
+            "self": "str"
+          },
+          "attributes": {
+            "asn": "int",
+            "last_https_certificate": {
+              "public_key": {
+                "rsa": {
+                  "key_size": "int",
+                  "modulus": "str",
+                  "exponent": "str"
+                },
+                "algorithm": "str"
+              },
+              "thumbprint_sha256": "str",
+              "tags": [],
+              "signature_algorithm": "str",
+              "subject": {
+                "CN": "str"
+              },
+              "validity": {
+                "not_after": "str",
+                "not_before": "str"
+              },
+              "version": "str",
+              "extensions": {
+                "certificate_policies": [
+                  "str"
+                ],
+                "extended_key_usage": [
+                  "str"
+                ],
+                "authority_key_identifier": {
+                  "keyid": "str"
+                },
+                "subject_alternative_name": [
+                  "str"
+                ],
+                "tags": [],
+                "subject_key_identifier": "str",
+                "crl_distribution_points": [
+                  "str"
+                ],
+                "key_usage": [
+                  "str"
+                ],
+                "1.3.6.1.4.1.11129.2.4.2": "str",
+                "CA": "bool",
+                "ca_information_access": {
+                  "CA Issuers": "str",
+                  "OCSP": "str"
+                }
+              },
+              "cert_signature": {
+                "signature": "str",
+                "signature_algorithm": "str"
+              },
+              "serial_number": "str",
+              "thumbprint": "str",
+              "issuer": {
+                "C": "str",
+                "CN": "str",
+                "O": "str",
+                "OU": "str"
+              },
+              "size": "int"
+            },
+            "last_https_certificate_date": "int",
+            "rdap": {
+              "object_class_name": "str",
+              "handle": "str",
+              "start_address": "str",
+              "end_address": "str",
+              "ip_version": "str",
+              "name": "str",
+              "type": "str",
+              "country": "str",
+              "parent_handle": "str",
+              "status": [
+                "str"
+              ],
+              "links": [
+                {
+                  "href": "str",
+                  "rel": "str",
+                  "type": "str",
+                  "value": "str",
+                  "title": "str",
+                  "media": "str",
+                  "href_lang": []
+                }
+              ],
+              "notices": [
+                {
+                  "title": "str",
+                  "description": [
+                    "str"
+                  ],
+                  "links": [],
+                  "type": "str"
+                }
+              ],
+              "events": [
+                {
+                  "event_action": "str",
+                  "event_date": "str",
+                  "event_actor": "str",
+                  "links": []
+                }
+              ],
+              "rdap_conformance": [
+                "str"
+              ],
+              "entities": [
+                {
+                  "object_class_name": "str",
+                  "handle": "str",
+                  "vcard_array": [
+                    {
+                      "name": "str",
+                      "type": "str",
+                      "values": [
+                        "str"
+                      ],
+                      "parameters": {}
+                    }
+                  ],
+                  "roles": [
+                    "str"
+                  ],
+                  "links": [
+                    {
+                      "href": "str",
+                      "rel": "str",
+                      "value": "str",
+                      "type": "str",
+                      "title": "str",
+                      "media": "str",
+                      "href_lang": []
+                    }
+                  ],
+                  "public_ids": [],
+                  "entities": [],
+                  "remarks": [],
+                  "events": [],
+                  "as_event_actor": [],
+                  "status": [],
+                  "port43": "str",
+                  "networks": [],
+                  "autnums": [],
+                  "url": "str",
+                  "lang": "str",
+                  "rdap_conformance": []
+                }
+              ],
+              "port43": "str",
+              "cidr0_cidrs": [
+                {
+                  "v4prefix": "str",
+                  "length": "int",
+                  "v6prefix": "str"
+                }
+              ],
+              "remarks": [
+                {
+                  "description": [
+                    "str"
+                  ],
+                  "title": "str",
+                  "links": [],
+                  "type": "str"
+                }
+              ],
+              "arin_originas0_originautnums": []
+            },
+            "reputation": "int",
+            "whois_date": "int",
+            "last_analysis_stats": {
+              "malicious": "int",
+              "suspicious": "int",
+              "undetected": "int",
+              "harmless": "int",
+              "timeout": "int"
+            },
+            "last_analysis_date": "int",
+            "whois": {
+              "raw": [],
+              "data": "str"
+            },
+            "country": "str",
+            "last_analysis_results": {
+              "Acronis": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "0xSI_f33d": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Abusix": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ADMINUSLabs": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Axur": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ChainPatrol": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Criminal IP": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "AILabs (MONITORAPP)": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "AlienVault": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "alphaMountain.ai": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "AlphaSOC": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Antiy-AVL": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ArcSight Threat Intelligence": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "AutoShun": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Bfore.Ai PreCrime": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "BitDefender": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Bkav": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Blueliv": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Certego": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Chong Lua Dao": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "CINS Army": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Cluster25": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "CRDF": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "CSIS Security Group": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Snort IP sample list": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "CMC Threat Intelligence": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "CTX AI": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Cyan": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Cyble": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "CyRadar": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "DNS8": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Dr.Web": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Ermes": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ESET": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ESTsecurity": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "EmergingThreats": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Emsisoft": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Forcepoint ThreatSeeker": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Fortinet": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "G-Data": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "GCP Abuse Intelligence": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Google Safebrowsing": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "GreenSnow": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "GreyNoise": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Gridinsoft": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Guardpot": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Heimdal Security": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Hunt.io Intelligence": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "IPsum": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Juniper Networks": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Kaspersky": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "LevelBlue": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Lionic": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Lumu": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "MalwarePatrol": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "MalwareURL": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Malwared": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Mimecast": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Netcraft": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "OpenPhish": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Phishing Database": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "PhishFort": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "PhishLabs": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Phishtank": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "PREBYTES": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "PrecisionSec": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Quick Heal": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Quttera": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "SafeToOpen": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Sansec eComscan": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Scantitan": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "SCUMWARE.org": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Seclookup": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "SecureBrain": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "SOCRadar": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Sophos": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "StopForumSpam": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Sucuri SiteCheck": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ThreatHive": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "URLhaus": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "URLQuery": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Viettel Threat Intelligence": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "VIPRE": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "VX Vault": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ViriBack": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Webroot": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Yandex Safebrowsing": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ZeroCERT": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "desenmascara.me": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "Xcitium Verdict Cloud": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              },
+              "ZeroFox": {
+                "method": "str",
+                "engine_name": "str",
+                "category": "str",
+                "result": "str"
+              }
+            },
+            "total_votes": {
+              "harmless": "int",
+              "malicious": "int"
+            },
+            "as_owner": "str",
+            "regional_internet_registry": "str",
+            "continent": "str",
+            "network": "str",
+            "tags": [
+              "str"
+            ],
+            "last_modification_date": "int"
+          }
+        },
+        "output_top_keys": [
+          "attributes",
+          "id",
+          "links",
+          "type"
+        ],
+        "output_is_list": false,
+        "schema_cached": true
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01X98AjPa1cXzdtLLSe8yYTD",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortigate-firewall",
+        "q": "log traffic session"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01X98AjPa1cXzdtLLSe8yYTD",
+      "content": {
+        "matches": [],
+        "suggestion": "connector 'fortinet-fortigate-firewall' has no operations in the reference store. Verify the connector name with find_connector before searching its ops."
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 977,
+      "output_tokens": 165,
+      "cost_usd": 0.001442
+    },
+    {
+      "type": "text",
+      "text": "Excellent threat"
+    },
+    {
+      "type": "text",
+      "text": " intelligence on the C2 IP. Let me now search for any other hosts"
+    },
+    {
+      "type": "text",
+      "text": " that may have contacted this Tor exit node, and"
+    },
+    {
+      "type": "text",
+      "text": " check for any related incidents in the FortiSOAR instance"
+    },
+    {
+      "type": "text",
+      "text": ":"
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01XG1s3vArCSJMQ8w8YBvGKL",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortisiem",
+        "q": "incident"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01XG1s3vArCSJMQ8w8YBvGKL",
+      "content": {
+        "matches": [
+          {
+            "op_name": "clear_incident",
+            "title": "Clear Incident With Reason"
+          },
+          {
+            "op_name": "create_case",
+            "title": "Create Case"
+          },
+          {
+            "op_name": "get_associated_events",
+            "title": "Get Events For Incident (Deprecated)"
+          },
+          {
+            "op_name": "get_associated_events_new",
+            "title": "Get Events For Incident"
+          },
+          {
+            "op_name": "get_events_by_query_id",
+            "title": "Get Events Data By Query ID"
+          },
+          {
+            "op_name": "get_incident_attributes",
+            "title": "Get Event Attributes"
+          },
+          {
+            "op_name": "get_incident_details",
+            "title": "Get Incident Details"
+          },
+          {
+            "op_name": "get_incidents",
+            "title": "List Incidents"
+          },
+          {
+            "op_name": "incident_comment",
+            "title": "Comment Incident"
+          },
+          {
+            "op_name": "update_cases",
+            "title": "Update Case"
+          }
+        ]
+      }
+    },
+    {
+      "type": "tool_use",
+      "id": "toolu_01LxK53PrQgcSGCXyhyjE8Te",
+      "name": "find_operation",
+      "input": {
+        "connector": "fortinet-fortianalyzer",
+        "q": "traffic log"
+      },
+      "tier": 0
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01LxK53PrQgcSGCXyhyjE8Te",
+      "content": {
+        "matches": [],
+        "suggestion": "no operations matching 'traffic log' on 'fortinet-fortianalyzer'; this connector has 39 ops total \u2014 omit `q=` to list them all (or pass a more general keyword)."
+      }
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 14565,
+      "output_tokens": 181,
+      "cost_usd": 0.012376
+    },
+    {
+      "type": "text",
+      "text": "##"
+    },
+    {
+      "type": "text",
+      "text": " Hunt Summary (Incomplete Due to SIEM Unav"
+    },
+    {
+      "type": "text",
+      "text": "ailability)\n\n**Critical Finding:** 185.220.101"
+    },
+    {
+      "type": "text",
+      "text": ".47 is a **confirmed Tor exit node** (network T"
+    },
+    {
+      "type": "text",
+      "text": "OR-EXIT, AS60729, Germany) with"
+    },
+    {
+      "type": "text",
+      "text": " a **reputation score of \u221221** and flagged as **mal"
+    },
+    {
+      "type": "text",
+      "text": "icious by 14 threat intelligence vendors** (Ab"
+    },
+    {
+      "type": "text",
+      "text": "usix, Criminal IP, alphaMountain.ai"
+    },
+    {
+      "type": "text",
+      "text": ", BitDefender, Chong Lua Dao, G-"
+    },
+    {
+      "type": "text",
+      "text": "Data, GreyNoise, Guardpot, Lionic"
+    },
+    {
+      "type": "text",
+      "text": ", SOCRadar, Sophos, VIPRE, Webroot). The repeated"
+    },
+    {
+      "type": "text",
+      "text": " outbound connections from WIN-HR-04 to this IP strongly"
+    },
+    {
+      "type": "text",
+      "text": " indicate **C2 beaconing or malware exfiltration**.\n\n**"
+    },
+    {
+      "type": "text",
+      "text": "Blocker:** All three SIEM/log connectors are currently"
+    },
+    {
+      "type": "text",
+      "text": " disconnected:\n- **FortiSIEM** \u2014 connection timeout  "
+    },
+    {
+      "type": "text",
+      "text": "\n- **Splunk** \u2014 connection timeout  \n- **Elasticsearch** \u2014 unhealthy\n\n**What's Left:**"
+    },
+    {
+      "type": "text",
+      "text": "\n1. Restore connectivity to at least one SIEM (FortiSIEM preferred) to query"
+    },
+    {
+      "type": "text",
+      "text": " events linking WIN-HR-04 \u2194 185.220.101.47, identify affected"
+    },
+    {
+      "type": "text",
+      "text": " users, and detect lateral movement.\n2. Check FortiAnalyzer/FortiG"
+    },
+    {
+      "type": "text",
+      "text": "ate logs for the host's full traffic footprint and any"
+    },
+    {
+      "type": "text",
+      "text": " other internal IPs contacting the C2.\n3. Isolate WIN"
+    },
+    {
+      "type": "text",
+      "text": "-HR-04 and stage containment actions once host/user"
+    },
+    {
+      "type": "text",
+      "text": " context is confirmed.\n\n**Next Step:** Fix the FortiSIEM connector \u2014 verify credentials"
+    },
+    {
+      "type": "text",
+      "text": ", host IP, and network reachability, then re-run the health"
+    },
+    {
+      "type": "text",
+      "text": " check. Once online, I'll immediately pull the event correl"
+    },
+    {
+      "type": "text",
+      "text": "ations and pivot to users/lateral movement."
+    },
+    {
+      "type": "usage",
+      "model": "claude-haiku-4-5-20251001",
+      "input_tokens": 24812,
+      "output_tokens": 402,
+      "cost_usd": 0.021458
+    }
+  ],
+  "last_assistant_yaml": null,
+  "tags": {
+    "session_id": "live-harness-hunt",
+    "intent": "triage",
+    "intent_text": "Alert: host WIN-HR-04 (10.10.20.55) made repeated outbound connections to 185.22"
+  },
+  "error": null
+}

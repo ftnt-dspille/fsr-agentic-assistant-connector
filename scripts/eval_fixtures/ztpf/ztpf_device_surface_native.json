@@ -1,0 +1,56 @@
+{
+  "_README": [
+    "The same captured ZTPF device surface as `ztpf_device_surface`, presented",
+    "the way an 8.0 box presents it: personas come from the `assistant_personas`",
+    "MODULE (not the legacy Key Store), and the `assistant_skills` module carries",
+    "learned house rules.",
+    "",
+    "WHY A VARIANT AND NOT A FLAG ON THE BASE BUNDLE: the legacy Key Store path",
+    "is still shipped and still resolves personas on pre-8.0 boxes, so the",
+    "existing rows must keep exercising it. Two substrates, two bundles, one",
+    "capture -- `extends` means the records cannot drift apart.",
+    "",
+    "The house rules below are deliberately CHECKABLE against this capture: the",
+    "playbook named in the first rule is a real active record-action playbook in",
+    "the bundle. A seeded skill that names a playbook the box does not have",
+    "teaches the assistant a name that fails, and is worse than no skill at all."
+  ],
+  "extends": "ztpf_device_surface",
+  "persona_source": "module",
+  "skills": [
+    {
+      "uuid": "11111111-0000-4000-8000-000000000001",
+      "scopeModule": "ztpf_devices",
+      "trigger": "when asked to run pending automation steps",
+      "instruction": "To execute pending automation steps on a device, run the playbook 'Create Run Group and Execute Steps' -- it groups the pending steps and executes them. Never invent a playbook name; list the module's playbooks if unsure.",
+      "enabled": true,
+      "priority": 20,
+      "source": "analyst"
+    },
+    {
+      "uuid": "11111111-0000-4000-8000-000000000002",
+      "scopeModule": "ztpf_devices",
+      "trigger": "when summarizing what was done to a device",
+      "instruction": "Always state how many automation steps you looked at, and say so explicitly when the result set was truncated rather than summarizing only the first page.",
+      "enabled": true,
+      "priority": 10,
+      "source": "analyst"
+    },
+    {
+      "uuid": "11111111-0000-4000-8000-000000000003",
+      "scopeModule": "ztpf_templates",
+      "instruction": "This rule is scoped to another module and must NOT reach a ztpf_devices turn.",
+      "enabled": true,
+      "priority": 99,
+      "source": "analyst"
+    },
+    {
+      "uuid": "11111111-0000-4000-8000-000000000004",
+      "scopeModule": "ztpf_devices",
+      "instruction": "This rule is disabled and must NOT reach any turn.",
+      "enabled": false,
+      "priority": 99,
+      "source": "analyst"
+    }
+  ]
+}

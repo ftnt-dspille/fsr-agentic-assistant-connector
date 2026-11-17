@@ -1,0 +1,32 @@
+{
+ "name": "ka_auto_c2_beacon",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_c2_beacon",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "auto_triage": true,
+ "why": [
+  "AUTO-TRIAGE row (tier-1 phase A gate): the auto_triage op's own prompt and record shape,",
+  "on the C2-beacon world. Nobody is watching, so the turn must end on a delivered",
+  "true_positive verdict AND a staged containment card: that card is what puts the alert",
+  "in the review queue. A right verdict with nothing staged reaches no human at all."
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive"
+   ]
+  },
+  "escalates": {
+   "needs_human": true,
+   "why": [
+    "awaiting_approval"
+   ]
+  }
+ }
+}

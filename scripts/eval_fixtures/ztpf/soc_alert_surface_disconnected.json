@@ -1,0 +1,56 @@
+{
+  "_README": [
+    "The default offline box plus a configured ServiceNow, with FortiGate and",
+    "ServiceNow configured but Disconnected -- the main lab box's state when a",
+    "designer build swapped both for placeholders. Configured is the bar for",
+    "authoring; a build row on this box must still wire both."
+  ],
+  "extends": "soc_alert_surface",
+  "configured_connectors": [
+    {
+      "name": "fortinet-fortiedr",
+      "status": "Completed",
+      "version": "3.1.0",
+      "label": "Fortinet FortiEDR",
+      "config_count": 1
+    },
+    {
+      "name": "fortigate-firewall",
+      "status": "Completed",
+      "version": "5.1.0",
+      "label": "Fortinet FortiGate",
+      "config_count": 1,
+      "health": "Disconnected"
+    },
+    {
+      "name": "virustotal",
+      "status": "Completed",
+      "version": "3.0.0",
+      "label": "VirusTotal",
+      "config_count": 1
+    },
+    {
+      "name": "fortinet-fortisiem",
+      "status": "Completed",
+      "version": "4.0.0",
+      "label": "Fortinet FortiSIEM",
+      "config_count": 1
+    },
+    {
+      "name": "smtp",
+      "status": "Completed",
+      "version": "2.6.0",
+      "label": "SMTP",
+      "config_count": 1
+    },
+    {
+      "name": "servicenow",
+      "status": "Completed",
+      "version": "3.4.0",
+      "label": "ServiceNow",
+      "config_count": 1,
+      "health": "Disconnected"
+    }
+  ],
+  "modules": {}
+}

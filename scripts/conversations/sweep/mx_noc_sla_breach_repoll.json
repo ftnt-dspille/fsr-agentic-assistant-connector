@@ -1,0 +1,26 @@
+{
+  "name": "mx_noc_sla_breach_repoll",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "noc_sla_breach_repoll",
+  "why": [
+    "Product-path twin of eval-matrix task 'noc_sla_breach_repoll'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook. Trigger: an incident in the incidents module is updated such that its `slaPercentage` field changes AND its severity is High or Critical. Behavior: page the queue's primary on-call user via PagerDuty with the incident details. Then wait 15 minutes. After the delay, re-read the same incident from the incidents module to check its `ackDate` field. If it's still empty, page the on-call's manager via PagerDuty AND update the incident's severity to one notch higher (High -> Critical; Critical stays Critical, but add a comment 'Already at top severity'). If acknowledged, just finish. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "noc_sla_breach_repoll"
+  }
+}

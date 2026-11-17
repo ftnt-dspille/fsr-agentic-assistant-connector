@@ -1,0 +1,13 @@
+{
+  "max_tool_turns": null,
+  "system": "PERSONA PROMPT FOR ALERTS.",
+  "tags": {
+    "intent": "build",
+    "resume": "approve",
+    "session_id": "golden-resume-persona"
+  },
+  "tools": [
+    "get_record",
+    "test_template"
+  ]
+}

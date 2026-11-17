@@ -1,0 +1,20 @@
+{
+  "_README": [
+    "soc_alert_surface_servicenow plus playbooks the analyst already has on the",
+    "box, for goals that call an existing playbook rather than rebuild it. The",
+    "build has to FIND 'Block IP - Shared' (find kind=playbook) and reference",
+    "it by its uuid; a world without it can only score a guess."
+  ],
+  "extends": "soc_alert_surface_servicenow",
+  "playbooks": [
+    {
+      "@id": "/api/3/workflows/6f1c2a8e-0b7d-4c4e-9a51-3d2f7e1b9c10",
+      "uuid": "6f1c2a8e-0b7d-4c4e-9a51-3d2f7e1b9c10",
+      "name": "Block IP - Shared",
+      "description": "Blocks one IP on the FortiGate. Called by other playbooks.",
+      "parameters": ["ip"],
+      "isActive": true,
+      "collection": "/api/3/workflow_collections/0c8b3f62-55d1-4f0e-8d4c-2b7a9e6f1a33"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "ztpf_real_whats_going_on",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. The most common ask in the history: a status read of the device on screen.",
+    "In this world the last two run groups failed at the firmware-upgrade step and one failed step sits ungrouped. An answer that summarizes the device without saying it is failing upgrades missed the point."
+  ],
+  "steps": [
+    {
+      "user": "what is going on with this device?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "search_module_records"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "Upgrade Firmware via Target Firmware in Spreadsheets"
+      ],
+      "any_of": [
+        "fail"
+      ]
+    },
+    "no_unserved_reads": true
+  }
+}

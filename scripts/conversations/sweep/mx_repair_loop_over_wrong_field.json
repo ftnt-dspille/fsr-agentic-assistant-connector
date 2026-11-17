@@ -1,0 +1,30 @@
+{
+  "name": "mx_repair_loop_over_wrong_field",
+  "category": "repair_matrix",
+  "intent": "build",
+  "from_task": "repair_loop_over_wrong_field",
+  "playbook": "matrix:repair_loop_over_wrong_field",
+  "why": [
+    "Eval-matrix repair task on the product path: the broken playbook is",
+    "OPEN in the designer (comments and fixture header stripped, so the",
+    "cause is not written on the page) and the analyst reports only the",
+    "symptom. Graded by the task's own ir_assertions (behaves): the fix",
+    "must address the cause without rerouting the gate. The prompt is the",
+    "task's, with 'return the corrected complete YAML' -> 'fix it' --",
+    "the designer's idiom; tests/test_build_matrix_rows.py pins the rest."
+  ],
+  "steps": [
+    {
+      "user": "This playbook is supposed to score every sender IP on the alert, but on the box the VirusTotal step ran exactly once regardless of how many IPs the alert carried, the high-score list came back empty, and the analyst was never asked. Find the defect and fix it. Change nothing else."
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "complete_every_turn": true,
+    "tools_are_real": true,
+    "no_step_loss": true,
+    "yaml_compiles": true,
+    "delivered_terminal": true,
+    "behaves": "repair_loop_over_wrong_field"
+  }
+}

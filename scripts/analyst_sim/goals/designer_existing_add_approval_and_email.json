@@ -1,0 +1,25 @@
+{
+  "name": "designer_existing_add_approval_and_email",
+  "why": "Enhance a real shipped playbook across two Applies; nothing it already had may disappear.",
+  "playbook": "real_manual_input_block_ipv4.yaml",
+  "goal": "The playbook open in the designer blocks IPv4 addresses with a manual task. Keep everything it already does. First, add a step at the end that emails a summary to soc@example.com. Apply that. Then ask to rename the manual task to 'Approve IPv4 Block'. You are unhappy if any existing step disappears.",
+  "requirements": [
+    {
+      "kind": "connector_op",
+      "connector": "smtp",
+      "note": "email summary"
+    },
+    {
+      "kind": "step_type_present",
+      "type": "manual_input",
+      "note": "the manual task is still there"
+    },
+    {
+      "kind": "arg_text_contains",
+      "contains": "soc@example.com",
+      "note": "emails the right address"
+    }
+  ],
+  "intent": "build",
+  "max_turns": 10
+}

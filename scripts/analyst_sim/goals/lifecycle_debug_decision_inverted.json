@@ -1,0 +1,34 @@
+{
+ "name": "lifecycle_debug_decision_inverted",
+ "why": "Debug leg (explain-only): containment fired on the wrong alerts. Inherits the inverted-decision broken playbook. Graded on whether the diagnosis names the real defect -- the reputation gate's comparison is backwards (routes to block when the score is BELOW the threshold, not above), so malicious IPs take the default arm and clean ones get blocked -- a routing-logic defect, not a parameter or loop one. Graded on the diagnosis, not on reaching a diagnostic tool.",
+ "inherit_matrix": "repair_decision_inverted",
+ "goal": "This phishing playbook ran on the box and reported success, but it blocked the wrong alerts -- malicious sender IPs went through untouched while a couple of clean ones were quarantined. Explain WHY. Do not change the playbook, just tell me the cause.",
+ "explain_only": true,
+ "diagnosis_contains": [
+  [
+   "backwards",
+   "inverted",
+   "reversed",
+   "wrong direction",
+   "the wrong way",
+   "flipped",
+   "should be greater",
+   "should be >",
+   "swap the",
+   "swapped",
+   "ought to be above",
+   "block when it is below",
+   "blocks the low"
+  ],
+  [
+   "reputation",
+   "threshold",
+   "score",
+   "gate",
+   "decision",
+   "comparison"
+  ]
+ ],
+ "records": "soc_alert_surface_servicenow",
+ "defect": "The reputation gate's comparison is backwards -- it routes to the block when reputation is below 50 (< 50) instead of above 50 (> 50) -- so malicious high-reputation IPs take the clean default arm and clean low-reputation ones get blocked."
+}

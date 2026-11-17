@@ -1,0 +1,41 @@
+{
+ "name": "ka_policy_would_close_fp",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_authorized_scanner_close_policy",
+ "persona": "fixture",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02"
+ },
+ "why": [
+  "KNOWN-ANSWER policy row (must fire; phase F close rule). The org's own scanner in its",
+  "change window: a false_positive or benign verdict that cites the asset lookup, then a",
+  "close of THIS alert (status Closed), meets every check of close-false-positive. The",
+  "approval card must carry would_act -- and still wait for a click (shadow)."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert and give me your verdict. If it is a false positive, close it with the right closure reason for my approval."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "benign",
+    "false_positive"
+   ]
+  },
+  "reads": {
+   "required": [
+    "/api/3/assets"
+   ]
+  },
+  "policy_decided": {
+   "outcome": "would_act",
+   "rule": "close-false-positive"
+  }
+ }
+}

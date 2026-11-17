@@ -1,0 +1,47 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.tgz
+*.egg-info/
+history.db
+
+# fsr_playbooks is NO LONGER vendored -- it's a pinned pip dependency
+# (fsr-playbooks== in requirements.txt), installed into the connector venv and
+# materialized as a wheel by scripts/build.sh. These dirs are legacy
+# pre-migration vendoring artifacts: ignore them, and they're excluded from the
+# tarball. Safe to delete from a working tree.
+connector-fsr-agentic-assistant/fsr_playbooks/
+connector-fsr-agentic-assistant/fsr_core/
+connector-fsr-agentic-assistant/store/
+# Pinned fsr_playbooks wheel materialized into the bundle at build time
+# (scripts/build.sh, Phase 2.3) -- large binary, regenerated every build.
+connector-fsr-agentic-assistant/wheels/
+# Empty runtime DB placeholder: the connector's real store is ~/.connector_fsr_agentic_assistant.db
+connector-fsr-agentic-assistant/storage.db
+dist/
+
+# Live-drive run artifacts (prompt_loop / loop exports) -- not source.
+exports/
+
+# Keep the env template (global gitignore ignores .env.*)
+!.env.example
+
+# one-shot diagnostic/scratch helpers (kept on disk, untracked going forward).
+# Scoped to single-underscore names so __init__.py etc. are unaffected.
+scripts/_[a-z]*.py
+
+# Local scratch: diagnosis notes, one-off wiring scripts. Never shipped.
+scratchpad/
+
+# Ungated-ship audit trail (scripts/deploy.sh, tracker #65) -- local record.
+.ship-ungated.log
+.venv_ci_mirror/
+
+# Local-only infra-leak deny patterns (scripts/check_infra_leaks.py)
+scripts/infra_patterns.local.json
+
+# Local framework source for dev pushes (scripts/ship_dev.sh); per checkout.
+.fsr_src
+scratch/

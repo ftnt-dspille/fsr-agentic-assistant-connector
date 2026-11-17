@@ -1,0 +1,26 @@
+{
+  "name": "mx_manual_input_branch",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "manual_input_branch",
+  "why": [
+    "Product-path twin of eval-matrix task 'manual_input_branch'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook with a manual trigger that pauses on a manual_input step with two options ('approve' and 'reject'). Each option routes to a different set_variable step that stamps the chosen verdict. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "manual_input_branch"
+  }
+}

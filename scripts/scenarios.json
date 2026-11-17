@@ -1,0 +1,108 @@
+{
+  "_README": {
+    "doc": [
+      "Scenarios for scripts/prompt_loop.py. Each key (except _README) is a",
+      "scenario: {intent: 'triage'|'build', entity?: '<record IRI>', turns: [user msgs]}.",
+      "Each string in `turns` is one conversation turn (multi-turn = list of >1).",
+      "",
+      "Run one:   prompt_loop.py --file scripts/scenarios.json --scenario ip_triage",
+      "Run all:   prompt_loop.py --file scripts/scenarios.json --all",
+      "With push: add --push to deploy.sh --bump patch ONCE before the run.",
+      "",
+      "FULL build->see->run proof (drive turns -> accept offer -> push -> verify",
+      "in FortiSOAR -> trigger & poll to finished, exit 0 only if all pass):",
+      "  build_run_proof.py --file scripts/scenarios.json --scenario enrich_then_build",
+      "Use a scenario whose LAST turn asks to SAVE/build a playbook (so the agent",
+      "emits a playbook_offer card). enrich_then_build is the canonical one.",
+      "Override:  --entity <IRI> / --intent <triage|build> override the scenario.",
+      "",
+      "EDIT the `entity` IRIs to records that exist on your box. `null` = no record",
+      "context (the agent works from the prompt text alone). Find a live incident:",
+      "  GET /api/3/incidents?$limit=1&$orderby=-createDate"
+    ]
+  },
+
+  "ip_triage": {
+    "intent": "triage",
+    "entity": "/api/3/incidents/65f9f6fa-493b-4ab9-a7cd-a0a66bedcace",
+    "turns": [
+      "Triage this incident. Pull the SIEM events, pivot on every external IP you find, and enrich them. Summarize the verdict."
+    ]
+  },
+
+  "host_pivot": {
+    "intent": "triage",
+    "entity": "/api/3/incidents/65f9f6fa-493b-4ab9-a7cd-a0a66bedcace",
+    "turns": [
+      "Investigate the host(s) in this incident. Pull each host's recent FortiSIEM activity and any related alerts, then tell me if it looks compromised."
+    ]
+  },
+
+  "enrich_then_build": {
+    "intent": "triage",
+    "entity": null,
+    "turns": [
+      "look up ip 87.224.7.73 and tell me if it's malicious",
+      "Design a re-runnable FortiSOAR playbook that automates that IP enrichment and parameterize it so it re-runs on similar cases. Produce the playbook YAML."
+    ]
+  },
+
+  "containment_stage": {
+    "intent": "triage",
+    "entity": "/api/3/incidents/65f9f6fa-493b-4ab9-a7cd-a0a66bedcace",
+    "turns": [
+      "Triage this incident, and if any external IP is malicious, stage a FortiGate block for it (do not execute — just prepare the action card with the correct parameters)."
+    ]
+  },
+
+  "record_enrich_build": {
+    "intent": "triage",
+    "entity": "/api/3/incidents/65f9f6fa-493b-4ab9-a7cd-a0a66bedcace",
+    "turns": [
+      "Triage this incident. Look up the external destination IP from the record and tell me if it's malicious.",
+      "Save this investigation as a re-runnable playbook that re-runs on any incident — pull the IP from the triggering record, not a fixed value."
+    ]
+  },
+
+  "siem_raw_query": {
+    "intent": "triage",
+    "entity": null,
+    "turns": [
+      "Use FortiSIEM to find any events in the last 24h involving source IP 10.50.60.70, then pivot to its destinations and summarize what you see."
+    ]
+  },
+
+  "user_pivot": {
+    "intent": "triage",
+    "entity": "/api/3/incidents/65f9f6fa-493b-4ab9-a7cd-a0a66bedcace",
+    "turns": [
+      "Identify the user account associated with this incident, pull its recent FortiSIEM activity, and check whether it has sessions from other hosts or unusual locations."
+    ]
+  },
+
+  "_INTERLEAVE_README": {
+    "doc": [
+      "interleave_triage_author_enhance is the Phase-0 oracle arc (state-derived-",
+      "intent-and-tool-slicing plan): ONE session that crosses triage -> hunt ->",
+      "author -> record-edit -> enhance. Under the current single-intent LATCH no",
+      "run can serve the whole arc — the deterministic proof is",
+      "tests/test_interleave_oracle.py. Driving this scenario with a real model",
+      "(--llm frank) is the live counterpart: the agent narrates toward authoring",
+      "at turn 3 but the triage-latched slice withholds compile/verify/offer, and",
+      "the enhance turn withholds the enhance write pair. `intent` is triage",
+      "because the widget is mounted on an incident (the page prior)."
+    ]
+  },
+
+  "interleave_triage_author_enhance": {
+    "intent": "triage",
+    "entity": "/api/3/incidents/65f9f6fa-493b-4ab9-a7cd-a0a66bedcace",
+    "turns": [
+      "Triage this incident: pull the external destination IP from the record and tell me if it's malicious.",
+      "Hunt the host involved — pull its recent FortiSIEM activity and any related alerts.",
+      "Now author a re-runnable FortiSOAR playbook that automates this IP enrichment, parameterized off the triggering record. Produce the YAML.",
+      "Actually, change this incident's type to Phishing first.",
+      "Good. Now enhance that playbook: add a step that also enriches the host, and re-verify it."
+    ]
+  }
+}

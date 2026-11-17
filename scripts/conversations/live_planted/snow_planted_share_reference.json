@@ -1,0 +1,16 @@
+{
+  "name": "snow_planted_share_reference",
+  "category": "planted_needle",
+  "intent": "triage",
+  "planted": {"scenario": "snow_incident_needle"},
+  "why": [
+    "Live-only: searches by a phrase that appears only in the needle's description (a share name), not in its short description, so a title-only search misses it. The token is never in the message."
+  ],
+  "steps": [
+    {"user": "Check ServiceNow for an open incident that references the Quarterly-Review share and tell me what was reported."}
+  ],
+  "expect": {
+    "planted_token": {"labels": ["needle"]},
+    "planted_not_shown": {"labels": ["distractor_similar", "distractor_other_host"]}
+  }
+}

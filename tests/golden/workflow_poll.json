@@ -1,0 +1,23 @@
+{
+  "@context": "/wf/api/workflows/context/",
+  "hydra:nextPage": null,
+  "hydra:previousPage": null,
+  "hydra:totalItems": 1,
+  "hydra:itemsPerPage": 1,
+  "hydra:firstPage": "/wf/api/workflows/?format=json&limit=1&ordering=-modified&parent_wf__isnull=True&task_id=04814c5a-fb99-45f7-9135-a93ba245cd58",
+  "hydra:lastPage": "/wf/api/workflows/?format=json&limit=1&offset=0&ordering=-modified&parent_wf__isnull=True&task_id=04814c5a-fb99-45f7-9135-a93ba245cd58",
+  "hydra:member": [
+    {
+      "@id": "/wf/api/workflows/682452/",
+      "name": "Probe Manual Input",
+      "status": "awaiting",
+      "created": "2026-05-29T12:34:54.038061Z",
+      "modified": "2026-05-29T12:34:54.394207Z",
+      "parent_wf": null,
+      "tags": "",
+      "debug": true,
+      "node_name": "fsr-1",
+      "@type": "Workflow"
+    }
+  ]
+}

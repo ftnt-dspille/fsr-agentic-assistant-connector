@@ -1,0 +1,17 @@
+{
+  "name": "snow_planted_affected_host",
+  "category": "planted_needle",
+  "intent": "triage",
+  "planted": {"scenario": "snow_incident_needle"},
+  "why": [
+    "Live-only: the analyst does not name the host. A large archive left for an external address overnight; has anyone filed a ServiceNow ticket, and which host does it name? The host and the incident number are only in the ServiceNow record, so both must come from a tool result. The row grades the host plus the incident number, not the planted token: a correct answer need not quote the ticket's wording."
+  ],
+  "steps": [
+    {"user": "DLP flagged a large archive leaving for an external address overnight. Has anyone opened a ServiceNow incident about it, and which host does it name?"}
+  ],
+  "expect": {
+    "host_and_incident": {"host": "build-07"},
+    "planted_not_shown": {"labels": ["distractor_similar", "distractor_other_host"]},
+    "reports": {"all_of": ["build-07"]}
+  }
+}

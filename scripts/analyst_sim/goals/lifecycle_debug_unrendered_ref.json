@@ -1,0 +1,32 @@
+{
+ "name": "lifecycle_debug_unrendered_ref",
+ "why": "Debug leg (explain-only): the block received literal template text instead of the IP. Inherits the unrendered-ref broken playbook. Graded on whether the diagnosis names the real defect -- the reference is missing its double braces so FSR never renders it and passes the raw template text through -- distinct from bad_step_ref (right braces, wrong name, empty value). Graded on the diagnosis, not on reaching a diagnostic tool.",
+ "inherit_matrix": "repair_unrendered_ref",
+ "goal": "This playbook ran on the box and reported success, but the FortiGate block did nothing useful -- the run log shows it was handed the literal text that looks like a variable path, not the IP the analyst typed. Explain WHY. Do not change the playbook, just tell me the cause.",
+ "explain_only": true,
+ "diagnosis_contains": [
+  [
+   "braces",
+   "double braces",
+   "{{",
+   "not rendered",
+   "unrendered",
+   "not evaluated",
+   "template",
+   "not a jinja",
+   "missing the jinja",
+   "literal",
+   "plain string",
+   "as text"
+  ],
+  [
+   "ip_addresses",
+   "the reference",
+   "the variable",
+   "the path",
+   "target_ip"
+  ]
+ ],
+ "records": "soc_alert_surface_servicenow",
+ "defect": "The block step's ip_addresses value is written without the surrounding {{ }} Jinja braces, so FSR never evaluates it and passes the literal template text through to the firewall instead of the resolved IP."
+}

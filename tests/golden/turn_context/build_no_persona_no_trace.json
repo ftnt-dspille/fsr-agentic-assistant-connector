@@ -1,0 +1,29 @@
+{
+  "tools": [
+    "find",
+    "get_op_schema",
+    "plan_playbook",
+    "verify_playbook",
+    "picklist",
+    "compose_playbook",
+    "emit_card",
+    "run_playbook",
+    "list_configured_connectors",
+    "list_playbook_runs",
+    "why_did_playbook_fail",
+    "resume_playbook",
+    "list_module_playbooks"
+  ],
+  "turn_context": "## Turn context (a prior, not a cage)\nWorking prior: **build**. Page state: no page state was provided. The full tool surface is available to you regardless of this prior -- if the analyst's request crosses into other work (triage from the editor, authoring from an alert), follow the request, not the prior.\nDisposition: you are authoring a playbook. This turn uses the playbook tools only: the live investigation surface (record reads, hunts, run_op, action cards) is not available here. Ground your steps with the playbook tools -- find(kind='field', module=...) for a record's fields, get_op_schema for an operation's inputs and output, why_did_playbook_fail / list_playbook_runs for what a run did, verify_playbook to check a draft. A live action the analyst wants becomes a step in the playbook, not a call now.",
+  "sections": [
+    "# Route the ask first",
+    "# Workflow",
+    "# The open playbook (the designer mount)",
+    "# Native step types vs connector operations",
+    "# Triage to build handoff",
+    "# Quick-action modes",
+    "# How your reply reads",
+    "## Turn context (a prior, not a cage)",
+    "## Constraints (stated up front)"
+  ]
+}

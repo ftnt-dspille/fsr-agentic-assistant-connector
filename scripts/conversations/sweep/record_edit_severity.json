@@ -1,0 +1,28 @@
+{
+  "name": "record_edit_severity",
+  "category": "record_ops",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "update_record only recently became reachable. The failure targeted",
+    "here is the quiet one: the agent reports the edit as done, called",
+    "nothing, and the analyst has no reason to check."
+  ],
+  "steps": [
+    {
+      "user": "This is a true positive -- set the severity on this alert to Critical."
+    },
+    {
+      "user": "What did you actually change?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "claims_backed": { "require_attempt": true }
+  }
+}

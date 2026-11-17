@@ -1,0 +1,44 @@
+{
+ "name": "designer_call_existing_playbook",
+ "why": "Reference playbook that ALREADY exists on the box: the build has to find it and call it, not rebuild the block.",
+ "playbook": "designer_empty_playbook.yaml",
+ "records": "soc_alert_surface_shared_playbooks",
+ "goal": "Build a playbook that runs when an alert is created: ask an analyst to approve blocking the alert's source IP, and if they approve, call our existing playbook named 'Block IP - Shared' with the IP. Do not rebuild the block yourself; that shared playbook already does it and our other playbooks use it too.",
+ "requirements": [
+  {
+   "kind": "step_type_present",
+   "type": "manual_input",
+   "note": "approval"
+  },
+  {
+   "kind": "step_type_present",
+   "type": "workflow_reference",
+   "note": "calls the shared playbook"
+  },
+  {
+   "kind": "step_type_absent",
+   "type": "connector",
+   "note": "did not rebuild the block"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  },
+  {
+   "kind": "arg_text_absent",
+   "type": "start_on_create",
+   "contains": "workflows",
+   "note": "trigger is not the designer's own record"
+  },
+  {
+   "kind": "arg_text_contains",
+   "type": "workflow_reference",
+   "contains": "6f1c2a8e-0b7d-4c4e-9a51-3d2f7e1b9c10",
+   "note": "calls THAT playbook, by its id"
+  }
+ ],
+ "intent": "build",
+ "max_turns": 10
+}

@@ -1,0 +1,6 @@
+{
+ "_README": "KNOWN-ANSWER world: the ka_c2_beacon evidence, time-aware and re-anchored so the alert is 26h old at load time, and the beacon ends when it fires. The SIEM serves only events inside the query's timeRange, so a 2h lookback comes back empty and the answer needs a window that reaches the alert.",
+ "extends": "ka_c2_beacon",
+ "time_aware": true,
+ "time_anchor": {"alert_age_hours": 26, "events_end_at_alert": true}
+}

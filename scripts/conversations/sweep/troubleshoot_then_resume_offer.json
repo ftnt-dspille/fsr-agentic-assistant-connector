@@ -1,0 +1,27 @@
+{
+  "name": "troubleshoot_then_resume_offer",
+  "category": "troubleshoot",
+  "intent": "build",
+  "playbook": "broken_create_record_missing_module.yaml",
+  "why": [
+    "The halt/resume round trip, where approve-never-executes hid: the",
+    "turn must halt with a handle the widget can resume, and the resume",
+    "must come back coherently rather than 'unknown tool'."
+  ],
+  "steps": [
+    {
+      "user": "This playbook never creates the record. Diagnose it and offer me the fix."
+    },
+    {
+      "resume": {
+        "decision": "accept"
+      }
+    }
+  ],
+  "expect": {
+    "no_beg_for_yaml": true,
+    "tools_are_real": true,
+    "halts_resumable": true,
+    "resume_round_trip": true
+  }
+}

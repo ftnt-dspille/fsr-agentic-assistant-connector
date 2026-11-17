@@ -1,0 +1,28 @@
+{
+  "name": "ztpf_change_history_on_device",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {"module": "ztpf_devices", "uuid": "5b23794a-a657-4169-97d3-98698126d59f"},
+  "why": [
+    "\"What have we changed on this box?\" -- the audit question. It is not the",
+    "same as summarizing one run group: the answer spans EIGHT run groups and",
+    "23 steps, so it forces the grouping the analyst FIXMEs asked for (by run",
+    "group, steps in stepNumber order) and it is the scenario most likely to",
+    "be answered from a truncated first page and presented as complete.",
+    "Deliberately phrased the way an engineer phrases it, not in module terms."
+  ],
+  "steps": [
+    {"user": "Hey -- on this device, what have we done to make changes? Make me a list."}
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {"any_of": ["search_module_records", "get_record"]},
+    "reports": {
+      "all_of": ["ztpf-1785337128"],
+      "any_of": ["loopback", "SingleLo", "interface"]
+    }
+  }
+}

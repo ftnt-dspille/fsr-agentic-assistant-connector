@@ -1,0 +1,79 @@
+{
+  "name": "ztpf_reorder_profile_steps",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_profiles",
+  "persona": "fixture",
+  "records": "ztpf_profile_builder",
+  "mount": {
+    "module": "ztpf_automation_profiles",
+    "uuid": "bdcaca15-2f75-4e4d-a177-3a35c9b4d91c"
+  },
+  "why": [
+    "Reorder with a hidden dependency. Swapping the routing-table capture ahead of the status capture (before AND after the upgrade) moves steps 1<->2 and 4<->5 -- and the two diff steps reference those by NUMBER (`diff_steps: 1,4` / `2,5`). A reorder that only rewrites stepSequence leaves both diffs comparing the wrong captures; the right edit also swaps their diff_steps.",
+    "Nothing is added or removed: still 7 steps, contiguous.",
+    "Graded on the WORLD (`world_after`): the bundle is `writable`, each approved card applies, and the resulting records are read back. Card-level graders pass a build with an invented action link, duplicate stepSequence, or a copied firmware version; this does not.",
+    "Moves go through the `Move Step Number on Automation Profile` playbook (it renumbers every step); the two diff steps' stepARGS are the approved writes read back, so min_writes is 2. The order and the args are graded on the records, however they were written.",
+    "EXPECTED TO FAIL until the ZTPF content is fixed: `Move Step Number on Automation Profile` renumbers stepSequence but not the stepARGS position refs, so a UI move breaks the diffs too. The fix belongs in that playbook (rewrite `*step*` numbers through the same old->new map), not in the assistant."
+  ],
+  "may_change_mounted": true,
+  "may_change": [
+    {
+      "module": "ztpf_automation_profile_steps",
+      "any": true
+    }
+  ],
+  "steps": [
+    {
+      "user": "Reorder this profile so the routing table is captured before the system status, both before and after the upgrade."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 8
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "world_after": {
+      "module": "ztpf_automation_profile_steps",
+      "where": {
+        "ztpfAutomationProfiles.uuid": "bdcaca15-2f75-4e4d-a177-3a35c9b4d91c"
+      },
+      "count": {
+        "min": 7,
+        "max": 7
+      },
+      "contiguous": "stepSequence",
+      "order": [
+        {
+          "name": "Pre-Upgrade Routing Table"
+        },
+        {
+          "name": "Pre-Upgrade System Status"
+        },
+        {
+          "name": "Upgrade Firmware 7.6.7"
+        },
+        {
+          "name": "Post-Upgrade Routing Table"
+        },
+        {
+          "name": "Post-Upgrade System Status"
+        }
+      ],
+      "contains": [
+        {
+          "name": "Diff System Status",
+          "stepARGS~": "2,5"
+        },
+        {
+          "name": "Diff Routing Table",
+          "stepARGS~": "1,4"
+        }
+      ],
+      "min_writes": 2
+    }
+  }
+}

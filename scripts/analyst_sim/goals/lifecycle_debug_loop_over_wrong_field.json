@@ -1,0 +1,28 @@
+{
+ "name": "lifecycle_debug_loop_over_wrong_field",
+ "why": "Debug leg (explain-only): the enrichment loop ran once instead of per IP and the analyst was never asked. Inherits the loop-over-wrong-collection broken playbook. Graded on whether the diagnosis names the real defect -- the loop iterates the records collection, not the IP field on the record, so each pass hands query_ip a whole record -- not on whether a diagnostic tool was merely reached.",
+ "inherit_matrix": "repair_loop_over_wrong_field",
+ "goal": "This phishing playbook is supposed to score every sender IP on the alert, but on the box the reputation step ran exactly once no matter how many IPs the alert carried and the analyst was never prompted. Explain WHY. Do not change the playbook, just tell me the cause.",
+ "explain_only": true,
+ "diagnosis_contains": [
+  [
+   "loop",
+   "for each",
+   "for-each",
+   "iterate",
+   "iterates",
+   "iterating"
+  ],
+  [
+   "records",
+   "whole record",
+   "the record",
+   "collection",
+   "not the ip",
+   "ipaddresses",
+   "ip field"
+  ]
+ ],
+ "records": "soc_alert_surface_servicenow",
+ "defect": "The enrichment step loops over vars.input.records (the alert records the trigger delivered) instead of the iPAddresses field on the record, so each pass hands query_ip a whole record and it effectively runs once scoring nothing."
+}

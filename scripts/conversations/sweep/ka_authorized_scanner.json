@@ -1,0 +1,40 @@
+{
+ "name": "ka_authorized_scanner",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_authorized_scanner",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02"
+ },
+ "why": [
+  "KNOWN-ANSWER row: its records bundle fixes the evidence (strict_ops),",
+  "so the verdict is graded against a right answer, not a vibe.",
+  "",
+  "A port scan that is the org's own Tenable scanner, inside its documented change window. The deciding evidence is the ASSET record, not the alert -- the row checks that the agent looks up the source before calling a scan malicious. Either benign or false_positive is correct.",
+  "",
+  "reads /api/3/assets: the deciding evidence (the authorized-scanner asset",
+  "record and its change window) lives there. Without it a right verdict is a",
+  "guess from the hostname -- qwen 3/4 wrong because no run ever read it."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "benign",
+    "false_positive"
+   ]
+  },
+  "reads": {
+   "required": [
+    "/api/3/assets"
+   ]
+  }
+ }
+}

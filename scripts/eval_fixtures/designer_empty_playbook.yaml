@@ -1,0 +1,6 @@
+collection: SOC Response
+playbooks:
+- name: test
+  uuid: e24a354d-a600-4c41-8299-2c7941af312c
+  is_active: true
+  steps: []

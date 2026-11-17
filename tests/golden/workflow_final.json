@@ -1,0 +1,214 @@
+{
+  "@id": "/wf/api/workflows/682452/",
+  "name": "Probe Manual Input",
+  "result": {
+    "debug": true,
+    "task_id": "04814c5a-fb99-45f7-9135-a93ba245cd58",
+    "final_token": "tok-1780058087-2"
+  },
+  "steps": [
+    {
+      "@id": "/wf/api/steps/5706672/",
+      "name": "start",
+      "status": "finished",
+      "metadata": {
+        "id": 7581,
+        "template_iri": "/api/3/workflow_steps/14da2d98-bcd7-5ea8-a73a-840419515c7d",
+        "metadata": {
+          "top": "120",
+          "left": "200",
+          "uuid": "14da2d98-bcd7-5ea8-a73a-840419515c7d",
+          "when": true,
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-referenced",
+            "background": null,
+            "displayName": "Referenced"
+          },
+          "ignore_errors": false,
+          "globalMockUsed": false,
+          "mockOutputUsed": false
+        },
+        "wf_metadata": 1216
+      },
+      "func": "set_multiple",
+      "started": "2026-05-29T12:34:54.268205Z",
+      "completed": "2026-05-29T12:34:54.285310Z",
+      "@type": "Step"
+    },
+    {
+      "@id": "/wf/api/steps/5706669/",
+      "name": "Approve probe",
+      "status": "finished",
+      "metadata": {
+        "id": 7578,
+        "template_iri": "/api/3/workflow_steps/0a57f732-ae3c-5eab-96d7-5b0cd73e2519",
+        "metadata": {
+          "top": "220",
+          "left": "200",
+          "uuid": "0a57f732-ae3c-5eab-96d7-5b0cd73e2519",
+          "when": true,
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-manual-input",
+            "background": "#52b200",
+            "displayName": "Manual Input"
+          },
+          "ignore_errors": false,
+          "globalMockUsed": false,
+          "mockOutputUsed": false
+        },
+        "wf_metadata": 1216
+      },
+      "func": "manual_input",
+      "started": "2026-05-29T12:34:54.308040Z",
+      "completed": "2026-05-29T12:34:57.266584Z",
+      "@type": "Step"
+    },
+    {
+      "@id": "/wf/api/steps/5706670/",
+      "name": "Cancelled",
+      "status": "skipped",
+      "metadata": {
+        "id": 7579,
+        "template_iri": "/api/3/workflow_steps/6287eb71-7faf-510a-b405-951b20abf32c",
+        "metadata": {
+          "top": "320",
+          "left": "480",
+          "uuid": "6287eb71-7faf-510a-b405-951b20abf32c",
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-set-variables",
+            "background": "#f7ac20",
+            "displayName": "Set Variable"
+          }
+        },
+        "wf_metadata": 1216
+      },
+      "func": "set_multiple",
+      "started": null,
+      "completed": null,
+      "@type": "Step"
+    },
+    {
+      "@id": "/wf/api/steps/5706671/",
+      "name": "Echo token",
+      "status": "finished",
+      "metadata": {
+        "id": 7580,
+        "template_iri": "/api/3/workflow_steps/0a63788d-2060-599a-a180-5426fee5631c",
+        "metadata": {
+          "top": "320",
+          "left": "200",
+          "uuid": "0a63788d-2060-599a-a180-5426fee5631c",
+          "when": true,
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-set-variables",
+            "background": "#f7ac20",
+            "displayName": "Set Variable"
+          },
+          "ignore_errors": false,
+          "globalMockUsed": false,
+          "mockOutputUsed": false
+        },
+        "wf_metadata": 1216
+      },
+      "func": "set_multiple",
+      "started": "2026-05-29T12:34:57.428592Z",
+      "completed": "2026-05-29T12:34:57.450369Z",
+      "@type": "Step"
+    }
+  ],
+  "template_iri": "/api/3/workflows/b5aaa491-91e3-5b55-b965-4cea3d28a36e",
+  "created": "2026-05-29T12:34:54.038061Z",
+  "modified": "2026-05-29T12:34:57.492803Z",
+  "env": {
+    "debug": true,
+    "input": {
+      "params": {},
+      "records": []
+    },
+    "request": {
+      "uri": "https://192.0.2.205/api/triggers/1/notrigger/b5aaa491-91e3-5b55-b965-4cea3d28a36e",
+      "method": "POST",
+      "baseUri": "https://192.0.2.205",
+      "headers": {
+        "host": "192.0.2.205",
+        "proxy": "",
+        "accept": "*/*",
+        "connection": "keep-alive",
+        "user-agent": "python-requests/2.33.1",
+        "content-type": "application/json",
+        "authorization": "*******",
+        "content-length": "83",
+        "x-php-ob-level": "1",
+        "accept-encoding": "gzip, deflate"
+      },
+      "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce"
+    },
+    "task_id": "04814c5a-fb99-45f7-9135-a93ba245cd58",
+    "auth_info": {
+      "auth_method": "CS HMAC"
+    },
+    "resources": {},
+    "globalMock": false,
+    "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+    "final_token": "tok-1780058087-2",
+    "last_run_at": null,
+    "useMockOutput": false,
+    "mockPlaybookId": null
+  },
+  "status": "finished",
+  "parent_wf": null,
+  "tags": "",
+  "metadata": {
+    "id": 1216,
+    "template_iri": "/api/3/workflows/b5aaa491-91e3-5b55-b965-4cea3d28a36e",
+    "wf_modified": "2026-05-29T12:34:53Z",
+    "metadata": {
+      "groups": [],
+      "routes": [
+        {
+          "@id": "/api/3/workflow_routes/49c241fc-e56c-5d81-ad58-271a900e77a3",
+          "name": "Approve probe -> Cancelled",
+          "uuid": "49c241fc-e56c-5d81-ad58-271a900e77a3",
+          "@type": "WorkflowRoute",
+          "group": null,
+          "label": "cancel",
+          "isExecuted": false,
+          "sourceStep": "/api/3/workflow_steps/0a57f732-ae3c-5eab-96d7-5b0cd73e2519",
+          "targetStep": "/api/3/workflow_steps/6287eb71-7faf-510a-b405-951b20abf32c"
+        },
+        {
+          "@id": "/api/3/workflow_routes/ebada4d3-810c-5090-aa21-d961c29dec12",
+          "name": "Approve probe -> Echo token",
+          "uuid": "ebada4d3-810c-5090-aa21-d961c29dec12",
+          "@type": "WorkflowRoute",
+          "group": null,
+          "label": "submit",
+          "isExecuted": false,
+          "sourceStep": "/api/3/workflow_steps/0a57f732-ae3c-5eab-96d7-5b0cd73e2519",
+          "targetStep": "/api/3/workflow_steps/0a63788d-2060-599a-a180-5426fee5631c"
+        },
+        {
+          "@id": "/api/3/workflow_routes/8a24824a-b932-5cdc-ab03-3a9b060ef5dc",
+          "name": "start -> Approve probe",
+          "uuid": "8a24824a-b932-5cdc-ab03-3a9b060ef5dc",
+          "@type": "WorkflowRoute",
+          "group": null,
+          "label": null,
+          "isExecuted": false,
+          "sourceStep": "/api/3/workflow_steps/14da2d98-bcd7-5ea8-a73a-840419515c7d",
+          "targetStep": "/api/3/workflow_steps/0a57f732-ae3c-5eab-96d7-5b0cd73e2519"
+        }
+      ],
+      "trigger_step_type": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62"
+    }
+  },
+  "debug": true,
+  "peer_details": {},
+  "user": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+  "node_name": "fsr-1",
+  "@type": "Workflow"
+}

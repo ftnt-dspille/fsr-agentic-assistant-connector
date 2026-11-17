@@ -1,0 +1,52 @@
+[project]
+name = "connector-fsr-agentic-assistant-dev"
+version = "0.0.1"
+description = "Dev/test scaffolding for the connector-fsr-agentic-assistant FortiSOAR connector"
+requires-python = ">=3.9"
+dependencies = [
+    "anthropic>=0.40.0",
+    # fsr_core comes from an editable install of fsr-playbook-framework;
+    # install separately via `pip install -e ../../fsr-playbook-framework`.
+]
+
+[project.optional-dependencies]
+# pytest-xdist: `make test` runs the suite across cores (85s serial -> ~22s).
+# pytest-randomly: every run shuffles test order (seed printed in the header;
+# replay with PYTEST_ARGS="-p randomly --randomly-seed=<n>"), so state leaking
+# between tests fails early instead of at the ship gate.
+# pytest-timeout: a hung test fails by name after `timeout` seconds instead of
+# stalling the whole gate (xdist workers deadlocked twice in one day).
+# python-dotenv: scripts/doctor.py (dev_push's wait-for-build, make doctor) reads the
+# box env file with it, so the one dev env must carry it.
+test = ["pytest>=7", "pytest-xdist>=3", "pytest-randomly>=3", "pytest-timeout>=2",
+        "python-dotenv>=1"]
+
+[tool.pytest.ini_options]
+timeout = 120
+# BOTH suites. `tests/` is the outer harness/framework suite;
+# `connector-fsr-agentic-assistant/tests/` is the connector's own suite (54 modules,
+# incl. most of the structural gates). Listing only the former meant a bare
+# `pytest` silently covered ~40% less than it appeared to -- five gates rotted
+# unnoticed that way. `tests/test_suite_is_collectable.py` guards this.
+# ...and `connector-fsr-agentic-assistant/fsr_soc_triage/tests` -- the THIRD suite,
+# 527 tests including the whole `run_playbook` surface, which sat uncollected
+# for the same reason `connector-fsr-agentic-assistant/tests` once did. It had
+# rotted exactly as predicted: two intent-slice tests asserting a tool split
+# deliberately changed by RUN_VERB_TOOLS, a fake provider raising TypeError on
+# a keyword the real contract grew, and a suite that reached a real LLM
+# endpoint over the network. `tests/test_every_suite_is_in_testpaths.py` now
+# generalizes the guard so a FOURTH one cannot appear unseen.
+testpaths = ["tests", "connector-fsr-agentic-assistant/tests",
+             "connector-fsr-agentic-assistant/fsr_soc_triage/tests"]
+pythonpath = [".", "connector-fsr-agentic-assistant"]
+
+[tool.ruff]
+# Pyflakes (F) catches real bugs: undefined names, unused imports, unreachable
+# code. We intentionally do NOT enable pycodestyle (E/W) -- the codebase predates
+# ruff and enabling it would be a 1000-line diff for zero semantic value.
+[tool.ruff.lint]
+select = ["F"]
+# F811 in test files: pytest fixture injection shadows module-level imports
+# (e.g. `from tests.test_chat_operations import tmp_db` then `def test(tmp_db)`).
+# This is the canonical pytest pattern, not a real redefinition.
+per-file-ignores = { "tests/*" = ["F811"], "connector-fsr-agentic-assistant/tests/*" = ["F811"] }

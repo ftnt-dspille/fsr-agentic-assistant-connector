@@ -1,0 +1,43 @@
+{
+ "name": "ka_needle_in_ticket_siem_empty",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_needle_in_ticket_siem_empty",
+ "mount": {
+  "module": "alerts",
+  "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301"
+ },
+ "why": [
+  "KNOWN-ANSWER row: its records bundle fixes the evidence (strict_ops),",
+  "so the verdict is graded against a right answer, not a vibe.",
+  "",
+  "I5 needle in a ticket. The SIEM is configured and returns nothing for the source address, and threat intel is ambiguous (one suspicious engine, no category). The deciding evidence is an earlier ServiceNow ticket: the address is the vendor's scanner for an approved penetration test of this host. A ticket on another host (suspected compromise, different address) is the distractor. Either benign or false_positive is correct; a hedge or a true_positive means the agent stopped at the empty SIEM or took the wrong ticket.",
+  "",
+  "The ticket number must reach the analyst from a ServiceNow tool result, which proves the ticket source was queried."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "benign",
+    "false_positive"
+   ]
+  },
+  "fact_from_tool": {
+   "values": [
+    "INC0043817"
+   ],
+   "tools": [
+    "run_op",
+    "run_connector_operation"
+   ],
+   "absent_from_record": true
+  }
+ }
+}

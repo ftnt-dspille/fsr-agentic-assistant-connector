@@ -1,0 +1,2065 @@
+{
+  "ok": true,
+  "session_id": "live-harness-card-1785680206",
+  "turn_id": "8c69af48ec684524b86aadd100a535aa",
+  "stop_reason": "end_turn",
+  "contract_version": "2.8.0",
+  "transcript": [
+    {
+      "type": "tool_use",
+      "id": "exec-6ce3ba63",
+      "name": "run_op",
+      "input": {
+        "connector": "fortigate-firewall",
+        "op": "block_ip_new",
+        "params": {
+          "method": "Quarantine Based",
+          "ip_block_policy": "default_policy",
+          "ip_group_name": "default_group",
+          "ip_addresses": "198.51.100.7",
+          "duration": 1440,
+          "ip_type": "IPv4",
+          "ip": "198.51.100.7",
+          "time_to_live": "1 Day"
+        }
+      },
+      "tier": 3
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "exec-6ce3ba63",
+      "content": {
+        "ok": true,
+        "data": {
+          "already_blocked": [
+            "198.51.100.7"
+          ],
+          "newly_blocked": [],
+          "error_with_block": [],
+          "vdom_not_exist": []
+        },
+        "output_shape": {
+          "already_blocked": [
+            "str"
+          ],
+          "newly_blocked": [],
+          "error_with_block": [],
+          "vdom_not_exist": []
+        },
+        "output_top_keys": [
+          "already_blocked",
+          "error_with_block",
+          "newly_blocked",
+          "vdom_not_exist"
+        ],
+        "output_is_list": false,
+        "schema_cached": true
+      }
+    },
+    {
+      "type": "text",
+      "text": "The"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": " was"
+    },
+    {
+      "type": "text",
+      "text": " already"
+    },
+    {
+      "type": "text",
+      "text": " blocked"
+    },
+    {
+      "type": "text",
+      "text": " successfully"
+    },
+    {
+      "type": "text",
+      "text": " on"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " perimeter"
+    },
+    {
+      "type": "text",
+      "text": " firewall"
+    },
+    {
+      "type": "text",
+      "text": ";"
+    },
+    {
+      "type": "text",
+      "text": " no"
+    },
+    {
+      "type": "text",
+      "text": " new"
+    },
+    {
+      "type": "text",
+      "text": " block"
+    },
+    {
+      "type": "text",
+      "text": " action"
+    },
+    {
+      "type": "text",
+      "text": " was"
+    },
+    {
+      "type": "text",
+      "text": " needed"
+    },
+    {
+      "type": "text",
+      "text": ".\n\n"
+    },
+    {
+      "type": "text",
+      "text": "Next"
+    },
+    {
+      "type": "text",
+      "text": " recommended"
+    },
+    {
+      "type": "text",
+      "text": " steps"
+    },
+    {
+      "type": "text",
+      "text": ":\n"
+    },
+    {
+      "type": "text",
+      "text": "1"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " En"
+    },
+    {
+      "type": "text",
+      "text": "rich"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " additional"
+    },
+    {
+      "type": "text",
+      "text": " threat"
+    },
+    {
+      "type": "text",
+      "text": " intelligence"
+    },
+    {
+      "type": "text",
+      "text": " sources"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " confirm"
+    },
+    {
+      "type": "text",
+      "text": " no"
+    },
+    {
+      "type": "text",
+      "text": " other"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " bad"
+    },
+    {
+      "type": "text",
+      "text": " indicators"
+    },
+    {
+      "type": "text",
+      "text": " exist"
+    },
+    {
+      "type": "text",
+      "text": ".\n"
+    },
+    {
+      "type": "text",
+      "text": "2"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " Search"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " alerts"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " incidents"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " connected"
+    },
+    {
+      "type": "text",
+      "text": " hosts"
+    },
+    {
+      "type": "text",
+      "text": "/users"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " assess"
+    },
+    {
+      "type": "text",
+      "text": " wider"
+    },
+    {
+      "type": "text",
+      "text": " impact"
+    },
+    {
+      "type": "text",
+      "text": ".\n"
+    },
+    {
+      "type": "text",
+      "text": "3"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " Monitor"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " network"
+    },
+    {
+      "type": "text",
+      "text": " logs"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " attempts"
+    },
+    {
+      "type": "text",
+      "text": " from"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": "s"
+    },
+    {
+      "type": "text",
+      "text": " after"
+    },
+    {
+      "type": "text",
+      "text": " the"
+    },
+    {
+      "type": "text",
+      "text": " block"
+    },
+    {
+      "type": "text",
+      "text": ".\n"
+    },
+    {
+      "type": "text",
+      "text": "4"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " Consider"
+    },
+    {
+      "type": "text",
+      "text": " blocking"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " associated"
+    },
+    {
+      "type": "text",
+      "text": " domain"
+    },
+    {
+      "type": "text",
+      "text": " names"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " URLs"
+    },
+    {
+      "type": "text",
+      "text": " if"
+    },
+    {
+      "type": "text",
+      "text": " found"
+    },
+    {
+      "type": "text",
+      "text": " malicious"
+    },
+    {
+      "type": "text",
+      "text": ".\n\n"
+    },
+    {
+      "type": "text",
+      "text": "I"
+    },
+    {
+      "type": "text",
+      "text": " will"
+    },
+    {
+      "type": "text",
+      "text": " now"
+    },
+    {
+      "type": "text",
+      "text": " check"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " additional"
+    },
+    {
+      "type": "text",
+      "text": " containment"
+    },
+    {
+      "type": "text",
+      "text": " actions"
+    },
+    {
+      "type": "text",
+      "text": " such"
+    },
+    {
+      "type": "text",
+      "text": " as"
+    },
+    {
+      "type": "text",
+      "text": " blocking"
+    },
+    {
+      "type": "text",
+      "text": " associated"
+    },
+    {
+      "type": "text",
+      "text": " domains"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " URLs"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " propose"
+    },
+    {
+      "type": "text",
+      "text": " an"
+    },
+    {
+      "type": "text",
+      "text": " action"
+    },
+    {
+      "type": "text",
+      "text": " card"
+    },
+    {
+      "type": "text",
+      "text": " if"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " are"
+    },
+    {
+      "type": "text",
+      "text": " found"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "tool_use",
+      "id": "call_ROBhYsGhDM1rGcuh3WnOU1tG",
+      "name": "find_enrichment_actions",
+      "input": {
+        "target_type": "ip"
+      },
+      "tier": 1
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_ROBhYsGhDM1rGcuh3WnOU1tG",
+      "content": {
+        "ok": true,
+        "target_type": "ip",
+        "actions": [
+          {
+            "connector": "fortinet-fortiguard-ioc",
+            "op": "get_selected_ioc_fields",
+            "title": "Get Selected IOC Fields",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "indicator",
+                "type": "text",
+                "label": "Indicator"
+              },
+              {
+                "name": "fields",
+                "type": "text",
+                "label": "Fields"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-ioc",
+            "op": "ioc_search",
+            "title": "IOC Search",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "indicator",
+                "type": "text",
+                "label": "Indicator"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-outbreak",
+            "op": "bulk_ingest_outbreak_alert_iocs",
+            "title": "Bulk Ingest Outbreak Alert IOCs",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "tag_name",
+                "type": "text"
+              },
+              {
+                "name": "create_pb_id",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "tag_name",
+                "required": true,
+                "type": "text",
+                "label": "Outbreak Alert Tag Name"
+              },
+              {
+                "name": "create_pb_id",
+                "required": true,
+                "type": "text",
+                "label": "Record Creation Playbook IRI"
+              },
+              {
+                "name": "pb_env_params",
+                "type": "json",
+                "label": "Playbook Environment Parameters"
+              },
+              {
+                "name": "dedup_field",
+                "type": "text",
+                "label": "Deduplicate Field"
+              },
+              {
+                "name": "demo_mode",
+                "type": "checkbox",
+                "label": "Demo Mode"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-outbreak",
+            "op": "get_outbreak_alert_iocs",
+            "title": "Get Outbreak Alert IOCs",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "tag_name",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "tag_name",
+                "required": true,
+                "type": "text",
+                "label": "Outbreak Alert Tag Name"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-outbreak",
+            "op": "get_outbreak_alert_threat_actor_details_by_id",
+            "title": "Get Outbreak Alert Threat Actor Details by ID",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "document_id",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "document_id",
+                "required": true,
+                "type": "text",
+                "label": "Threat Actor ID"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-threat-intelligence",
+            "op": "get_encyclopedia_lookup",
+            "title": "Get Encyclopedia Lookup",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "source",
+                "type": "select"
+              },
+              {
+                "name": "id",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "source",
+                "required": true,
+                "type": "select",
+                "label": "Source",
+                "options": [
+                  "Viruses",
+                  "Intrusion Prevention",
+                  "Botnet",
+                  "Endpoint Vulnerabilities",
+                  "Mobile",
+                  "Application",
+                  "Internet Services"
+                ]
+              },
+              {
+                "name": "id",
+                "required": true,
+                "type": "text",
+                "label": "ID"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-threat-intelligence",
+            "op": "get_threat_categories",
+            "title": "Get Threat Categories",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "title",
+                "type": "text",
+                "label": "Title"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiguard-threat-intelligence",
+            "op": "get_threat_signal_report",
+            "title": "Get Threat Signal Report by Slug Name",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "slug",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "slug",
+                "required": true,
+                "type": "text",
+                "label": "Threat Signal Slug Name"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "virustotal",
+            "op": "query_ip",
+            "title": "Get IP Reputation",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "ip",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "ip",
+                "required": true,
+                "type": "text",
+                "label": "IP"
+              },
+              {
+                "name": "relationships",
+                "type": "multiselect",
+                "label": "Relationships to Include",
+                "options": [
+                  "Comments",
+                  "Historical SSL Certificates",
+                  "Graphs",
+                  "Historical Whois",
+                  "Referrer Files",
+                  "Resolutions",
+                  "Votes",
+                  "Related Comments"
+                ]
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "cicd-utils",
+            "op": "unzip_export_template",
+            "title": "Unzip Export Template",
+            "category": "utilities",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "filepath",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "filepath",
+                "required": true,
+                "type": "text",
+                "label": "Filepath"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "cyops_utilities",
+            "op": "get_ioc_parsing_regex",
+            "title": "Get IOC Parsing Regex",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "file-content-extraction",
+            "op": "extract_indicators",
+            "title": "Extract Artifacts",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "file_iri",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "file_iri",
+                "required": true,
+                "type": "text",
+                "label": "File IRI/Path"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortigate-firewall",
+            "op": "get_blocked_ip",
+            "title": "Get Blocked IP Addresses",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "method",
+                "type": "select"
+              },
+              {
+                "name": "ip_block_policy",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "method",
+                "required": true,
+                "type": "select",
+                "label": "Block Method",
+                "options": [
+                  "Quarantine Based",
+                  "Policy Based"
+                ]
+              },
+              {
+                "name": "ip_block_policy",
+                "required": true,
+                "type": "text",
+                "label": "Policy Name"
+              },
+              {
+                "name": "ip_group_name",
+                "type": "text",
+                "label": "Address Group Name"
+              },
+              {
+                "name": "vdom",
+                "type": "text",
+                "label": "VDOM"
+              },
+              {
+                "name": "ngfw_mode",
+                "type": "select",
+                "label": "NGFW Mode",
+                "options": [
+                  "Profile Based",
+                  "Policy Based"
+                ]
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortiedr",
+            "op": "search_ioc",
+            "title": "Search IOC",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "fromTime",
+                "type": "datetime"
+              },
+              {
+                "name": "field",
+                "type": "text"
+              },
+              {
+                "name": "toTime",
+                "type": "datetime"
+              },
+              {
+                "name": "order",
+                "type": "select"
+              },
+              {
+                "name": "priority",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "fromTime",
+                "required": true,
+                "type": "datetime",
+                "label": "From Time"
+              },
+              {
+                "name": "field",
+                "required": true,
+                "type": "text",
+                "label": "Field"
+              },
+              {
+                "name": "toTime",
+                "required": true,
+                "type": "datetime",
+                "label": "To Time"
+              },
+              {
+                "name": "order",
+                "required": true,
+                "type": "select",
+                "label": "Order",
+                "options": [
+                  "Ascending",
+                  "Descending"
+                ]
+              },
+              {
+                "name": "priority",
+                "required": true,
+                "type": "text",
+                "label": "Priority"
+              },
+              {
+                "name": "organization",
+                "type": "text",
+                "label": "Organization"
+              },
+              {
+                "name": "category",
+                "type": "select",
+                "label": "Category",
+                "options": [
+                  "Process",
+                  "File",
+                  "Registry",
+                  "Network",
+                  "Event Log",
+                  "All"
+                ]
+              },
+              {
+                "name": "devices",
+                "type": "text",
+                "label": "Devices"
+              },
+              {
+                "name": "time",
+                "type": "select",
+                "label": "Time",
+                "options": [
+                  "Last Hour",
+                  "Last 12 Hours",
+                  "Last 24 Hours",
+                  "Last 7 Days",
+                  "Last 30 Days",
+                  "Custom"
+                ]
+              },
+              {
+                "name": "filters",
+                "type": "json",
+                "label": "Filters"
+              },
+              {
+                "name": "query",
+                "type": "text",
+                "label": "Query"
+              },
+              {
+                "name": "sorting",
+                "type": "checkbox",
+                "label": "Sorting"
+              },
+              {
+                "name": "pageNumber",
+                "type": "integer",
+                "label": "Page Number"
+              },
+              {
+                "name": "itemsPerPage",
+                "type": "integer",
+                "label": "Items Per Page"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortisiemv2",
+            "op": "get_all_lookup_tables",
+            "title": "Get All Lookup Table",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "stat",
+                "type": "integer",
+                "label": "Offset"
+              },
+              {
+                "name": "size",
+                "type": "integer",
+                "label": "Number Of Items To Return"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortisiemv2",
+            "op": "get_devices_details_in_address",
+            "title": "Get All Devices For Specified IP Address Range",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "includeIps",
+                "type": "text"
+              }
+            ],
+            "params": [
+              {
+                "name": "includeIps",
+                "required": true,
+                "type": "text",
+                "label": "Include IP SET"
+              },
+              {
+                "name": "excludeIps",
+                "type": "text",
+                "label": "Exclude IP SET"
+              },
+              {
+                "name": "org",
+                "type": "text",
+                "label": "Organization"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortinet-fortisiemv2",
+            "op": "get_entity_context",
+            "title": "Get Entity Context",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [
+              {
+                "name": "entity_type",
+                "type": "select"
+              }
+            ],
+            "params": [
+              {
+                "name": "entity_type",
+                "required": true,
+                "type": "select",
+                "label": "Entity Type",
+                "options": [
+                  "IP",
+                  "Hostname",
+                  "Username"
+                ]
+              },
+              {
+                "name": "ip",
+                "type": "text",
+                "label": "IP Address"
+              },
+              {
+                "name": "hostname",
+                "type": "text",
+                "label": "Hostname"
+              },
+              {
+                "name": "username",
+                "type": "text",
+                "label": "Username"
+              }
+            ],
+            "runs_on_agent": false
+          },
+          {
+            "connector": "fortisoar-soc-simulator",
+            "op": "bad_ip",
+            "title": "Fetch Malicious IP",
+            "category": "investigation",
+            "tier": 2,
+            "requires_approval": false,
+            "status": "Available",
+            "deprecated": false,
+            "required_params": [],
+            "params": [
+              {
+                "name": "random",
+                "type": "checkbox",
+                "label": "Random"
+              }
+            ],
+            "runs_on_agent": false
+          }
+        ],
+        "count": 18,
+        "probed": true,
+        "_timing": {
+          "n": 12,
+          "live": 0,
+          "cached": 12,
+          "timed_out": [],
+          "probe_ms": 51.3,
+          "slowest": [
+            [
+              "fortinet-fortiguard-ioc",
+              41.7,
+              "cache"
+            ],
+            [
+              "cyops_utilities",
+              39.5,
+              "cache"
+            ],
+            [
+              "file-content-extraction",
+              35.6,
+              "cache"
+            ],
+            [
+              "fortinet-fortianalyzer",
+              34.7,
+              "cache"
+            ],
+            [
+              "fortinet-fortiedr",
+              33.4,
+              "cache"
+            ]
+          ]
+        }
+      },
+      "duration_ms": 1817
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 22729,
+      "output_tokens": 152,
+      "cost_usd": 0.00296,
+      "cache_read": 21248,
+      "cache_write": 0
+    },
+    {
+      "type": "tool_use",
+      "id": "call_kSc516131UxxXDR5glKQeGut",
+      "name": "run_op",
+      "input": {
+        "connector": "fortinet-fortiguard-ioc",
+        "op": "ioc_search",
+        "params": {
+          "indicator": "198.51.100.7"
+        },
+        "step_name": "Enrich IP 198.51.100.7 with FortiGuard IOC Search"
+      },
+      "tier": 2
+    },
+    {
+      "type": "tool_result",
+      "tool_use_id": "call_kSc516131UxxXDR5glKQeGut",
+      "content": {
+        "ok": true,
+        "data": [
+          {
+            "@context": "/api/3/contexts/IOCSearch",
+            "@type": "IOCSearch",
+            "uuid": null,
+            "createUser": null,
+            "createDate": null,
+            "modifyUser": null,
+            "modifyDate": null,
+            "recordTags": null,
+            "risk_distribution_total_domains": null,
+            "aisummary_description": null,
+            "countryvisitcounts": null,
+            "sub_type": "ip",
+            "risk_distribution_profile_date": null,
+            "risk_distribution_avg_risk": null,
+            "risk_distribution_item": null,
+            "risk_distribution_type": null,
+            "riskDistribution": null,
+            "app_id": null,
+            "version": null,
+            "reputation_rating": null,
+            "app_name": null,
+            "ptr_domain": null,
+            "geoip_location": null,
+            "asn_data": null,
+            "riskinfo": null,
+            "geoip": null,
+            "isdb": null,
+            "ptr": null,
+            "asn": null,
+            "threatinfo": null,
+            "wf_cate": null,
+            "spam_cate": null,
+            "reference_url": null,
+            "modified": null,
+            "malwareName": null,
+            "kill_chain_phases": null,
+            "ioc_tags": null,
+            "ioc_cate": null,
+            "created": null,
+            "confidence": null,
+            "risk_level": null,
+            "risk_score": null,
+            "av_cate": null,
+            "cve_tags": null,
+            "outbreak_tags": null,
+            "threatactor_tags": null,
+            "id": "198.51.100.7",
+            "@id": "/api/3/ioc_searches/198.51.100.7"
+          }
+        ],
+        "output_shape": [
+          {
+            "@context": "str",
+            "@type": "str",
+            "uuid": "null",
+            "createUser": "null",
+            "createDate": "null",
+            "modifyUser": "null",
+            "modifyDate": "null",
+            "recordTags": "null",
+            "risk_distribution_total_domains": "null",
+            "aisummary_description": "null",
+            "countryvisitcounts": "null",
+            "sub_type": "str",
+            "risk_distribution_profile_date": "null",
+            "risk_distribution_avg_risk": "null",
+            "risk_distribution_item": "null",
+            "risk_distribution_type": "null",
+            "riskDistribution": "null",
+            "app_id": "null",
+            "version": "null",
+            "reputation_rating": "null",
+            "app_name": "null",
+            "ptr_domain": "null",
+            "geoip_location": "null",
+            "asn_data": "null",
+            "riskinfo": "null",
+            "geoip": "null",
+            "isdb": "null",
+            "ptr": "null",
+            "asn": "null",
+            "threatinfo": "null",
+            "wf_cate": "null",
+            "spam_cate": "null",
+            "reference_url": "null",
+            "modified": "null",
+            "malwareName": "null",
+            "kill_chain_phases": "null",
+            "ioc_tags": "null",
+            "ioc_cate": "null",
+            "created": "null",
+            "confidence": "null",
+            "risk_level": "null",
+            "risk_score": "null",
+            "av_cate": "null",
+            "cve_tags": "null",
+            "outbreak_tags": "null",
+            "threatactor_tags": "null",
+            "id": "str",
+            "@id": "str"
+          }
+        ],
+        "output_top_keys": [
+          "@context",
+          "@id",
+          "@type",
+          "aisummary_description",
+          "app_id",
+          "app_name",
+          "asn",
+          "asn_data",
+          "av_cate",
+          "confidence",
+          "countryvisitcounts",
+          "createDate",
+          "createUser",
+          "created",
+          "cve_tags",
+          "geoip",
+          "geoip_location",
+          "id",
+          "ioc_cate",
+          "ioc_tags",
+          "isdb",
+          "kill_chain_phases",
+          "malwareName",
+          "modified",
+          "modifyDate",
+          "modifyUser",
+          "outbreak_tags",
+          "ptr",
+          "ptr_domain",
+          "recordTags",
+          "reference_url",
+          "reputation_rating",
+          "riskDistribution",
+          "risk_distribution_avg_risk",
+          "risk_distribution_item",
+          "risk_distribution_profile_date",
+          "risk_distribution_total_domains",
+          "risk_distribution_type",
+          "risk_level",
+          "risk_score",
+          "riskinfo",
+          "spam_cate",
+          "sub_type",
+          "threatactor_tags",
+          "threatinfo",
+          "uuid",
+          "version",
+          "wf_cate"
+        ],
+        "output_is_list": true,
+        "schema_cached": true
+      },
+      "duration_ms": 775
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 25880,
+      "output_tokens": 60,
+      "cost_usd": 0.003613,
+      "cache_read": 22784,
+      "cache_write": 0
+    },
+    {
+      "type": "text",
+      "text": "The"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " "
+    },
+    {
+      "type": "text",
+      "text": "198"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "51"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "100"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": "7"
+    },
+    {
+      "type": "text",
+      "text": " enrichment"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " Fort"
+    },
+    {
+      "type": "text",
+      "text": "i"
+    },
+    {
+      "type": "text",
+      "text": "Guard"
+    },
+    {
+      "type": "text",
+      "text": " IOC"
+    },
+    {
+      "type": "text",
+      "text": " Search"
+    },
+    {
+      "type": "text",
+      "text": " did"
+    },
+    {
+      "type": "text",
+      "text": " not"
+    },
+    {
+      "type": "text",
+      "text": " return"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " notable"
+    },
+    {
+      "type": "text",
+      "text": " threat"
+    },
+    {
+      "type": "text",
+      "text": " intelligence"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " malicious"
+    },
+    {
+      "type": "text",
+      "text": " indicators"
+    },
+    {
+      "type": "text",
+      "text": ".\n\n"
+    },
+    {
+      "type": "text",
+      "text": "Next"
+    },
+    {
+      "type": "text",
+      "text": " steps"
+    },
+    {
+      "type": "text",
+      "text": " recommendations"
+    },
+    {
+      "type": "text",
+      "text": ":\n"
+    },
+    {
+      "type": "text",
+      "text": "-"
+    },
+    {
+      "type": "text",
+      "text": " Continue"
+    },
+    {
+      "type": "text",
+      "text": " monitoring"
+    },
+    {
+      "type": "text",
+      "text": " network"
+    },
+    {
+      "type": "text",
+      "text": " traffic"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " activity"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " similar"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": "s"
+    },
+    {
+      "type": "text",
+      "text": ".\n"
+    },
+    {
+      "type": "text",
+      "text": "-"
+    },
+    {
+      "type": "text",
+      "text": " Investig"
+    },
+    {
+      "type": "text",
+      "text": "ate"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " alerts"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " logs"
+    },
+    {
+      "type": "text",
+      "text": " showing"
+    },
+    {
+      "type": "text",
+      "text": " connection"
+    },
+    {
+      "type": "text",
+      "text": " attempts"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " from"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": ".\n"
+    },
+    {
+      "type": "text",
+      "text": "-"
+    },
+    {
+      "type": "text",
+      "text": " Verify"
+    },
+    {
+      "type": "text",
+      "text": " if"
+    },
+    {
+      "type": "text",
+      "text": " any"
+    },
+    {
+      "type": "text",
+      "text": " user"
+    },
+    {
+      "type": "text",
+      "text": " accounts"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " hosts"
+    },
+    {
+      "type": "text",
+      "text": " have"
+    },
+    {
+      "type": "text",
+      "text": " interacted"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " and"
+    },
+    {
+      "type": "text",
+      "text": " assess"
+    },
+    {
+      "type": "text",
+      "text": " compromise"
+    },
+    {
+      "type": "text",
+      "text": " risk"
+    },
+    {
+      "type": "text",
+      "text": ".\n"
+    },
+    {
+      "type": "text",
+      "text": "-"
+    },
+    {
+      "type": "text",
+      "text": " Consider"
+    },
+    {
+      "type": "text",
+      "text": " hunting"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " additional"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " indicators"
+    },
+    {
+      "type": "text",
+      "text": " such"
+    },
+    {
+      "type": "text",
+      "text": " as"
+    },
+    {
+      "type": "text",
+      "text": " domains"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " file"
+    },
+    {
+      "type": "text",
+      "text": " hashes"
+    },
+    {
+      "type": "text",
+      "text": " linked"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": ".\n\n"
+    },
+    {
+      "type": "text",
+      "text": "No"
+    },
+    {
+      "type": "text",
+      "text": " immediate"
+    },
+    {
+      "type": "text",
+      "text": " further"
+    },
+    {
+      "type": "text",
+      "text": " containment"
+    },
+    {
+      "type": "text",
+      "text": " actions"
+    },
+    {
+      "type": "text",
+      "text": " for"
+    },
+    {
+      "type": "text",
+      "text": " this"
+    },
+    {
+      "type": "text",
+      "text": " IP"
+    },
+    {
+      "type": "text",
+      "text": " are"
+    },
+    {
+      "type": "text",
+      "text": " advised"
+    },
+    {
+      "type": "text",
+      "text": " based"
+    },
+    {
+      "type": "text",
+      "text": " on"
+    },
+    {
+      "type": "text",
+      "text": " current"
+    },
+    {
+      "type": "text",
+      "text": " threat"
+    },
+    {
+      "type": "text",
+      "text": " intel"
+    },
+    {
+      "type": "text",
+      "text": "."
+    },
+    {
+      "type": "text",
+      "text": " Would"
+    },
+    {
+      "type": "text",
+      "text": " you"
+    },
+    {
+      "type": "text",
+      "text": " like"
+    },
+    {
+      "type": "text",
+      "text": " me"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " assist"
+    },
+    {
+      "type": "text",
+      "text": " with"
+    },
+    {
+      "type": "text",
+      "text": " hunting"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " alerts"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " broaden"
+    },
+    {
+      "type": "text",
+      "text": " enrichment"
+    },
+    {
+      "type": "text",
+      "text": " to"
+    },
+    {
+      "type": "text",
+      "text": " related"
+    },
+    {
+      "type": "text",
+      "text": " domains"
+    },
+    {
+      "type": "text",
+      "text": " or"
+    },
+    {
+      "type": "text",
+      "text": " user"
+    },
+    {
+      "type": "text",
+      "text": " entities"
+    },
+    {
+      "type": "text",
+      "text": "?"
+    },
+    {
+      "type": "usage",
+      "model": "gpt-4.1-mini",
+      "input_tokens": 26877,
+      "output_tokens": 138,
+      "cost_usd": 0.003215,
+      "cache_read": 25856,
+      "cache_write": 0
+    }
+  ],
+  "tags": {
+    "session_id": "live-harness-card-1785680206",
+    "intent": "triage",
+    "resume": "action_card_exec_followup",
+    "case_state": {
+      "phase": "awaiting_approval",
+      "record_key": null,
+      "scenario": null,
+      "searched": 0,
+      "enriched": 0,
+      "unavailable_connectors": []
+    },
+    "executed": true
+  },
+  "error": null
+}

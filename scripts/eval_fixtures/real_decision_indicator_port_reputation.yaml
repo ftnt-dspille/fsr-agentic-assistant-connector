@@ -1,0 +1,133 @@
+collection: 03 - Enrich
+description: ''
+visible: true
+playbooks:
+- name: Indicator (Type Port) - Get Reputation
+  description: Retrieves the reputation of indicators of type ‘Port’ using configured
+    threat intelligence tools.
+  tag: '#Subroutine'
+  is_active: true
+  trigger_step_id: start
+  parameters:
+  - indicator_value
+  steps:
+  - type: set_variable
+    name: Configuration
+    vars:
+      indicator_value: '{{vars.input.params[''indicator_value''] | ternary(vars.input.params[''indicator_value''],vars.input.records[0].value)
+        }}'
+    next: is_referenced
+  - type: connector
+    name: Exit
+    params: []
+    connector: cyops_utilities
+    operation: no_op
+  - type: decision
+    name: Is Dedicated Tenant Record
+    conditions:
+    - display: Yes, Enrich at Tenant Node
+      when: '{{ ''tenant'' in vars.input.records[0] and vars.input.records[0].tenant.isDedicated
+        and vars.input.records[0].tenant.role != ''self'' }}'
+      next: exit
+    - display: No, Enrich Here
+      default: true
+      next: is_referenced_playbook
+  - type: decision
+    name: Is Referenced
+    conditions:
+    - display: Referenced
+      when: '{{ vars.input.params[''indicator_value''] | length > 0 }}'
+      next: set_reputation
+    - display: Upon Create
+      default: true
+      next: update_record
+  - type: decision
+    name: Is Referenced Playbook
+    conditions:
+    - display: 'Yes'
+      when: '{{ vars.input.params[''indicator_value''] | length > 0 }}'
+      next: configuration
+    - display: 'No'
+      default: true
+      next: update_enrichment_status_to_in_process
+  - type: set_variable
+    name: Set Reputation
+    vars:
+      reputation_iri: '{{("IndicatorReputation" | picklist("No Reputation Available"))["@id"]}}'
+  - type: start_on_create
+    name: Start
+    step_variables:
+      input:
+        params: []
+        records:
+        - '{{vars.input.records[0]}}'
+    description: Indicator reputation is set as 'TBD' by 'Create and Link Indicator'
+      utility playbook. We can ignore those indicators when triggering this PB
+    resource: indicators
+    resources:
+    - indicators
+    __triggerLimit: false
+    triggerOnSource: true
+    fieldbasedtrigger:
+      sort: []
+      limit: 30
+      logic: AND
+      filters:
+      - type: object
+        field: typeofindicator
+        value: /api/3/picklists/1c4def41-b578-49a3-9063-8aa46f757c08
+        _value:
+          '@id': /api/3/picklists/1c4def41-b578-49a3-9063-8aa46f757c08
+          display: Port
+          itemValue: Port
+        operator: eq
+      - type: object
+        field: indicatorStatus
+        value: /api/3/picklists/4218cb58-4de5-4eff-ad08-185d36ef9bab
+        _value:
+          '@id': /api/3/picklists/4218cb58-4de5-4eff-ad08-185d36ef9bab
+          display: Excluded
+          itemValue: Excluded
+        operator: neq
+      - logic: OR
+        filters:
+        - type: object
+          field: reputation
+          value: 'true'
+          _value:
+            '@id': 'true'
+            display: ''
+            itemValue: ''
+          operator: isnull
+        - type: object
+          field: reputation
+          value: /api/3/picklists/ae98ebc6-beef-4882-9980-1d88fc6d87cd
+          _value:
+            '@id': /api/3/picklists/ae98ebc6-beef-4882-9980-1d88fc6d87cd
+            display: TBD
+            itemValue: TBD
+          operator: eq
+    triggerOnReplicate: true
+    next: is_dedicated_tenant_record
+  - type: update_record
+    name: Update Enrichment Status to In Process
+    step_variables: []
+    fields:
+      enrichmentStatus: /api/3/picklists/8a4609d2-8a3d-4bda-9888-5f00bfea43cb
+    operation: Append
+    record: '{{vars.input.records[0][''@id'']}}'
+    collectionType: /api/3/indicators
+    fieldOperation:
+      recordTags: Append
+    next: configuration
+  - type: update_record
+    name: Update Record
+    step_variables: []
+    fields:
+      reputation: /api/3/picklists/9a611980-1b5e-4ae9-8062-eb2c0c433cff
+      enrichmentStatus: /api/3/picklists/c6e46fde-97a2-48cc-8019-938c9c5aebd0
+    operation: Append
+    record: '{{vars.input.records[0][''@id'']}}'
+    collectionType: /api/3/indicators
+    fieldOperation:
+      recordTags: Overwrite

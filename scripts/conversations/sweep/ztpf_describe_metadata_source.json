@@ -1,0 +1,34 @@
+{
+  "name": "ztpf_describe_metadata_source",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_metadata_sources",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {
+    "module": "ztpf_metadata_sources",
+    "uuid": "b2c3d4e5-f6a7-4890-bcde-f12345678901"
+  },
+  "why": [
+    "The metadata source persona's grounding test: 'what does this source",
+    "collect and how?'. The answer lives in the record's connector/action/",
+    "datakey fields -- the agent must read the mounted record (get_record or",
+    "search_module_records), not invent a plausible-sounding answer from the",
+    "name alone."
+  ],
+  "steps": [
+    {
+      "user": "What does this metadata source collect, and which connector action does it use?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": ["get_record", "search_module_records"]
+    },
+    "answers_from_record": {
+      "connector": "fortinet-fortimanager",
+      "action": "get_device_config"
+    }
+  }
+}

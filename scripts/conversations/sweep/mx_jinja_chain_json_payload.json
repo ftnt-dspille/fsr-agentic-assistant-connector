@@ -1,0 +1,26 @@
+{
+  "name": "mx_jinja_chain_json_payload",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "jinja_chain_json_payload",
+  "why": [
+    "Product-path twin of eval-matrix task 'jinja_chain_json_payload'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook that posts a JSON body to a webhook via the FortiSOAR built-in `cyops_utilities` connector's `api_call` operation (Utils: Make REST API Call). The body must be a JSON object containing two fields: `count` (the integer count of `vars.input.records[0].artifactsRelatedToAlerts`) and `names` (a list of each artifact's `value` field). Render the body as a JSON-encoded string. Use a single set_variable to build the payload variable, then pass it to make_https_request. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "jinja_chain_json_payload"
+  }
+}

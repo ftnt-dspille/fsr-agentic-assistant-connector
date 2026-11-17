@@ -1,0 +1,2054 @@
+{
+  "name": "connector-fsr-agentic-assistant",
+  "label": "FSR Agentic Assistant",
+  "description": "Chat-driven authoring of FortiSOAR playbooks. Wraps the fsr_playbooks compiler + agent loop so a widget (or any caller) can compile/validate YAML, run an LLM-driven authoring conversation, and push the result back into the platform.",
+  "publisher": "Internal",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "0.6.18",
+  "category": "utilities",
+  "icon_small_name": "connector_fsr_agentic_assistant_small.png",
+  "icon_large_name": "connector_fsr_agentic_assistant_medium.png",
+  "configuration": {
+    "fields": [
+      {
+        "name": "llm_provider",
+        "title": "LLM Provider",
+        "type": "select",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "value": "anthropic",
+        "options": [
+          "anthropic",
+          "openai",
+          "fortiai-proxy"
+        ],
+        "tooltip": "Which LLM backend drives the agent. 'anthropic' uses the Claude API (Anthropic API Key + Model below); 'openai' uses any OpenAI Chat Completions endpoint (OpenAI API Key + OpenAI Model + optional OpenAI Base URL); 'fortiai-proxy' uses the FortiAI gateway through the on-box connector -- no external key to supply, though inference still leaves the appliance unless FortiAI itself is deployed on-prem. All three carry identical human-in-the-loop approval gating on tier-3+ tools.",
+        "description": "Select the LLM backend. Fill in the matching API key / model fields for the provider you choose.",
+        "onchange": {
+          "anthropic": [
+            {
+              "name": "anthropic_api_key",
+              "title": "Anthropic API Key",
+              "type": "password",
+              "editable": true,
+              "visible": true,
+              "required": true,
+              "value": "",
+              "description": "API key for the Anthropic Claude API (required when LLM Provider = anthropic). Encrypted at rest by FortiSOAR; decrypted into config at execution time. Vault references supported via the standard toggle."
+            },
+            {
+              "name": "model",
+              "title": "Model",
+              "type": "select",
+              "editable": true,
+              "visible": true,
+              "required": false,
+              "value": "claude-sonnet-5",
+              "options": [
+                "claude-opus-5",
+                "claude-sonnet-5",
+                "claude-haiku-5-5",
+                "claude-opus-4-7",
+                "claude-sonnet-4-6",
+                "claude-sonnet-4-5-20250929"
+              ],
+              "description": "Anthropic model id (used when LLM Provider = anthropic). Defaults to Sonnet 5 -- the volume default; pick claude-opus-5 when quality matters more than cost. The agent runs a multi-step tool loop, so prefer the adaptive-thinking family (Opus 5 / Sonnet 5, the 5.5 line, and the 4.6/4.7 models): a model without reasoning plans poorly across tool calls. claude-haiku-5-5 is the low-cost option: it screens cleanly on triage, enrichment and diagnosis, so it is a good fit for high-volume triage; its one weak spot is the playbook build hand-off, which the product's duplicate-offer guard now covers, but Sonnet 5 remains the better choice when the turn mostly authors playbooks. claude-sonnet-4-5 predates adaptive thinking and is kept only for continuity (its Haiku 4.5 sibling is not offered: it failed the build hand-off every repeat). Call the list_models operation after configuring to see the live, account-specific list."
+            },
+            {
+              "name": "anthropic_base_url",
+              "title": "Anthropic Base URL",
+              "type": "text",
+              "editable": true,
+              "visible": true,
+              "required": false,
+              "value": "https://api.anthropic.com",
+              "tooltip": "Override to point at an Anthropic-compatible endpoint (corporate egress proxy or gateway). Leave as the default for the public Anthropic API.",
+              "description": "Base URL for the Anthropic API (used when LLM Provider = anthropic). Defaults to the public Anthropic API; override for a proxy/gateway."
+            }
+          ],
+          "openai": [
+            {
+              "name": "openai_api_key",
+              "title": "OpenAI API Key",
+              "type": "password",
+              "editable": true,
+              "visible": true,
+              "required": true,
+              "value": "",
+              "description": "API key for the OpenAI API (required when LLM Provider = openai). Encrypted at rest by FortiSOAR; decrypted into config at execution time. Vault references supported via the standard toggle."
+            },
+            {
+              "name": "openai_model",
+              "title": "OpenAI Model",
+              "type": "text",
+              "editable": true,
+              "visible": true,
+              "required": false,
+              "value": "gpt-5.4-mini",
+              "tooltip": "OpenAI Chat Completions model id. Tested: gpt-5.4-mini. Supported: o4-mini.",
+              "description": "OpenAI model id (used when LLM Provider = openai). Defaults to gpt-5.4-mini -- a REASONING mini. The previous default, gpt-4.1-mini, was chosen on a 15/15-vs-9/15 comparison against gpt-4o, but both of those are non-reasoning models, so that result says nothing about reasoning-capable minis; the agent runs a multi-step tool loop and plans badly without reasoning. o4-mini is the cheaper reasoning alternative. Not every function-calling model can run this agent: gpt-4.1-mini scores 3/5 on the pinned routing slice (it offers a finished build through the wrong card, and stops one call short of the approval gate) and is refused at health-check time. An unlisted model is allowed with a warning -- screen it with `make matrix MODE=gate REPEAT=3` before relying on it."
+            },
+            {
+              "name": "openai_base_url",
+              "title": "OpenAI Base URL",
+              "type": "text",
+              "editable": true,
+              "visible": true,
+              "required": false,
+              "value": "https://api.openai.com/v1",
+              "tooltip": "Override to point at an OpenAI-compatible endpoint (vLLM, Together, Groq, Azure OpenAI-compatible gateway). Leave as the default for OpenAI proper.",
+              "description": "Base URL for the OpenAI-compatible Chat Completions endpoint (used when LLM Provider = openai). Defaults to the public OpenAI API."
+            }
+          ],
+          "fortiai-proxy": [
+            {
+              "name": "fortiai_feature",
+              "title": "Reasoning Profile",
+              "type": "select",
+              "editable": true,
+              "visible": true,
+              "required": false,
+              "value": "",
+              "options": [
+                "",
+                "AI_MODEL_MEDIUM",
+                "AI_MODEL_LARGE",
+                "AI_MODEL_SMALL"
+              ],
+              "tooltip": "Which FortiAI backend profile serves the agent. Blank = whatever the fortinet-fortiai-proxy connector configuration selected (the stock box ships 'Low Reasoning' = AI_MODEL_MEDIUM as its default). AI_MODEL_LARGE is the 'High Reasoning' profile and is required for Reasoning Effort.",
+              "description": "Backend profile for FortiAI (used when LLM Provider = fortiai-proxy). Leave blank to inherit the FortiAI connector configuration."
+            },
+            {
+              "name": "fortiai_reasoning_effort",
+              "title": "Reasoning Effort",
+              "type": "select",
+              "editable": true,
+              "visible": true,
+              "required": false,
+              "value": "",
+              "options": [
+                "",
+                "minimal",
+                "low",
+                "medium",
+                "high"
+              ],
+              "tooltip": "How much reasoning FortiAI spends per turn. Requires the AI_MODEL_LARGE profile -- setting an effort selects it automatically, because an effort against a smaller profile is rejected outright by FortiAI. Blank = the profile's own default.",
+              "description": "Reasoning depth for FortiAI (used when LLM Provider = fortiai-proxy). Implies the AI_MODEL_LARGE profile."
+            }
+          ]
+        }
+      },
+      {
+        "name": "simulation_mode",
+        "title": "Simulation Mode",
+        "type": "checkbox",
+        "tooltip": "When enabled, the agent's live FortiSOAR tools (run_op, list_configured_connectors, connector healthchecks) are served from built-in simulated data instead of the live platform. Use for demos/offline testing when SIEM/TI connectors are unavailable. Leave OFF for real operations.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": false
+      },
+      {
+        "name": "persona_models",
+        "title": "Use Persona Models",
+        "type": "checkbox",
+        "tooltip": "When on, a persona that names a model for this provider (for example the ZTPF authoring personas on a stronger model) runs its conversations on that model, with this configuration's key and endpoint. Turn it off when the endpoint cannot serve those models (a gateway with its own model names) or to keep every conversation on the model above.",
+        "description": "Let authoring personas use the stronger model they name.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": true
+      },
+      {
+        "name": "mcp_access",
+        "title": "Native MCP Access",
+        "type": "select",
+        "options": [
+          "All servers",
+          "Selected servers"
+        ],
+        "tooltip": "'All servers' lets the agent use every active MCP Configuration on this platform, plus any server in the Advanced Allowlist below. 'Selected servers' limits it to the servers picked under Native MCP Servers (or named in the Advanced Allowlist). Tools that change something, such as blocking an indicator or running a playbook, always need analyst approval in either mode.",
+        "description": "Which native-MCP servers the agent may use.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": "All servers"
+      },
+      {
+        "name": "mcp_servers",
+        "title": "Native MCP Servers",
+        "type": "multiselect",
+        "renderer": "dynamic",
+        "rendererParams": {
+          "url": "/api/3/mcp_configurations?$limit=100",
+          "requestMethod": "GET",
+          "urlResponseKey": "hydra:member",
+          "contentKey": "url",
+          "contentLabel": "name"
+        },
+        "tooltip": "Used when Native MCP Access is 'Selected servers': which FortiSOAR native-MCP servers the agent may use. The list is read live from the platform's own MCP Configurations. Picking servers on a config saved before the access setting existed limits it to those servers.",
+        "description": "Native-MCP servers to allow under 'Selected servers'.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "options": [],
+        "value": []
+      },
+      {
+        "name": "mcp_tier",
+        "title": "Native MCP Tool Tier",
+        "type": "select",
+        "options": [
+          "read_only",
+          "mutating"
+        ],
+        "tooltip": "Approval tier applied to the selected servers' tools. 'read_only' runs them automatically (tier 1). 'mutating' routes every call through an approval card the analyst must accept (tier 3). Use the Advanced Allowlist below for per-server or per-tool control.",
+        "description": "Approval tier for the selected MCP servers' tools.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": "read_only"
+      },
+      {
+        "name": "mcp_auth",
+        "title": "Native MCP Identity",
+        "type": "select",
+        "options": [
+          "Built-in (HMAC)",
+          "API key",
+          "Service account"
+        ],
+        "onchange": {
+          "Built-in (HMAC)": [],
+          "API key": [
+            {
+              "name": "soar_api_key",
+              "title": "API Key",
+              "type": "password",
+              "tooltip": "A FortiSOAR API key, sent as 'Authorization: API-KEY <key>'. Preferred: it is not URI-bound, so it survives the MCP gateway's verbatim replay onto downstream /api/3 calls, and it carries the key user's identity. No token minting.",
+              "description": "FortiSOAR API key used as the identity for native-MCP tool calls.",
+              "visible": true,
+              "editable": true,
+              "required": true,
+              "value": ""
+            }
+          ],
+          "Service account": [
+            {
+              "name": "soar_username",
+              "title": "Username",
+              "type": "text",
+              "tooltip": "FortiSOAR service-account login used to mint a short-lived bearer token for native-MCP tool calls.",
+              "description": "Service-account username (bearer identity for native-MCP tools).",
+              "visible": true,
+              "editable": true,
+              "required": true,
+              "value": ""
+            },
+            {
+              "name": "soar_password",
+              "title": "Password",
+              "type": "password",
+              "tooltip": "Password for the service account above. Used only to mint a short-lived bearer token against the localhost MCP gateway.",
+              "description": "Service-account password (bearer-token mint for native-MCP tools).",
+              "visible": true,
+              "editable": true,
+              "required": true,
+              "value": ""
+            }
+          ]
+        },
+        "tooltip": "How the agent authenticates to native-MCP servers. The built-in HMAC identity is signed for the /mcp/ URI and is NOT forwardable, so servers that fetch records or trigger playbooks downstream (e.g. SOC Framework) return 401 with it. Choose API key or Service account for those.",
+        "description": "Identity used for native-MCP tool calls.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": "Built-in (HMAC)"
+      },
+      {
+        "name": "mcp_allowlist",
+        "title": "Advanced MCP Allowlist (optional JSON)",
+        "type": "textarea",
+        "tooltip": "Optional escape hatch for per-server or per-tool control, and for servers not listed above (e.g. 'connector:<name>'). JSON object mapping a server key to {\"tools\": [\"...\"] | \"*\", \"tier\": \"read_only\" | \"mutating\"}. When set, this REPLACES the Native MCP Servers / Tool Tier selection above. Example: {\"soc\": {\"tools\": \"*\", \"tier\": \"read_only\"}}",
+        "description": "Optional JSON allowlist. Overrides the server/tier pickers above when set.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": ""
+      },
+      {
+        "name": "notify_unattended",
+        "title": "Notify On Unattended Runs",
+        "type": "checkbox",
+        "tooltip": "When on, an unattended run (a scheduled hunt or auto-triage) that ends on a true positive or suspicious verdict, or that needs a person, sends one notification through the first configured channel (email, Slack or Teams). A shift summary is sent when asked for. Off by default.",
+        "description": "Send one notification when an unattended run needs attention.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": false
+      },
+      {
+        "name": "notification_recipient",
+        "title": "Notification Recipient",
+        "type": "text",
+        "tooltip": "Email address, or Slack channel, that receives the notifications above.",
+        "description": "Who is notified (email address or channel).",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": ""
+      },
+      {
+        "name": "redaction_mode",
+        "title": "Model Provider Redaction",
+        "type": "select",
+        "options": [
+          "off",
+          "standard",
+          "strict"
+        ],
+        "tooltip": "Masks sensitive values before any text is sent to the model provider, and restores them in what the analyst sees and in the tool calls the agent makes. 'off' sends text unchanged. 'standard' masks IP addresses, email addresses, usernames, hostnames, MAC addresses and secrets such as API keys and passwords. 'strict' also masks the record fields named in Redacted Free-Text Fields. The model sees stable typed placeholders (for example <IP_1>), so it can still tell that two mentions are the same host. Applies to every model call: chat turns, scope declaration, playbook building and summaries.",
+        "description": "Mask sensitive values before they reach the model provider.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": "off"
+      },
+      {
+        "name": "redaction_free_text_fields",
+        "title": "Redacted Free-Text Fields (strict mode)",
+        "type": "text",
+        "tooltip": "Comma-separated record field names whose whole value is masked when Model Provider Redaction is 'strict', for example description,notes. Only the fields named here are masked as free text.",
+        "description": "Free-text record fields to mask in strict mode.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": ""
+      },
+      {
+        "name": "reviewer_roles",
+        "title": "Reviewer Roles (optional)",
+        "type": "text",
+        "tooltip": "Comma-separated FortiSOAR role names allowed to approve or reject actions and close escalations from the review queue. Leave empty to let anyone decide. When set, an analyst can still decide the actions in their own chat; everything else needs one of these roles.",
+        "description": "Roles that may decide approvals and escalations for other people.",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "value": ""
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "health_check",
+      "title": "Health Check",
+      "annotation": "health_check",
+      "description": "Verify Anthropic API key reachability and reference DB presence.",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": {
+        "ok": "boolean",
+        "anthropic_reachable": "boolean",
+        "reference_db_present": "boolean",
+        "fsr_playbooks_version": "string"
+      }
+    },
+    {
+      "operation": "echo_param_types",
+      "title": "Echo Param Types (diagnostic)",
+      "annotation": "echo_param_types",
+      "description": "Diagnostic: returns the runtime python type of each received param. Used by the static-type-flow Phase 4b ingestion-coercion probe.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": false,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "p_text",
+          "title": "p_text",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "text-widget param"
+        },
+        {
+          "name": "p_textarea",
+          "title": "p_textarea",
+          "type": "textarea",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "textarea-widget param"
+        },
+        {
+          "name": "p_integer",
+          "title": "p_integer",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "integer-widget param"
+        },
+        {
+          "name": "p_decimal",
+          "title": "p_decimal",
+          "type": "decimal",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "decimal-widget param"
+        },
+        {
+          "name": "p_checkbox",
+          "title": "p_checkbox",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "checkbox-widget param"
+        },
+        {
+          "name": "p_json",
+          "title": "p_json",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "json-widget param"
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "received": "object"
+      }
+    },
+    {
+      "operation": "list_models",
+      "title": "List Models",
+      "annotation": "list_models",
+      "description": "List Claude models available to the configured Anthropic API key. Drives the connector configuration's Model dropdown via apiOperation. Hidden from the playbook palette \u2014 it's a UI helper, not an authoring tool.",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": false,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": [
+        {
+          "title": "string",
+          "value": "string"
+        }
+      ]
+    },
+    {
+      "operation": "warmup",
+      "title": "Warmup Reference Catalog",
+      "annotation": "warmup",
+      "description": "Populate connectors/operations/operation_params/op_safety from FortiSOAR's /api/3/connectors/ catalog. The slim build ships these tables empty; warmup fills them at first run. Idempotent \u2014 re-running on a populated DB is a no-op unless force=true.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "force",
+          "title": "Force",
+          "type": "checkbox",
+          "editable": true,
+          "visible": true,
+          "required": false,
+          "value": false,
+          "description": "Repopulate even if the catalog already has rows."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "ms": "number",
+        "skipped": "string",
+        "counts": {
+          "connectors": "number",
+          "operations": "number",
+          "operation_params": "number",
+          "op_safety": "number"
+        }
+      }
+    },
+    {
+      "operation": "compile_yaml",
+      "title": "Compile YAML",
+      "annotation": "compile_yaml",
+      "description": "Compile a friendly-YAML playbook to FortiSOAR WorkflowCollection JSON.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "yaml",
+          "title": "YAML",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Friendly-YAML playbook source."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "workflow_json": "object",
+        "errors": "array"
+      }
+    },
+    {
+      "operation": "validate_yaml",
+      "title": "Validate YAML",
+      "annotation": "validate_yaml",
+      "description": "Validate friendly-YAML without emitting JSON. Returns structured errors.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "yaml",
+          "title": "YAML",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Friendly-YAML playbook source."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "errors": "array"
+      }
+    },
+    {
+      "operation": "resolve_yaml",
+      "title": "Resolve YAML",
+      "annotation": "resolve_yaml",
+      "description": "Run the resolver pass only \u2014 returns the IR with picklists/connector args resolved but no FSR JSON emission.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": false,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "yaml",
+          "title": "YAML",
+          "type": "textarea",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Friendly-YAML playbook source."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "ir": "object",
+        "errors": "array"
+      }
+    },
+    {
+      "operation": "chat_turn",
+      "title": "Chat Turn",
+      "annotation": "chat_turn",
+      "description": "Run one turn of the LLM-driven playbook authoring loop. Stub in 0.0.1; full implementation lands when storage + agent wiring is complete.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Stable identifier the widget passes per chat session."
+        },
+        {
+          "name": "intent",
+          "title": "Intent",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Task intent discriminator: 'triage' (incident-response containment, biased to find_connector/find_operation/run_op with emit_action_card on mutating ops) or 'build' (playbook authoring, default). Selects the system prompt + tool slice; the user's message text is carried in messages[]. A non-discriminator string is accepted as the legacy user-message shape and defaults the intent to 'build'."
+        },
+        {
+          "name": "messages",
+          "title": "Messages",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Conversation turns (wire-form {role, content}). Carries the latest user message (and, on a triage->build handoff, the full triage transcript + directive). Omit on the very first turn only when the user text is passed via the legacy intent field."
+        }
+      ],
+      "output_schema": {
+        "turn_id": "string",
+        "transcript": "array",
+        "stop_reason": "string"
+      }
+    },
+    {
+      "operation": "chat_cancel",
+      "title": "Chat Cancel",
+      "annotation": "chat_cancel",
+      "description": "Stop the session's running chat turn (C6). Marks the turn cancelled: the agent runs no further model round and dispatches no tool, and the turn ends as stopped_by_analyst. Returns cancelled=false when no turn is running.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "The chat session whose running turn to stop."
+        }
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "monitor_cases",
+      "title": "Monitor Cases",
+      "annotation": "monitor_cases",
+      "description": "The Monitor's read side for the cases the assistant triaged on its own. view=list: the handled-cases queue (one row per case: verdict, confidence, where it looked, what it did or would have done, when, a handled / needs_you / reopened bucket, and the analyst feedback), filtered by bucket and time window, newest first, capped with a total. view=kpis: outcome counts and analyst agreement. view=policy: per rule, a ready-to-enforce flag with its inputs. view=tuning: per detection rule, reopen rate and a safe-to-tune flag. view=would_help: the missing or failing sources ranked by how many uncertain cases each would have helped. Read only.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "view", "title": "View", "type": "select", "options": ["list", "kpis", "policy", "tuning", "would_help"], "required": false, "editable": true, "visible": true, "value": "list", "description": "Which view to return."},
+        {"name": "bucket", "title": "Bucket", "type": "select", "options": ["all", "handled", "needs_you", "reopened"], "required": false, "editable": true, "visible": true, "value": "all", "description": "list only: which cases to show."},
+        {"name": "hours", "title": "Hours", "type": "decimal", "required": false, "editable": true, "visible": true, "description": "Look-back window in hours (default 24 for list and kpis, 336 for policy and tuning)."},
+        {"name": "limit", "title": "Limit", "type": "integer", "required": false, "editable": true, "visible": true, "description": "list only: most rows to return (default 50, max 200)."},
+        {"name": "check_reopened", "title": "Check Reopened", "type": "checkbox", "required": false, "editable": true, "visible": true, "value": true, "description": "Read each auto-closed record to spot one that is open again."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "monitor_feedback",
+      "title": "Monitor Feedback",
+      "annotation": "monitor_feedback",
+      "description": "Record an analyst's right or wrong, with an optional short note, on the assistant's decision for one record. One answer per record and analyst; a later one replaces it, an empty rating clears it. Returns the stored feedback read back with the decision's totals.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "record", "title": "Record", "type": "text", "required": true, "editable": true, "visible": true, "description": "The record IRI the decision was made on, such as /api/3/alerts/<uuid>."},
+        {"name": "rating", "title": "Rating", "type": "select", "options": ["right", "wrong"], "required": false, "editable": true, "visible": true, "description": "right or wrong; empty clears your earlier answer."},
+        {"name": "note", "title": "Note", "type": "text", "required": false, "editable": true, "visible": true, "description": "A short reason (up to 500 characters)."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "list_hunts",
+      "title": "List Hunts",
+      "annotation": "list_hunts",
+      "description": "The saved scheduled hunts: each with its question, its schedule in words, whether it is paused, its last run and outcome, the case its findings go to, and its recent runs. Read only; nothing is run.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "save_hunt",
+      "title": "Save Hunt",
+      "annotation": "save_hunt",
+      "description": "Create or edit a scheduled hunt: a question the assistant investigates unattended on FortiSOAR's own scheduler. A run that finds something opens a case (or comments on the open one); a quiet run is only recorded. Containment is never automatic. An omitted field keeps its value; enabled false pauses the schedule.",
+      "category": "management",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "The hunt's name (no colon or slash)."},
+        {"name": "question", "title": "Question", "type": "text", "required": false, "editable": true, "visible": true, "description": "What to hunt for, in plain words."},
+        {"name": "cron", "title": "Schedule (cron)", "type": "text", "required": false, "editable": true, "visible": true, "description": "5-field cron expression; not more often than every 15 minutes."},
+        {"name": "timezone", "title": "Timezone", "type": "text", "required": false, "editable": true, "visible": true, "value": "UTC", "description": "IANA timezone the schedule runs in."},
+        {"name": "module", "title": "Case module", "type": "select", "options": ["alerts", "incidents"], "required": false, "editable": true, "visible": true, "value": "alerts", "description": "Where a finding opens its case."},
+        {"name": "enabled", "title": "Enabled", "type": "checkbox", "required": false, "editable": true, "visible": true, "value": true, "description": "Unchecked pauses the schedule."},
+        {"name": "agent_config", "title": "Agent Config", "type": "text", "required": false, "editable": true, "visible": true, "description": "The connector configuration the runner calls (default: this connector's default configuration)."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "delete_hunt",
+      "title": "Delete Hunt",
+      "annotation": "delete_hunt",
+      "description": "Delete a scheduled hunt: its scheduler row, its runner playbook, its definition and its run history. Cases the hunt already opened stay.",
+      "category": "management",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "The hunt to delete."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "run_hunt",
+      "title": "Run Hunt",
+      "annotation": "run_hunt",
+      "description": "Run one hunt: an unattended investigation of its question. Called by the hunt's runner playbook on each schedule fire. With trigger set, asks the scheduler to fire it now instead. A confirmed or suspicious verdict opens or updates a case; any containment it proposes waits for an analyst.",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "The hunt to run."},
+        {"name": "trigger", "title": "Trigger", "type": "checkbox", "required": false, "editable": true, "visible": true, "value": false, "description": "Ask the scheduler to fire the hunt now instead of running it inline."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "shift_summary",
+      "title": "Shift Summary",
+      "annotation": "shift_summary",
+      "description": "An end-of-shift digest for a time window: what the assistant handled, what is waiting for a human, the notable verdicts, the sources that would have helped most and what the scheduled hunts found. Every number comes from stored data; the same digest is returned as plain text. Read only.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "hours", "title": "Hours", "type": "decimal", "required": false, "editable": true, "visible": true, "value": 8, "description": "Window length in hours (default 8)."},
+        {"name": "until", "title": "Until", "type": "decimal", "required": false, "editable": true, "visible": true, "description": "End of the window as epoch seconds (default now)."},
+        {"name": "notify", "title": "Send as notification", "type": "checkbox", "required": false, "editable": true, "visible": true, "value": false, "description": "Also send the summary through the configured notification channel. Needs Notify On Unattended Runs to be on."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "export_audit",
+      "title": "Export Audit",
+      "annotation": "export_audit",
+      "description": "Export the agent audit for a time window: sessions, model turns, tool calls, approval decisions (what was proposed, who decided, what ran) and the notifications sent, as JSON and as a flat CSV timeline. When Model Provider Redaction is on, the exported content is masked the same way. Read only.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {"name": "hours", "title": "Hours", "type": "decimal", "required": false, "editable": true, "visible": true, "value": 24, "description": "Window length in hours (default 24)."},
+        {"name": "until", "title": "Until", "type": "decimal", "required": false, "editable": true, "visible": true, "description": "End of the window as epoch seconds (default now)."},
+        {"name": "format", "title": "Format", "type": "select", "options": ["both", "csv", "json"], "required": false, "editable": true, "visible": true, "value": "both", "description": "Which renderings to return."}
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "playbook_health",
+      "title": "Playbook Health",
+      "annotation": "playbook_health",
+      "description": "Run health for the playbooks the assistant bottled: per playbook, run and failure counts, failures since the last success, and the most recent failure with its failing step (via why_did_playbook_fail). Read only; nothing is run or changed.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "How many bottled playbooks to list, newest first (default 20, max 50)."
+        }
+      ],
+      "output_schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "chat_poll",
+      "title": "Chat Poll",
+      "annotation": "chat_poll",
+      "description": "Poll the streaming progress feed for an in-flight chat_turn (contract 2.5.0). Cheap read-only op (no LLM round-trip): returns event frames with cursor greater than the caller's last-seen cursor, a new cursor watermark, and a 'done' flag with the envelope stop_reason once the turn finishes. Call in parallel with chat_turn on a short interval to render incremental updates.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "The chat session whose current (highest) turn to poll."
+        },
+        {
+          "name": "cursor",
+          "title": "Cursor",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Last cursor the caller has seen; 0 (default) starts from the beginning of the current turn. Pass back the 'cursor' value returned by the previous poll."
+        }
+      ],
+      "output_schema": {
+        "turn": "integer",
+        "cursor": "integer",
+        "frames": "array",
+        "done": "boolean",
+        "stop_reason": "string"
+      }
+    },
+    {
+      "operation": "chat_resume",
+      "title": "Chat Resume",
+      "annotation": "chat_resume",
+      "description": "Resume a chat turn that paused on an HITL approval gate.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Stable session identifier (the same one passed to chat_turn)."
+        },
+        {
+          "name": "decision",
+          "title": "Decision",
+          "type": "select",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "approve",
+            "reject",
+            "choice"
+          ],
+          "description": "approve/reject an action_card, or 'choice' to answer a choice_card."
+        },
+        {
+          "name": "card_id",
+          "title": "Card ID",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Id of the action_card being approved/rejected (contract resume key for awaiting_action_card)."
+        },
+        {
+          "name": "choice_id",
+          "title": "Choice ID",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Id of the choice_card being answered (with `value`)."
+        },
+        {
+          "name": "args",
+          "title": "Args",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Final (possibly user-edited) arguments for an approved action_card. Defaults to the card's proposed args when omitted."
+        },
+        {
+          "name": "value",
+          "title": "Value",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Selected value for a choice_card resume."
+        },
+        {
+          "name": "approval_id",
+          "title": "Approval ID",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Legacy tier-3 gate id from a prior ApprovalRequestEvent (only the legacy approval_request surface uses this; action_cards resume by card_id)."
+        },
+        {
+          "name": "note",
+          "title": "Note",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Optional reviewer note attached to the decision."
+        },
+        {
+          "name": "remember",
+          "title": "Always Allow",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false,
+          "description": "With an approve on a playbook-run card that offers it: also let this persona run that playbook without asking next time."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "session_id": "string",
+        "stop_reason": "string",
+        "transcript": "array"
+      }
+    },
+    {
+      "operation": "respond_manual_input",
+      "title": "Respond Manual Input",
+      "annotation": "respond_manual_input",
+      "description": "Submit a user's manual-input field values for a manual_input card. Forwards to the paused FortiSOAR workflow run (best-effort) and resumes the agent conversation so the chat narrates the result.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "name": "input_id",
+          "title": "Input ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "The id of the manual_input card being responded to."
+        },
+        {
+          "name": "workflow_run_iri",
+          "title": "Workflow Run IRI",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "IRI of the paused workflow run to resume."
+        },
+        {
+          "name": "decision",
+          "title": "Decision",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "approve",
+            "reject"
+          ],
+          "value": "approve",
+          "description": "Approve (submit values) or reject the gate."
+        },
+        {
+          "name": "values",
+          "title": "Values",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Submitted field values keyed by field name."
+        },
+        {
+          "name": "option",
+          "title": "Option",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "The button the analyst pressed, by its label (for a gate with several buttons). Absent: approve picks the primary button, reject the first other one."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "session_id": "string",
+        "input_id": "string",
+        "stop_reason": "string",
+        "transcript": "array",
+        "manual_input_forward": "object"
+      }
+    },
+    {
+      "operation": "chat_history",
+      "title": "Chat History",
+      "annotation": "chat_history",
+      "description": "Return prior turns for a session from the connector's history store. Stub in 0.0.1.",
+      "category": "investigation",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": 50
+        }
+      ],
+      "output_schema": {
+        "turns": "array"
+      }
+    },
+    {
+      "operation": "resolve_persona",
+      "title": "Resolve Persona",
+      "annotation": "resolve_persona",
+      "description": "Resolve the Key Store assistant persona (fsr_assistant_profile:<module>) UI framing for a mounted module. Fallback for the widget when the in-browser /api/3 Key Store read is 403-gated, and resolves bind_modules personas. Returns {found, module, label, ui}.",
+      "category": "investigation",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "module",
+          "title": "Module",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "found": "boolean",
+        "module": "text",
+        "label": "text",
+        "ui": "object"
+      }
+    },
+    {
+      "operation": "list_sessions",
+      "title": "List Sessions",
+      "annotation": "list_sessions",
+      "description": "List stored conversations newest-first for the history browser.",
+      "category": "investigation",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "limit",
+          "title": "Limit",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": 50
+        }
+      ],
+      "output_schema": {
+        "sessions": "array"
+      }
+    },
+    {
+      "operation": "rate_session",
+      "title": "Rate Session",
+      "annotation": "rate_session",
+      "description": "Record an analyst thumbs up/down on a session (for triage). Empty rating clears it.",
+      "category": "investigation",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "name": "rating",
+          "title": "Rating",
+          "type": "select",
+          "options": [
+            "up",
+            "down",
+            ""
+          ],
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "name": "note",
+          "title": "Note",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "session_id": "text",
+        "rating": "object"
+      }
+    },
+    {
+      "operation": "push_playbook",
+      "title": "Push Playbook",
+      "annotation": "push_playbook",
+      "description": "Create a WorkflowCollection: POST the unwrapped collection to /api/3/workflow_collections via integrations.crudhub.make_request. By default replaces any existing collection/workflows with the same (deterministic) uuids \u2014 hard-deleting them first, incl. the recycle bin \u2014 then creates. Returns {collection_uuid, workflow_uuids[]}.",
+      "category": "management",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "workflow_json",
+          "title": "Workflow JSON",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Compiled WorkflowCollection from compile_yaml (export wrap or unwrapped collection both accepted)."
+        },
+        {
+          "name": "overwrite",
+          "title": "Overwrite Existing",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": true,
+          "description": "When true (default), hard-delete any existing collection/workflows with the same uuids (incl. recycle bin) before creating, so re-pushing a same-named playbook replaces it instead of 409-conflicting. Set false for strict create."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "collection_uuid": "string",
+        "workflow_uuids": "array"
+      }
+    },
+    {
+      "operation": "update_playbook",
+      "title": "Update Playbook",
+      "annotation": "update_playbook",
+      "description": "Modify an EXISTING playbook in place \u2014 the modify counterpart of push_playbook (create-only). Snapshots the playbook into its Versions tab first and FAILS CLOSED if it cannot: no restore point, no edit. Then PUTs the compiled workflow to /api/3/workflows/<uuid>?$relationships=true&$versions=true \u2014 the playbook designer's own Save path, and the only path (an import_jobs merge_replace fallback was removed: live on 8.0 it returned ok while applying nothing, turning a failed edit into a phantom success). Returns {ok, workflow_iri, workflow_uuid, method, version_uuid}.",
+      "category": "management",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "workflow_json",
+          "title": "Workflow JSON",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Compiled WorkflowCollection from compile_yaml (export wrap or unwrapped collection both accepted). The first workflow is updated in place."
+        },
+        {
+          "name": "workflow_iri",
+          "title": "Workflow IRI",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "The existing playbook's IRI (/api/3/workflows/<uuid>). The widget seeds this from the open playbook in the designer. Either workflow_iri or workflow_uuid must be supplied."
+        },
+        {
+          "name": "workflow_uuid",
+          "title": "Workflow UUID",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "The existing playbook's uuid (derived from workflow_iri when only the IRI is supplied)."
+        },
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Labels the pre-edit restore point (\"ai-pre-edit <session_id>\") so a snapshot in the Versions tab is attributable to the chat that caused it. Optional."
+        },
+        {
+          "name": "stage",
+          "title": "Stage in the Designer",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false,
+          "description": "Take the restore point and run every guard, then return the save body instead of writing it, for the open designer to load as unsaved changes. The analyst's own Save is the write."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "workflow_iri": "string",
+        "workflow_uuid": "string",
+        "method": "string"
+      }
+    },
+    {
+      "operation": "decompile_playbook",
+      "title": "Decompile Playbook",
+      "annotation": "decompile_playbook",
+      "description": "Read an EXISTING playbook off the box and return it as authored-style YAML \u2014 the READ counterpart of compile_yaml, in the same dialect, so the read \u2192 edit \u2192 compile \u2192 update round-trip closes. The widget calls this when the playbook designer mounts and seeds the result as the open playbook's YAML, so the assistant can see what it is being asked to edit (nothing in the build tool slice can fetch a live playbook). Returns {ok, yaml, workflow_iri, workflow_uuid, name}.",
+      "category": "investigation",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "workflow_iri",
+          "title": "Workflow IRI",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "The playbook's IRI (/api/3/workflows/<uuid>). The widget seeds this from the open playbook in the designer. Either workflow_iri or workflow_uuid must be supplied."
+        },
+        {
+          "name": "workflow_uuid",
+          "title": "Workflow UUID",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "The playbook's uuid (derived from workflow_iri when only the IRI is supplied)."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "yaml": "string",
+        "workflow_iri": "string",
+        "workflow_uuid": "string",
+        "name": "string"
+      }
+    },
+    {
+      "operation": "dry_run_playbook",
+      "title": "Dry-Run Playbook",
+      "annotation": "dry_run_playbook",
+      "description": "Push a compiled WorkflowCollection, trigger one playbook, poll until terminal, and (optionally) hard-purge. Useful for end-to-end smoke checks from a widget.",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": false,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "workflow_json",
+          "title": "Workflow JSON",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Compiled WorkflowCollection from compile_yaml."
+        },
+        {
+          "name": "playbook_name",
+          "title": "Playbook Name",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Which workflow in the collection to trigger. Defaults to the first one."
+        },
+        {
+          "name": "inputs",
+          "title": "Inputs",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Trigger params; mapped to vars.input.params.* in the run."
+        },
+        {
+          "name": "timeout_s",
+          "title": "Timeout (s)",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": 180,
+          "description": "Max seconds to poll the run before giving up."
+        },
+        {
+          "name": "cleanup",
+          "title": "Cleanup",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": true,
+          "description": "Hard-purge the pushed collection after the run."
+        },
+        {
+          "name": "use_mock_output",
+          "title": "Use Mock Output",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false,
+          "description": "Run with each step's arguments.mock_result instead of live external calls."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "status": "string",
+        "task_id": "string",
+        "wf_pk": "string",
+        "collection_uuid": "string",
+        "cleaned_up": "boolean",
+        "error_message": "string",
+        "failed_steps": "array"
+      }
+    },
+    {
+      "operation": "render_jinja",
+      "title": "Render Jinja",
+      "annotation": "render_jinja",
+      "description": "Render a Jinja template through FortiSOAR's own Jinja engine (so FSR-custom filters work). Optionally pass a context dict and/or a workflow execution PK/task_id to seed vars.steps.* from a prior run.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": false,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "template",
+          "title": "Template",
+          "type": "textarea",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "Jinja source \u2014 e.g. \"{{ vars.steps.Get_org.records[0].id }}\"."
+        },
+        {
+          "name": "context",
+          "title": "Context",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Variable bindings (e.g. {\"value\": [1, 2, 3]}). Merged on top of any from_pb_execution vars."
+        },
+        {
+          "name": "from_pb_execution",
+          "title": "From Playbook Execution",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Workflow PK (digits) or task_id UUID. Loads the run's vars as the base context."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "output": "any",
+        "error": "string"
+      }
+    },
+    {
+      "operation": "query_store",
+      "title": "Query Reference Store",
+      "annotation": "query_store",
+      "description": "Run a read-only SELECT against the connector's fsr_reference.db (sqlite). Useful for diagnosing what ops/connectors are in the local cache. SELECT only \u2014 write statements are rejected.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": false,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "sql",
+          "title": "SQL",
+          "type": "textarea",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "A SELECT statement to run against fsr_reference.db."
+        },
+        {
+          "name": "limit",
+          "title": "Row Limit",
+          "type": "integer",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Max rows to return (default 200, max 1000)."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "rows": "array",
+        "count": "integer",
+        "columns": "array",
+        "db_path": "string"
+      }
+    },
+    {
+      "operation": "get_session_trace",
+      "title": "Get Session Trace (debug)",
+      "annotation": "get_session_trace",
+      "description": "DEBUG/smoke: return the recorded skill trace for a session and the deterministically-compiled playbook built from it (same build the playbook-offer accept runs). Read-only.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": false,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "name": "name",
+          "title": "Playbook Name",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Name used when compiling the trace into a playbook (default 'Triage Playbook')."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "session_id": "string",
+        "count": "integer",
+        "calls": "array",
+        "compiled_ok": "boolean",
+        "workflow_json": "object",
+        "steps": "integer"
+      }
+    },
+    {
+      "operation": "call_mcp_tool",
+      "title": "Call MCP Tool",
+      "annotation": "call_mcp_tool",
+      "description": "Invoke any of the connector's MCP tools by name and return the result. Lets playbooks call tools like find_containment_actions, list_configured_connectors, or run_op directly without going through the AI chat loop.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "tool",
+          "title": "Tool Name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "MCP tool name, e.g. find_containment_actions, list_configured_connectors, run_op."
+        },
+        {
+          "name": "args",
+          "title": "Arguments",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Tool arguments as a JSON object, e.g. {\"target_type\": \"ip\", \"probe\": true}."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean"
+      }
+    },
+    {
+      "operation": "list_mcp_tools",
+      "title": "List MCP Tools",
+      "annotation": "list_mcp_tools",
+      "description": "List all MCP tools registered on this connector, with names and descriptions.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": false,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": {
+        "ok": "boolean",
+        "tools": "array",
+        "count": "integer"
+      }
+    },
+    {
+      "operation": "list_agent_tools",
+      "title": "List Agent Tools",
+      "annotation": "list_agent_tools",
+      "description": "List the agentic tool surface the LLM is handed, per intent (triage/build) and optional mounted-module persona, as a real turn on this box would advertise it. Each tool carries its approval tier, confirm_mode, source (safe / mcp:<server> / widget) and description. Set include_mcp to materialize native-MCP-gateway tools; verbose to include input schemas. Read-only.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "intent",
+          "title": "Intent",
+          "description": "triage | build | both (default)",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "both"
+        },
+        {
+          "name": "module",
+          "title": "Module",
+          "description": "Optional mounted module - applies its Key Store persona slice.",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "name": "include_mcp",
+          "title": "Include MCP Tools",
+          "description": "Materialize native-MCP-gateway tools from the connector's mcp_allowlist.",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": true
+        },
+        {
+          "name": "verbose",
+          "title": "Verbose",
+          "description": "Include each tool's input_schema.",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false
+        },
+        {
+          "name": "reach_servers",
+          "title": "Reach Servers",
+          "description": "M2.1: MCP server keys to union into the module's default surface (preview an on-ask reach). Comma/JSON list.",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "module": "text",
+        "persona_applied": "boolean",
+        "surfaces": "array"
+      }
+    },
+    {
+      "operation": "list_mcp_servers",
+      "title": "List MCP Servers",
+      "annotation": "list_mcp_servers",
+      "description": "Enumerate the materialized external MCP servers and their tools, annotated with whether each server is on a given page's (module's) default surface. Answers 'what MCP is connected, and what does this page surface?' for operators wiring mcp_allowlist and for verifying M2 per-page surfacing. An off-surface server is still reachable on-ask. Read-only.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "module",
+          "title": "Module",
+          "description": "Optional mounted module - annotate each server's on/off-surface status for that page.",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true
+        },
+        {
+          "name": "reach_servers",
+          "title": "Reach Servers",
+          "description": "Server keys to union into the module's default surface before annotating (preview an on-ask reach). Comma/JSON list.",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "module": "text",
+        "surfaced_servers": "array",
+        "allowlist_keys": "array",
+        "servers": "array"
+      }
+    },
+    {
+      "operation": "probe_native_mcp",
+      "title": "Probe Native MCP (diagnostic)",
+      "description": "Diagnostic: call the on-box native-MCP gateway adapter with this config\u2019s creds; reports auth mode + tools + errors.",
+      "category": "investigation",
+      "annotation": "probe_native_mcp",
+      "enabled": true,
+      "visible": false,
+      "output_schema": {},
+      "parameters": [
+        {
+          "name": "server",
+          "title": "Server",
+          "type": "text",
+          "required": false,
+          "value": "soc",
+          "tooltip": "Native MCP server: soc/modules/playbooks/utility or connector:<name>."
+        },
+        {
+          "name": "tool",
+          "title": "Tool",
+          "type": "text",
+          "required": false,
+          "value": "",
+          "tooltip": "Optional tool name to call (forces the downstream /api/3 replay)."
+        },
+        {
+          "name": "args",
+          "title": "Args",
+          "type": "textarea",
+          "required": false,
+          "value": "",
+          "tooltip": "Optional JSON args for the tool call."
+        },
+        {
+          "name": "api_key",
+          "title": "API key (override)",
+          "type": "password",
+          "required": false,
+          "value": "",
+          "tooltip": "Diagnostic: inject a FortiSOAR API key to test api-key auth without a config write."
+        },
+        {
+          "name": "schemas",
+          "title": "Include schemas",
+          "type": "checkbox",
+          "required": false,
+          "value": false,
+          "tooltip": "Return each tool input schema."
+        }
+      ]
+    },
+    {
+      "operation": "create_scheduled_task",
+      "title": "Create Scheduled Agent Task",
+      "annotation": "create_scheduled_task",
+      "description": "Create a recurring agent task: generates a runner playbook (SetVariable prompt/intent + Connectors chat_turn), pushes it, and creates a FortiSOAR scheduler row (django-celery-beat). The task definition (prompt, intent) is the intuitive handle; the schedule is the plumbing. Idempotent on name (updates if it exists).",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "Task name (the stable lookup key)." },
+        { "name": "cron", "title": "Cron", "type": "text", "required": true, "editable": true, "visible": true, "description": "5-field cron: minute hour day_of_month month_of_year day_of_week (e.g. '0 9 * * 1' = Mondays 09:00)." },
+        { "name": "intent", "title": "Intent", "type": "select", "required": false, "editable": true, "visible": true, "options": ["triage", "build"], "description": "triage (read-only, default) or build. Scheduled tasks are almost always triage." },
+        { "name": "prompt", "title": "What the agent does", "type": "textarea", "required": true, "editable": true, "visible": true, "description": "The prompt the agent runs at each interval -- the intuitive mapping to what the task does." },
+        { "name": "agent_config", "title": "Agent config", "type": "text", "required": true, "editable": true, "visible": true, "description": "Connector config name the runner invokes (e.g. fsrpb-anthropic)." },
+        { "name": "allow_mutating", "title": "Allow mutating actions", "type": "checkbox", "required": false, "editable": true, "visible": true, "value": false, "description": "If on, a headless run may auto-approve an action card; off (default) parks + notifies on a HITL gate." },
+        { "name": "notify_target", "title": "Notify target", "type": "text", "required": false, "editable": true, "visible": true, "description": "Recipient for findings: email address (SMTP), Slack channel, or Teams webhook URL (optional). If set, the run's verdict is sent to this target via the highest-priority configured connector." },
+        { "name": "timezone", "title": "Timezone", "type": "text", "required": false, "editable": true, "visible": true, "value": "UTC", "description": "IANA timezone for the crontab." },
+        { "name": "enabled", "title": "Enabled", "type": "checkbox", "required": false, "editable": true, "visible": true, "value": true, "description": "Create the schedule enabled." }
+      ],
+      "output_schema": { "ok": "boolean", "name": "string", "wf_iri": "string", "schedule_name": "string" }
+    },
+    {
+      "operation": "list_scheduled_tasks",
+      "title": "List Scheduled Agent Tasks",
+      "annotation": "list_scheduled_tasks",
+      "description": "List scheduled agent task definitions, joined with live scheduler state (last_run_at, total_run_count, enabled). Pure read.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": { "tasks": "array" }
+    },
+    {
+      "operation": "get_scheduled_task",
+      "title": "Get Scheduled Agent Task",
+      "annotation": "get_scheduled_task",
+      "description": "One task definition + its live scheduler state.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "Task name." }
+      ],
+      "output_schema": { "task": "object" }
+    },
+    {
+      "operation": "update_scheduled_task",
+      "title": "Update Scheduled Agent Task",
+      "annotation": "update_scheduled_task",
+      "description": "Update a task's cron / intent / prompt / enabled. Recompiles the runner when prompt/intent change and get_or_create-updates the schedule. Omitted fields keep their current value.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "Task name." },
+        { "name": "cron", "title": "Cron", "type": "text", "required": false, "editable": true, "visible": true, "description": "5-field cron expression." },
+        { "name": "intent", "title": "Intent", "type": "select", "required": false, "editable": true, "visible": true, "options": ["triage", "build"] },
+        { "name": "prompt", "title": "What the agent does", "type": "textarea", "required": false, "editable": true, "visible": true, "description": "The prompt." },
+        { "name": "agent_config", "title": "Agent config", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "timezone", "title": "Timezone", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "enabled", "title": "Enabled", "type": "checkbox", "required": false, "editable": true, "visible": true }
+      ],
+      "output_schema": { "ok": "boolean", "name": "string", "wf_iri": "string" }
+    },
+    {
+      "operation": "delete_scheduled_task",
+      "title": "Delete Scheduled Agent Task",
+      "annotation": "delete_scheduled_task",
+      "description": "Delete the schedule row + the runner playbook collection + the task definition. Best-effort on the playbook delete.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "Task name." }
+      ],
+      "output_schema": { "ok": "boolean", "name": "string", "deleted": "boolean" }
+    },
+    {
+      "operation": "run_scheduled_task_now",
+      "title": "Run Scheduled Task Now",
+      "annotation": "run_scheduled_task_now",
+      "description": "Force-trigger a task immediately (bypasses cron; fires regardless of enabled). The trigger is async -- confirms acceptance, not completion.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "Task name." }
+      ],
+      "output_schema": { "ok": "boolean", "name": "string", "trigger": "object" }
+    },
+    {
+      "operation": "list_scheduled_task_runs",
+      "title": "List Scheduled Task Runs",
+      "annotation": "list_scheduled_task_runs",
+      "description": "List the runs (one per cron fire) of a scheduled task, newest-first. Each run shows its verdict, stop_reason, and a parked flag for HITL-gated runs resumable in chat. Pure storage read -- no scheduler transport.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Task Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "The scheduled task name." },
+        { "name": "limit", "title": "Limit", "type": "integer", "required": false, "editable": true, "visible": true }
+      ],
+      "output_schema": { "ok": "boolean", "runs": "array" }
+    },
+    {
+      "operation": "notify_finding",
+      "title": "Notify Finding",
+      "annotation": "notify_finding",
+      "description": "Push a scheduled task's finding to the analyst via a configured notification channel (SMTP email / Slack / Teams / SMS). Discovers what's configured on the box, formats the finding, and dispatches. Called by the runner playbook after chat_turn completes. Skips clean runs (no finding) to avoid spam.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "name", "title": "Task Name", "type": "text", "required": true, "editable": true, "visible": true, "description": "The scheduled task name." },
+        { "name": "session_id", "title": "Session ID", "type": "text", "required": false, "editable": true, "visible": true, "description": "The run's session id (sched:<name>:<uuid>)." },
+        { "name": "only_on_finding", "title": "Only On Finding", "type": "boolean", "required": false, "editable": true, "visible": true, "default": true, "description": "Skip notify when the run found nothing (default true)." },
+        { "name": "verdict", "title": "Verdict Override", "type": "textarea", "required": false, "editable": true, "visible": true, "description": "Explicit verdict text; when absent, reads the last assistant transcript." },
+        { "name": "notify_target", "title": "Notify Target", "type": "text", "required": false, "editable": true, "visible": true, "description": "Email address / Slack channel. When blank, uses the connector's default config." }
+      ],
+      "output_schema": { "ok": "boolean", "channel": "string", "skipped": "string", "name": "string", "session_id": "string", "subject": "string" }
+    },
+    {
+      "operation": "auto_triage",
+      "title": "Auto-Triage Record",
+      "annotation": "auto_triage",
+      "description": "Triage one record unattended and end with a verdict. Called by the on-create playbook that Set Auto-Triage installs. Each record is triaged once; records outside the severity/source filter are skipped. Nothing is approved automatically: proposed actions wait in the approval queue.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "record", "title": "Record IRI", "type": "text", "required": true, "editable": true, "visible": true, "description": "The record to triage, e.g. /api/3/alerts/<uuid>." },
+        { "name": "severities", "title": "Severities", "type": "json", "required": false, "editable": true, "visible": true, "description": "Triage only these severities (display text). Omitted: High and Critical. Empty list: any." },
+        { "name": "sources", "title": "Sources", "type": "json", "required": false, "editable": true, "visible": true, "description": "Triage only records whose Source is one of these. Empty: any." },
+        { "name": "notify_target", "title": "Notify Target", "type": "text", "required": false, "editable": true, "visible": true, "description": "Email address / channel told when the record needs a human. Blank: the channel's default, or no notification if it needs a recipient." },
+        { "name": "storm", "title": "Alert-Storm Grouping", "type": "json", "required": false, "editable": true, "visible": true, "description": "Group related alerts and cap sessions: {group (default true), window_minutes (15), keys (sourceIp, destinationIp, computerName), same_name (true), max_sessions (100 per cap window, 0 = no cap), cap_window_minutes (60)}. Only the first alert of a group is triaged; later ones are noted and linked to it. Alerts over the cap are deferred, not dropped." }
+      ],
+      "output_schema": { "ok": "boolean", "record": "string", "session_id": "string", "skipped": "string", "lead_session": "string", "lead_record": "string", "group_size": "integer", "stop_reason": "string", "verdict": "object", "waiting": "integer", "needs_human": "boolean", "why": "array", "escalation_id": "string", "priority": "string", "notified": "string" }
+    },
+    {
+      "operation": "set_auto_triage",
+      "title": "Set Auto-Triage",
+      "annotation": "set_auto_triage",
+      "description": "Install or replace the on-create playbook that auto-triages every new record of a module (alerts by default). Enabled = false keeps the playbook but deactivates it.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "agent_config", "title": "Agent Configuration", "type": "text", "required": true, "editable": true, "visible": true, "description": "Name of this connector's configuration the triage turns run under." },
+        { "name": "module", "title": "Module", "type": "text", "required": false, "editable": true, "visible": true, "description": "Module to triage on create (default alerts)." },
+        { "name": "severities", "title": "Severities", "type": "json", "required": false, "editable": true, "visible": true, "description": "Triage only these severities. Omitted: High and Critical. Empty list: any." },
+        { "name": "sources", "title": "Sources", "type": "json", "required": false, "editable": true, "visible": true, "description": "Triage only records whose Source is one of these. Empty: any." },
+        { "name": "enabled", "title": "Enabled", "type": "boolean", "required": false, "editable": true, "visible": true, "default": true, "description": "False deactivates the trigger." },
+        { "name": "notify_target", "title": "Notify Target", "type": "text", "required": false, "editable": true, "visible": true, "description": "Email address / channel told when the record needs a human. Blank: the channel's default, or no notification if it needs a recipient." }
+      ],
+      "output_schema": { "ok": "boolean", "module": "string", "wf_iri": "string", "enabled": "boolean", "severities": "array", "sources": "array", "notify_target": "string" }
+    },
+    {
+      "operation": "resolve_escalation",
+      "title": "Resolve Escalation",
+      "annotation": "resolve_escalation",
+      "description": "Take an auto-triage escalation off the review queue as handled or dismissed. Decided once; a second answer is refused naming who resolved it. Actions still waiting in the session stay in the queue.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "session_id", "title": "Session ID", "type": "text", "required": true, "editable": true, "visible": true, "description": "The auto-triage session (auto:<module>:<uuid>)." },
+        { "name": "card_id", "title": "Escalation ID", "type": "text", "required": true, "editable": true, "visible": true, "description": "The escalation card id (esc_<uuid>)." },
+        { "name": "outcome", "title": "Outcome", "type": "text", "required": false, "editable": true, "visible": true, "description": "handled (default) or dismissed." },
+        { "name": "actor", "title": "Reviewer", "type": "json", "required": false, "editable": true, "visible": true, "description": "The reviewer, {name, iri}." }
+      ],
+      "output_schema": { "ok": "boolean", "session_id": "string", "card_id": "string", "outcome": "string" }
+    },
+    {
+      "operation": "undo_action",
+      "title": "Undo Action",
+      "annotation": "undo_action",
+      "description": "Reverse an approved action card that ran, e.g. unblock an IP it blocked. The reverse operation comes from the autonomy policy rule's undo, else a built-in pair; the arguments are the ones that actually ran. Done once; a second undo is refused naming who undid it.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "session_id",
+          "title": "Session ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "The chat or auto-triage session the card belongs to."
+        },
+        {
+          "name": "card_id",
+          "title": "Card ID",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "description": "The approved action card to reverse."
+        },
+        {
+          "name": "actor",
+          "title": "Actor",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "description": "Who is undoing, {name, iri}."
+        }
+      ],
+      "output_schema": {
+        "ok": "boolean",
+        "session_id": "string",
+        "card_id": "string",
+        "undo": {},
+        "result": {}
+      }
+    },
+    {
+      "operation": "list_usage",
+      "title": "List Agent Usage",
+      "annotation": "list_usage",
+      "description": "Per-turn usage telemetry (tokens, cost, model, intent, tool calls) from the connector store. Powers the monitor widget's drill-downs.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "from", "title": "From (ISO 8601)", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "to", "title": "To (ISO 8601)", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "user_iri", "title": "User IRI", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "model", "title": "Model", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "intent", "title": "Intent", "type": "select", "required": false, "editable": true, "visible": true, "options": ["triage", "build"] },
+        { "name": "status", "title": "Status", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "session_id", "title": "Session ID", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "limit", "title": "Limit", "type": "integer", "required": false, "editable": true, "visible": true }
+      ],
+      "output_schema": { "usage": "array" }
+    },
+    {
+      "operation": "get_usage_summary",
+      "title": "Get Usage Summary",
+      "annotation": "get_usage_summary",
+      "description": "Aggregated usage buckets for the charts (usage/tokens/cost over time).",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "bucket", "title": "Bucket", "type": "select", "required": false, "editable": true, "visible": true, "options": ["hour", "day"], "value": "day" },
+        { "name": "metric", "title": "Metric", "type": "select", "required": false, "editable": true, "visible": true, "options": ["tokens", "cost", "turns"], "value": "tokens" },
+        { "name": "group_by", "title": "Group by", "type": "select", "required": false, "editable": true, "visible": true, "options": ["model", "intent", "user_iri"] },
+        { "name": "from", "title": "From (ISO 8601)", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "to", "title": "To (ISO 8601)", "type": "text", "required": false, "editable": true, "visible": true }
+      ],
+      "output_schema": { "summary": "array" }
+    },
+    {
+      "operation": "list_pending",
+      "title": "List Pending (HITL-parked) Tasks",
+      "annotation": "list_pending",
+      "description": "HITL-parked sessions awaiting an analyst (action cards / approvals paused mid-turn). Powers the monitor's 'pending tasks' panel with a resume deep-link.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": { "pending": "array" }
+    },
+    {
+      "operation": "list_shadow_decisions",
+      "title": "List Shadow Decisions",
+      "annotation": "list_shadow_decisions",
+      "description": "The autonomy policy's shadow table: for each rule, how often it would have acted (or not) next to what the reviewer actually decided. Would-act but rejected is the number that must stay zero before a rule is enforced. Nothing is enforced in this version.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Since (hours)",
+          "name": "since_hours",
+          "type": "integer",
+          "visible": true,
+          "editable": true,
+          "required": false,
+          "value": 336,
+          "tooltip": "How far back to count. Default two weeks, the shadow period required before enforcing a rule."
+        }
+      ],
+      "output_schema": { "rules": "array", "decisions": "array", "policy": "object" }
+    },
+    {
+      "operation": "get_autonomy_policy",
+      "title": "Get Autonomy Policy",
+      "annotation": "get_autonomy_policy",
+      "description": "The current autonomy policy document (read fresh, past the cache) plus whether it parses against the policy model. Feeds the Monitor's policy editor.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [],
+      "output_schema": { "ok": "boolean", "policy": "object", "error": "string", "valid": "boolean", "problem": "string" }
+    },
+    {
+      "operation": "set_autonomy_policy",
+      "title": "Set Autonomy Policy",
+      "annotation": "set_autonomy_policy",
+      "description": "Validate and save the autonomy policy to the Key Store. Reviewer-role gated (needs the connector's reviewer_roles set) and validated against the policy model before any write, so an invalid policy is refused and never partially applied.",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Policy",
+          "name": "policy",
+          "type": "json",
+          "visible": true,
+          "editable": true,
+          "required": true,
+          "tooltip": "The full autonomy policy document (version, enabled, mode, rules, protected)."
+        }
+      ],
+      "output_schema": { "ok": "boolean", "policy": "object", "error": "string", "code": "string", "valid": "boolean" }
+    },
+    {
+      "operation": "get_audit_trail",
+      "title": "Get Audit Trail",
+      "annotation": "get_audit_trail",
+      "description": "Per-LLM-call audit records (prompt, response, tokens, cost, user, status) for the auditable trail. The native /api/3/llm_activity_logs module is the canonical audit home; this op supplies the richer drill-down fields (tool calls, cache stats, tags).",
+      "category": "utilities",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "from", "title": "From (ISO 8601)", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "to", "title": "To (ISO 8601)", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "user_iri", "title": "User IRI", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "model", "title": "Model", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "status", "title": "Status", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "session_id", "title": "Session ID", "type": "text", "required": false, "editable": true, "visible": true },
+        { "name": "limit", "title": "Limit", "type": "integer", "required": false, "editable": true, "visible": true }
+      ],
+      "output_schema": { "usage": "array" }
+    },
+    {
+      "operation": "list_active_sessions",
+      "title": "List Active Sessions",
+      "annotation": "list_active_sessions",
+      "description": "Live agentic chat sessions with a derived status (active / waiting_approval / idle), the acting user, mounted record, latest prompt, turn count, and last activity. Powers the monitor's Live Sessions panel. Derived from the connector session stores.",
+      "category": "utilities",
+      "is_config_required": false,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        { "name": "limit", "title": "Limit", "type": "integer", "required": false, "editable": true, "visible": true }
+      ],
+      "output_schema": { "sessions": "array" }
+    }
+  ]
+}

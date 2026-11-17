@@ -1,0 +1,34 @@
+{
+  "name": "interleave_build_then_record_question",
+  "category": "interleave",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "The canonical interleave, in its shortest form: author, then ask",
+    "about the record. The build slice must not have taken the record",
+    "away."
+  ],
+  "steps": [
+    {
+      "user": "Give me a containment playbook for this alert.",
+      "intent": "build"
+    },
+    {
+      "user": "What severity is this alert set to right now?",
+      "intent": "build"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "answers_from_record": {
+      "severity": "High"
+    },
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true
+  }
+}

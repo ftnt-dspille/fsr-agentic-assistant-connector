@@ -1,0 +1,123 @@
+{
+  "ok": true,
+  "collection_uuid": "9dee54a0-202d-5230-b616-67cb2869dbe8",
+  "workflow_uuids": [
+    "2d680df4-003a-59a0-8f2d-c90501f2bf66"
+  ],
+  "raw": {
+    "@context": "/api/3/contexts/WorkflowCollection",
+    "@id": "/api/3/workflow_collections/9dee54a0-202d-5230-b616-67cb2869dbe8",
+    "@type": "WorkflowCollection",
+    "name": "FSRPB Live Harness Pure Logic",
+    "description": "Live integration harness fixture \u2014 branches on severity.",
+    "visible": true,
+    "workflows": [
+      {
+        "@id": "/api/3/workflows/2d680df4-003a-59a0-8f2d-c90501f2bf66",
+        "@type": "Workflow",
+        "triggerLimit": null,
+        "name": "Route Severity Live",
+        "aliasName": null,
+        "tag": "",
+        "description": "Reads severity from trigger input, branches, stamps a tier.",
+        "isActive": true,
+        "debug": false,
+        "singleRecordExecution": false,
+        "remoteExecutableFlag": false,
+        "parameters": [
+          "severity"
+        ],
+        "synchronous": false,
+        "lastModifyDate": 1780086714,
+        "collection": "/api/3/workflow_collections/9dee54a0-202d-5230-b616-67cb2869dbe8",
+        "triggerStep": "/api/3/workflow_steps/7d8f64c1-84e7-5e86-a66f-0723a59abca5",
+        "priority": null,
+        "playbookOrigin": {
+          "@id": "/api/3/picklists/15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "@type": "Picklist",
+          "itemValue": "Custom",
+          "orderIndex": 1,
+          "color": "#ed1515",
+          "icon": null,
+          "listName": "/api/3/picklist_names/aa754880-6334-484b-9b49-cfccab09cafb",
+          "uuid": "15c1e8c9-22bf-4e66-8fbb-0a502d4a4a3f",
+          "id": 188,
+          "importedBy": []
+        },
+        "isEditable": true,
+        "uuid": "2d680df4-003a-59a0-8f2d-c90501f2bf66",
+        "id": null,
+        "createUser": {
+          "@id": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "@type": "Appliance",
+          "name": "Playbook",
+          "userType": null,
+          "avatar": null,
+          "uuid": "57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createUser": null,
+          "createDate": 1745942906.078369,
+          "modifyUser": null,
+          "modifyDate": 1745942906.078369,
+          "id": 1,
+          "userId": "6f3626c1-0da7-4b44-8d5e-43750f780a47"
+        },
+        "createDate": 1780086717.86639,
+        "modifyUser": {
+          "@id": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "@type": "Appliance",
+          "name": "Playbook",
+          "userType": null,
+          "avatar": null,
+          "uuid": "57545210-2adc-472b-a24f-2df6ee8dfe63",
+          "createUser": null,
+          "createDate": 1745942906.078369,
+          "modifyUser": null,
+          "modifyDate": 1745942906.078369,
+          "id": 1,
+          "userId": "6f3626c1-0da7-4b44-8d5e-43750f780a47"
+        },
+        "modifyDate": 1780086717.86639,
+        "isPrivate": false,
+        "deletedAt": null,
+        "importedBy": [],
+        "recordTags": []
+      }
+    ],
+    "image": null,
+    "uuid": "9dee54a0-202d-5230-b616-67cb2869dbe8",
+    "id": null,
+    "createUser": {
+      "@id": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+      "@type": "Appliance",
+      "name": "Playbook",
+      "userType": null,
+      "avatar": null,
+      "uuid": "57545210-2adc-472b-a24f-2df6ee8dfe63",
+      "createUser": null,
+      "createDate": 1745942906.078369,
+      "modifyUser": null,
+      "modifyDate": 1745942906.078369,
+      "id": 1,
+      "userId": "6f3626c1-0da7-4b44-8d5e-43750f780a47"
+    },
+    "createDate": 1780086717.866016,
+    "modifyUser": {
+      "@id": "/api/3/appliances/57545210-2adc-472b-a24f-2df6ee8dfe63",
+      "@type": "Appliance",
+      "name": "Playbook",
+      "userType": null,
+      "avatar": null,
+      "uuid": "57545210-2adc-472b-a24f-2df6ee8dfe63",
+      "createUser": null,
+      "createDate": 1745942906.078369,
+      "modifyUser": null,
+      "modifyDate": 1745942906.078369,
+      "id": 1,
+      "userId": "6f3626c1-0da7-4b44-8d5e-43750f780a47"
+    },
+    "modifyDate": 1780086717.866016,
+    "deletedAt": null,
+    "importedBy": [],
+    "recordTags": []
+  }
+}

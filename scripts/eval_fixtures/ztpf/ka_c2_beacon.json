@@ -1,0 +1,345 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world (hand-authored in the shape of live responses).",
+  "The evidence below decides the alert; the alert itself does not name the answer.",
+  "strict_ops: any op not recorded here returns an honest miss, never the canned",
+  "'malicious' default -- that default would decide the verdict for the agent.",
+  "Answer: true_positive. TI: 47/94 engines, cobalt-strike C2 tags;",
+  "SIEM: fin-ws-07 calls out every 2 minutes, ~600 bytes each (beaconing)."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "fortigate-firewall",
+   "status": "Completed",
+   "version": "5.4.0",
+   "label": "Fortinet FortiGate",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01",
+    "@type": "Alert",
+    "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01",
+    "id": 91001,
+    "name": "Outbound connection from 10.20.1.15 to 198.51.100.77",
+    "description": "FortiGate flagged repeated outbound HTTPS sessions from 10.20.1.15 to 198.51.100.77.",
+    "sourceIp": "10.20.1.15",
+    "destinationIp": "198.51.100.77",
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "orderIndex": 3,
+     "color": "#DE7A13",
+     "icon": null,
+     "listName": "/api/3/picklist_names/4e80cba3-032f-48b4-ac03-17e3ec247aac",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb",
+     "id": 444,
+     "importedBy": []
+    },
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "orderIndex": 1,
+     "color": null,
+     "icon": null,
+     "listName": "/api/3/picklist_names/33e964a9-d607-49f2-813c-7ce46141815a",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146",
+     "id": 201,
+     "importedBy": []
+    },
+    "type": {
+     "@id": "/api/3/picklists/a043fb35-f373-44c0-bfa9-5bce2f711141",
+     "@type": "Picklist",
+     "itemValue": "Data Exfiltration",
+     "orderIndex": 5,
+     "color": null,
+     "icon": null,
+     "listName": "/api/3/picklist_names/a7087b9c-5660-495f-a8ac-c3b198ddb8c2",
+     "uuid": "a043fb35-f373-44c0-bfa9-5bce2f711141",
+     "id": 228,
+     "importedBy": []
+    },
+    "source": "Fortinet FortiSIEM",
+    "sourceId": "141001",
+    "createDate": 1790550000.0,
+    "hostName": "fin-ws-07"
+   }
+  ]
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.77"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.77",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 47,
+        "suspicious": 3,
+        "harmless": 20,
+        "undetected": 24,
+        "timeout": 0
+       },
+       "tags": [
+        "cobalt-strike",
+        "c2",
+        "beacon"
+       ],
+       "as_owner": "HOSTKEY-B.V.",
+       "country": "NL",
+       "reputation": -141
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.20.1.15"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T09:00:00Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 612,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:02:02Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 614,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:04:01Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 616,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:06:00Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 618,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:08:02Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 620,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:10:01Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 622,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:12:00Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 624,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:14:02Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 626,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:16:01Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 628,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:18:00Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 630,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:20:02Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 632,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:22:01Z",
+      "srcIpAddr": "10.20.1.15",
+      "destIpAddr": "198.51.100.77",
+      "destIpPort": 443,
+      "sentBytes64": 634,
+      "hostName": "fin-ws-07",
+      "eventType": "Permitted traffic flow"
+     }
+    ]
+   }
+  }
+ ]
+}

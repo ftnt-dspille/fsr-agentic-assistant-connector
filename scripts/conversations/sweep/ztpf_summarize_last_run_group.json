@@ -1,0 +1,34 @@
+{
+  "name": "ztpf_summarize_last_run_group",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {"module": "ztpf_devices", "uuid": "5b23794a-a657-4169-97d3-98698126d59f"},
+  "why": [
+    "The question a network engineer actually asks after a run: what did the",
+    "last run group do, and what came back. It is the first scenario whose",
+    "answer lives ENTIRELY in another module -- the device record names no",
+    "step and carries no output -- so an agent that answers from the drawer",
+    "alone cannot pass it, and until the fixture box existed nothing could",
+    "tell that apart from an agent that investigated.",
+    "The trap is step 4: `Install DeviceDB` completed with an EMPTY output",
+    "while every step around it carries a task id and a config block."
+  ],
+  "steps": [
+    {"user": "Tell me about the last run group on this device -- what did it do, and what did the steps actually produce?"}
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {"any_of": ["search_module_records", "get_record"]},
+    "reports": {
+      "all_of": ["ztpf-1785337128", "Install DeviceDB", "SingleLo"],
+      "any_of": ["5 steps", "five steps", "5 of 5", "step 5"]
+    },
+    "no_fabricated_output": {
+      "step": "Install DeviceDB",
+      "markers": ["task id", "```"]
+    }
+  }
+}

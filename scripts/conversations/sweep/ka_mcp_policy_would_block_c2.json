@@ -1,0 +1,40 @@
+{
+ "name": "ka_mcp_policy_would_block_c2",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_mcp_c2_beacon_policy",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e01"
+ },
+ "why": [
+  "KNOWN-ANSWER row (roadmap S12): the C2 beacon whose threat intel is reachable",
+  "only through FortiSIEM's MCP reputation tool. Before, the autonomy policy's",
+  "evidence check accepted run_op lookups only, so an MCP-rated C2 could never",
+  "reach would_act. The tool is declared an intel lookup by product; nothing is",
+  "guessed from a name."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert and give me your verdict. If it is malicious, stage a block of the external address on the FortiGate for my approval."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive"
+   ]
+  },
+  "policy_decided": {
+   "outcome": "would_act",
+   "rule": "block-external-ip"
+  },
+  "called": {
+   "any_of": [
+    "mcp_fortisiem__get_reputation_by_entity"
+   ]
+  }
+ }
+}

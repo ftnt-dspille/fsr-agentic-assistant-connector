@@ -1,0 +1,6 @@
+{
+ "name": "lifecycle_enhance_manual_input_ip_field",
+ "why": "Continue/enhance leg: modify an existing playbook open in the designer. Inherits the framework's enhance_manual_input_ip_field task (prompt + ir_assertions + before-state) so the sim runs the authoritative enhance scenario and grades the delivered edit, preserving untouched steps.",
+ "inherit_matrix": "enhance_manual_input_ip_field",
+ "records": "soc_alert_surface_servicenow"
+}

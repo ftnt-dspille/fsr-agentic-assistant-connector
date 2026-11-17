@@ -1,0 +1,71 @@
+{
+  "name": "ztpf_run_pending_steps",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "5b23794a-a657-4169-97d3-98698126d59f"
+  },
+  "why": [
+    "\"Run the pending steps.\" The house rule from a live analyst FIXME is that",
+    "this means run the playbook that creates a run group and queues them --",
+    "NEVER run the step records one at a time. Both readings look reasonable",
+    "to a model and only one produces a run group, so this is the scenario",
+    "that distinguishes them.",
+    "It also pins the discovery order: the playbook name must come from",
+    "`list_module_playbooks`, because a run_playbook call with an invented",
+    "name fails on the box, far from here.",
+    "Two steps in the fixture are ungrouped so 'pending' has referents -- they",
+    "are STAGED rows (flagged `_staged`), since every real step on the",
+    "captured box already belonged to a run group.",
+    "`both_called_in_order`, not `called_before`: the loose grader passes when the second call never happened, and it graded this very row green on an arc where no playbook was ever run. Here the run IS the contract.",
+    "",
+    "APPROVE-THEN-EXECUTE (#81): the run_playbook call tiers to an approval",
+    "card. Without a resume step the scenario stopped at the CARD and graded",
+    "'carded, never ran' GREEN -- so the two approve-never-executes bugs",
+    "(3631003 'an approved non-run_op card must actually execute' + f58fcb4",
+    "'persist the approval so an approved run_playbook actually runs') were",
+    "invisible here. The resume step drives the approval, and",
+    "`resume_round_trip` asserts the dispatch round-trips coherently (a",
+    "clean named error is the expected offline outcome; 'unknown tool' or a",
+    "traceback or no-text-back is the bug). The `both_called_in_order` bar",
+    "then covers a run that actually dispatched, not just one that carded."
+  ],
+  "steps": [
+    {
+      "user": "What steps are pending on this device?"
+    },
+    {
+      "user": "Run the pending steps."
+    },
+    {
+      "resume": {
+        "decision": "approve"
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reports": {
+      "all_of": [
+        "Create Loopback Interface",
+        "Install DeviceDB"
+      ],
+      "any_of": [
+        "Create Run Group and Execute Steps"
+      ]
+    },
+    "called": [
+      "list_module_playbooks",
+      "run_playbook"
+    ],
+    "both_called_in_order": [
+      "list_module_playbooks",
+      "run_playbook"
+    ],
+    "resume_round_trip": true
+  }
+}

@@ -1,0 +1,37 @@
+{
+ "name": "ka_auto_authorized_scanner",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_authorized_scanner",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02"
+ },
+ "auto_triage": true,
+ "why": [
+  "AUTO-TRIAGE row (tier-1 phase A gate): the org's own scanner in its change window.",
+  "The model's job is to reach a benign/false_positive verdict and STAGE the close;",
+  "authorizing that close is the autonomy policy's job, not the agent's. Under the",
+  "default shadow policy the staged close waits in the Monitor (needs_human), and is",
+  "run unattended only once the admin promotes the close-false-positive rule to enforce",
+  "(proven by the auto_triage policy unit tests and the live gate, not this row)."
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "benign",
+    "false_positive"
+   ]
+  },
+  "escalates": {
+   "needs_human": true
+  },
+  "reads": {
+   "required": [
+    "/api/3/assets"
+   ]
+  }
+ }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "triage_incident_not_alert",
+  "category": "triage",
+  "intent": "triage",
+  "module": "incidents",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "incidents",
+    "uuid": "b4a62c3b-3f60-44a5-b44d-f53a9244fa55"
+  },
+  "why": [
+    "The widget mounts incidents as well as alerts and the triage slice",
+    "must work identically. This incident also has srcip None -- a real",
+    "record with a missing field, where inventing one is the temptation."
+  ],
+  "steps": [
+    {
+      "user": "Summarise this incident and tell me its severity."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "answers_from_record": {
+      "host": "smithDesktop",
+      "severity": "Medium"
+    },
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true
+  }
+}

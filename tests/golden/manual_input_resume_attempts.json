@@ -1,0 +1,18 @@
+[
+  {
+    "method": "POST",
+    "path": "/api/wf/api/workflows/682440/resume/",
+    "status": 200,
+    "response": {
+      "message": "CS-WF-48: The workflow 'Probe Manual Input' has already been resumed"
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/api/wf/api/workflows/682440/wfinput_resume/",
+    "status": 500,
+    "response": {
+      "__nonjson__": "\n<!doctype html>\n<html lang=\"en\">\n<head>\n  <title>Server Error (500)</title>\n</head>\n<body>\n  <h1>Server Error (500)</h1><p></p>\n</body>\n</html>\n"
+    }
+  }
+]

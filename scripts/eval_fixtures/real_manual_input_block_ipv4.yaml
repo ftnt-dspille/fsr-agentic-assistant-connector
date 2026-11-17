@@ -1,0 +1,71 @@
+collection: 04 - Actions
+description: ''
+visible: true
+playbooks:
+- name: Action - IPv4 Addresses - Block Threat Feeds
+  description: 'Blocks ''IP Addresses
+
+    '' on the firewall.'
+  is_active: true
+  trigger_step_id: start
+  parameters:
+  - ip4AddressList
+  steps:
+  - type: manual_input
+    name: Manual Task to Block IPv4 Addresses
+    step_variables: []
+    options:
+    - display: No Operation
+      primary: true
+      next: no_operation
+    input:
+      schema:
+        title: Block IPv4 Addresses
+        description: '<p>Configure your firewall to block following threat feeds:
+
+          {{vars.input.params.ip4AddressList | join('','')}}
+
+          </p>
+
+
+          <p>*Consider changing this step to automation using a connector. That
+          would accelerate your response time and allow you to focus on advanced
+          threats</p>'
+        inputVariables: []
+    record: ''
+    resources: threat_intel_feeds
+    is_approval: false
+    owner_detail:
+      isAssigned: false
+      emailRecipients: ''
+    isRecordLinked: false
+    email_notification:
+      enabled: false
+      smtpParameters: []
+    customEmailExternal: false
+    inline_channel_list: []
+    external_channel_list: []
+    unauthenticated_input: false
+    internal_email_subject: A FortiSOAR playbook is requesting your input
+  - type: connector
+    name: No Operation
+    params: []
+    connector: cyops_utilities
+    operation: no_op
+  - type: start
+    name: Start
+    module: threat_intel_feeds
+    route: 8df0d51e-19e1-4b55-813d-9bea224fb32e
+    button_label: Block File Hash
+    displayConditions:
+      alerts:
+        sort: []
+        limit: 30
+        logic: AND
+        filters: []
+      threat_intel_feeds:
+        sort: []
+        limit: 30
+        logic: AND
+        filters: []
+    next: manual_task_to_block_ipv4_addresses

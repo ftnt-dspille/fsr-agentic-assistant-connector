@@ -1,0 +1,31 @@
+{
+  "name": "ztpf_real_recent_with_age",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. FIXMEs from the engineer: include how long ago each run group ran, newest first, and list each group's steps in step-number order."
+  ],
+  "steps": [
+    {
+      "user": "what has run on this device recently?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reports": {
+      "all_of": [
+        "ztpf-1790110223"
+      ],
+      "any_of": [
+        " ago"
+      ]
+    }
+  }
+}

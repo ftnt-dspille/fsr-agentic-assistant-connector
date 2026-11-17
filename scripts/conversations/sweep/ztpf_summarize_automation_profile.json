@@ -1,0 +1,33 @@
+{
+  "name": "ztpf_summarize_automation_profile",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_profiles",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {
+    "module": "ztpf_automation_profiles",
+    "uuid": "c3d4e5f6-a7b8-4901-cdef-23456789012a"
+  },
+  "why": [
+    "The orchestration persona's grounding test: 'summarise this profile'.",
+    "The answer must come from the mounted record -- the agent reads it with",
+    "get_record, then describes what the profile does. A model that gives a",
+    "generic 'automation profiles order steps' answer without reading the",
+    "specific record is the failure this catches."
+  ],
+  "steps": [
+    {
+      "user": "Summarise this automation profile -- what is it for?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": ["get_record", "search_module_records"]
+    },
+    "answers_from_record": {
+      "name": "Branch Office Onboarding"
+    }
+  }
+}

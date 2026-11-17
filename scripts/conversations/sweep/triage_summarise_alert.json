@@ -1,0 +1,31 @@
+{
+  "name": "triage_summarise_alert",
+  "category": "triage",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "The most common real question there is: 'what am I looking at'. It is",
+    "answerable entirely from the mounted record, so it is the cleanest",
+    "test of whether the agent reads what it was handed instead of",
+    "reciting a generic exfiltration write-up."
+  ],
+  "steps": [
+    {
+      "user": "What is this alert and what should I do about it?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "answers_from_record": {
+      "sourceIp": "10.50.60.70",
+      "destinationIp": "102.220.160.21"
+    },
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true
+  }
+}

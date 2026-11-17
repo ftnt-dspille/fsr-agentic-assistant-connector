@@ -1,0 +1,170 @@
+collection: UC1c - FortiGate Firmware Upgrade via FMG
+description: |
+  Upgrade a FortiGate's firmware via FortiManager's /sys/proxy/json endpoint.
+  Lists available firmware, resolves the target image ID, triggers the
+  upgrade, and posts a summary to the triggering alert.
+
+  Based on the Project_Early_Shield PSIRT patching playbook, simplified for
+  the workshop to a single-device manual trigger.
+visible: true
+
+playbooks:
+  - name: Trigger FGT Firmware Upgrade via FMG
+    description: |
+      Manually triggered with a device name, ADOM, and target version.
+      Calls FortiManager to list available firmware for the device, resolves
+      the firmware ID matching the target version, then triggers the upgrade
+      via the FortiGate REST API proxied through FMG.
+    is_active: true
+    parameters: [device_name, adom, target_version]
+    steps:
+      - name: Start
+        type: start
+        module: alerts
+        button_label: Trigger Firmware Upgrade
+        requires_record: true
+        next: Set Variables
+
+      - name: Set Variables
+        type: set_variable
+        description: Read inputs from the manual trigger.
+        next: Get Available Firmware
+        vars:
+          device_name: "{{ vars.input.params.device_name | default(vars.input.records[0].destDevice | default('')) }}"
+          adom: "{{ vars.input.params.adom | default('root') }}"
+          target_version: "{{ vars.input.params.target_version | default(vars.input.records[0].upgradeTo | default('')) }}"
+          alert_iri: "{{ vars.input.records[0]['@id'] }}"
+
+      - name: Get Available Firmware
+        type: connector
+        description: |
+          Call FortiManager /sys/proxy/json to proxy GET /api/v2/monitor/system/firmware
+          to the target FortiGate. Returns the available firmware list with IDs.
+        connector: fortinet-fortimanager-json-rpc
+        operation: json_rpc_execute
+        config: "fortimanager-lab"
+        params:
+          url: "/sys/proxy/json"
+          data: '{"action": "get", "resource": "/api/v2/monitor/system/firmware", "target": ["adom/{{ vars.adom }}/device/{{ vars.device_name }}"]}'
+        next: Resolve Firmware ID
+
+      - name: Resolve Firmware ID
+        type: code_snippet
+        description: |
+          Match the target_version (e.g. "7.0.19") against the available firmware
+          list returned by the FortiGate. Extract the firmware ID needed for the
+          upgrade call.
+        next: Check Firmware Found
+        code: |
+          import json
+
+          target_version = "{{ vars.target_version }}"
+          fw_response = json.loads('''{{ vars.steps.Get_Available_Firmware | tojson }}''')
+
+          # Navigate the connector response wrapper
+          execute_response = fw_response.get('execute_response', [])
+          if not execute_response:
+              firmware_id = None
+              available = []
+          else:
+              results = execute_response[0].get('response', {}).get('results', {})
+              available = results.get('available', []) if isinstance(results, dict) else []
+
+          # Parse target version into major.minor.patch
+          parts = target_version.split('.')
+          if len(parts) != 3:
+              print(json.dumps({"firmware_id": None, "error": "Invalid version format: " + target_version}))
+          else:
+              t_major, t_minor, t_patch = int(parts[0]), int(parts[1]), int(parts[2])
+              firmware_id = None
+              for fw in available:
+                  if (fw.get('major') == t_major and
+                      fw.get('minor') == t_minor and
+                      fw.get('patch') == t_patch):
+                      firmware_id = fw.get('id')
+                      break
+
+              if not firmware_id:
+                  available_versions = ["v{}.{}.{}".format(f.get('major'), f.get('minor'), f.get('patch'))
+                                        for f in available]
+                  print(json.dumps({"firmware_id": None, "error": "Version {} not in available: {}".format(
+                      target_version, available_versions)}))
+              else:
+                  print(json.dumps({"firmware_id": firmware_id, "version": target_version,
+                                    "device_name": "{{ vars.device_name }}",
+                                    "adom": "{{ vars.adom }}"}))
+
+      - name: Check Firmware Found
+        type: decision
+        description: Branch on whether the firmware ID was resolved.
+        conditions:
+          - display: Firmware Found
+            when: "{{ vars.steps.Resolve_Firmware_ID.output.firmware_id is not none }}"
+            next: Trigger Upgrade
+          - display: Not Found
+            default: true
+            next: Update Alert With Error
+
+      - name: Trigger Upgrade
+        type: connector
+        description: |
+          Call FortiManager /sys/proxy/json to proxy POST /api/v2/monitor/system/firmware/upgrade
+          to the target FortiGate using the resolved firmware ID with source=fortiguard.
+        connector: fortinet-fortimanager-json-rpc
+        operation: json_rpc_execute
+        config: "fortimanager-lab"
+        params:
+          url: "/sys/proxy/json"
+          data: '{"action": "post", "resource": "/api/v2/monitor/system/firmware/upgrade", "target": ["adom/{{ vars.adom }}/device/{{ vars.device_name }}"], "payload": {"source": "fortiguard", "filename": "{{ vars.steps.Resolve_Firmware_ID.output.firmware_id }}"}}'
+          track_task: true
+        next: Check Has Alert
+
+      - name: Check Has Alert
+        type: decision
+        description: If triggered from an alert record, append the summary; otherwise just end.
+        conditions:
+          - display: Has Alert
+            when: "{{ vars.alert_iri is not none and vars.alert_iri != '' }}"
+            next: Update Alert With Summary
+          - display: No Alert
+            default: true
+            next: Done
+
+      - name: Update Alert With Summary
+        type: update_record
+        description: Append a success summary to the alert description.
+        record: "{{ vars.alert_iri }}"
+        module: alerts
+        fields:
+          description: |
+            #### Firmware Upgrade Initiated
+
+            | Device | ADOM | Target Version | Firmware ID | Status |
+            |--------|------|----------------|-------------|--------|
+            | {{ vars.device_name }} | {{ vars.adom }} | {{ vars.target_version }} | {{ vars.steps.Resolve_Firmware_ID.output.firmware_id }} | Submitted |
+
+            The FortiGate will reboot as part of the upgrade process. Verify the new
+            firmware version via FortiManager once the device comes back online.
+        operation: Append
+        next: Done
+
+      - name: Update Alert With Error
+        type: update_record
+        description: Append an error summary to the alert description.
+        record: "{{ vars.alert_iri }}"
+        module: alerts
+        fields:
+          description: |
+            #### Firmware Upgrade Failed
+
+            | Device | ADOM | Target Version | Error |
+            |--------|------|----------------|-------|
+            | {{ vars.device_name }} | {{ vars.adom }} | {{ vars.target_version }} | {{ vars.steps.Resolve_Firmware_ID.output.error }} |
+
+            The requested firmware version was not found in the available firmware list.
+            Check the version string and the device's firmware catalog.
+        operation: Append
+        next: Done
+
+      - name: Done
+        type: end

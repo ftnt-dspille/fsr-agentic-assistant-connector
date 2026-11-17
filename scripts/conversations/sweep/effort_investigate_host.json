@@ -1,0 +1,26 @@
+{
+ "name": "effort_investigate_host",
+ "category": "effort",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_needle_in_ticket_siem_empty",
+ "mount": {
+  "module": "alerts",
+  "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301"
+ },
+ "why": [
+  "EFFORT row: the turn's effort must match the size of the ask.",
+  "An open-ended hunt: more than the record read."
+ ],
+ "steps": [
+  {
+   "user": "Find everything else that touched this host."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "effort": {
+   "band": "investigate"
+  }
+ }
+}

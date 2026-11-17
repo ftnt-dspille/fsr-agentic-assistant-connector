@@ -1,0 +1,30 @@
+{
+  "name": "ztpf_real_run_renamed_playbook",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_devices",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_devices",
+    "uuid": "a0a36846-82c3-42ec-919b-fb391a645ba0"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. FIXME from the engineer: the playbook they name was renamed, and the assistant should find the close match rather than refuse. They asked for 'Create Run Group and Queue Steps'; this box has 'Create RunGroup and Execute Steps'.",
+    "The approval card must name the real playbook."
+  ],
+  "steps": [
+    {
+      "user": "Run playbook \"Create Run Group and Queue Steps\""
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "carded": {
+      "tool": "run_playbook",
+      "args": {
+        "playbook": "Create RunGroup and Execute Steps"
+      }
+    }
+  }
+}

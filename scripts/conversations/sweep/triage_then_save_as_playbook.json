@@ -1,0 +1,79 @@
+{
+  "name": "triage_then_save_as_playbook",
+  "category": "build",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "soc_alert_surface",
+  "mount": {
+    "module": "alerts",
+    "uuid": "d39ecc9a-2968-42d5-948d-ce96fd76b227"
+  },
+  "why": [
+    "The P4 promise on one row: the agent investigates a real alert, then",
+    "the analyst says 'save that as a playbook', and the offer that comes",
+    "back must be TRACE-BUILT -- its wiring derived from the observed tool",
+    "outputs the triage recorded, not guessed. This is the triage-close",
+    "offer path (emit_playbook_offer with NO yaml arg), which until N2 had",
+    "zero graded coverage: no scenario drove the triage-close offer, and no",
+    "grader asserted the offer's draft was trace-built (ops_summary with",
+    "verified badges) rather than hand-authored (emit_playbook_offer",
+    "(yaml=<authored>)).",
+    "",
+    "Three turns is the minimum arc: (1) triage populates the SkillTrace",
+    "with real run_op observed_outputs; (2) the analyst's 'save that as a",
+    "playbook' ask stays in TRIAGE intent -- the triage prompt says to",
+    "call emit_playbook_offer with NO yaml arg, and the card's ops_summary",
+    "is compiled from the recorded trace by the deterministic skill",
+    "compiler; (3) accept compiles + pushes deterministically.",
+    "",
+    "Staying in triage (NOT flipping to build) is deliberate: the triage",
+    "prompt unambiguously routes a save request to emit_playbook_offer (no",
+    "yaml), while the build prompt's triage->build handoff section expects",
+    "an 'Operations used during triage' directive the analyst did not",
+    "send. Flipping to build lets the model hand-author YAML instead of",
+    "using the trace -- the exact P4 defect wiring_derives_from_observed",
+    "catches. The triage-close offer is the path the widget uses when an",
+    "analyst says 'save that' mid-investigation; the build-from-triage CTA",
+    "is a different flow.",
+    "",
+    "wiring_derives_from_observed is the load-bearing grader: it fails if",
+    "no offer was emitted, fails if the offer was hand-authored (no",
+    "verified badges -- the wiring is the model's guess), and fails if",
+    "any step has verified=false (its inputs fell back to a manual gap).",
+    "All-verified is the 'bottle the moment of genius' assertion -- the",
+    "playbook will re-run deterministically on a fresh record because",
+    "every step's inputs trace to an earlier observed output, not a",
+    "literal the model invented. yaml_compiles is deliberately absent:",
+    "the trace-built path surfaces ops_summary (verified badges) not YAML",
+    "text, and the verified badges already imply a successful",
+    "compile_and_verify. tools_are_real + no_unserved_reads +",
+    "no_excessive_fan_out guard the triage turn itself: no invented",
+    "tools, no unanswered cassette reads (the investigation was real, not",
+    "a fallback to the mounted entity), no get_record fan-out.",
+    "",
+    "offer_accept_compiles grades the Accept (step 3), the step that saves.",
+    "Without it this row passed 2/2 while every accept answered 'Could not",
+    "save playbook'. The push itself needs a box; offline grades the compile."
+  ],
+  "steps": [
+    {
+      "user": "Investigate this alert. Enrich the source IP with VirusTotal to check if it's malicious."
+    },
+    {
+      "user": "Save that as a playbook."
+    },
+    {
+      "resume": {
+        "decision": "accept"
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "wiring_derives_from_observed": true,
+    "verdicts_cited": true,
+    "no_unserved_reads": true,
+    "no_excessive_fan_out": true,
+    "offer_accept_compiles": true
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "ztpf_author_test_template",
+  "category": "ztpf_author",
+  "intent": "triage",
+  "module": "ztpf_templates",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_templates",
+    "uuid": "7d762bbe-580d-4618-b174-f76ed5823fcf"
+  },
+  "why": [
+    "Testing a template: render it against its own example vars and say what config it would push. The real loopback template uses regex_replace and ipaddr; the answer must come from a render, not from reading the Jinja.",
+    "From the engineer's history: \"Explain what this ZTPF template's script provisions\" and the template-test persona quick action."
+  ],
+  "steps": [
+    {
+      "user": "Test this template. What config would it push?"
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": [
+      "test_template"
+    ],
+    "reports": {
+      "all_of": [
+        "SingleLo2",
+        "192.0.2.2"
+      ]
+    }
+  }
+}

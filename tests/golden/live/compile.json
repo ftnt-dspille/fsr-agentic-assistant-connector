@@ -1,0 +1,196 @@
+{
+  "ok": true,
+  "workflow_json": {
+    "type": "workflow_collections",
+    "macros": [],
+    "exported_tags": [],
+    "data": [
+      {
+        "@type": "WorkflowCollection",
+        "name": "FSRPB Live Harness Pure Logic",
+        "description": "Live integration harness fixture \u2014 branches on severity.",
+        "visible": true,
+        "image": null,
+        "uuid": "9dee54a0-202d-5230-b616-67cb2869dbe8",
+        "recordTags": [],
+        "workflows": [
+          {
+            "@type": "Workflow",
+            "name": "Route Severity Live",
+            "aliasName": null,
+            "tag": "",
+            "description": "Reads severity from trigger input, branches, stamps a tier.",
+            "isActive": true,
+            "debug": false,
+            "singleRecordExecution": false,
+            "remoteExecutableFlag": 0,
+            "parameters": [
+              "severity"
+            ],
+            "synchronous": false,
+            "lastModifyDate": 1780086714,
+            "collection": "/api/3/workflow_collections/9dee54a0-202d-5230-b616-67cb2869dbe8",
+            "versions": [],
+            "triggerStep": "/api/3/workflow_steps/7d8f64c1-84e7-5e86-a66f-0723a59abca5",
+            "steps": [
+              {
+                "@type": "WorkflowStep",
+                "name": "start",
+                "description": null,
+                "arguments": {
+                  "step_variables": {
+                    "input": {
+                      "params": []
+                    }
+                  }
+                },
+                "status": null,
+                "top": "120",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+                "group": null,
+                "uuid": "7d8f64c1-84e7-5e86-a66f-0723a59abca5"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Read severity",
+                "description": null,
+                "arguments": {
+                  "severity": "{{ vars.input.params.severity }}"
+                },
+                "status": null,
+                "top": "220",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+                "group": null,
+                "uuid": "3930d262-a936-5eef-8536-2433bea7c124"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Branch on severity",
+                "description": null,
+                "arguments": {
+                  "conditions": [
+                    {
+                      "option": "high",
+                      "condition": "{{ vars.severity in ['critical', 'high'] }}",
+                      "step_iri": "/api/3/workflow_steps/2bf32e78-2702-5d66-aefd-6306e34f2dfc",
+                      "step_name": "Escalate to Tier 2"
+                    },
+                    {
+                      "option": "low",
+                      "condition": "{{ vars.severity not in ['critical', 'high'] }}",
+                      "step_iri": "/api/3/workflow_steps/0ea6aa75-dd9f-576b-9247-792f36e6e94a",
+                      "step_name": "No action low severity"
+                    }
+                  ]
+                },
+                "status": null,
+                "top": "320",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/12254cf5-5db7-4b1a-8cb1-3af081924b28",
+                "group": null,
+                "uuid": "b52c6fc0-054a-5b93-9049-0f485f7f6d99"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Escalate to Tier 2",
+                "description": null,
+                "arguments": {
+                  "tier": "tier2"
+                },
+                "status": null,
+                "top": "420",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+                "group": null,
+                "uuid": "2bf32e78-2702-5d66-aefd-6306e34f2dfc"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "No action low severity",
+                "description": null,
+                "arguments": {
+                  "connector": "cyops_utilities",
+                  "operation": "no_op",
+                  "config": "",
+                  "params": {},
+                  "version": "3.7.0",
+                  "name": "Utilities",
+                  "operationTitle": "Utils: No Operation",
+                  "step_variables": [],
+                  "pickFromTenant": false
+                },
+                "status": null,
+                "top": "420",
+                "left": "480",
+                "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+                "group": null,
+                "uuid": "0ea6aa75-dd9f-576b-9247-792f36e6e94a"
+              }
+            ],
+            "routes": [
+              {
+                "@type": "WorkflowRoute",
+                "name": "start -> Read severity",
+                "targetStep": "/api/3/workflow_steps/3930d262-a936-5eef-8536-2433bea7c124",
+                "sourceStep": "/api/3/workflow_steps/7d8f64c1-84e7-5e86-a66f-0723a59abca5",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "5dfdff3b-7a63-510b-bd24-6ae418adfc21"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Read severity -> Branch on severity",
+                "targetStep": "/api/3/workflow_steps/b52c6fc0-054a-5b93-9049-0f485f7f6d99",
+                "sourceStep": "/api/3/workflow_steps/3930d262-a936-5eef-8536-2433bea7c124",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "3c88cd9e-4245-54dd-bbbd-36cc23b9266a"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Branch on severity -> Escalate to Tier 2",
+                "targetStep": "/api/3/workflow_steps/2bf32e78-2702-5d66-aefd-6306e34f2dfc",
+                "sourceStep": "/api/3/workflow_steps/b52c6fc0-054a-5b93-9049-0f485f7f6d99",
+                "label": "high",
+                "isExecuted": false,
+                "group": null,
+                "uuid": "2b773359-9e55-59d3-9d9d-59f22da27a3e"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Branch on severity -> No action low severity",
+                "targetStep": "/api/3/workflow_steps/0ea6aa75-dd9f-576b-9247-792f36e6e94a",
+                "sourceStep": "/api/3/workflow_steps/b52c6fc0-054a-5b93-9049-0f485f7f6d99",
+                "label": "low",
+                "isExecuted": false,
+                "group": null,
+                "uuid": "ce505f2f-7f47-55ec-9ee9-38f92f3c69c9"
+              }
+            ],
+            "groups": [],
+            "priority": null,
+            "playbookOrigin": null,
+            "isEditable": true,
+            "uuid": "2d680df4-003a-59a0-8f2d-c90501f2bf66",
+            "owners": [],
+            "isPrivate": false
+          }
+        ]
+      }
+    ]
+  },
+  "errors": [
+    {
+      "code": "bad_value",
+      "message": "decision 'branch_on_severity': no default/else branch and no fall-through `next:`; if every condition evaluates false the run will stall. Either add a branch with `default: true` or set `next:` on the decision step",
+      "path": "playbooks[0].steps[2].arguments.conditions",
+      "suggestion": null,
+      "near": null,
+      "severity": "warning"
+    }
+  ]
+}

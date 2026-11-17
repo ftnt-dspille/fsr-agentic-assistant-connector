@@ -1,0 +1,42 @@
+{
+ "name": "ka_prior_case_false_positive",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_prior_case_false_positive",
+ "mount": {
+  "module": "alerts",
+  "uuid": "7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a01"
+ },
+ "why": [
+  "KNOWN-ANSWER row: its records bundle fixes the evidence (strict_ops),",
+  "so the verdict is graded against a right answer, not a vibe.",
+  "",
+  "X2 cross-case memory. An uncommon external destination that threat intel cannot call (one suspicious engine, no category). The deciding evidence is a PRIOR CASE: the same destination was closed earlier as a false positive (Finance's partner SFTP gateway). A different earlier alert on another address was a true positive and is the distractor. Either benign or false_positive is correct.",
+  "",
+  "reads /api/query/alerts: the earlier-case lookup. Without it the right verdict is a",
+  "guess from a one-engine hit."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "benign",
+    "false_positive"
+   ]
+  },
+  "reads": {
+   "required": [
+    "/api/query/alerts"
+   ]
+  },
+  "called": [
+   "prior_cases"
+  ]
+ }
+}

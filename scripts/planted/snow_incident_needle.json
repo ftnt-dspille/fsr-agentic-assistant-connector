@@ -1,0 +1,32 @@
+{
+ "name": "snow_incident_needle",
+ "source": "servicenow",
+ "connector": "servicenow",
+ "table": "incident",
+ "why": [
+  "One needle the agent should find in ServiceNow, plus distractors that look",
+  "related but carry a different per-run token. {token} is replaced at plant",
+  "time by a random token, one per item; the token never appears in the row's",
+  "user message, so it can only reach the answer through a tool result."
+ ],
+ "items": [
+  {
+   "label": "needle",
+   "role": "needle",
+   "short_description": "[NEEDLE-TEST - safe to delete] {token} outbound transfer from host build-07",
+   "description": "Planted test record {token}. Reported by the on-call engineer: build-07 pushed a large archive to an unfamiliar external address overnight. Ticket references the Quarterly-Review share."
+  },
+  {
+   "label": "distractor_similar",
+   "role": "distractor",
+   "short_description": "[NEEDLE-TEST - safe to delete] {token} routine backup on build-07",
+   "description": "Planted test record {token}. Scheduled backup job completed on build-07 as expected."
+  },
+  {
+   "label": "distractor_other_host",
+   "role": "distractor",
+   "short_description": "[NEEDLE-TEST - safe to delete] {token} printer queue stuck on fin-02",
+   "description": "Planted test record {token}. Unrelated printer issue."
+  }
+ ]
+}

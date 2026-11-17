@@ -1,0 +1,26 @@
+{
+  "name": "mx_itops_disk_full_recheck",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "itops_disk_full_recheck",
+  "why": [
+    "Product-path twin of eval-matrix task 'itops_disk_full_recheck'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook. Trigger: alert created in the alerts module tagged 'disk_full'. Behavior: find the host record in the assets module matching the alert's `affected_host` IP, then run our `clean_tmp` Ansible job through the SSH connector against that host. After the job returns, decide based on the reported free-space percentage: if free space is still below 10% after the cleanup, page on-call via PagerDuty with the host name and current free-space value; otherwise update the alert status to 'Closed' and add a comment that auto-cleanup succeeded. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "itops_disk_full_recheck"
+  }
+}

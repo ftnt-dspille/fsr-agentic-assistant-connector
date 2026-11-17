@@ -1,0 +1,29 @@
+{
+  "name": "build_installed_connectors_only",
+  "category": "build",
+  "intent": "build",
+  "records": "soc_alert_surface_all_installed",
+  "box_only": true,
+  "why": [
+    "The build-delivery graders (delivered_terminal / yaml_compiles) only mean",
+    "something when the request is buildable on THIS box. Several mx_* build",
+    "rows name connectors that are not configured offline (SSH, PagerDuty), so",
+    "the agent correctly ends on a capability-gap / choice card instead of an",
+    "offer -- right behaviour, but graded as 'no deliverable'. This row pins a",
+    "world where the connectors it needs ARE installed (VirusTotal + FortiGate,",
+    "plus a core alert comment), so a healthy build MUST terminate in a",
+    "playbook_offer. A regression that drops the terminal offer, or wires an",
+    "unconfigured connector, fails here without the capability-gap confound."
+  ],
+  "steps": [
+    {
+      "user": "Build a FortiSOAR playbook. Trigger: an alert is created in the alerts module. Behavior: for each IP in the alert's indicators, look it up with the VirusTotal connector's ip-reputation operation; if the malicious score is above 50, block that IP with the FortiGate connector's address-block operation. Either way, finish by adding a comment to the originating alert summarizing each IP's score and whether it was blocked. Use only connectors that are configured on this instance. Output the complete playbook."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "no_step_loss": true
+  }
+}

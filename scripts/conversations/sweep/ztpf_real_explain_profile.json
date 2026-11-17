@@ -1,0 +1,43 @@
+{
+  "name": "ztpf_real_explain_profile",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_automation_profiles",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_automation_profiles",
+    "uuid": "dbe7bdbe-574b-4003-b7e0-dae89b2dd926"
+  },
+  "why": [
+    "Real question, verbatim: the 'Explain this profile' quick action, asked by a ZTP engineer on a lab box. The live answer listed each step's action name and IRI and said 'all stepARGS blank', then stopped: it never read what the actions do or what their runs produced.",
+    "Most of a profile's substance is in its steps' RUNS (ztpf_device_automation_steps: outputStatusMessage / outputSourceData), one hop past the action. Here step 4's latest run FAILS ('Failed to parse YAML from script payload') and step 3 flags admins missing a trusted host -- an explanation that calls this profile healthy is wrong.",
+    "Only 2 of 25 actions on the box link ztpfTemplates; the persona told the model to 'follow its ztpfTemplates', so on an action without one it had nowhere to go."
+  ],
+  "steps": [
+    {
+      "user": "Walk through this profile's steps in order: for each, what action it runs and what stepARGS it passes."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reads": {
+      "required": [
+        "ztpf_automation_actions",
+        "ztpf_device_automation_steps"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "dvmdb_vdom"
+      ],
+      "any_of": [
+        "parse yaml",
+        "parsing yaml",
+        "parse the yaml",
+        "yaml pars",
+        "failed to parse"
+      ]
+    }
+  }
+}

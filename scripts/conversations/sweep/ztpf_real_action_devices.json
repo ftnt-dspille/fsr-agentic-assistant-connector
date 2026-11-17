@@ -1,0 +1,33 @@
+{
+  "name": "ztpf_real_action_devices",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_automation_actions",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_automation_actions",
+    "uuid": "edbd2072-863d-4395-8dad-0954fa3b0935"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. Five FIXMEs in one session were about this traversal: find the device automation steps linked to this action, then the devices linked to those steps, with each step's result. Only one device's history is captured here, so that device is the answer."
+  ],
+  "steps": [
+    {
+      "user": "Which devices has this automation action run on? Traverse the device automation steps for this action and list the distinct devices, with each step's result."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "called": {
+      "any_of": [
+        "search_module_records"
+      ]
+    },
+    "reports": {
+      "all_of": [
+        "fgt-pair-1-primary"
+      ]
+    }
+  }
+}

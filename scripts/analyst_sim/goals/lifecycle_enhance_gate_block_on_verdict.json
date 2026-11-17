@@ -1,0 +1,6 @@
+{
+ "name": "lifecycle_enhance_gate_block_on_verdict",
+ "why": "Continue/enhance leg: modify an existing playbook open in the designer. Inherits the framework's enhance_gate_block_on_verdict task (prompt + ir_assertions + before-state) so the sim runs the authoritative enhance scenario and grades the delivered edit, preserving untouched steps.",
+ "inherit_matrix": "enhance_gate_block_on_verdict",
+ "records": "soc_alert_surface_servicenow"
+}

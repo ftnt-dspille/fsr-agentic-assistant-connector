@@ -1,0 +1,30 @@
+{
+  "name": "mx_jinja_chain_count_summary",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "jinja_chain_count_summary",
+  "why": [
+    "Product-path twin of eval-matrix task 'jinja_chain_count_summary'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py).",
+    "Box has Slack (soc_alert_surface_with_slack): the task's premise. On",
+    "the default box the model correctly stubbed the post, and failed behaves."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook that triggers on alert creation, counts the number of items in the alert's `vars.input.records[0].artifactsRelatedToAlerts` list, and posts a Slack message via the slack connector's send_message operation. The message body must read exactly `Alert artifacts: <COUNT>` where `<COUNT>` is the integer count rendered into the string. Use a single set_variable step to build the message body via a Jinja expression. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "jinja_chain_count_summary"
+  },
+  "records": "soc_alert_surface_with_slack",
+  "box_only": true
+}

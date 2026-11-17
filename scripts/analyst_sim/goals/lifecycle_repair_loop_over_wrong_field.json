@@ -1,0 +1,6 @@
+{
+ "name": "lifecycle_repair_loop_over_wrong_field",
+ "why": "Fix leg: a playbook that ran but misbehaved; the analyst asks to find and fix the defect. Inherits the framework's authoritative repair_loop_over_wrong_field task (prompt + ir_assertions + broken YAML) so grading cannot drift from the eval matrix. Grades the CORRECTED canvas (does-it-run + the fix present + no collateral damage), not whether a diagnostic tool was merely reached.",
+ "inherit_matrix": "repair_loop_over_wrong_field",
+ "records": "soc_alert_surface_servicenow"
+}

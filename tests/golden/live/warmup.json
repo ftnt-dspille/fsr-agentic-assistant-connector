@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "ms": 17421,
+  "counts": {
+    "connectors": 85,
+    "operations": 1198,
+    "operation_params": 4215,
+    "op_safety": 1069
+  },
+  "connector_health": "scheduled_background"
+}

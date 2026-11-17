@@ -1,0 +1,49 @@
+[
+  {"name": "steps for device (relationship filter, was total:0)",
+   "tool": "search_module_records",
+   "args": {"module": "ztpf_device_automation_steps",
+            "filters": {"ztpfDevices.uuid": "5b23794a-a657-4169-97d3-98698126d59f"}},
+   "expect": {"ok": true, "min_count": 1}},
+
+  {"name": "list-form filters (was 'Input should be a valid dictionary')",
+   "tool": "search_module_records",
+   "args": {"module": "ztpf_device_automation_steps",
+            "filters": [{"field": "ztpfDevices.uuid", "op": "eq",
+                         "value": "5b23794a-a657-4169-97d3-98698126d59f"}]},
+   "expect": {"ok": true, "min_count": 1}},
+
+  {"name": "steps with NO run group (null -> isnull)",
+   "tool": "search_module_records",
+   "args": {"module": "ztpf_device_automation_steps",
+            "filters": [{"field": "ztpfRunGroups", "value": null}]},
+   "expect": {"ok": true, "no_error": true}},
+
+  {"name": "status picklist filter (status.itemValue)",
+   "tool": "search_module_records",
+   "args": {"module": "ztpf_device_automation_steps",
+            "filters": {"status.itemValue": "Ready"}},
+   "expect": {"ok": true, "no_error": true}},
+
+  {"name": "get_record UUID in record_id (was missing_target)",
+   "tool": "get_record",
+   "args": {"module": "ztpf_device_automation_steps",
+            "record_id": "84ffc11b-9230-4abc-af25-b485b4c9e4d5"},
+   "expect": {"ok": true, "no_error": true}},
+
+  {"name": "get_record relationships as name-list (was 'valid boolean')",
+   "tool": "get_record",
+   "args": {"module": "ztpf_devices",
+            "uuid": "5b23794a-a657-4169-97d3-98698126d59f",
+            "relationships": ["ztpfArtifacts"]},
+   "expect": {"ok": true, "no_error": true}},
+
+  {"name": "discover playbooks runnable on ztpf_devices",
+   "tool": "list_module_playbooks",
+   "args": {"module": "ztpf_devices"},
+   "expect": {"ok": true, "min_count": 1, "has_keys": ["playbooks"]}},
+
+  {"name": "discover playbooks on ztpf_device_automation_steps",
+   "tool": "list_module_playbooks",
+   "args": {"module": "ztpf_device_automation_steps"},
+   "expect": {"ok": true, "min_count": 1}}
+]

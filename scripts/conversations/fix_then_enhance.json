@@ -1,0 +1,18 @@
+{
+  "name": "fix_then_enhance",
+  "why": [
+    "The core multi-turn property: turn 2 must build on turn 1's OUTPUT, not",
+    "re-derive it. The analyst fixes a broken playbook, then asks for an",
+    "addition without restating the playbook. A single-turn harness cannot see",
+    "this at all -- it is precisely the class where a model re-asks for context",
+    "it already has, or silently returns a FRAGMENT that would delete the",
+    "steps it omitted when the widget saves it over the open record."
+  ],
+  "intent": "build",
+  "persona": "none",
+  "playbook": "broken_create_record_missing_module.yaml",
+  "steps": [
+    {"user": "This playbook runs but never creates the record. Work out why and fix it, then give me the corrected playbook."},
+    {"user": "Good. Now also set a variable named severity to the string 'High' before the record is created. Keep everything else exactly as it is."}
+  ]
+}

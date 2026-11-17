@@ -1,0 +1,222 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world (hand-authored in the shape of live responses).",
+  "The evidence that decides the alert is a PRIOR CASE, not the alert and not threat intel.",
+  "strict_ops: any op not recorded here returns an honest miss, never the canned",
+  "'malicious' default -- that default would decide the verdict for the agent.",
+  "Answer: benign / false_positive. The destination was already investigated and closed as",
+  "a false positive (Finance's partner SFTP gateway). Threat intel is ambiguous on its own",
+  "(one suspicious engine, no category). A second prior case on a different address, closed",
+  "as a true positive, must not be mistaken for precedent."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "fortigate-firewall",
+   "status": "Completed",
+   "version": "5.4.0",
+   "label": "Fortinet FortiGate",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a01",
+    "@type": "Alert",
+    "uuid": "7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a01",
+    "id": 93001,
+    "name": "Repeated outbound connections to an uncommon external IP",
+    "description": "FortiSIEM saw a finance workstation open 12 TLS connections to a single external address it has not contacted before. No threat-intel engine flags it.",
+    "sourceIp": "10.30.8.21",
+    "destinationIp": "203.0.113.44",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790550000.0,
+    "computerName": "fin-ws-114",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "Medium",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   },
+   {
+    "@id": "/api/3/alerts/7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a02",
+    "@type": "Alert",
+    "uuid": "7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a02",
+    "id": 92740,
+    "name": "Outbound connections to an uncommon external IP",
+    "description": "Same pattern from a finance host to the same address.",
+    "sourceIp": "10.30.8.21",
+    "destinationIp": "203.0.113.44",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1787950000.0,
+    "computerName": "fin-ws-114",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002199",
+     "@type": "Picklist",
+     "itemValue": "Closed",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002199"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "Medium",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "closureReason": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce220021aa",
+     "@type": "Picklist",
+     "itemValue": "False Positive",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce220021aa"
+    },
+    "closureNotes": "<p>Partner SFTP gateway used by Finance for the monthly statement upload. Confirmed with the Finance owner; the address is on the partner's published allow list.</p>"
+   },
+   {
+    "@id": "/api/3/alerts/7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a03",
+    "@type": "Alert",
+    "uuid": "7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a03",
+    "id": 92211,
+    "name": "Beaconing to external host",
+    "description": "Periodic beaconing from an engineering host.",
+    "sourceIp": "10.30.9.40",
+    "destinationIp": "198.51.100.200",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1786950000.0,
+    "computerName": "eng-ws-007",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002199",
+     "@type": "Picklist",
+     "itemValue": "Closed",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002199"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57ee11",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57ee11"
+    },
+    "closureReason": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce220021bb",
+     "@type": "Picklist",
+     "itemValue": "True Positive",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce220021bb"
+    },
+    "closureNotes": "<p>Confirmed C2 beacon; host reimaged.</p>"
+   }
+  ]
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "203.0.113.44"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "203.0.113.44",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 1,
+        "harmless": 60,
+        "undetected": 29,
+        "timeout": 0
+       },
+       "reputation": -2,
+       "as_owner": "Example Hosting Ltd",
+       "country": "NL"
+      }
+     }
+    }
+   }
+  }
+ ]
+}

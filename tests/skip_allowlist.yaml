@@ -1,0 +1,54 @@
+# Skips that `make test` is allowed to report. Read by tests/skip_policy.py.
+#   node    node-id glob (`*` wildcard; a bare file path matches its tests)
+#   reason  glob matched against the skip message
+#   why     required: what the skip stands for, and whether coverage is lost
+#   flag    optional: `suspicious` when the skip may hide a real coverage loss
+#
+# Every entry below was read against its source on the day it was written.
+# A new skip that is not listed here fails `make test`; add it only with a why.
+skips:
+  - node: "connector-fsr-agentic-assistant/tests/test_toolkit_workflows_registered.py::*"
+    reason: "fsr-agentic-toolkit not importable*"
+    why: "fsr-agentic-toolkit is a pinned requirement, so it is installed on the box and in CI, where this test RUNS (it registers the toolkit workflows into the library REGISTRY). It skips only in a bare dev venv without the toolkit; exercise it there by setting FSR_AGENTIC_TOOLKIT_SRC to a toolkit source checkout. No coverage lost where the dep exists."
+
+  - node: "tests/test_live_integration.py::*"
+    reason: "live FSR integration; set FSR_LIVE=1*"
+    why: "Box tier. Runs only with FSR_LIVE=1 and the FSR_* env. Not a loss in the offline gate; the live sweep is the place that runs it."
+
+  - node: "tests/test_fsr_contract.py::test_alt_paths_one_group_holds*"
+    reason: "no alt_paths for this probe"
+    why: "By design: a probe with no alternative paths has no alternative-group check. Parametrize-then-skip is a smell (filtering the parameter list would make the count honest), but the probe is still checked by the main contract test."
+
+  - node: "tests/test_mock_replay.py::test_mock_replays_real_widget_fixture_if_present"
+    reason: "widget fixtures not checked out"
+    why: "The test hardcodes a path under fsrAgenticAssistant/, which does not exist (the widget was renamed), so this test has never run here. Point it at the current widget's fixtures or delete it; the hardcoded user-home path also breaks portability."
+    flag: "suspicious"
+
+  - node: "tests/test_live_crudhub_bridge.py::*"
+    reason: "slim reference DB lacks fortinet-fortigate row"
+    why: "A conditional skip on DB contents: on a slim reference DB the bridge's assertion is skipped and the test passes. The bridge check is lost on any box with that DB."
+    flag: "suspicious"
+
+  - node: "tests/test_box.py::*"
+    reason: "pyfsr without `instances env`*"
+    why: "Dev tooling, not the connector: scripts/box.sh resolves BOX=<alias> through the `pyfsr instances env` CLI, which is on pyfsr main but not yet in a PyPI release. The CI mirror installs pyfsr from PyPI (requirements.txt), so these skip there and RUN in a dev venv with pyfsr main. Remove this entry once a pyfsr release ships `instances env`."
+
+  - node: "connector-fsr-agentic-assistant/tests/test_turn_golden_prompts.py::*"
+    reason: "golden prompt drift, but the framework checkout*"
+    why: "The goldens track the PINNED framework (requirements.txt), which is what ships and what CI installs as a wheel. A dev venv imports the framework as an editable checkout; once that checkout moves past the pin (any framework merge), the tool descriptions it contributes drift the prompt. The test skips ONLY on drift AND an off-pin checkout; with the wheel or a checkout at the pinned tag it compares and fails on any drift. Regenerate (UPDATE_GOLDEN=1) together with the pin bump."
+
+  - node: "connector-fsr-agentic-assistant/tests/test_read_only_chip_parity.py::*"
+    reason: "widget checkout not located*"
+    why: "Cross-repo parity: reads the widget source from the fsr_all_widgets checkout. CI has no widget checkout, so it skips there; on a dev machine with the sibling checkout it RUNS in make test and pre-push. Coverage is lost in CI only."
+
+  - node: "connector-fsr-agentic-assistant/fsr_soc_triage/tests/test_triage_module_parity.py::*"
+    reason: "widget checkout not located*"
+    why: "Same cross-repo parity as test_read_only_chip_parity: runs wherever the widget checkout is reachable, skips in CI. Coverage is lost in CI only."
+
+  - node: "connector-fsr-agentic-assistant/tests/test_contract_dts_parity.py::*"
+    reason: "widget contract.d.ts not present*"
+    why: "Reads the widget's contract.d.ts from the widget checkout (or FSRPB_CONTRACT_DTS). Skips in CI, which has no widget checkout; runs on dev machines. Coverage is lost in CI only."
+
+  - node: "connector-fsr-agentic-assistant/fsr_soc_triage/tests/test_verdict_vocab_parity.py::*"
+    reason: "FSR_WIDGET_HARNESS not set*"
+    why: "Compares the vendored verdict vocabulary with the harness copy in the widget checkout. Skips in CI, which has no widget checkout; runs on dev machines. Coverage is lost in CI only."

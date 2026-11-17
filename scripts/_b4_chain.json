@@ -1,0 +1,10 @@
+{
+  "b4_triage_build": {
+    "intent": "triage",
+    "entity": "/api/3/alerts/54f25f1f-808e-4bbb-8e20-e95855291184",
+    "turns": [
+      {"text": "Triage this alert. Enrich every external IP you find against the configured threat-intel connectors, then recommend and stage a containment action on the malicious source IP.", "intent": "triage"},
+      {"text": "Now build a re-runnable playbook that automates exactly what you just did — the enrichment AND the containment you staged — parameterized to the alert's record. Produce it.", "intent": "build"}
+    ]
+  }
+}

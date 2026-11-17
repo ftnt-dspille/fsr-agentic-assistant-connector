@@ -1,0 +1,68 @@
+{
+  "name": "ztpf_author_metadata_like_this",
+  "category": "ztpf_author",
+  "intent": "triage",
+  "module": "ztpf_metadata_sources",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_metadata_sources",
+    "uuid": "d2e1c43b-d2a0-489e-b451-137179e294cd"
+  },
+  "why": [
+    "Make a metadata source by example. From the engineer's history: \"Update the settings of this record to look like record 6 but point to ...\" and \"Help me create this source. I want it to query the API ... from a FG.\"",
+    "The new record keeps the example's type (FortiManager Proxy API) and script shape (data.action/target, the device templated from the record) and changes only the REST path; its datakey says what it holds. The example is untouched.",
+    "Graded on what a careless copy gets wrong: the REST path is exactly the one asked for (not extended), and the new source carries no made-up exampleOutput (an early run invented tunnels and addresses)."
+  ],
+  "steps": [
+    {
+      "user": "Make a new metadata source like this one that gets the IPsec tunnel status from the FortiGate (monitor/vpn/ipsec)."
+    },
+    {
+      "resume": {
+        "decision": "approve",
+        "repeat": 2
+      }
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "world_after": [
+      {
+        "module": "ztpf_metadata_sources",
+        "where": {
+          "script~": "/api/v2/monitor/vpn/ipsec\""
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "type~": "b15ebb92",
+            "script~": "device/{{record.device.name}}",
+            "datakey~": "ipsec",
+            "exampleOutput": null
+          }
+        ],
+        "min_writes": 1
+      },
+      {
+        "module": "ztpf_metadata_sources",
+        "where": {
+          "name": "BGP Peer Status"
+        },
+        "count": {
+          "min": 1,
+          "max": 1
+        },
+        "contains": [
+          {
+            "datakey": "bgp_peers",
+            "script~": "bgp/neighbors"
+          }
+        ]
+      }
+    ]
+  }
+}

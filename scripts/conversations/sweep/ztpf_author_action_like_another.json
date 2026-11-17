@@ -1,0 +1,57 @@
+{
+  "name": "ztpf_author_action_like_another",
+  "category": "ztpf",
+  "intent": "triage",
+  "module": "ztpf_automation_actions",
+  "persona": "fixture",
+  "records": "ztpf_device_surface",
+  "mount": {
+    "module": "ztpf_automation_actions",
+    "uuid": "5481cc04-afc5-46dd-97df-9b6a55d2d318"
+  },
+  "why": [
+    "\"Make me a record that looks like this one, but does X.\" The authoring",
+    "ask across metadata sources, templates and actions -- the user supplies a",
+    "GOAL and an EXEMPLAR, never a schema, and expects the conventions of the",
+    "exemplar to carry: the same Category/Type pairing, the same",
+    "`{{input.*}}` parameter style, an output template in the house shape.",
+    "The mounted record is a real `Remote CLI` action whose script greps an",
+    "interface. The catalog already holds a DeviceDB loopback action, so a",
+    "grounded answer can copy a real convention instead of inventing one.",
+    "This is the persona that must NOT reach for playbook-building: the",
+    "deliverable is a RECORD in this module."
+  ],
+  "steps": [
+    {
+      "user": "Make me an action like this one, but for showing the routing table on a device."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "never_acts_on": [
+      "crowdstrike",
+      "splunk"
+    ],
+    "reports": {
+      "any_of": [
+        "input.",
+        "{{",
+        "Remote CLI",
+        "get router info",
+        "show router"
+      ]
+    },
+    "claims_backed": {
+      "claim_verbs": [
+        "created",
+        "added",
+        "i've created",
+        "i have created"
+      ],
+      "write_tools": [
+        "create_record",
+        "update_record"
+      ]
+    }
+  }
+}

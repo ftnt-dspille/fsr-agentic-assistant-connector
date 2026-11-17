@@ -1,0 +1,26 @@
+{
+  "name": "mx_record_action_trigger",
+  "category": "build_matrix",
+  "intent": "build",
+  "from_task": "record_action_trigger",
+  "why": [
+    "Product-path twin of eval-matrix task 'record_action_trigger'.",
+    "The matrix drives a bare model loop (no delivery/verdict guards),",
+    "so its build scores measure the model, not the assistant. This row",
+    "sends the same prompt through chat_turn and grades the delivered",
+    "playbook with the SAME ir_assertions (`behaves`), plus that the turn",
+    "actually delivered it. The prompt must stay equal to the task's",
+    "(tests/test_build_matrix_rows.py)."
+  ],
+  "steps": [
+    {
+      "user": "Author a FortiSOAR playbook with a record_action trigger on the alerts module (right-click 'Triage Alert' button, one run per record). Read severity from `vars.input.records[0]` into a variable, decide High/Critical vs anything else, and on the high branch stamp a `verdict` variable of 'escalate'; the low branch ends. Output complete YAML."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "delivered_terminal": true,
+    "yaml_compiles": true,
+    "behaves": "record_action_trigger"
+  }
+}

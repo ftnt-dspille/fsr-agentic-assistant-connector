@@ -1,0 +1,257 @@
+{
+  "_README": [
+    "Failed-run evidence for the playbook 'ZZ Eval Missing Module' (broken_create_record_missing_module.yaml):",
+    "the run history, run record, and the box-side workflow export the diagnosis tools read,",
+    "replayed through pyfsr's client offline. The workflow export is the framework compiler's output",
+    "for the fixture YAML (module inserted, then removed from Emit, i.e. the broken playbook as stored).",
+    "The run record's failure text is the fixture's documented runtime failure. Synthetic, not a box capture."
+  ],
+  "modules": {},
+  "http": [
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/",
+      "status": 200,
+      "body": {
+        "hydra:member": [
+          {
+            "@id": "/api/wf/api/workflows/4431/",
+            "@type": "Workflow",
+            "pk": 4431,
+            "id": 4431,
+            "uuid": "7f3c2a10-5b9e-4d1e-9a64-2c8e0f1b6d31",
+            "task_id": "7f3c2a10-5b9e-4d1e-9a64-2c8e0f1b6d31",
+            "name": "ZZ Eval Missing Module",
+            "status": "failed",
+            "modified": "2025-01-01T00:00:52.000000Z",
+            "created": "2025-01-01T00:00:40.000000Z",
+            "parent_wf": null,
+            "result": {
+              "Error message": "insert_data() takes at least 2 positional arguments (1 given)"
+            }
+          }
+        ],
+        "hydra:totalItems": 1
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/historical-workflows/",
+      "status": 200,
+      "body": {
+        "hydra:member": [],
+        "hydra:totalItems": 0
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/wf/api/workflows/log_list/",
+      "status": 200,
+      "body": {
+        "hydra:member": [
+          {
+            "@id": "/api/wf/api/workflows/4431/",
+            "uuid": "7f3c2a10-5b9e-4d1e-9a64-2c8e0f1b6d31",
+            "task_id": "7f3c2a10-5b9e-4d1e-9a64-2c8e0f1b6d31",
+            "status": "failed",
+            "created": "2025-01-01T00:00:40.000000Z"
+          }
+        ],
+        "hydra:totalItems": 1
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/wf/api/workflows/4431/",
+      "query": {
+        "step_detail": "true"
+      },
+      "status": 200,
+      "body": {
+        "@id": "/api/wf/api/workflows/4431/",
+        "@type": "Workflow",
+        "pk": 4431,
+        "id": 4431,
+        "uuid": "7f3c2a10-5b9e-4d1e-9a64-2c8e0f1b6d31",
+        "task_id": "7f3c2a10-5b9e-4d1e-9a64-2c8e0f1b6d31",
+        "name": "ZZ Eval Missing Module",
+        "status": "failed",
+        "modified": "2025-01-01T00:00:52.000000Z",
+        "created": "2025-01-01T00:00:40.000000Z",
+        "parent_wf": null,
+        "result": {
+          "Error message": "insert_data() takes at least 2 positional arguments (1 given)"
+        },
+        "error_message": "insert_data() takes at least 2 positional arguments (1 given)",
+        "env": {
+          "request": {},
+          "input": {}
+        },
+        "tags": [],
+        "steps": [
+          {
+            "name": "Start",
+            "status": "finished",
+            "result": {}
+          },
+          {
+            "name": "Emit",
+            "status": "failed",
+            "result": {
+              "Error message": "insert_data() takes at least 2 positional arguments (1 given)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/3/workflows",
+      "query": {
+        "name": "ZZ Eval Missing Module"
+      },
+      "status": 200,
+      "body": {
+        "hydra:member": [
+          {
+            "uuid": "3a6f1c52-8d0e-5b4a-9c17-2e5d8f0a1b64",
+            "@id": "/api/3/workflows/3a6f1c52-8d0e-5b4a-9c17-2e5d8f0a1b64",
+            "@type": "Workflow",
+            "name": "ZZ Eval Missing Module",
+            "collection": "/api/3/workflow_collections/a03b59b1-2351-569b-a377-8435a6f1648b",
+            "modified": "2025-01-01T00:00:52.000000Z",
+            "isActive": true
+          }
+        ],
+        "hydra:totalItems": 1
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/3/workflows",
+      "query": {
+        "$export": "true",
+        "uuid$in": "3a6f1c52-8d0e-5b4a-9c17-2e5d8f0a1b64"
+      },
+      "status": 200,
+      "body": {
+        "hydra:member": [
+          {
+            "@type": "Workflow",
+            "name": "ZZ Eval Missing Module",
+            "aliasName": null,
+            "tag": "",
+            "recordTags": [],
+            "description": "create_record whose module is missing (fails at runtime, body intact).",
+            "isActive": true,
+            "debug": false,
+            "singleRecordExecution": false,
+            "remoteExecutableFlag": 0,
+            "parameters": [],
+            "synchronous": false,
+            "lastModifyDate": 1791770956,
+            "collection": "/api/3/workflow_collections/a03b59b1-2351-569b-a377-8435a6f1648b",
+            "versions": [],
+            "triggerStep": "/api/3/workflow_steps/c08f657d-2317-5440-8848-9c6b44a1edda",
+            "steps": [
+              {
+                "@type": "WorkflowStep",
+                "name": "Start",
+                "description": null,
+                "arguments": {
+                  "title": "Emit marker",
+                  "resources": [
+                    "alerts"
+                  ],
+                  "route": "2ee1d02b-6da5-5787-8b8e-7947f39b5ccc",
+                  "inputVariables": [],
+                  "step_variables": {
+                    "input": {
+                      "params": [],
+                      "records": "{{vars.input.records}}"
+                    }
+                  },
+                  "triggerOnSource": true,
+                  "triggerOnReplicate": false,
+                  "noRecordExecution": false,
+                  "singleRecordExecution": true,
+                  "__triggerLimit": true,
+                  "executeButtonText": "Execute",
+                  "showToasterMessage": {
+                    "visible": false,
+                    "messageVisible": true
+                  },
+                  "displayConditions": {
+                    "alerts": {
+                      "sort": [],
+                      "limit": 30,
+                      "logic": "AND",
+                      "filters": []
+                    }
+                  }
+                },
+                "status": null,
+                "top": "120",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+                "group": null,
+                "uuid": "c08f657d-2317-5440-8848-9c6b44a1edda"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Emit",
+                "description": null,
+                "arguments": {
+                  "resource": {
+                    "description": "created by the eval harness"
+                  }
+                },
+                "status": null,
+                "top": "250",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/2597053c-e718-44b4-8394-4d40fe26d357",
+                "group": null,
+                "uuid": "7af8a5ff-e149-5981-8589-a57c5585820e"
+              }
+            ],
+            "routes": [
+              {
+                "@type": "WorkflowRoute",
+                "name": "Start -> Emit",
+                "targetStep": "/api/3/workflow_steps/7af8a5ff-e149-5981-8589-a57c5585820e",
+                "sourceStep": "/api/3/workflow_steps/c08f657d-2317-5440-8848-9c6b44a1edda",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "8444ad05-fc6d-5ee0-9064-3914786af032"
+              }
+            ],
+            "groups": [],
+            "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+            "playbookOrigin": null,
+            "isEditable": true,
+            "uuid": "3a6f1c52-8d0e-5b4a-9c17-2e5d8f0a1b64",
+            "owners": [],
+            "isPrivate": false,
+            "@id": "/api/3/workflows/3a6f1c52-8d0e-5b4a-9c17-2e5d8f0a1b64",
+            "modified": "2025-01-01T00:00:52.000000Z",
+            "created": "2025-01-01T00:00:00.000000Z"
+          }
+        ],
+        "hydra:totalItems": 1
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/3/workflow_collections/a03b59b1-2351-569b-a377-8435a6f1648b",
+      "status": 200,
+      "body": {
+        "@id": "/api/3/workflow_collections/a03b59b1-2351-569b-a377-8435a6f1648b",
+        "@type": "WorkflowCollection",
+        "uuid": "a03b59b1-2351-569b-a377-8435a6f1648b",
+        "name": "ZZ FSRPB Eval Fixtures",
+        "description": "Throwaway fixtures for the build-persona eval harness. Safe to delete."
+      }
+    }
+  ]
+}

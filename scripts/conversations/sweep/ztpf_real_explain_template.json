@@ -1,0 +1,29 @@
+{
+  "name": "ztpf_real_explain_template",
+  "category": "ztpf_real",
+  "intent": "triage",
+  "module": "ztpf_templates",
+  "persona": "fixture",
+  "records": "ztpf_world_live",
+  "mount": {
+    "module": "ztpf_templates",
+    "uuid": "7d762bbe-580d-4618-b174-f76ed5823fcf"
+  },
+  "why": [
+    "Real question, verbatim, from a ZTP engineer's session history on a lab box. The last question in the history (it hit a provider rate limit and got no answer). The template consumes two inputs; both must be named."
+  ],
+  "steps": [
+    {
+      "user": "Explain what this ZTPF template's script provisions and which inputs it consumes, step by step."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "reports": {
+      "all_of": [
+        "lo_name",
+        "lo_supernet"
+      ]
+    }
+  }
+}

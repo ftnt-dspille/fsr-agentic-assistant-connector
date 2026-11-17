@@ -1,0 +1,312 @@
+{
+  "ok": true,
+  "session_id": "live-harness-card-1785680206",
+  "count": 4,
+  "calls": [
+    {
+      "connector": "fortinet-fortiguard-ioc",
+      "operation": "ioc_search",
+      "step_name": "IP Reputation Check",
+      "ref_prefix": "data",
+      "skill_id": "run_connector_action"
+    },
+    {
+      "connector": "fortigate-firewall",
+      "operation": "block_ip_new",
+      "step_name": "Block Ip New",
+      "ref_prefix": "",
+      "skill_id": "run_connector_action"
+    },
+    {
+      "connector": "fortigate-firewall",
+      "operation": "block_ip_new",
+      "step_name": "Block Ip New 2",
+      "ref_prefix": "data",
+      "skill_id": "run_connector_action"
+    },
+    {
+      "connector": "fortinet-fortiguard-ioc",
+      "operation": "ioc_search",
+      "step_name": "Enrich IP 198511007 with FortiGuard IOC Search",
+      "ref_prefix": "data",
+      "skill_id": "run_connector_action"
+    }
+  ],
+  "compiled_ok": true,
+  "yaml": "collection: 00 - FSR Studio\nplaybooks:\n- name: ZZ FSRPB Smoke Trace 6f514e\n  trigger: start\n  is_active: true\n  steps:\n  - type: start\n    name: Start\n    next: IP Reputation Check\n  - type: connector\n    name: IP Reputation Check\n    connector: fortinet-fortiguard-ioc\n    operation: ioc_search\n    config: 1ca72e75-d121-4876-bc4d-76fd39d4b896\n    indicator: 198.51.100.7\n    next: Confirm Containment\n  - type: manual_input\n    name: Confirm Containment\n    message: Run containment `block_ip_new` via `fortigate-firewall`? Choose Stop\n      to skip it and continue.\n    options:\n    - display: Confirm\n      next: Block Ip New\n    - display: Stop\n      next: Block Ip New 2\n  - type: connector\n    name: Block Ip New\n    connector: fortigate-firewall\n    operation: block_ip_new\n    method: Quarantine Based\n    ip_addresses: '{{ vars.steps.IP_Reputation_Check.data[0].id }}'\n    time_to_live: 1 Day\n    next: Block Ip New 2\n  - type: connector\n    name: Block Ip New 2\n    connector: fortigate-firewall\n    operation: block_ip_new\n    config: a5fb56f2-e31f-4e9b-9c29-389fe6782bfb\n    method: Quarantine Based\n    ip_addresses: '{{ vars.steps.IP_Reputation_Check.data[0].id }}'\n    time_to_live: 1 Day\n    next: Enrich IP 198511007 with FortiGuard IOC Search\n  - type: connector\n    name: Enrich IP 198511007 with FortiGuard IOC Search\n    connector: fortinet-fortiguard-ioc\n    operation: ioc_search\n    config: 1ca72e75-d121-4876-bc4d-76fd39d4b896\n    indicator: '{{ vars.steps.Block_Ip_New_2.data.already_blocked[0] }}'\n",
+  "steps": 6,
+  "workflow_json": {
+    "type": "workflow_collections",
+    "macros": [],
+    "exported_tags": [],
+    "data": [
+      {
+        "@type": "WorkflowCollection",
+        "name": "00 - FSR Studio",
+        "description": "",
+        "visible": true,
+        "image": null,
+        "uuid": "0bac2744-5d51-5e95-90a5-1235a7bffffc",
+        "recordTags": [],
+        "workflows": [
+          {
+            "@type": "Workflow",
+            "name": "ZZ FSRPB Smoke Trace 6f514e",
+            "aliasName": null,
+            "tag": "",
+            "description": "",
+            "isActive": true,
+            "debug": false,
+            "singleRecordExecution": false,
+            "remoteExecutableFlag": 0,
+            "parameters": [],
+            "synchronous": false,
+            "lastModifyDate": 1785680260,
+            "collection": "/api/3/workflow_collections/0bac2744-5d51-5e95-90a5-1235a7bffffc",
+            "versions": [],
+            "triggerStep": "/api/3/workflow_steps/4e11f0bd-a6f9-58d3-8b43-508618387625",
+            "steps": [
+              {
+                "@type": "WorkflowStep",
+                "name": "Start",
+                "description": null,
+                "arguments": {
+                  "step_variables": {
+                    "input": {
+                      "params": []
+                    }
+                  }
+                },
+                "status": null,
+                "top": "120",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62",
+                "group": null,
+                "uuid": "4e11f0bd-a6f9-58d3-8b43-508618387625"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "IP Reputation Check",
+                "description": null,
+                "arguments": {
+                  "connector": "fortinet-fortiguard-ioc",
+                  "operation": "ioc_search",
+                  "config": "1ca72e75-d121-4876-bc4d-76fd39d4b896",
+                  "params": {
+                    "indicator": "198.51.100.7"
+                  },
+                  "version": "1.2.0",
+                  "name": "Fortinet FortiGuard IOC",
+                  "operationTitle": "IOC Search",
+                  "step_variables": [],
+                  "pickFromTenant": false
+                },
+                "status": null,
+                "top": "250",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+                "group": null,
+                "uuid": "84a539c4-45df-558a-8994-570553c43063"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Confirm Containment",
+                "description": null,
+                "arguments": {
+                  "type": "DecisionBased",
+                  "input": {
+                    "schema": {
+                      "title": "Confirm Containment",
+                      "description": "Run containment `block_ip_new` via `fortigate-firewall`? Choose Stop to skip it and continue.",
+                      "inputVariables": []
+                    }
+                  },
+                  "record": "",
+                  "is_approval": false,
+                  "isRecordLinked": false,
+                  "owner_detail": {
+                    "isAssigned": false
+                  },
+                  "step_variables": [],
+                  "response_mapping": {
+                    "options": [
+                      {
+                        "option": "Confirm",
+                        "primary": true,
+                        "step_iri": "/api/3/workflow_steps/e1d1f434-7739-5d08-9854-a8a83015d38a"
+                      },
+                      {
+                        "option": "Stop",
+                        "step_iri": "/api/3/workflow_steps/6f786926-62f5-5fc7-86e8-883fd407d40d"
+                      }
+                    ],
+                    "duplicateOption": false,
+                    "customSuccessMessage": "Awaiting Playbook resumed successfully."
+                  },
+                  "email_notification": {
+                    "enabled": false,
+                    "smtpParameters": []
+                  },
+                  "inline_channel_list": [],
+                  "external_channel_list": [],
+                  "unauthenticated_input": false
+                },
+                "status": null,
+                "top": "380",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/fc04082a-d7dc-4299-96fb-6837b1baa0fe",
+                "group": null,
+                "uuid": "f8799c75-53d2-5ff5-a4f4-b8785b41847b"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Block Ip New",
+                "description": null,
+                "arguments": {
+                  "connector": "fortigate-firewall",
+                  "operation": "block_ip_new",
+                  "params": {
+                    "method": "Quarantine Based",
+                    "ip_addresses": "{{ vars.steps.IP_Reputation_Check.data[0].id }}",
+                    "time_to_live": "1 Day"
+                  },
+                  "version": "5.4.0",
+                  "name": "Fortinet FortiGate",
+                  "operationTitle": "Block IP Address",
+                  "step_variables": [],
+                  "pickFromTenant": false,
+                  "config": ""
+                },
+                "status": null,
+                "top": "510",
+                "left": "200",
+                "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+                "group": null,
+                "uuid": "e1d1f434-7739-5d08-9854-a8a83015d38a"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Block Ip New 2",
+                "description": null,
+                "arguments": {
+                  "connector": "fortigate-firewall",
+                  "operation": "block_ip_new",
+                  "config": "a5fb56f2-e31f-4e9b-9c29-389fe6782bfb",
+                  "params": {
+                    "method": "Quarantine Based",
+                    "ip_addresses": "{{ vars.steps.IP_Reputation_Check.data[0].id }}",
+                    "time_to_live": "1 Day"
+                  },
+                  "version": "5.4.0",
+                  "name": "Fortinet FortiGate",
+                  "operationTitle": "Block IP Address",
+                  "step_variables": [],
+                  "pickFromTenant": false
+                },
+                "status": null,
+                "top": "640",
+                "left": "540",
+                "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+                "group": null,
+                "uuid": "6f786926-62f5-5fc7-86e8-883fd407d40d"
+              },
+              {
+                "@type": "WorkflowStep",
+                "name": "Enrich IP 198511007 with FortiGuard IOC Search",
+                "description": null,
+                "arguments": {
+                  "connector": "fortinet-fortiguard-ioc",
+                  "operation": "ioc_search",
+                  "config": "1ca72e75-d121-4876-bc4d-76fd39d4b896",
+                  "params": {
+                    "indicator": "{{ vars.steps.Block_Ip_New_2.data.already_blocked[0] }}"
+                  },
+                  "version": "1.2.0",
+                  "name": "Fortinet FortiGuard IOC",
+                  "operationTitle": "IOC Search",
+                  "step_variables": [],
+                  "pickFromTenant": false
+                },
+                "status": null,
+                "top": "770",
+                "left": "540",
+                "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+                "group": null,
+                "uuid": "4f7b6e8c-8254-50b2-925d-4565891f114c"
+              }
+            ],
+            "routes": [
+              {
+                "@type": "WorkflowRoute",
+                "name": "Start -> IP Reputation Check",
+                "targetStep": "/api/3/workflow_steps/84a539c4-45df-558a-8994-570553c43063",
+                "sourceStep": "/api/3/workflow_steps/4e11f0bd-a6f9-58d3-8b43-508618387625",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "ab7d6c67-9d4f-5b0f-8119-cf6f3e05a513"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "IP Reputation Check -> Confirm Containment",
+                "targetStep": "/api/3/workflow_steps/f8799c75-53d2-5ff5-a4f4-b8785b41847b",
+                "sourceStep": "/api/3/workflow_steps/84a539c4-45df-558a-8994-570553c43063",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "1f94679d-303b-534c-9abb-806ac560dfc8"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Confirm Containment -> Block Ip New",
+                "targetStep": "/api/3/workflow_steps/e1d1f434-7739-5d08-9854-a8a83015d38a",
+                "sourceStep": "/api/3/workflow_steps/f8799c75-53d2-5ff5-a4f4-b8785b41847b",
+                "label": "Confirm",
+                "isExecuted": false,
+                "group": null,
+                "uuid": "7bc78387-d76e-5735-be85-f8dadfcb3d3f"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Confirm Containment -> Block Ip New 2",
+                "targetStep": "/api/3/workflow_steps/6f786926-62f5-5fc7-86e8-883fd407d40d",
+                "sourceStep": "/api/3/workflow_steps/f8799c75-53d2-5ff5-a4f4-b8785b41847b",
+                "label": "Stop",
+                "isExecuted": false,
+                "group": null,
+                "uuid": "bd8ac6c4-aeb4-57bf-9cf1-6647bb70b00d"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Block Ip New -> Block Ip New 2",
+                "targetStep": "/api/3/workflow_steps/6f786926-62f5-5fc7-86e8-883fd407d40d",
+                "sourceStep": "/api/3/workflow_steps/e1d1f434-7739-5d08-9854-a8a83015d38a",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "d574508f-ebed-5e05-8e8e-d84d300cc210"
+              },
+              {
+                "@type": "WorkflowRoute",
+                "name": "Block Ip New 2 -> Enrich IP 198511007 with FortiGuard IOC Search",
+                "targetStep": "/api/3/workflow_steps/4f7b6e8c-8254-50b2-925d-4565891f114c",
+                "sourceStep": "/api/3/workflow_steps/6f786926-62f5-5fc7-86e8-883fd407d40d",
+                "label": null,
+                "isExecuted": false,
+                "group": null,
+                "uuid": "531f1e68-a17f-5266-bc84-ed803a737655"
+              }
+            ],
+            "groups": [],
+            "priority": "/api/3/picklists/9e8d41e4-8ada-4a2c-bd02-07f62c6d0a00",
+            "playbookOrigin": null,
+            "isEditable": true,
+            "uuid": "368cc890-4d64-5437-b1c1-c720f95cdc4a",
+            "owners": [],
+            "isPrivate": false
+          }
+        ]
+      }
+    ]
+  }
+}

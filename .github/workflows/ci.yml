@@ -1,0 +1,40 @@
+# The connector suite against the PINNED framework wheel (requirements.txt), the
+# same gate the pre-push hook leaves to CI. Port of the former .gitlab-ci.yml.
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      FSRPB_DEV: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: connector-fsr-agentic-assistant/requirements.txt
+      - name: Install
+        run: |
+          sudo apt-get install -y -qq rsync >/dev/null
+          pip install -r connector-fsr-agentic-assistant/requirements.txt
+          # pytest-timeout honours `timeout = 120` in pyproject.toml; pytest-randomly
+          # shuffles order like `make test` does.
+          pip install "pytest>=7" "pytest-randomly>=3" "pytest-timeout>=2" "ruff==0.15.20"
+      - name: Framework tooling at the pinned tag
+        # The wheel does not ship tooling/ (probes, evals); local_turn and
+        # analyst-sim tests import it.
+        run: |
+          FW_VER=$(sed -n 's/^fsr-playbooks==//p' connector-fsr-agentic-assistant/requirements.txt)
+          git clone -q --depth 1 --branch "v$FW_VER" https://github.com/ftnt-dspille/fsr-playbook-framework.git /tmp/fsr-playbook-framework
+          echo "FSRPB_FRAMEWORK_DIR=/tmp/fsr-playbook-framework" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=/tmp/fsr-playbook-framework/tooling" >> "$GITHUB_ENV"
+      - name: Test
+        # Bare pytest from the repo root: a path argument would override
+        # `testpaths`, which decides that both suites get collected.
+        run: python -m pytest -q --no-header

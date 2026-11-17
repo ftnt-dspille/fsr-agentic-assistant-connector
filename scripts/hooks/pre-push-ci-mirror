@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# pre-push: CI-mirror check -- run the suite against the pinned wheel, not the
+# editable source.  The local venv has an editable framework install (always
+# latest), but CI installs from requirements.txt (pinned wheel).  Tests written
+# against unreleased framework symbols pass locally but fail in CI (#72 #82).
+#
+# This check creates a temp venv from requirements.txt, runs pytest, and
+# cleans up.  ~30s on a cold install (pip cached).  Skipped when:
+#   SKIP_CI_MIRROR=1  -- skip just this check
+#   SKIP_TESTS=1      -- skip all checks (already handled by the main pre-push)
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if [[ "${SKIP_CI_MIRROR:-0}" == "1" || "${SKIP_TESTS:-0}" == "1" ]]; then
+    echo ">> pre-push: CI-mirror check skipped" >&2
+    exit 0
+fi
+CACHE_SH="$ROOT/scripts/hooks/test_pass_cache.sh"
+if [[ "${PREPUSH_PUSHES_HEAD:-0}" == "1" ]] && FSRPB_FRAMEWORK_DIR=none bash "$CACHE_SH" has ci-mirror; then
+    echo ">> pre-push: CI-mirror check already passed on this exact code -- skipped"
+    exit 0
+fi
+
+# Use a stable temp venv path so pip cache reuses across pushes.
+CI_VENV="$ROOT/.venv_ci_mirror"
+
+# Create or reuse the venv.  uv is faster, fall back to python -m venv.
+if [[ ! -x "$CI_VENV/bin/python" ]]; then
+    if command -v uv >/dev/null 2>&1; then
+        uv venv "$CI_VENV" --python 3.11 >/dev/null 2>&1
+    else
+        python3.11 -m venv "$CI_VENV" >/dev/null 2>&1
+    fi
+fi
+
+if [[ ! -x "$CI_VENV/bin/python" ]]; then
+    echo ">> pre-push: CI-mirror check skipped (no python3.11 for temp venv)" >&2
+    exit 0
+fi
+
+# Install deps only when the requirements changed since the last install.
+REQ="$ROOT/connector-fsr-agentic-assistant/requirements.txt"
+REQ_HASH="$( (cat "$REQ"; echo xdist-v1) | shasum -a 256 | cut -c1-16)"
+if [[ "$(cat "$CI_VENV/.req-stamp" 2>/dev/null)" != "$REQ_HASH" ]]; then
+    if command -v uv >/dev/null 2>&1; then
+        uv pip install --python "$CI_VENV/bin/python" -r "$REQ" \
+            "pytest>=7" "pytest-xdist>=3" >/dev/null 2>&1
+    else
+        "$CI_VENV/bin/python" -m pip install -q -r "$REQ" \
+            "pytest>=7" "pytest-xdist>=3" >/dev/null 2>&1
+    fi && echo "$REQ_HASH" > "$CI_VENV/.req-stamp"
+fi
+XDIST=""; "$CI_VENV/bin/python" -c 'import xdist' 2>/dev/null && XDIST="-n auto"
+
+echo ">> pre-push: CI-mirror check (pinned wheel, Python 3.11)"
+# Widget-parity tests need the fsr_all_widgets checkout (else they skip and the
+# skip-policy fails). Dev-harness tests (analyst_sim, local_turn, scenario,
+# goldens) import the framework's tooling/ (NOT shipped in the wheel), so point
+# them at the editable checkout. fsr_playbooks still resolves to the pinned
+# wheel inside $CI_VENV -- ensure_tooling appends, never shadows -- so this
+# check still tests the wheel, not the source.
+: "${FSR_ALL_WIDGETS:=$HOME/WebstormProjects/fsr_all_widgets}"
+: "${FSR_WIDGET_HARNESS:=$FSR_ALL_WIDGETS/fortisoar-widget-harness}"
+: "${FSRPB_FRAMEWORK_DIR:=$(bash "$ROOT/scripts/framework_dir.sh" "$ROOT" 2>/dev/null || "$(bash "$ROOT/scripts/dev_env.sh" venv)/bin/python" -c 'import fsr_playbooks, pathlib; print(pathlib.Path(fsr_playbooks.__file__).resolve().parents[1])' 2>/dev/null)}"
+export FSR_ALL_WIDGETS FSR_WIDGET_HARNESS FSRPB_FRAMEWORK_DIR
+if ! ( cd "$ROOT" && FSRPB_DEV=1 "$CI_VENV/bin/python" -m pytest -q --no-header -x \
+        -k "not slow" $XDIST 2>&1 | tail -5 ); then
+    echo ">> pre-push ABORT: CI-mirror check failed (pinned wheel mismatch)" >&2
+    echo "   The local venv has an editable framework install, but CI installs" >&2
+    echo "   from requirements.txt.  A test references a symbol not in the pinned" >&2
+    echo "   wheel.  Bump the pin in requirements.txt after a framework release." >&2
+    exit 1
+fi
+[[ "${PREPUSH_PUSHES_HEAD:-0}" == "1" ]] && FSRPB_FRAMEWORK_DIR=none bash "$CACHE_SH" mark ci-mirror

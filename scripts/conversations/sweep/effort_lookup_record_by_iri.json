@@ -1,0 +1,30 @@
+{
+ "name": "effort_lookup_record_by_iri",
+ "category": "effort",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_needle_in_ticket_siem_empty",
+ "mount": {
+  "module": "alerts",
+  "uuid": "9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301"
+ },
+ "why": [
+  "EFFORT row: the X8 ask. The analyst names a record by IRI and asks for the tools to be used, so it is a lookup (<= 6 calls) that must end in text with the quoted name and no verdict card.",
+  "Either answer or lookup is a fair declaration here (the name is in the record AND the analyst asked for a tool), so the declared scope is not graded; the lookup band is."
+ ],
+ "steps": [
+  {
+   "user": "Look up the alert record /api/3/alerts/9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301 with your tools and tell me its exact name, quoted. One sentence."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "effort": {
+   "band": "lookup",
+   "scope": false
+  },
+  "reports": [
+   "Burst of requests from one external address against a DMZ web server"
+  ]
+ }
+}

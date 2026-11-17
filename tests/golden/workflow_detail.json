@@ -1,0 +1,400 @@
+{
+  "@id": "/wf/api/workflows/682450/",
+  "name": "Probe Manual Input",
+  "result": {
+    "record": "",
+    "wfinput_id": 420
+  },
+  "steps": [
+    {
+      "@id": "/wf/api/steps/5706662/",
+      "metadata": {
+        "id": 7571,
+        "template_iri": "/api/3/workflow_steps/4e651d36-f5c2-50ac-b47b-f09bbd0c1642",
+        "metadata": {
+          "top": "320",
+          "left": "480",
+          "uuid": "4e651d36-f5c2-50ac-b47b-f09bbd0c1642",
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-set-variables",
+            "background": "#f7ac20",
+            "displayName": "Set Variable"
+          }
+        },
+        "wf_metadata": 1214
+      },
+      "name": "Cancelled",
+      "args": {
+        "__eval_seq": [
+          "final_token"
+        ],
+        "final_token": "CANCELLED"
+      },
+      "result": {},
+      "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+      "created": "2026-05-29T12:34:48.137528Z",
+      "modified": "2026-05-29T12:34:48.198282Z",
+      "func": "set_multiple",
+      "status": "incipient",
+      "initial": false,
+      "input": {},
+      "data": {},
+      "started": null,
+      "completed": null,
+      "workflow": "/wf/api/workflows/682450/",
+      "parent": null,
+      "@type": "Step"
+    },
+    {
+      "@id": "/wf/api/steps/5706663/",
+      "metadata": {
+        "id": 7572,
+        "template_iri": "/api/3/workflow_steps/8fc26827-d253-543f-a9a8-481931f8d846",
+        "metadata": {
+          "top": "320",
+          "left": "200",
+          "uuid": "8fc26827-d253-543f-a9a8-481931f8d846",
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-set-variables",
+            "background": "#f7ac20",
+            "displayName": "Set Variable"
+          }
+        },
+        "wf_metadata": 1214
+      },
+      "name": "Echo token",
+      "args": {
+        "__eval_seq": [
+          "final_token"
+        ],
+        "final_token": "{{ vars.steps['Approve probe'].input.probe_token }}"
+      },
+      "result": {},
+      "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+      "created": "2026-05-29T12:34:48.151817Z",
+      "modified": "2026-05-29T12:34:48.232501Z",
+      "func": "set_multiple",
+      "status": "incipient",
+      "initial": false,
+      "input": {},
+      "data": {},
+      "started": null,
+      "completed": null,
+      "workflow": "/wf/api/workflows/682450/",
+      "parent": null,
+      "@type": "Step"
+    },
+    {
+      "@id": "/wf/api/steps/5706664/",
+      "metadata": {
+        "id": 7573,
+        "template_iri": "/api/3/workflow_steps/5c21b2d9-5198-591c-b42e-c141d977bf66",
+        "metadata": {
+          "top": "120",
+          "left": "200",
+          "uuid": "5c21b2d9-5198-591c-b42e-c141d977bf66",
+          "when": true,
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-referenced",
+            "background": null,
+            "displayName": "Referenced"
+          },
+          "ignore_errors": false,
+          "globalMockUsed": false,
+          "mockOutputUsed": false
+        },
+        "wf_metadata": 1214
+      },
+      "name": "start",
+      "args": {
+        "input": [],
+        "globalMock": false,
+        "useMockOutput": false,
+        "step_variables": {
+          "input": {
+            "params": []
+          },
+          "__eval_seq": []
+        }
+      },
+      "result": {
+        "debug": true,
+        "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+        "globalMock": false,
+        "useMockOutput": false
+      },
+      "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+      "created": "2026-05-29T12:34:48.174257Z",
+      "modified": "2026-05-29T12:34:48.352768Z",
+      "func": "set_multiple",
+      "status": "finished",
+      "initial": true,
+      "input": {},
+      "data": {},
+      "started": "2026-05-29T12:34:48.335977Z",
+      "completed": "2026-05-29T12:34:48.352564Z",
+      "workflow": "/wf/api/workflows/682450/",
+      "parent": null,
+      "@type": "Step"
+    },
+    {
+      "@id": "/wf/api/steps/5706661/",
+      "metadata": {
+        "id": 7570,
+        "template_iri": "/api/3/workflow_steps/faa47267-0466-5fa6-9abf-d239397e4b04",
+        "metadata": {
+          "top": "220",
+          "left": "200",
+          "uuid": "faa47267-0466-5fa6-9abf-d239397e4b04",
+          "when": true,
+          "group": null,
+          "stepType": {
+            "icon": "icon icon-manual-input",
+            "background": "#52b200",
+            "displayName": "Manual Input"
+          },
+          "ignore_errors": false,
+          "globalMockUsed": false,
+          "mockOutputUsed": false
+        },
+        "wf_metadata": 1214
+      },
+      "name": "Approve probe",
+      "args": {
+        "type": "InputBased",
+        "input": {
+          "schema": {
+            "title": "Probe gate",
+            "description": "Enter a token, then click submit (NOT cancel).",
+            "inputVariables": [
+              {
+                "name": "probe_token",
+                "type": "string",
+                "label": "Token",
+                "title": "Text",
+                "usable": true,
+                "tooltip": "",
+                "dataType": "text",
+                "formType": "text",
+                "required": false,
+                "_expanded": true,
+                "templateUrl": "app/components/form/fields/input.html",
+                "defaultValue": null,
+                "_previousName": "",
+                "playbookField": true,
+                "jinjaExpressionView": true,
+                "useRecordFieldDefault": false
+              }
+            ]
+          }
+        },
+        "record": "",
+        "is_approval": false,
+        "owner_detail": {
+          "isAssigned": false
+        },
+        "isRecordLinked": false,
+        "step_variables": [],
+        "response_mapping": {
+          "options": [
+            {
+              "option": "submit",
+              "primary": true,
+              "step_iri": "/api/3/workflow_steps/8fc26827-d253-543f-a9a8-481931f8d846"
+            },
+            {
+              "option": "cancel",
+              "step_iri": "/api/3/workflow_steps/4e651d36-f5c2-50ac-b47b-f09bbd0c1642"
+            }
+          ],
+          "duplicateOption": false,
+          "customSuccessMessage": "Awaiting Playbook resumed successfully."
+        },
+        "email_notification": {
+          "enabled": false,
+          "smtpParameters": []
+        },
+        "inline_channel_list": [],
+        "external_channel_list": [],
+        "unauthenticated_input": false
+      },
+      "result": {
+        "record": "",
+        "wfinput_id": 420
+      },
+      "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+      "created": "2026-05-29T12:34:48.121836Z",
+      "modified": "2026-05-29T12:34:48.456403Z",
+      "func": "manual_input",
+      "status": "awaiting",
+      "initial": false,
+      "input": {
+        "type": "InputBased",
+        "debug": true,
+        "input": {
+          "schema": {
+            "title": "Probe gate",
+            "description": "Enter a token, then click submit (NOT cancel).",
+            "inputVariables": [
+              {
+                "name": "probe_token",
+                "type": "string",
+                "label": "Token",
+                "title": "Text",
+                "usable": true,
+                "tooltip": "",
+                "dataType": "text",
+                "formType": "text",
+                "required": false,
+                "_expanded": true,
+                "templateUrl": "app/components/form/fields/input.html",
+                "defaultValue": null,
+                "_previousName": "",
+                "playbookField": true,
+                "jinjaExpressionView": true,
+                "useRecordFieldDefault": false
+              }
+            ]
+          }
+        },
+        "record": "",
+        "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+        "is_approval": false,
+        "owner_detail": {
+          "isAssigned": false
+        },
+        "isRecordLinked": false,
+        "response_mapping": {
+          "options": [
+            {
+              "option": "submit",
+              "primary": true,
+              "step_iri": "/api/3/workflow_steps/8fc26827-d253-543f-a9a8-481931f8d846"
+            },
+            {
+              "option": "cancel",
+              "step_iri": "/api/3/workflow_steps/4e651d36-f5c2-50ac-b47b-f09bbd0c1642"
+            }
+          ],
+          "duplicateOption": false,
+          "customSuccessMessage": "Awaiting Playbook resumed successfully."
+        },
+        "email_notification": {
+          "enabled": false,
+          "smtpParameters": []
+        },
+        "inline_channel_list": [],
+        "external_channel_list": [],
+        "unauthenticated_input": false
+      },
+      "data": {},
+      "started": "2026-05-29T12:34:48.375622Z",
+      "completed": "2026-05-29T12:34:48.456164Z",
+      "workflow": "/wf/api/workflows/682450/",
+      "parent": null,
+      "@type": "Step"
+    }
+  ],
+  "template_iri": "/api/3/workflows/93b23cb7-b4d2-5f8b-8a30-30226491eb7b",
+  "created": "2026-05-29T12:34:48.104513Z",
+  "modified": "2026-05-29T12:34:48.463620Z",
+  "env": {
+    "debug": true,
+    "input": {
+      "params": {},
+      "records": []
+    },
+    "result": "fsr_steps_result.Approve probe",
+    "request": {
+      "uri": "https://192.0.2.205/api/triggers/1/notrigger/93b23cb7-b4d2-5f8b-8a30-30226491eb7b",
+      "data": [],
+      "method": "POST",
+      "baseUri": "https://192.0.2.205",
+      "headers": {
+        "host": "192.0.2.205",
+        "proxy": "",
+        "accept": "*/*",
+        "connection": "keep-alive",
+        "user-agent": "python-requests/2.33.1",
+        "content-type": "application/json",
+        "authorization": "*******",
+        "content-length": "83",
+        "x-php-ob-level": "1",
+        "accept-encoding": "gzip, deflate"
+      },
+      "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce"
+    },
+    "task_id": "a130bd8e-b054-4bcb-a96f-1ec43fd50366",
+    "auth_info": {
+      "auth_method": "CS HMAC"
+    },
+    "resources": {},
+    "__schedule": {
+      "email": null
+    },
+    "audit_info": {
+      "cyops_playbook_iri": "/api/3/workflows/93b23cb7-b4d2-5f8b-8a30-30226491eb7b",
+      "cyops_playbook_name": "Probe Manual Input"
+    },
+    "globalMock": false,
+    "currentUser": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+    "last_run_at": null,
+    "useMockOutput": false,
+    "mockPlaybookId": null
+  },
+  "status": "awaiting",
+  "parent_wf": null,
+  "tags": "",
+  "metadata": {
+    "id": 1214,
+    "template_iri": "/api/3/workflows/93b23cb7-b4d2-5f8b-8a30-30226491eb7b",
+    "wf_modified": "2026-05-29T12:34:47Z",
+    "metadata": {
+      "groups": [],
+      "routes": [
+        {
+          "@id": "/api/3/workflow_routes/7d8c4da3-be22-582e-ab49-ebd6bb3e8ef7",
+          "name": "Approve probe -> Cancelled",
+          "uuid": "7d8c4da3-be22-582e-ab49-ebd6bb3e8ef7",
+          "@type": "WorkflowRoute",
+          "group": null,
+          "label": "cancel",
+          "isExecuted": false,
+          "sourceStep": "/api/3/workflow_steps/faa47267-0466-5fa6-9abf-d239397e4b04",
+          "targetStep": "/api/3/workflow_steps/4e651d36-f5c2-50ac-b47b-f09bbd0c1642"
+        },
+        {
+          "@id": "/api/3/workflow_routes/fd5aff06-f192-5245-871c-1c69b102d421",
+          "name": "Approve probe -> Echo token",
+          "uuid": "fd5aff06-f192-5245-871c-1c69b102d421",
+          "@type": "WorkflowRoute",
+          "group": null,
+          "label": "submit",
+          "isExecuted": false,
+          "sourceStep": "/api/3/workflow_steps/faa47267-0466-5fa6-9abf-d239397e4b04",
+          "targetStep": "/api/3/workflow_steps/8fc26827-d253-543f-a9a8-481931f8d846"
+        },
+        {
+          "@id": "/api/3/workflow_routes/eddadd49-5f67-5aed-9bb4-fc2972f3f35b",
+          "name": "start -> Approve probe",
+          "uuid": "eddadd49-5f67-5aed-9bb4-fc2972f3f35b",
+          "@type": "WorkflowRoute",
+          "group": null,
+          "label": null,
+          "isExecuted": false,
+          "sourceStep": "/api/3/workflow_steps/5c21b2d9-5198-591c-b42e-c141d977bf66",
+          "targetStep": "/api/3/workflow_steps/faa47267-0466-5fa6-9abf-d239397e4b04"
+        }
+      ],
+      "trigger_step_type": "/api/3/workflow_step_types/b348f017-9a94-471f-87f8-ce88b6a7ad62"
+    }
+  },
+  "debug": true,
+  "peer_details": {},
+  "user": "/api/3/people/3451141c-bac6-467c-8d72-85e0fab569ce",
+  "node_name": "fsr-1",
+  "@type": "Workflow"
+}
