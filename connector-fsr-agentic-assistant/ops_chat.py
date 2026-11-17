@@ -31,6 +31,7 @@ from .ops_common import (
 from .ops_config import _build_provider, _config_for_persona, _provider_name
 from .ops_entity import (
     _CONNECTOR_INVARIANT_RULES, _inject_entity_context, _is_blind_followup,
+    _with_connector_rules,
     _maybe_inject_failure_diagnosis, _wire_messages,
 )
 from .ops_health import _check_health
@@ -579,7 +580,7 @@ def chat_turn(config: dict, params: dict) -> dict:
         # present example/sample data or unstated assumptions as real results, and
         # must tool-verify any factual claim about live state. Kept short so it
         # can't drown a persona's own voice; deliberately NOT gated on profile.
-        system_prompt = system_prompt + _CONNECTOR_INVARIANT_RULES
+        system_prompt = _with_connector_rules(system_prompt)
 
         # The degraded-persona disclosure (see _persona_degraded
         # above). Appended after the invariants so no persona override can drop it.
