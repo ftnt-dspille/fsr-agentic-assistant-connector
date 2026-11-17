@@ -71,26 +71,23 @@ def _drive(py: str, row: dict, llm: str, timeout: int) -> dict:
 
 
 def _observe(result: dict) -> dict:
+    # Read the turn's frames through the shared reader, which owns the `type`
+    # test and unwraps the envelope (test_frame_reader_closure enforces this --
+    # no script reads frame types privately).
+    from fsr_playbooks.harness.frames import (
+        assistant_text, frame_types, frames_of, turn_inputs)
     tr = result.get("transcript", [])
-    resolved = None
-    cards = []
+    ti = turn_inputs(tr) or {}
+    cards = sorted({t for t in frame_types(tr)
+                    if isinstance(t, str)
+                    and (t.endswith("_card") or t.endswith("_offer"))})
     unknown = 0
-    texts = []
-    for e in tr:
-        if not isinstance(e, dict):
-            continue
-        t = e.get("type", "")
-        if t == "turn_inputs":
-            resolved = e.get("intent")
-        elif t == "text":
-            texts.append(e.get("text", ""))
-        if t.endswith("_card") or t.endswith("_offer"):
-            cards.append(t)
-        c = e.get("content")
-        if isinstance(c, dict) and c.get("code") == "unknown_connector":
+    for r in frames_of(tr, "tool_result"):
+        body = r.get("content")
+        if isinstance(body, dict) and body.get("code") == "unknown_connector":
             unknown += 1
-    return {"resolved_intent": resolved, "cards": cards,
-            "unknown_connector": unknown, "text": "\n".join(texts),
+    return {"resolved_intent": ti.get("intent"), "cards": cards,
+            "unknown_connector": unknown, "text": assistant_text(tr),
             "tools_called": result.get("tools_called", [])}
 
 
