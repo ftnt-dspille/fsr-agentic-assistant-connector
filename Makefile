@@ -108,7 +108,7 @@ define with_env
 set -a; . "$(BOX_ENV)"; set +a; PATH="$(VENV)/bin:$$PATH"
 endef
 
-.PHONY: session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+.PHONY: session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -163,6 +163,10 @@ local-turn: ## Drive ONE chat_turn in-process (LLM=fake|frank PERSONA=none|fixtu
 	  $(if $(MODEL),--model "$(MODEL)",) $(if $(RAW),,--diagnose) \
 	  $(if $(SCENARIO),--scenario "$(SCENARIO)",) \
 	  $(if $(MAX_ROUNDS),--max-rounds $(MAX_ROUNDS),) $(if $(MAX_WASTED),--max-wasted $(MAX_WASTED),)
+
+live-utterances: ## LIVE golden-utterance OUTCOME gate: drive each tests/golden_utterances.json ask through the REAL chat_turn on BOX=<alias> (box model + data) and assert resolved intent, card type, no unknown_connector spray, and analyst language. The on-box layer that catches what routing unit tests cannot (the build-on-triage defect). BOX= required; ONLY=<name> one case; LLM=frank. Run before make stable.
+	@if [ -z "$(BOX_ENV)" ]; then echo "live-utterances needs BOX=<alias> (scripts/box.sh --list)"; exit 2; fi
+	@$(with_env); FSRPB_DEV=1 $(PY) scripts/live_utterances.py --python "$(PY)" --llm "$(or $(LLM),frank)" $(if $(ONLY),--only "$(ONLY)",)
 
 # A1: the same golden authoring tasks, the same model, an OUTSIDE agent (claude -p
 # on the toolkit MCP server) vs the in-product WIDGET loop; ONE grader. Results
