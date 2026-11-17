@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import contextlib
+import re
 from typing import Any
 
 
@@ -181,32 +182,77 @@ def _normalize_intent(value: Any) -> str:
     return value if value in _TASK_INTENTS else "build"
 
 
+# A clear, first-person authoring request for a playbook: an authoring VERB
+# bound to the word "playbook" in the same clause. High precision on purpose --
+# it PROMOTES a triage page prior to build, so a triage QUESTION that merely
+# names a playbook ("what playbook ran?", "explain this playbook") must NOT
+# match: those have no authoring verb before "playbook".
+_BUILD_REQUEST_RE = re.compile(
+    r"\b(build|create|make|author|generate|draft|compose|set\s*up|"
+    r"turn\b[^.?!\n]+?\binto|save\b[^.?!\n]+?\bas)\b[^.?!\n]{0,80}?\bplay\s?book",
+    re.IGNORECASE,
+)
+
+
+def _latest_user_text(params: dict) -> str:
+    """The current turn's user message as plain text (last role==user entry in
+    messages[]), or the legacy free-text ``intent`` when that shape is used."""
+    for m in reversed(params.get("messages") or []):
+        if isinstance(m, dict) and m.get("role") == "user":
+            c = m.get("content")
+            if isinstance(c, str):
+                return c
+            if isinstance(c, list):
+                return " ".join(
+                    b.get("text", "") for b in c
+                    if isinstance(b, dict) and b.get("type") == "text")
+            return ""
+    raw = params.get("intent")
+    return raw if isinstance(raw, str) and raw not in _TASK_INTENTS else ""
+
+
+def _message_requests_build(params: dict) -> bool:
+    """True when the current user message is an explicit ask to author a
+    playbook -- the signal that promotes a triage page prior to build."""
+    return bool(_BUILD_REQUEST_RE.search(_latest_user_text(params)))
+
+
 def _resolve_intent(params: dict) -> str:
     """The chat_turn intent for this turn (Phase 1: a SOFT page prior).
 
     Precedence:
-      1. An explicit task ``intent`` (``triage``/``build``) WINS -- the soft
-         override that lets a widget/power-user pin the slice.
+      1. An explicit ``build`` task ``intent`` WINS.
       2. A legacy free-text ``intent`` (the pre-Phase-4 shape carried the user
          message here) resolves to ``build``, unchanged.
-      3. Absent ``intent`` -- the Phase-1 case once the widget stops pinning --
-         derives the prior from PAGE FACTS (the mounted module + the router
-         ``page`` state + ``in_playbook_editor``) via the single affordance
-         taxonomy: ``build`` on an authoring page, ``triage`` everywhere else.
+      3. A clear authoring request in the user's OWN words ("build a playbook")
+         promotes to ``build`` even when the page pinned ``triage`` -- the page
+         is a prior, not a latch, and the analyst's explicit request is the
+         stronger signal. (Defect sess-dmrfucve: "Build a playbook to automate
+         these tasks" ran as triage, investigated, and forced a verdict card.)
+      4. Otherwise the page prior stands: an explicit ``triage`` pin, or, absent
+         any ``intent``, PAGE FACTS (module + router ``page`` + ``in_playbook_editor``)
+         via the affordance taxonomy -- ``build`` on an authoring page, ``triage``
+         everywhere else.
 
     Still returns a built-in intent (``triage``/``build``); the per-turn frontier
     (Phase 2) decides reachability from there, so the page is a prior, not a latch.
     """
     raw = params.get("intent")
-    if raw in _TASK_INTENTS:
-        return raw
-    if isinstance(raw, str) and raw.strip():
+    if raw == "build":
+        return "build"
+    if isinstance(raw, str) and raw.strip() and raw not in _TASK_INTENTS:
         return "build"  # legacy free-text shape -> build (unchanged)
+
+    msg_build = _message_requests_build(params)
+    if raw == "triage":
+        return "build" if msg_build else "triage"
+
     from fsr_soc_triage.triage_sources import prior_for_page
     entity = params.get("entity")
     module = entity.get("module") if isinstance(entity, dict) else None
-    return prior_for_page(module=module, state_name=params.get("page"),
-                          in_playbook_editor=params.get("in_playbook_editor", False))
+    prior = prior_for_page(module=module, state_name=params.get("page"),
+                           in_playbook_editor=params.get("in_playbook_editor", False))
+    return "build" if (prior != "build" and msg_build) else prior
 
 
 def _legacy_intent_text(params: dict):
