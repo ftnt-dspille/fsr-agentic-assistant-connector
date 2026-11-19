@@ -123,6 +123,12 @@ REDERIVED_ON_RESUME = {
         "today's behaviour. Unbound narrows nothing -- permissive only in "
         "that it withholds the answer-scope refusals, and an approval resume "
         "is by definition past a narrow question.",
+    "reply_language":
+        "bound per chat turn with ask_scope, from the same scope declaration "
+        "(ops_scope). A resume carries no new ask, so it is unbound and the "
+        "round tail falls back to quoting the analyst's message, which is how "
+        "every turn ran before the language was declared. It gates nothing: "
+        "unbound only changes the wording of the language reminder.",
     "user_message":
         "run_turn binds it from the message history (`latest_user_text`), and "
         "a resume replays that history. Unbound only denies the #132 intent "

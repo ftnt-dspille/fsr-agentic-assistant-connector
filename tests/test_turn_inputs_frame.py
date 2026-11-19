@@ -35,7 +35,16 @@ def test_the_event_becomes_a_turn_inputs_frame():
     w = _event_to_wire(_ev())
     assert w == {"type": "turn_inputs", "model": "m", "tools": ["find", "run_op"],
                  "intent": "triage", "system_chars": 900,
-                 "slices": [{"name": "prompt", "chars": 800}]}
+                 "slices": [{"name": "prompt", "chars": 800}],
+                 # an unscoped turn: no declared scope or language
+                 "scope": None, "language": None}
+
+
+def test_the_frame_carries_the_declared_scope_and_language():
+    ev = TurnInputsEvent(model="m", tools=["find"], intent="triage", system_chars=1,
+                         slices=[], scope="act", language="English")
+    w = _event_to_wire(ev)
+    assert (w["scope"], w["language"]) == ("act", "English")
 
 
 def test_it_is_not_the_poll_feeds_turn_boundary():
