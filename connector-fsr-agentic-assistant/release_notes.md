@@ -1,5 +1,16 @@
 # Release notes
 
+## 0.6.19 (2026-11-19)
+
+A request to act stages the action and stops. "Block ip <addr>" used to run a full
+investigation (SIEM, EDR, tickets, intel), get forced into a verdict, and never stage the
+block; it now finds the action, stages its approval card, and asks for the target only when
+none is named. Replies stay in the analyst's language: the scope call names the language
+(English when the ask is too short to show one) and every reminder names it. Stored sessions
+record the declared scope and language. The live golden gate now catches German and Russian
+drift, reads card text, and checks that a block ask does not hunt.
+
+
 ## 0.6.18 (2026-11-16)
 
 Stable-box install: the Import Wizard installs exactly the repo's versions; the framework wheel
