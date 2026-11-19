@@ -45,11 +45,23 @@ _SCOPE_TEXT = {
         "then reply in a few sentences that name the evidence. This turn has no "
         "prior-case sweep, no ticket pivot, no coverage check and no verdict or "
         "action card.\n"),
+    "act": (
+        "\n\n## Scope of this ask: act\n"
+        "The analyst asked you to take an action (block, isolate, update). "
+        "Stage it and stop. Find the action with find(kind='action') for the "
+        "target, read its schema if you need it, and stage it with "
+        "emit_card(card_type='action'); the analyst approves it on the card. "
+        "Take the target from the message or the record in hand. Do not "
+        "investigate, enrich, search tickets or prior cases, and do not write "
+        "a verdict. If no target is named and the record holds none, ask the "
+        "analyst for it in one sentence.\n"),
 }
 
 
 def _directive_text(scope: str) -> str:
-    return _SCOPE_TEXT[scope] + _BUDGET + _escalation()
+    # The escalation offer is for a narrow question; an act turn has nothing
+    # to escalate.
+    return _SCOPE_TEXT[scope] + _BUDGET + (_escalation() if scope != "act" else "")
 
 
 def _scope_directive(scope: str | None) -> str:
@@ -81,21 +93,39 @@ def _resolve_ask_scope(provider: Any, text: Any, *, intent: str,
     """(scope, how, reason). `skip` leaves the turn unscoped: a read-only chip
     already narrows itself, and an unattended turn is an investigation by
     design."""
+    return _resolve_ask_scope_and_language(
+        provider, text, intent=intent, quick_action=quick_action, skip=skip,
+        entity=entity, loop=loop)[:3]
+
+
+def _resolve_ask_scope_and_language(provider: Any, text: Any, *, intent: str,
+                                    quick_action: Any, skip: bool = False,
+                                    entity: Any = None, loop: Any = None
+                                    ) -> tuple[str | None, str, str, str]:
+    """(scope, how, reason, language). The language is the one the model said
+    the ask is written in, "" when nothing was declared (or the framework
+    predates it)."""
     if skip:
-        return None, "skipped", ""
+        return None, "skipped", "", ""
     if quick_action or not isinstance(text, str) or not text.strip():
-        return None, "default", ""   # no typed ask: no model call
+        return None, "default", "", ""   # no typed ask: no model call
     try:
         from fsr_playbooks.llm import ask_scope
     except ImportError:  # older framework: no scope
-        return None, "unavailable", ""
+        return None, "unavailable", "", ""
+    resolve = getattr(ask_scope, "resolve_scope_and_language", None)
     try:
-        coro = ask_scope.resolve_scope(
-            provider, text, intent=intent or "triage", quick_action=quick_action,
-            record=_record_label(entity))
-        return loop.run_until_complete(coro) if loop is not None else asyncio.run(coro)
+        if resolve is None:   # framework without the declared language
+            coro = ask_scope.resolve_scope(
+                provider, text, intent=intent or "triage",
+                quick_action=quick_action, record=_record_label(entity))
+        else:
+            coro = resolve(provider, text, intent=intent or "triage",
+                           quick_action=quick_action, record=_record_label(entity))
+        out = loop.run_until_complete(coro) if loop is not None else asyncio.run(coro)
+        return tuple(out) if len(out) == 4 else (*out, "")
     except Exception:  # noqa: BLE001 - scope is an optimisation, never a failure
-        return None, "error", ""
+        return None, "error", "", ""
 
 
 def _close_loop(loop: Any) -> None:
@@ -111,6 +141,24 @@ def _bind_ask_scope(scope: str | None) -> Any:
         return ask_scope.bind_scope(scope)
     except Exception:  # noqa: BLE001
         return None
+
+
+def _bind_reply_language(language: str | None) -> Any:
+    try:
+        from fsr_playbooks.llm import ask_scope
+        return ask_scope.bind_language(language)
+    except Exception:  # noqa: BLE001 - older framework: the tail quotes instead
+        return None
+
+
+def _reset_reply_language(token: Any) -> None:
+    if token is None:
+        return
+    try:
+        from fsr_playbooks.llm import ask_scope
+        ask_scope.reset_language(token)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def _reset_ask_scope(token: Any) -> None:

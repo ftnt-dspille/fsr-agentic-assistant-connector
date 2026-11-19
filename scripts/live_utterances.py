@@ -10,7 +10,9 @@ routing tests cannot see:
   - card_in / card_not                    -- it authored (playbook_offer), did
                                              not dead-end on a verdict_card
   - no_unknown_connector                  -- no run_op spray at unconfigured connectors
-  - language                              -- analyst-facing text did not drift
+  - language                              -- analyst-facing text did not drift,
+                                             card text (verdict findings) included
+  - tools_not                             -- e.g. a block ask must not hunt
 
 This is the gate that would have caught box 159 sess-dmrfucve. Run it before
 `make stable`. It needs a box env (FSR_* creds) loaded via envrun -- the Makefile
@@ -35,20 +37,65 @@ DEFAULT_GOLDENS = (HERE.parent / "connector-fsr-agentic-assistant"
 # Spanish. Accented letters / inverted punctuation, plus a few function words
 # that do not occur in English analyst text. Heuristic on purpose: it only has
 # to catch a wholesale language switch, not score fluency.
-_NON_EN = set("áéíóúñ¿¡")
-_ES_WORDS = (" el ", " la ", " los ", " las ", " no se ", " está ", " conector ",
-             " disponible ", " por lo ", " para ", " con ", " una ")
+_NON_EN = set("áéíóúñ¿¡äöüßàèâêîôûç")
+# Function words that do not occur in English analyst text. Spanish was the
+# first drift; a demo on the FortiAI proxy then drifted to German and Russian,
+# which this check passed (no accents in "Nicht ... sind", Cyrillic unchecked).
+_FOREIGN_WORDS = (
+    # Spanish
+    " el ", " la ", " los ", " las ", " no se ", " está ", " conector ",
+    " disponible ", " por lo ", " para ", " con ", " una ",
+    # German
+    " nicht ", " und ", " sind ", " der ", " die ", " das ", " ist ", " auf ",
+    " wurde ", " keine ", " mit ",
+    # French
+    " les ", " des ", " est ", " pas ", " une ", " pour ", " avec ")
+
+
+def _non_latin_letters(t: str) -> int:
+    """Letters outside Latin script (Cyrillic, Greek, CJK, Arabic, ...)."""
+    import unicodedata
+    n = 0
+    for ch in t:
+        if ch.isalpha() and not unicodedata.name(ch, "").startswith("LATIN"):
+            n += 1
+    return n
 
 
 def _looks_english(text: str) -> bool:
     t = (text or "").lower()
     if not t.strip():
         return True  # no prose to judge (card-only answer) -- not a drift
+    if _non_latin_letters(t) >= 3:
+        return False
     if any(ch in _NON_EN for ch in t):
         return False
     t = " " + t + " "  # pad so a boundary word matches at either end
-    hits = sum(t.count(w) for w in _ES_WORDS)
+    hits = sum(t.count(w) for w in _FOREIGN_WORDS)
     return hits < 2
+
+
+def _card_text(tr: list) -> str:
+    """The prose inside emitted cards (verdict summary and findings, action
+    labels): the demo's Spanish and Russian lived there, not in the reply."""
+    from fsr_playbooks.harness.frames import frames_of
+    out: list[str] = []
+
+    def walk(v, key=""):
+        if isinstance(v, str):
+            if key in ("summary", "claim", "label", "title", "rationale",
+                       "text", "prompt", "reason", "description"):
+                out.append(v)
+        elif isinstance(v, dict):
+            for k, x in v.items():
+                walk(x, k)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x, key)
+    for c in frames_of(tr, "tool_use"):
+        if c.get("name") == "emit_card":
+            walk(c.get("input") or {})
+    return "\n".join(out)
 
 
 def _drive(py: str, row: dict, llm: str, timeout: int) -> dict:
@@ -88,6 +135,7 @@ def _observe(result: dict) -> dict:
             unknown += 1
     return {"resolved_intent": ti.get("intent"), "cards": cards,
             "unknown_connector": unknown, "text": assistant_text(tr),
+            "card_text": _card_text(tr), "scope": ti.get("scope") or None,
             "tools_called": result.get("tools_called", [])}
 
 
@@ -108,6 +156,14 @@ def _check(row: dict, obs: dict) -> list[str]:
                      f"connector (unknown_connector)")
     if exp.get("language") == "en" and not _looks_english(obs["text"]):
         fails.append("analyst-facing text is not English (language drift)")
+    if exp.get("language") == "en" and not _looks_english(obs.get("card_text", "")):
+        fails.append("card text is not English (language drift)")
+    called = set(obs.get("tools_called") or [])
+    hit = sorted(called & set(exp.get("tools_not", [])))
+    if hit:
+        fails.append(f"called tools it must not: {hit}")
+    if "scope" in exp and obs.get("scope") != exp["scope"]:
+        fails.append(f"scope {obs.get('scope')!r} != {exp['scope']!r}")
     return fails
 
 

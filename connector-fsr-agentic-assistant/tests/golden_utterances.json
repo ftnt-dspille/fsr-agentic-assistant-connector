@@ -8,8 +8,12 @@
     "timeout_s": 600,
     "expect": {
       "resolved_intent": "build",
-      "card_in": ["playbook_offer"],
-      "card_not": ["verdict_card"],
+      "card_in": [
+        "playbook_offer"
+      ],
+      "card_not": [
+        "verdict_card"
+      ],
       "language": "en",
       "no_unknown_connector": true
     }
@@ -20,7 +24,13 @@
     "intent_pin": "triage",
     "module": "alerts",
     "message": "Save that as a playbook",
-    "expect": { "resolved_intent": "build", "card_not": ["verdict_card"], "language": "en" }
+    "expect": {
+      "resolved_intent": "build",
+      "card_not": [
+        "verdict_card"
+      ],
+      "language": "en"
+    }
   },
   {
     "name": "triage_question_naming_a_playbook_stays_triage",
@@ -28,15 +38,36 @@
     "intent_pin": "triage",
     "module": "alerts",
     "message": "Which playbook already ran on this alert?",
-    "expect": { "resolved_intent": "triage", "card_not": ["playbook_offer"] }
+    "expect": {
+      "resolved_intent": "triage",
+      "card_not": [
+        "playbook_offer"
+      ]
+    }
   },
   {
     "name": "plain_triage_action_stays_triage",
-    "note": "A containment ask is triage, not authoring.",
+    "note": "A containment ask is triage, not authoring. It stages the block; it does not hunt or write a verdict (demo: a block ask ran a full investigation).",
     "intent_pin": "triage",
     "module": "alerts",
     "message": "Block the IP associated with this alert",
-    "expect": { "resolved_intent": "triage" }
+    "expect": {
+      "resolved_intent": "triage",
+      "card_in": [
+        "action_card"
+      ],
+      "card_not": [
+        "verdict_card"
+      ],
+      "tools_not": [
+        "siem_search",
+        "edr_host",
+        "faz_search",
+        "prior_cases",
+        "mcp_utility__global_search"
+      ],
+      "language": "en"
+    }
   },
   {
     "name": "build_request_with_no_intent_pin",
@@ -45,6 +76,73 @@
     "module": "alerts",
     "page": "record",
     "message": "Create a playbook that blocks a malicious IP using FortiGate",
-    "expect": { "resolved_intent": "build", "card_in": ["playbook_offer"] }
+    "expect": {
+      "resolved_intent": "build",
+      "card_in": [
+        "playbook_offer"
+      ]
+    }
+  },
+  {
+    "name": "bare_block_ip_stages_action_in_english",
+    "note": "Demo: 'block ip <addr>' hunted, enriched, answered in German, and never staged the block. A bare command names no language; the reply stays English.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "block ip 198.51.100.23",
+    "expect": {
+      "resolved_intent": "triage",
+      "scope": "act",
+      "card_in": [
+        "action_card"
+      ],
+      "card_not": [
+        "verdict_card"
+      ],
+      "tools_not": [
+        "siem_search",
+        "edr_host",
+        "faz_search",
+        "prior_cases",
+        "mcp_utility__global_search"
+      ],
+      "language": "en"
+    }
+  },
+  {
+    "name": "block_named_ip_on_fortigate",
+    "note": "Worked in an earlier demo; pin it.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "Block this ip on my fortigate 198.51.100.50",
+    "expect": {
+      "resolved_intent": "triage",
+      "scope": "act",
+      "card_in": [
+        "action_card"
+      ],
+      "card_not": [
+        "verdict_card"
+      ],
+      "tools_not": [
+        "siem_search",
+        "edr_host",
+        "faz_search",
+        "prior_cases",
+        "mcp_utility__global_search"
+      ],
+      "language": "en"
+    }
+  },
+  {
+    "name": "attack_timeline_stays_english",
+    "note": "Demo: the timeline's verdict card came back in Spanish.",
+    "intent_pin": "triage",
+    "module": "alerts",
+    "message": "Build an attack timeline for this alert -- order the key events and explain how the activity progressed.",
+    "timeout_s": 600,
+    "expect": {
+      "resolved_intent": "triage",
+      "language": "en"
+    }
   }
 ]

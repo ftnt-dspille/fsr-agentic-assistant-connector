@@ -47,7 +47,8 @@ from .ops_prompts import (
 from .ops_redaction import redaction_mode, redaction_scope
 from .ops_resume import _chat_resume_routes
 from .ops_scope import (
-    _bind_ask_scope, _close_loop, _reset_ask_scope, _resolve_ask_scope, _scope_directive,
+    _bind_ask_scope, _bind_reply_language, _close_loop, _reset_ask_scope,
+    _reset_reply_language, _resolve_ask_scope_and_language, _scope_directive,
 )
 from .ops_tools import (
     _advertised_tools, _append_record_source_gaps, _authoring_active,
@@ -707,11 +708,14 @@ def chat_turn(config: dict, params: dict) -> dict:
             # question narrows the turn (lookup slice, no verdict, ends on its
             # answer); everything else keeps today's flow. Bound BEFORE the
             # slice is computed so the slice and dispatch agree.
-            _scope, _scope_how, _scope_why = _resolve_ask_scope(
+            _scope, _scope_how, _scope_why, _reply_lang = _resolve_ask_scope_and_language(
                 provider, _clean_latest_user, intent=intent, loop=_turn_loop,
                 quick_action=quick_action, entity=_entity,
                 skip=bool(read_only or (_actor and _actor.get("system"))))
             _scope_token = _bind_ask_scope(_scope)
+            _lang_token = _bind_reply_language(_reply_lang)
+            if _reply_lang:
+                _turn_tags["reply_language"] = _reply_lang
             if _scope:
                 _turn_tags["ask_scope"] = _scope
                 _turn_tags["ask_scope_how"] = _scope_how
@@ -774,6 +778,7 @@ def chat_turn(config: dict, params: dict) -> dict:
                 ))
             finally:
                 _close_loop(_turn_loop)
+                _reset_reply_language(_lang_token)
                 _reset_ask_scope(_scope_token)
                 _unbind_session_state(_offered_token)
                 _unbind_session_state(_state_token)

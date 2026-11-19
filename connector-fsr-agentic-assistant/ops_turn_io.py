@@ -76,7 +76,9 @@ def _event_to_wire(ev: Any) -> dict | None:
         # the widget ignores a type it has no branch for.
         return _frame(TurnInputsFrame, type="turn_inputs", model=ev.model,
                       tools=list(ev.tools), intent=ev.intent or None,
-                      system_chars=ev.system_chars, slices=list(ev.slices))
+                      system_chars=ev.system_chars, slices=list(ev.slices),
+                      scope=getattr(ev, "scope", "") or None,
+                      language=getattr(ev, "language", "") or None)
     if isinstance(ev, TextEvent):
         return _frame(TextFrame, type="text", text=ev.text)
     if ToolStartEvent and isinstance(ev, ToolStartEvent):

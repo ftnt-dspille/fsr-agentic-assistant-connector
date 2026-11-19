@@ -253,6 +253,8 @@ class TurnInputsFrame(_WireBase):
     intent: Optional[str] = None
     system_chars: Optional[int] = None
     slices: list[dict[str, Any]] = Field(default_factory=list)
+    scope: Optional[str] = None
+    language: Optional[str] = None
 
 
 class UnknownEvent(_WireBase):

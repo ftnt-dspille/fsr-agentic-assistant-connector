@@ -87,6 +87,8 @@ def env(operations, tmp_path, monkeypatch):
         seen["tags"] = kw.get("tags")
         from fsr_playbooks.llm import ask_scope
         seen["bound"] = ask_scope.current_scope()
+        seen["language"] = (ask_scope.current_language()
+                            if hasattr(ask_scope, "current_language") else None)
         return _Result()
 
     monkeypatch.setattr(run_turn, "run_agent_turn", _fake_run_agent_turn)
@@ -210,3 +212,52 @@ def test_the_narrow_prompt_carries_the_frameworks_escalation_offer(env, scope):
     seen = _turn(env, "Who owns this host?", "scope-offer-" + scope)
     assert ask_scope.escalation_directive() in seen["system"]
 
+
+
+# --- act: a block ask stages the block (live demo: it ran a full hunt) -------
+
+ACT = ["block ip 198.51.100.23", "Block ip 198.51.100.10", "block 1.1.1.1",
+       "Block this ip on my fortigate 198.51.100.50", "isolate this host"]
+
+
+@pytest.mark.parametrize("text", ACT)
+def test_an_act_ask_drops_the_hunt_and_is_told_to_stage_the_action(env, text):
+    env.provider('{"scope": "act", "reason": "test", "language": "English"}')
+    seen = _turn(env, text, "scope-a-" + str(abs(hash(text))))
+    assert seen["bound"] == "act" and seen["tags"]["ask_scope"] == "act"
+    system = seen["system"]
+    assert "Scope of this ask: act" in system
+    assert "emit_card(card_type='action')" in system
+    assert "do not write a verdict" in system
+    assert "allows 5 tool calls in all" in system
+    # an act turn has nothing to escalate
+    assert "Run the full investigation" not in system
+    assert not (seen["tools"] & _HUNT), seen["tools"] & _HUNT
+    assert {"find", "emit_card"} <= seen["tools"]
+
+
+@pytest.mark.parametrize("lang", ["English", "German"])
+def test_the_declared_language_is_bound_for_the_turn_and_tagged(env, lang):
+    env.provider('{"scope": "act", "reason": "test", "language": "%s"}' % lang)
+    seen = _turn(env, "block ip 198.51.100.23", "scope-lang-" + lang)
+    assert seen["language"] == lang
+    assert seen["tags"]["reply_language"] == lang
+
+
+def test_the_language_does_not_leak_into_the_next_turn(env):
+    env.provider('{"scope": "act", "reason": "test", "language": "German"}')
+    _turn(env, "block ip 198.51.100.23", "scope-lang-leak-1")
+    env.provider(None)
+    seen = _turn(env, "triage this", "scope-lang-leak-2")
+    assert not seen["language"]
+    assert "reply_language" not in seen["tags"]
+
+
+def test_the_turn_inputs_record_carries_scope_and_language():
+    from fsr_playbooks.llm.provider import TurnInputsEvent
+    mod = sys.modules.get("_fsrpb_conn_scope.ops_turn_io")
+    if mod is None:
+        pytest.skip("ops_turn_io not loaded by the operations fixture")
+    frame = mod._event_to_wire(TurnInputsEvent(model="m", scope="act", language="English"))
+    d = frame if isinstance(frame, dict) else frame.model_dump()
+    assert d["scope"] == "act" and d["language"] == "English"
