@@ -133,17 +133,21 @@ def _short(v: Any, n: int = 80) -> str:
     return repr(s[:n] + ("..." if len(s) > n else "")) + (f" ({len(s)} chars)" if len(s) > n else "")
 
 
-def write_problems(call: dict, saved: dict, before: dict | None) -> list[str]:
+def write_problems(call: dict, saved: dict, before: dict | None,
+                   side_effects: frozenset[str] = frozenset()) -> list[str]:
     """What the saved record gets wrong against the model's own call.
 
     ``call`` is the tool_use input ({module, fields[, uuid]}); ``before`` is
-    the record as it stood before an update (None for a create)."""
+    the record as it stood before an update (None for a create).
+    ``side_effects`` are fields the PLATFORM changes because of this write (a
+    close stamps ``resolveddate`` and its rules add a comment), named per row
+    in ``expect.side_effects`` so nothing else is excused."""
     fields = call.get("fields") or {}
     probs = [f"{k}: sent {_short(v)}, saved {_short(saved.get(k))}"
              for k, v in fields.items() if not same_value(v, saved.get(k))]
     if before is not None:
         for k, old in before.items():
-            if k in fields or k in _SYSTEM_FIELDS or k.startswith("@"):
+            if k in fields or k in _SYSTEM_FIELDS or k in side_effects or k.startswith("@"):
                 continue
             if json.dumps(old, sort_keys=True, default=str) != \
                     json.dumps(saved.get(k), sort_keys=True, default=str):
@@ -216,7 +220,8 @@ def _matches_named(rec: dict, module: str, named: list[dict]) -> bool:
 def row_requires(spec: dict) -> list[str]:
     """What a writing row needs from the box: its mounted record, and writes."""
     m = spec.get("mount") or {}
-    reqs = ["writable"] + ([f"record:{m['module']}:{m['uuid']}"] if m else [])
+    # A seeded mount is created by the run itself, so the box need not hold it.
+    reqs = ["writable"] + ([f"record:{m['module']}:{m['uuid']}"] if m.get("uuid") else [])
     return reqs + list(spec.get("requires") or [])
 
 
@@ -427,7 +432,8 @@ class Arc:
             self.created.append((module, uid))
         elif before is not None:
             self.restore.append((module, uid, {k: before.get(k) for k in (call.get("fields") or {})}))
-        probs = write_problems(call, saved, before)
+        probs = write_problems(call, saved, before, frozenset(
+            ((getattr(self, "spec", None) or {}).get("expect") or {}).get("side_effects") or ()))
         self.writes.append({"tool": tool, "module": module, "uuid": uid, "name": saved.get("name"),
                             "fields": sorted((call.get("fields") or {})), "problems": probs})
         for p in probs:
@@ -532,6 +538,28 @@ def _restorable(fields: dict) -> dict:
     return out
 
 
+# ---------------------------------------------------------------- seeding
+def seed_mount(client, spec: dict, run_tag: str) -> tuple[dict, tuple[str, str] | None]:
+    """A row whose mount is ``{"module": m, "seed": {fields}}`` gets a fresh
+    record created for each run (its ``name`` suffixed with ``run_tag``), so
+    the row needs no box-specific uuid. Returns the spec to run (mount uuid
+    filled in) and the (module, uuid) to delete afterwards, or the spec
+    unchanged and None when the mount is not seeded."""
+    m = spec.get("mount") or {}
+    seed = m.get("seed")
+    if not isinstance(seed, dict) or m.get("uuid"):
+        return spec, None
+    fields = dict(seed)
+    if fields.get("name"):
+        fields["name"] = f"{fields['name']} [{run_tag}]"
+    rec = client.post(f"/api/3/{m['module']}", fields)
+    uid = (rec or {}).get("uuid") or str((rec or {}).get("@id", "")).rsplit("/", 1)[-1]
+    if not uid:
+        raise RuntimeError(f"seeding {m['module']} returned no uuid: {str(rec)[:200]}")
+    run_spec = {**spec, "mount": {"module": m["module"], "uuid": uid}}
+    return run_spec, (m["module"], uid)
+
+
 # ---------------------------------------------------------------- main
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -558,7 +586,8 @@ def main() -> int:
         print(f"  skip  {s}")
 
     caps = harness_caps(fsr.client, records=[(r["mount"]["module"], r["mount"]["uuid"])
-                                             for r in rows if r.get("mount")], env=os.environ)
+                                             for r in rows if (r.get("mount") or {}).get("uuid")],
+                        env=os.environ)
     results, clean, skipped_live = [], 0, []
     for spec in rows:
         reason = skip_reason(row_requires(spec), caps)
@@ -572,12 +601,23 @@ def main() -> int:
             print(f"\n-- {spec['name']} run {i + 1}")
             t0 = time.time()
             arc = None
+            seeded = None
             try:
-                arc = Arc(fsr, spec, args.device, lambda s: print(s, flush=True))
+                run_spec, seeded = seed_mount(fsr.client, spec, uuid.uuid4().hex[:6])
+                if seeded:
+                    print(f"   seeded {seeded[0]} {seeded[1][:8]}")
+                arc = Arc(fsr, run_spec, args.device, lambda s: print(s, flush=True))
+                if seeded:
+                    arc.created.insert(0, seeded)   # deleted last, after its children
                 arc.run()
                 arc.grade()
             except Exception as e:  # noqa: BLE001 -- a row that cannot even mount is reported, not fatal
                 if arc is None:
+                    if seeded and not args.keep:
+                        try:
+                            fsr.client.delete(f"/api/3/{seeded[0]}/{seeded[1]}")
+                        except Exception:  # noqa: BLE001
+                            print(f"   cleanup: could not delete seeded {seeded[1]}")
                     runs.append({"ok": False, "problems": [f"{type(e).__name__}: {e}"[:300]], "secs": 0})
                     continue
                 arc.problems.append(f"{type(e).__name__}: {e}"[:300])
@@ -585,7 +625,8 @@ def main() -> int:
                 if arc is not None and not args.keep:
                     arc.cleanup()
             runs.append({"ok": not arc.problems, "problems": arc.problems, "writes": arc.writes,
-                         "tools": arc.tools, "said": arc.said, "secs": round(time.time() - t0)})
+                         "tools": arc.tools, "said": arc.said, "secs": round(time.time() - t0),
+                         "calls": list(arc.calls.values())})
         passed = sum(bool(r["ok"]) for r in runs)
         clean += passed == len(runs)
         results.append({"row": spec["name"], "passed": passed, "runs": runs})

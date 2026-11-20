@@ -202,3 +202,41 @@ def test_the_arc_answers_an_approval_through_the_shared_driver():
     assert arc.tools == ["run_playbook"]
     assert arc.said == "Done."
     assert arc.problems == []
+
+
+def test_a_named_platform_side_effect_is_excused_and_nothing_else():
+    before = {"status": "Open", "resolveddate": None, "comments": [], "severity": "Low"}
+    call = {"uuid": "u", "fields": {"status": "Closed"}}
+    saved = {"status": "Closed", "resolveddate": 1795208777, "comments": [{"@id": "c"}],
+             "severity": "High"}
+    probs = LW.write_problems(call, saved, before, frozenset({"resolveddate", "comments"}))
+    assert probs == ["severity: not in the call, but changed from 'Low' to 'High'"]
+    # Not named: the same platform changes fail the row, as before.
+    assert len(LW.write_problems(call, saved, before)) == 3
+
+
+class _Client:
+    def __init__(self):
+        self.posted = []
+
+    def post(self, endpoint, data):
+        self.posted.append((endpoint, data))
+        return {"@id": "/api/3/alerts/abc-123", "uuid": "abc-123"}
+
+
+def test_a_seeded_mount_creates_a_tagged_record_and_returns_it_for_cleanup():
+    spec = {"name": "r", "mount": {"module": "alerts",
+                                   "seed": {"name": "Scan", "sourceIp": "192.0.2.10"}}}
+    c = _Client()
+    run_spec, seeded = LW.seed_mount(c, spec, "t1")
+    assert c.posted == [("/api/3/alerts", {"name": "Scan [t1]", "sourceIp": "192.0.2.10"})]
+    assert run_spec["mount"] == {"module": "alerts", "uuid": "abc-123"}
+    assert seeded == ("alerts", "abc-123")
+    assert spec["mount"]["seed"]["name"] == "Scan"      # the row itself is untouched
+    assert LW.row_requires(spec) == ["writable"]       # the box need not hold it
+
+
+def test_a_uuid_mount_is_not_seeded():
+    spec = {"mount": {"module": "alerts", "uuid": "u1"}}
+    c = _Client()
+    assert LW.seed_mount(c, spec, "t") == (spec, None) and c.posted == []
