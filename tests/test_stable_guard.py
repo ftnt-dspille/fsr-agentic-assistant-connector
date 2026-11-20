@@ -17,6 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import stable_guard as sg  # noqa: E402
 
+# Each case starts a few hundred short git processes. On a machine where a
+# process launch costs ~0.2s, that alone can pass the suite's 120s per-test
+# limit while the rest of the suite runs in parallel, so allow more here.
+pytestmark = pytest.mark.timeout(400)
+
 ROLES = {"stable-box": "stable", "exp-box": "experimental", "unset-box": "unset"}
 CONN_INPUTS = ("connector-fsr-agentic-assistant", "scripts")
 
