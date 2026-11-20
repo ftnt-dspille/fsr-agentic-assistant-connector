@@ -249,6 +249,20 @@ else
     NEW="$MAJ.$MIN.$PAT"
 fi
 
+_lap "0e. ship secrets"
+# Before the bump: a ship that installs a connector it then cannot configure
+# leaves the box on a new version with no working default config.
+# shellcheck source=ship_secrets.sh
+source "$ROOT/scripts/ship_secrets.sh"
+ship_secrets_resolve "$ROOT" "$FSR_SRC" "$BOX_ENV"
+if [[ "$INSTALL" == "1" && "${KEEP_DEFAULT_CONFIG:-0}" != "1" && -z "${ANTHROPIC_API_KEY:-}" ]]; then
+    echo "!! ABORT before the bump: no ANTHROPIC_API_KEY for the default config." >&2
+    echo "   Looked in the environment, the framework .env (worktree and main checkout)," >&2
+    echo "   the box env file, and the macOS Keychain (fsr-studio / anthropic_api_key)." >&2
+    echo "   Nothing was bumped, built or installed. KEEP_DEFAULT_CONFIG=1 skips the config." >&2
+    exit 1
+fi
+
 _lap "1. resolve target version"
 # --- 1a. preflight: does this version actually move the box forward? -------
 # deploy derives NEW from the LOCAL info.json, so a repo that is behind the box
