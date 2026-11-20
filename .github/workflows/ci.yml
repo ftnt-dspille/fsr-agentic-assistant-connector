@@ -38,7 +38,7 @@ jobs:
           pip install -r connector-fsr-agentic-assistant/requirements.txt
           # pytest-timeout honours `timeout = 120` in pyproject.toml; pytest-randomly
           # shuffles order like `make test` does.
-          pip install "pytest>=7" "pytest-randomly>=3" "pytest-timeout>=2" "ruff==0.15.20"
+          pip install "pytest>=7" "pytest-randomly>=3" "pytest-timeout>=2" "pytest-xdist>=3" "ruff==0.15.20"
       - name: Framework checkout (main for bundled, the pinned tag for pinned)
         # The wheel does not ship tooling/ (probes, evals); local_turn and
         # analyst-sim tests import it.
@@ -55,4 +55,4 @@ jobs:
       - name: Test
         # Bare pytest from the repo root: a path argument would override
         # `testpaths`, which decides that both suites get collected.
-        run: python -m pytest -q --no-header --durations=40
+        run: python -m pytest -q --no-header -n auto --durations=25
