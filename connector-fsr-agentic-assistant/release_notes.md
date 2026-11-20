@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.6.22 (2026-11-19)
+
+Includes 0.6.20 (below, which was only ever installed on a test box), plus:
+
+- A follow-up to a staged block ("make it 6 hours") re-stages the card directly. It
+  was held behind a three-lookup investigation because the message named no target.
+- Shipping: a same-version re-install that the platform stores under the next version
+  is verified by its build id, and a missing Anthropic key stops the ship before the
+  version bump.
+
 ## 0.6.20 (2026-11-19)
 
 The reply language and the size of the request now hold on every kind of turn, not
