@@ -576,6 +576,34 @@ def chk_chat_resume(fsr) -> Result:
                   f"stop={d.get('stop_reason')} err={d.get('error')}", d)
 
 
+def _turn_language(d) -> str | None:
+    for e in (d or {}).get("transcript") or []:
+        if isinstance(e, dict) and e.get("type") == "turn_inputs":
+            return e.get("language")
+    return None
+
+
+def chk_resume_language(fsr) -> Result:
+    """A card answer resumes in the session's language. A resume carries no
+    typed ask, so nothing declares one; live, a playbook build resumed from a
+    choice card answered an English ask in Spanish. Deterministic: the choice
+    is sent through chat_resume directly, so it never depends on the model
+    choosing to raise a card. A cheap French "answer" ask seeds the session."""
+    sid = _session("resume_lang")
+    r1 = fsr.execute("chat_turn", {"session_id": sid, "intent": "triage", "messages": [
+        {"role": "user", "content": "Quelle est la gravité de cette alerte ?"}]}, timeout=240)
+    lang1 = _turn_language(r1.data)
+    if lang1 != "French":
+        return Result(FAIL, f"the typed French ask declared {lang1!r}, not 'French'", r1.data)
+    r2 = fsr.execute("chat_resume", {"session_id": sid, "decision": "choice",
+                                     "choice_id": "probe", "value": "stop",
+                                     "label": "Not now"}, timeout=300)
+    lang2 = _turn_language(r2.data)
+    if lang2 == "French":
+        return Result(PASS, "typed ask and choice resume both ran in French", r2.data)
+    return Result(FAIL, f"the choice resume ran with language {lang2!r}", r2.data)
+
+
 def chk_decide_once(fsr) -> Result:
     """A3 (#28): a staged card is decided exactly ONCE. chat_resume already
     approved it (the same op the Monitor's Approve button calls --
@@ -1185,6 +1213,7 @@ CHECKS = [
     ("chat_action_card", chk_chat_action_card),
     ("chat_resume", chk_chat_resume),
     ("decide_once", chk_decide_once),
+    ("resume_language", chk_resume_language),
     # Full triage→playbook proof. These chain off the executed action_card
     # session (so they run after chat_resume) but are pure connector ops -- no
     # LLM round-trip -- so they aren't in _AGENT and self-skip under --no-agent
@@ -1400,7 +1429,7 @@ SANITY_CHECKS = [
 
 _ALL_CHECKS = CHECKS + HUNT_CHECKS + AGENT_CHECKS + SANITY_CHECKS
 
-_AGENT = {"chat_build", "chat_two_rounds", "chat_hunt_pivot", "chat_action_card",
+_AGENT = {"resume_language", "chat_build", "chat_two_rounds", "chat_hunt_pivot", "chat_action_card",
           "chat_resume", "respond_manual_input", "agent_block",
           "chat_action_card_failure", "sanity_record_lookup"}
 
