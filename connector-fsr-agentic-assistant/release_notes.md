@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.6.23 (2026-11-20)
+
+_TODO: describe this release._
+
+
 ## 0.6.22 (2026-11-19)
 
 Includes 0.6.20 (below, which was only ever installed on a test box), plus:
