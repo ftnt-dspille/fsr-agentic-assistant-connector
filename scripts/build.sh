@@ -146,8 +146,10 @@ if [[ "$WHEEL_OK" == 1 ]]; then
     # system python3 has pip but no fsr_playbooks. Running the self-test under
     # $PIPPY therefore fails with "fsr_playbooks is not importable" every time,
     # blocking every ship. Use the one dev env (scripts/dev_env.sh); no fallback.
-    SELFTEST_PY="$(bash "$ROOT/scripts/dev_env.sh" python)" || exit 1
+    # Resolved only when the self-test runs: CI (release.yml) has no dev venv
+    # and runs the same gate itself with SKIP_CONTRACT_SELFTEST=1.
     if [[ "${SKIP_CONTRACT_SELFTEST:-0}" != "1" ]]; then
+        SELFTEST_PY="$(bash "$ROOT/scripts/dev_env.sh" python)" || exit 1
         echo ">> gate: connector contract self-test (hermetic subset)"
         FSRPB_DEV=1 "$SELFTEST_PY" "$ROOT/scripts/validate_connector.py" --hermetic || {
             echo ">> contract self-test FAILED - an operation no longer returns" \
