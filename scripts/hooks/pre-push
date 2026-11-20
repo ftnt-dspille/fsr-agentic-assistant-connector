@@ -162,8 +162,23 @@ elif [[ "$SCOPE" == changed ]]; then
     if (( ${#selected_tests[@]} == 0 )); then
         echo ">> pre-push: nothing this branch changed has tests; ruff only (CI runs the full suite)"
     else
+        # Shell-heavy modules (conftest.py SHELL_HEAVY_MODULES) are left to CI:
+        # on a dev Mac they are 10-30x slower, and promote needs CI green anyway.
+        # PREPUSH_SHELL=1 runs them here too.
+        shell_left=()
+        if [[ "${PREPUSH_SHELL:-0}" != "1" ]]; then
+            for t in "${selected_tests[@]}"; do
+                grep -qF "\"$t\"" "$ROOT/conftest.py" 2>/dev/null && shell_left+=("$t")
+            done
+        fi
         echo ">> pre-push: ${#selected_tests[@]} test file(s) for what this branch changed"
-        if ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly "${selected_tests[@]}" ); then
+        if (( ${#shell_left[@]} )); then
+            echo ">> pre-push: left to CI (shell-heavy, PREPUSH_SHELL=1 runs them): ${shell_left[*]}"
+        fi
+        mark=(); [[ "${PREPUSH_SHELL:-0}" == "1" ]] || mark=(-m "not shell")
+        if (( ${#shell_left[@]} == ${#selected_tests[@]} )); then
+            echo ">> pre-push: every selected file is shell-heavy; nothing left to run here"
+        elif ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly "${mark[@]}" "${selected_tests[@]}" ); then
             echo ">> pre-push ABORT: a changed test file is red -- nothing pushed." >&2
             exit 1
         fi

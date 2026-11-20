@@ -135,3 +135,27 @@ def test_a_push_lands_in_the_lap_ledger_and_warns_over_budget(repo, tmp_path):
     assert "WARNING took" in out.stderr
     row = ledger.read_text().strip().split("\t")
     assert row[1] == "pre-push changed" and row[4] == "-1" and row[5] == "conn"
+
+
+def _push(r, b, tmp_path, **env):
+    (b / "ruff").write_text("#!/bin/sh\nexit 0\n"); (b / "ruff").chmod(0o755)
+    sha = _git(r, "rev-parse", "HEAD")
+    return subprocess.run(["bash", str(r / "scripts" / "hooks" / "pre-push"), "origin", "x"], cwd=r,
+                          input=f"refs/heads/feat/x {sha} refs/heads/feat/x {ZERO}\n", capture_output=True, text=True,
+                          env={**ENV, "PATH": f"{b}:{os.environ['PATH']}", "TEST_PY": sys.executable, "FSR_SRC": str(r),
+                               "FSR_LAP_LEDGER": str(tmp_path / "laps.tsv"), **env})
+
+
+def test_shell_heavy_tests_are_left_to_ci_and_named(repo, tmp_path):
+    r, b = repo
+    _write(r, "conftest.py", 'SHELL_HEAVY_MODULES = frozenset({"tests/test_foo_script.py"})\n')
+    _write(r, "tests/test_foo_script.py", "SCRIPT = 'scripts/foo.sh'\n\ndef test_ran():\n    open('RAN', 'w').write('x')\n")
+    _git(r, "add", "-A"); _git(r, "commit", "-qm", "fixture"); _git(r, "update-ref", "refs/remotes/origin/main", "HEAD")
+    _write(r, "scripts/foo.sh", "echo changed\n"); _git(r, "commit", "-qam", "s")
+    out = _push(r, b, tmp_path)
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert "left to CI (shell-heavy, PREPUSH_SHELL=1 runs them): tests/test_foo_script.py" in out.stdout
+    assert not (r / "RAN").exists()
+    out = _push(r, b, tmp_path, PREPUSH_SHELL="1")
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert (r / "RAN").exists() and "left to CI" not in out.stdout

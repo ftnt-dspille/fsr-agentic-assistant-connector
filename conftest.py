@@ -231,3 +231,36 @@ def _heal_precard_validator_pollution():
             _shared.set_record_write_gate(canon_gate)
     except Exception:  # noqa: BLE001 - never fail a test over the heal
         pass
+
+
+# --- the `shell` marker --------------------------------------------------------
+# Modules whose tests start git, bash or make in bulk. On a dev Mac each process
+# start can stall (endpoint scanning), so these run ~10-30x slower there than in
+# CI: the 40 slowest local tests (396s) total under 1s each in CI. The branch
+# pre-push runs `-m "not shell"` and names what it left to CI; CI runs them all.
+# Add a module here when its tests drive scripts through subprocesses.
+SHELL_HEAVY_MODULES = frozenset({
+    "tests/test_stable_guard.py",
+    "tests/test_pre_push_cache.py",
+    "tests/test_pre_push_scope.py",
+    "tests/test_framework_at_main.py",
+    "tests/test_release_quality_gate.py",
+    "tests/test_box.py",
+    "tests/test_git_hook_env_isolation.py",
+    "tests/test_deploy_test_gate_cache.py",
+    "tests/test_ensure_framework_fast_fail.py",
+    "tests/test_doctor_bundled_framework.py",
+    "tests/test_dev_env_resolver.py",
+    "tests/test_ship_secrets.py",
+})
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "shell: starts git/bash/make in bulk; slow on a dev Mac, left to CI by the branch pre-push")
+
+
+def pytest_collection_modifyitems(config, items):
+    import pytest as _pytest
+    for item in items:
+        if item.nodeid.split("::", 1)[0] in SHELL_HEAVY_MODULES:
+            item.add_marker(_pytest.mark.shell)
