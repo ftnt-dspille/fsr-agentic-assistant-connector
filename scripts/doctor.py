@@ -523,14 +523,39 @@ def check_box(env: dict, use_ssh: bool, ssh_host: str,
 _BUNDLED_FW = re.compile(r"^(?P<pin>\d+\.\d+\.\d+)\.post1\.dev\d+\+g(?P<sha>[0-9a-f]{7,40})$")
 
 
+def _vt(v: str) -> tuple[int, ...]:
+    return tuple(int(x) for x in v.split("."))
+
+
+def _framework_main_ref(repo: Path) -> str:
+    """`<upstream>/main` of the framework repo: the promoted framework."""
+    remote = subprocess.run(["git", "-C", str(repo), "for-each-ref", "--format=%(upstream:remotename)",
+                             "refs/heads/main"], capture_output=True, text=True).stdout.strip()
+    return f"refs/remotes/{remote}/main" if remote else "refs/heads/main"
+
+
 def _bundled_framework(fw: str, pin: str, repo: Path) -> "str | None":
-    """The framework main sha when `fw` is the bundled shape for `pin`, else None."""
+    """The framework sha when `fw` is a bundled wheel that carries `pin`, else None.
+
+    The stable package bundles the wheel built from framework main:
+    <base>.post1.devN+g<sha>. It carries the pinned release when <base> is at
+    least the pin, <sha> is on the framework's remote main, and v<pin> is an
+    ancestor of <sha>. Two older rules failed a good install: the base had to
+    EQUAL the pin (main after a newer tag builds as <newer>.post1...), and
+    <sha> had to be the local checkout's HEAD (the shared checkout is often on
+    another session's branch), so live sanity on the stable box reported every
+    worker as on the wrong framework while every op on them worked."""
     m = _BUNDLED_FW.match(fw)
-    if not m or m.group("pin") != pin:
+    if not m or _vt(m.group("pin")) < _vt(pin):
         return None
-    head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], capture_output=True,
-                          text=True).stdout.strip()
-    return m.group("sha") if head and head.startswith(m.group("sha")) else None
+    sha = m.group("sha")
+    full = subprocess.run(["git", "-C", str(repo), "rev-parse", "-q", "--verify", f"{sha}^{{commit}}"],
+                          capture_output=True, text=True).stdout.strip()
+    if not full:
+        return None
+    on_main = subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", full,
+                              _framework_main_ref(repo)], capture_output=True).returncode == 0
+    return sha if on_main and _commit_contains(repo, f"v{pin}", full) else None
 
 
 def _framework_on_box(fw: str, pin: str, origin: str, patched: "str | None",
