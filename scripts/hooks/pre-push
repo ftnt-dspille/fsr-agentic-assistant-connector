@@ -68,7 +68,9 @@ export PREPUSH_PUSHES_HEAD="$pushes_head"
 
 # 1. Ruff lint (Pyflakes F-rules: undefined names, unused imports, etc.)
 # ~1s. Catches real bugs that pytest doesn't.
-if command -v ruff &>/dev/null; then
+if [[ "${PREPUSH_SCOPE_ONLY:-0}" == "1" ]]; then
+    :   # tests of the scoping decision: no lint
+elif command -v ruff &>/dev/null; then
     echo ">> pre-push: ruff check (Pyflakes F-rules)"
     if ! ( cd "$ROOT" && ruff check scripts/ tests/ connector-fsr-agentic-assistant/ --select F ); then
         echo ">> pre-push ABORT: ruff found issues -- nothing pushed." >&2
@@ -113,6 +115,36 @@ else
 fi
 echo ">> pre-push: scope=$SCOPE ($SCOPE_WHY)"
 
+# The tests a branch push runs: the test files it changed, plus every test file
+# that imports a module it changed (a change to a shared module must reach the
+# tests that use it, or this check quietly weakens), plus tests that name a
+# script it changed. CI still runs everything before main moves.
+selected_tests=()
+if [[ "$SCOPE" == changed ]]; then
+    base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
+    declare -A _sel=()
+    mapfile -t _test_files < <(cd "$ROOT" && git ls-files 'tests/test_*.py' 'connector-fsr-agentic-assistant/tests/test_*.py')
+    while IFS= read -r f; do
+        [[ -n "$f" ]] || continue
+        case "$f" in
+            tests/test_*.py|connector-fsr-agentic-assistant/tests/test_*.py) [[ -f "$ROOT/$f" ]] && _sel[$f]=1 ;;
+            *.py)
+                m="$(basename "$f" .py)"; [[ "$m" == __init__ ]] && continue
+                while IFS= read -r t; do [[ -n "$t" ]] && _sel[$t]=1; done < <(cd "$ROOT" && grep -lE \
+                    "^[[:space:]]*(from|import)[[:space:]]+([A-Za-z0-9_.]*\.)?$m([^A-Za-z0-9_]|\$)|^[[:space:]]*from[[:space:]]+[A-Za-z0-9_.]+[[:space:]]+import[[:space:]](.*[^A-Za-z0-9_])?$m([^A-Za-z0-9_]|\$)" \
+                    "${_test_files[@]}" 2>/dev/null) ;;
+            scripts/*)
+                n="$(basename "$f")"
+                while IFS= read -r t; do [[ -n "$t" ]] && _sel[$t]=1; done < <(cd "$ROOT" && grep -lF "$n" "${_test_files[@]}" 2>/dev/null) ;;
+        esac
+    done < <(git diff --name-only --diff-filter=AMR "${base:-HEAD~1}" HEAD 2>/dev/null)
+    selected_tests=("${!_sel[@]}")
+fi
+if [[ "${PREPUSH_SCOPE_ONLY:-0}" == "1" ]]; then
+    printf 'selected %s\n' "${selected_tests[@]}"
+    exit 0
+fi
+
 # 2b. pytest (editable framework, always latest)
 if [[ ! -x "$TEST_PY" ]] || ! "$TEST_PY" -c 'import pytest' >/dev/null 2>&1; then
     echo ">> pre-push ERROR: no pytest-capable python at $TEST_PY" >&2
@@ -126,14 +158,11 @@ XDIST=""; "$TEST_PY" -c 'import xdist' 2>/dev/null && XDIST="-n auto"
 if [[ "$SCOPE" == none ]]; then
     :
 elif [[ "$SCOPE" == changed ]]; then
-    base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
-    mapfile -t changed_tests < <(git diff --name-only --diff-filter=AMR "${base:-HEAD~1}" HEAD -- \
-        'tests/test_*.py' 'connector-fsr-agentic-assistant/tests/test_*.py' 2>/dev/null)
-    if (( ${#changed_tests[@]} == 0 )); then
-        echo ">> pre-push: no test files changed on this branch; ruff only (CI runs the full suite)"
+    if (( ${#selected_tests[@]} == 0 )); then
+        echo ">> pre-push: nothing this branch changed has tests; ruff only (CI runs the full suite)"
     else
-        echo ">> pre-push: the ${#changed_tests[@]} test file(s) this branch changed"
-        if ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly "${changed_tests[@]}" ); then
+        echo ">> pre-push: ${#selected_tests[@]} test file(s) for what this branch changed"
+        if ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly "${selected_tests[@]}" ); then
             echo ">> pre-push ABORT: a changed test file is red -- nothing pushed." >&2
             exit 1
         fi
