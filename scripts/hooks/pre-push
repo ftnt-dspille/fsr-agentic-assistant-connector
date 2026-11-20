@@ -178,9 +178,26 @@ elif [[ "$SCOPE" == changed ]]; then
         mark=(); [[ "${PREPUSH_SHELL:-0}" == "1" ]] || mark=(-m "not shell")
         if (( ${#shell_left[@]} == ${#selected_tests[@]} )); then
             echo ">> pre-push: every selected file is shell-heavy; nothing left to run here"
-        elif ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly "${mark[@]}" "${selected_tests[@]}" ); then
-            echo ">> pre-push ABORT: a changed test file is red -- nothing pushed." >&2
-            exit 1
+        else
+            _dur="$(mktemp "${TMPDIR:-/tmp}/prepush-dur.XXXXXX")"
+            ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly \
+                --durations=0 --durations-min=0.5 "${mark[@]}" "${selected_tests[@]}" ) > >(tee "$_dur"); _rc=$?
+            wait 2>/dev/null
+            if [[ $_rc -ne 0 ]]; then
+                rm -f "$_dur"
+                echo ">> pre-push ABORT: a changed test file is red -- nothing pushed." >&2
+                exit 1
+            fi
+            # A module NOT on the shell list that still takes seconds here is
+            # probably shell-heavy too: name it before pushes slowly get slower.
+            awk -v min="${PREPUSH_SLOW_MODULE:-5}" '$2 ~ /^(call|setup|teardown)$/ && $1 ~ /s$/ {
+                    split($3, a, "::"); t[a[1]] += $1 + 0 }
+                END { for (m in t) if (t[m] >= min) printf "%.0f %s\n", t[m], m }' "$_dur" | sort -rn |
+            while read -r secs mod; do
+                grep -qF "\"$mod\"" "$ROOT/conftest.py" 2>/dev/null && continue
+                echo ">> pre-push: $mod took ${secs}s here; consider marking it shell-heavy (conftest.py SHELL_HEAVY_MODULES)"
+            done
+            rm -f "$_dur"
         fi
     fi
 elif cached editable; then

@@ -159,3 +159,17 @@ def test_shell_heavy_tests_are_left_to_ci_and_named(repo, tmp_path):
     out = _push(r, b, tmp_path, PREPUSH_SHELL="1")
     assert out.returncode == 0, out.stdout + out.stderr
     assert (r / "RAN").exists() and "left to CI" not in out.stdout
+
+
+def test_a_slow_module_not_on_the_shell_list_is_named(repo, tmp_path):
+    r, b = repo
+    _write(r, "conftest.py", "SHELL_HEAVY_MODULES = frozenset()\n")
+    _write(r, "tests/test_foo_script.py", "import time\nSCRIPT = 'scripts/foo.sh'\n\ndef test_slow():\n    time.sleep(0.8)\n")
+    _git(r, "add", "-A"); _git(r, "commit", "-qm", "fixture"); _git(r, "update-ref", "refs/remotes/origin/main", "HEAD")
+    _write(r, "scripts/foo.sh", "echo changed\n"); _git(r, "commit", "-qam", "s")
+    out = _push(r, b, tmp_path, PREPUSH_SLOW_MODULE="0.5")
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert "tests/test_foo_script.py took" in out.stdout and "consider marking it shell-heavy" in out.stdout
+    # On the list (or fast enough), no hint.
+    out = _push(r, b, tmp_path, PREPUSH_SLOW_MODULE="30")
+    assert "consider marking" not in out.stdout
