@@ -427,6 +427,18 @@
       "tool": "healthcheck_connector",
       "args": {"name": "virustotal"},
       "expect": {"ok": false, "code": "no_fsr_configured", "partial": true}
+    },
+    {
+      "name": "prior_cases: an empty indicator is refused before any box call",
+      "tool": "prior_cases",
+      "args": {"value": "  "},
+      "expect": {"ok": false, "code": "missing_value"}
+    },
+    {
+      "name": "prior_cases: an unknown indicator type is refused before any box call",
+      "tool": "prior_cases",
+      "args": {"value": "1.2.3.4", "type": "mac"},
+      "expect": {"ok": false, "code": "bad_type"}
     }
   ]
 }
