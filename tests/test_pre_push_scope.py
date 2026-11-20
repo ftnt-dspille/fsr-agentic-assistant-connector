@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -118,3 +119,19 @@ def test_a_pending_or_failed_run_on_main_runs_the_full_suite(repo):
                  "printf 'test (bundled framework)\\tcompleted\\tfailure\\n'"):
         _gh(b, body)
         assert "scope=full" in _scope(r, b, "main")[0]
+
+
+def test_a_push_lands_in_the_lap_ledger_and_warns_over_budget(repo, tmp_path):
+    r, b = repo
+    _write(r, "README.md", "x\n"); _git(r, "add", "-A"); _git(r, "commit", "-qm", "doc")
+    ledger = tmp_path / "laps.tsv"
+    (b / "ruff").write_text("#!/bin/sh\nexit 0\n"); (b / "ruff").chmod(0o755)   # lint is not under test
+    sha = _git(r, "rev-parse", "HEAD")
+    out = subprocess.run(["bash", str(r / "scripts" / "hooks" / "pre-push"), "origin", "x"], cwd=r,
+                         input=f"refs/heads/feat/x {sha} refs/heads/feat/x {ZERO}\n", capture_output=True, text=True,
+                         env={**ENV, "PATH": f"{b}:{os.environ['PATH']}", "TEST_PY": sys.executable,
+                              "FSR_SRC": str(r), "FSR_LAP_LEDGER": str(ledger), "PREPUSH_BUDGET": "-1"})
+    assert out.returncode == 0, out.stderr
+    assert "WARNING took" in out.stderr
+    row = ledger.read_text().strip().split("\t")
+    assert row[1] == "pre-push changed" and row[4] == "-1" and row[5] == "conn"

@@ -12,6 +12,7 @@
 # quietly, because an unrunnable gate that looks green is the failure mode #64
 # was filed for.
 set -uo pipefail
+_lap_t0=$SECONDS
 
 ROOT="$(git rev-parse --show-toplevel)"
 TEST_PY="${TEST_PY:-$(bash "$ROOT/scripts/dev_env.sh" python)}" || exit 1
@@ -190,3 +191,17 @@ if [[ "${PREPUSH_CI_MIRROR:-0}" == "1" && -x "$ROOT/scripts/hooks/pre-push-ci-mi
 else
     echo ">> pre-push: CI-mirror (pinned wheel) left to GitHub Actions CI; PREPUSH_CI_MIRROR=1 runs it here"
 fi
+
+# Step budget (fsr_all_widgets scripts/lap.sh ledger format): a pushed branch
+# should clear this hook in PREPUSH_BUDGET seconds (default 60). Over it warns,
+# never blocks, and lands in ~/.cache/fsr-laps.tsv for `make laps`.
+_lap_s=$((SECONDS - _lap_t0)); _lap_b="${PREPUSH_BUDGET:-60}"
+[[ "${SCOPE:-full}" == none ]] && _lap_label="pre-push main" || _lap_label="pre-push ${SCOPE:-full}"
+if (( _lap_s > _lap_b )); then
+    echo ">> pre-push: WARNING took ${_lap_s}s, budget ${_lap_b}s (scope=${SCOPE:-full}; make laps)" >&2
+fi
+_lap_ledger="${FSR_LAP_LEDGER:-$HOME/.cache/fsr-laps.tsv}"
+mkdir -p "$(dirname "$_lap_ledger")" 2>/dev/null
+printf '%s\t%s\t%s\t0\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$_lap_label" "$_lap_s" "$_lap_b" \
+    "$(basename "$ROOT")" >> "$_lap_ledger" 2>/dev/null || true
+exit 0
