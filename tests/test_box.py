@@ -67,7 +67,8 @@ env_file = "{tmp_path / '.env.alpha'}"
 def _env(reg, **kw):
     e = {"PATH": os.environ["PATH"], "HOME": os.environ.get("HOME", "/"),
          "PYFSR_INSTANCES": str(reg / "instances.toml"), "PYFSR_PY": sys.executable,
-         "FSR_BOX_ALLOW": "alpha web inline ghost", "FSR_BOX_CACHE": str(reg / "cache")}
+         "FSR_BOX_ALLOW": "alpha web inline ghost", "FSR_BOX_CACHE": str(reg / "cache"),
+         "FSR_LEASE_DIR": str(reg / "leases")}
     if os.environ.get("PYTHONPATH"):
         e["PYTHONPATH"] = os.environ["PYTHONPATH"]
     e.update(kw)
@@ -304,3 +305,14 @@ def test_deploy_chain_release_path_is_refused_on_a_stable_box(role_reg):
                                 SKIP_QUALITY_GATE="1", SKIP_QUALITY_GATE_REASON="role-resolution test"),
                        timeout=120)
     assert r.returncode == 2 and "STABLE box" in r.stderr
+
+
+def test_a_push_takes_the_box_lease_and_another_holders_push_is_refused(role_reg):
+    a = _run(role_reg, need="env,ssh,push", BOX="inline", FSR_LEASE_HOLDER="tree:a")
+    assert a.returncode == 0, a.stderr
+    assert "box lease: inline held by tree:a" in a.stderr
+    b = _run(role_reg, need="env,ssh,push", BOX="inline", FSR_LEASE_HOLDER="tree:b")
+    assert b.returncode == 2 and "held by tree:a" in b.stderr
+    assert "BOX=" not in b.stdout
+    # A read-only need is not gated by the lease.
+    assert _run(role_reg, need="env", BOX="inline", FSR_LEASE_HOLDER="tree:b").returncode == 0

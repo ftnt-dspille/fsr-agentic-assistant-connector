@@ -115,6 +115,84 @@ _bx_alias_for_env_file() {
 }
 
 # resolve_box <need>   need = comma list of: env, ssh, ssh? (ssh only when the box has a profile)
+# --- box lease ------------------------------------------------------------------
+# One experimental box is shared by every agent. Without a lease, agent A's live
+# checks can run against agent B's freshly deployed code and stamp A's commit
+# VERIFIED for code that was never on the box. A push (resolve_box ...,push) or
+# a stamp (live-sanity.sh) takes the lease when it is free, expired or already
+# the caller's, and renews it; held by someone else it refuses, naming them.
+#   holder: $FSR_LEASE_HOLDER (agent_tree.sh env sets tree:<name>), else
+#           tree:<name> from the cwd under $AGENT_TREES, else manual:$USER
+#   file:   ${FSR_LEASE_DIR:-~/.cache/fsr-box-lease}/<box>  (holder since until gen)
+#   ttl:    FSR_LEASE_TTL seconds, default 1200; a lapsed lease is free.
+# make box-lease / box-release / box-leases are the front doors.
+bx_lease_holder() {
+    if [ -n "${FSR_LEASE_HOLDER:-}" ]; then echo "$FSR_LEASE_HOLDER"; return; fi
+    local trees="${AGENT_TREES:-${TMPDIR:-/tmp}/agent-trees}" here
+    trees="$(cd "$trees" 2>/dev/null && pwd -P)"; here="$(pwd -P)"
+    if [ -n "$trees" ] && [ "${here#"$trees"/}" != "$here" ]; then
+        local rest="${here#"$trees"/}"; echo "tree:${rest%%/*}"; return
+    fi
+    echo "manual:${USER:-unknown}"
+}
+_bx_lease_file() { echo "${FSR_LEASE_DIR:-$HOME/.cache/fsr-box-lease}/$1"; }
+_bx_lease_lock() {  # mkdir is atomic: one writer at a time
+    local d n=0; d="$(_bx_lease_file "$1").lock"
+    mkdir -p "$(dirname "$d")" 2>/dev/null
+    until mkdir "$d" 2>/dev/null; do
+        n=$((n+1)); [ $n -gt 100 ] && { rm -rf "$d"; mkdir "$d" 2>/dev/null && return 0; return 1; }
+        sleep 0.05
+    done
+}
+_bx_lease_unlock() { rmdir "$(_bx_lease_file "$1").lock" 2>/dev/null || true; }
+_bx_lease_read() {  # sets L_HOLDER L_SINCE L_UNTIL L_GEN (empty when no lease)
+    L_HOLDER=""; L_SINCE=0; L_UNTIL=0; L_GEN=0
+    local f; f="$(_bx_lease_file "$1")"
+    [ -s "$f" ] && read -r L_HOLDER L_SINCE L_UNTIL L_GEN < "$f"
+    : "${L_GEN:=0}"
+}
+_bx_ts() { date -r "$1" '+%H:%M:%S' 2>/dev/null || date -d "@$1" '+%H:%M:%S' 2>/dev/null || echo "$1"; }
+# bx_lease_take <box>: take or renew for the caller; refuse when another holds it.
+# Exports BOX_LEASE="<holder>#<gen>" for the stamp.
+bx_lease_take() {
+    local box="$1" me now ttl="${FSR_LEASE_TTL:-1200}" f gen
+    me="$(bx_lease_holder)"; now="$(date +%s)"; f="$(_bx_lease_file "$box")"
+    _bx_lease_lock "$box" || { _bx_die "box lease: could not lock $f"; return 2; }
+    _bx_lease_read "$box"
+    if [ -n "$L_HOLDER" ] && [ "$L_HOLDER" != "$me" ] && [ "$L_UNTIL" -gt "$now" ]; then
+        _bx_lease_unlock "$box"
+        _bx_die "box lease: BOX=$box is held by $L_HOLDER (since $(_bx_ts "$L_SINCE"), until $(_bx_ts "$L_UNTIL")). Its live checks would test that agent's code, not yours. Wait for it (make box-leases), or the owner frees it with: make box-release BOX=$box FORCE=1"
+        return 2
+    fi
+    gen="$L_GEN"; [ "$L_HOLDER" = "$me" ] && [ "$L_UNTIL" -gt "$now" ] || gen=$((L_GEN + 1))
+    local since="$now"; [ "$L_HOLDER" = "$me" ] && [ "$L_UNTIL" -gt "$now" ] && since="$L_SINCE"
+    printf '%s %s %s %s\n' "$me" "$since" "$((now + ttl))" "$gen" > "$f.tmp" && mv "$f.tmp" "$f"
+    _bx_lease_unlock "$box"
+    BOX_LEASE="$me#$gen"; export BOX_LEASE
+    echo ">> box lease: $box held by $me until $(_bx_ts "$((now + ttl))") (gen $gen)" >&2
+}
+# bx_lease_release <box> [force]
+bx_lease_release() {
+    local box="$1" force="${2:-}" me; me="$(bx_lease_holder)"
+    _bx_lease_lock "$box" || return 2
+    _bx_lease_read "$box"
+    if [ -z "$L_HOLDER" ]; then _bx_lease_unlock "$box"; echo "box lease: $box is free"; return 0; fi
+    if [ "$L_HOLDER" != "$me" ] && [ -z "$force" ] && [ "$L_UNTIL" -gt "$(date +%s)" ]; then
+        _bx_lease_unlock "$box"; _bx_die "box lease: $box is held by $L_HOLDER, not $me (FORCE=1 to free it anyway)"; return 2
+    fi
+    rm -f "$(_bx_lease_file "$box")"; _bx_lease_unlock "$box"
+    echo "box lease: $box released (was $L_HOLDER)"
+}
+bx_lease_list() {
+    local d="${FSR_LEASE_DIR:-$HOME/.cache/fsr-box-lease}" f b now; now="$(date +%s)"
+    for f in "$d"/*; do
+        [ -f "$f" ] || continue; b="$(basename "$f")"; case "$b" in *.tmp) continue ;; esac
+        _bx_lease_read "$b"
+        if [ "$L_UNTIL" -gt "$now" ]; then echo "$b  held by $L_HOLDER until $(_bx_ts "$L_UNTIL") (gen $L_GEN)"
+        else echo "$b  free (last: $L_HOLDER, lapsed $(_bx_ts "$L_UNTIL"))"; fi
+    done
+}
+
 resolve_box() {
     local need="${1:-env,ssh}" box="${BOX:-}" knob val dep="" depval="" a
     for knob in ENV FSR_ENV SHIP_ENV SWEEP_ENV MATRIX_ENV LIVE_ENV SSH_HOST; do
@@ -203,6 +281,7 @@ EOF
     esac
     local role; role="$(bx_role "$box")"
     case ",$need," in *,push,*) _bx_check_push_role "$box" "$role" || return 2 ;; esac
+    case ",$need," in *,push,*|*,lease,*) bx_lease_take "$box" || return 2 ;; esac
     BOX="$box"; BOX_ENV="$envf"; BOX_SSH="$dest"; BOX_SSH_BIN="$bin"; BOX_ROLE="$role"
     export BOX BOX_ENV BOX_SSH BOX_SSH_BIN BOX_ROLE
     unset ENV FSR_ENV SHIP_ENV SWEEP_ENV MATRIX_ENV LIVE_ENV SSH_HOST
@@ -221,6 +300,9 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
             --role) bx_role "${2:?usage: box.sh --role <alias>}"; exit 0 ;;
             --python) _bx_py; exit $? ;;
             --main-checkout) bx_main_checkout "${2:-.}"; exit 0 ;;
+            --lease) bx_lease_take "${2:?usage: box.sh --lease <alias>}"; exit $? ;;
+            --release) bx_lease_release "${2:?usage: box.sh --release <alias> [force]}" "${3:-}"; exit $? ;;
+            --leases) bx_lease_list; exit 0 ;;
             *) echo "usage: box.sh [--need env,ssh] [--print|--make|--list|--main-checkout <dir>]" >&2; exit 2 ;;
         esac
     done
