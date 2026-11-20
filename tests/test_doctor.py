@@ -235,3 +235,30 @@ def test_gateway_check_fails_a_loop_model_the_key_cannot_call(monkeypatch):
     by = {c.name: c for c in doctor.check_llm_gateway()}
     assert by["FRANK_MODEL"].status == "PASS"
     assert by["LOOP_MODEL"].status == "FAIL" and "gone-model" in by["LOOP_MODEL"].detail
+
+
+def test_framework_import_expects_the_resolved_checkout(monkeypatch, tmp_path):
+    """An agent tree's .fsr_src names its own framework, and the make targets
+    import it; the check must expect that copy, not the main checkout's."""
+    tree = tmp_path / "framework"
+    (tree / "fsr_playbooks").mkdir(parents=True)
+    monkeypatch.setattr(doctor, "expected_framework", lambda: str(tree))
+    venv = tmp_path / "venv"
+    (venv / "bin").mkdir(parents=True)
+    (venv / "bin" / "python").write_text("")
+    real_run = subprocess.run
+
+    def fake_run(cmd, *a, **kw):
+        if cmd[:2] == ["bash", str(doctor.ROOT / "scripts" / "dev_env.sh")]:
+            return subprocess.CompletedProcess(cmd, 0, f"{venv}\n", "")
+        if cmd[0] == str(venv / "bin" / "python"):
+            return subprocess.CompletedProcess(
+                cmd, 0, f"{tree}/fsr_playbooks/__init__.py\n", "")
+        return real_run(cmd, *a, **kw)
+
+    monkeypatch.setattr(doctor.subprocess, "run", fake_run)
+    [c] = doctor.check_framework_resolution()
+    assert c.status == "PASS", c
+    monkeypatch.setattr(doctor, "expected_framework", lambda: str(tmp_path / "other"))
+    [c] = doctor.check_framework_resolution()
+    assert c.status == "FAIL" and str(tmp_path / "other") in c.detail, c

@@ -196,11 +196,21 @@ def check_framework_resolution() -> list[Check]:
     if not path:
         return [Check("local", "framework import", "FAIL",
                       f"import failed: {(r.stderr.strip().splitlines() or ['?'])[-1]}")]
-    if str(FRAMEWORK) in path:
-        return [Check("local", "framework import", "PASS", "venv imports the editable checkout")]
+    want = expected_framework()
+    if os.path.realpath(path).startswith(os.path.realpath(want) + os.sep):
+        return [Check("local", "framework import", "PASS", f"venv imports {want}")]
     return [Check("local", "framework import", "FAIL",
-                  f"venv imports {path}, not {FRAMEWORK} -- local tests grade that copy",
+                  f"venv imports {path}, not {want} -- local tests grade that copy",
                   "make setup (installs the framework checkout editable)")]
+
+
+def expected_framework() -> str:
+    """The framework local tests must grade: what the one resolver names (an
+    agent tree's own checkout, via .fsr_src; else the sibling checkout). The
+    make targets put it first on PYTHONPATH, so the check expects the same."""
+    r = subprocess.run(["bash", str(ROOT / "scripts" / "framework_dir.sh"), "--soft", str(ROOT)],
+                       capture_output=True, text=True, timeout=30)
+    return r.stdout.strip() or str(FRAMEWORK)
 
 
 def check_framework_release() -> list[Check]:
