@@ -275,7 +275,10 @@ def _wait_triaged(box: Box, uuid: str, *, expect_turn: bool = True) -> dict:
     # The stored transcript is trimmed at the first verdict, so a round after
     # it is invisible there; the per-round usage records are not trimmed.
     usage = box.op("list_usage", {"session_id": sid, "limit": 100})
-    asked = any(r.get("stop_reason") == "containment_follow_through"
+    # requested_action_staged: the framework's TaskSpec post-condition;
+    # containment_follow_through: the guard it replaced (older boxes).
+    asked = any(r.get("stop_reason") in ("requested_action_staged",
+                                         "containment_follow_through")
                 for r in usage.get("usage") or [])
     return {"session_id": sid, "turned": turned, "staged": staged,
             "asked_to_contain": asked,
