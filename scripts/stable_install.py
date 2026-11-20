@@ -220,6 +220,38 @@ def run_import(client, zip_path: Path, install_connector: bool) -> dict:
         raise SystemExit(f"stable: import ended in status {status!r}: {getattr(job, 'errorMessage', '')}")
     return {"status": status}
 
+def default_config_name(client, connector: str) -> "str | None":
+    """The name of the connector's default configuration on the box, or None."""
+    for c in client.connectors.list_configurations(connector=connector):
+        if getattr(c, "default", False):
+            return c.name
+    return None
+
+
+def keep_default_config(client, connector: str, before: "str | None") -> "str | None":
+    """Put the box's default configuration back after an import changed it.
+
+    Live (card #212): every Import Wizard install of the pack made the bundled
+    config the default, so the stable demo box silently moved off the config
+    the owner set (FortiAI) onto Haiku. The owner's choice wins: when the
+    default before the import still exists and is no longer the default, it is
+    set back (pyfsr set_default_configuration: the flag only, credentials kept).
+    Returns the name restored, or None when nothing changed."""
+    if not before:
+        return None
+    after = default_config_name(client, connector)
+    if after == before:
+        return None
+    if before not in {c.name for c in client.connectors.list_configurations(connector=connector)}:
+        _say(f"config    : the default before the import ({before!r}) is gone; leaving {after!r}")
+        return None
+    client.connectors.set_default_configuration(connector, name=before)
+    if default_config_name(client, connector) != before:
+        raise SystemExit(f"stable: could not restore the default config {before!r} (box shows {after!r})")
+    _say(f"config    : the import made {after!r} the default; restored {before!r}")
+    return before
+
+
 def publish_and_retire(client, expect: dict, bumps: list[dict]) -> None:
     """The wizard lands widgets as drafts. Publish the expected version of each widget,
     then retire the other installed versions that no dashboard still names."""
@@ -312,7 +344,10 @@ def main(argv: list[str] | None = None) -> int:
         _say("box       : already carries these exact versions at these heads (nothing uploaded)")
     else:
         _say("import    : uploading the pack through the Import Wizard (this takes a few minutes)")
-        run_import(client, zip_path, install_connector=actions[expect["connector"]["name"]] == "install")
+        cname0 = expect["connector"]["name"]
+        default_before = default_config_name(client, cname0)
+        run_import(client, zip_path, install_connector=actions[cname0] == "install")
+        keep_default_config(client, cname0, default_before)
         publish_and_retire(client, expect, [])
     installed = installed_state(client, expect, [])
     cname = expect["connector"]["name"]
