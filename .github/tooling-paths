@@ -1,0 +1,17 @@
+# Paths whose promote proof is CI alone (no box stamp). fsr_all_widgets'
+# make promote reads this file from MAIN, never from the branch being promoted;
+# a path not listed here is shipped and keeps the live stamp.
+# Deliberately NOT listed: anything under connector-fsr-agentic-assistant/
+# (the package, its own tests included), build/deploy/push/ship/sanity scripts,
+# the Makefile, pyproject.toml, requirements, this file, required-checks and
+# the CI workflow (changing the policy takes the box-stamp path).
+scripts/hooks/*
+scripts/install_hooks.sh
+scripts/framework_at_main.sh
+tests/*
+conftest.py
+docs/*
+CLAUDE.md
+TESTING.md
+README.md
+PLAN.md
