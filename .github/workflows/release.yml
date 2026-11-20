@@ -76,7 +76,7 @@ jobs:
           set -euo pipefail
           bash scripts/build.sh
           ls -l dist
-          tar -tzf dist/connector-fsr-agentic-assistant-*.tgz | head -20
+          tar -tzf dist/connector-fsr-agentic-assistant-*.tgz | sed -n 1,20p
 
       - name: Create the GitHub release
         env:

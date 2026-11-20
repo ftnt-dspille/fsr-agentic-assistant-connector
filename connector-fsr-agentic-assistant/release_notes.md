@@ -2,7 +2,10 @@
 
 ## 0.6.23 (2026-11-20)
 
-_TODO: describe this release._
+- Pins fsr-playbooks 0.12.2.
+- A question scoped as a direct answer, with no record in hand, now looks the record up first instead of answering from nothing.
+- A verdict of "needs more info" is refused once when the cited evidence already decides it and nothing further would help; the agent must commit to a verdict.
+- Release workflow: installs ruff for the lint ratchet, builds without a local dev environment, and lists the tarball without a broken pipe.
 
 
 ## 0.6.22 (2026-11-19)
