@@ -78,6 +78,15 @@ endif
 endif
 endif
 PY          := $(VENV)/bin/python
+# Every target imports the framework the ONE resolver names (an agent tree's
+# own checkout, via .fsr_src), ahead of the venv's editable install of the main
+# checkout's. Without this a tree's sweeps silently graded the shared framework.
+# deploy.sh applies the same rule to its own test step.
+FRAMEWORK_DIR := $(shell bash "$(REPO)/scripts/framework_dir.sh" --soft "$(REPO)")
+ifneq ($(FRAMEWORK_DIR),)
+export PYTHONPATH := $(FRAMEWORK_DIR)$(if $(PYTHONPATH),:$(PYTHONPATH),)
+export FSRPB_FRAMEWORK_DIR := $(FRAMEWORK_DIR)
+endif
 WIDGETS     ?= $(HOME)/WebstormProjects/fsr_all_widgets
 # --- the target box: ONE registry, NO default box ------------------------------
 # Pick a box with BOX=<alias>: an alias in the pyfsr registry (~/.pyfsr/instances.toml)
@@ -108,7 +117,10 @@ define with_env
 set -a; . "$(BOX_ENV)"; set +a; PATH="$(VENV)/bin:$$PATH"
 endef
 
-.PHONY: session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+.PHONY: framework-path session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+
+framework-path: ## Print the fsr_playbooks every target imports (check this before trusting a sweep from a worktree or agent tree)
+	@$(PY) -c "import fsr_playbooks, os; print(os.path.dirname(os.path.dirname(os.path.abspath(fsr_playbooks.__file__))))"
 
 help: ## List targets
 	@grep -hE '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) \
