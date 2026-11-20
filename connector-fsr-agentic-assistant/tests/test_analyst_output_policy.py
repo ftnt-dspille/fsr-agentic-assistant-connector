@@ -125,11 +125,18 @@ def test_non_dict_args_are_not_refused(policy):
 
 
 def test_policy_is_installed_in_framework_cross_field_rules(policy):
+    # Judged by what the installed rule DOES, not by object identity: other test
+    # files load this package under another module name, which installs an equal
+    # copy of the rule, so an `is` check failed depending on test order.
     from fsr_playbooks.llm.tool_models import CROSS_FIELD_RULES
-    assert CROSS_FIELD_RULES["run_op"] is policy.run_op_policy_refusal
-    # Idempotent: a second registration leaves the same rule in place.
+    otx = {"connector": "alienvault-otx", "op": "get_ip_reputation"}
+    vt = {"connector": "virustotal", "op": "get_ip_reputation"}
+    rule = CROSS_FIELD_RULES["run_op"]
+    assert rule(otx) is not None and rule(vt) is None
+    # Idempotent: a second registration leaves an equivalent rule in place.
     policy.register_run_op_policy()
     assert CROSS_FIELD_RULES["run_op"] is policy.run_op_policy_refusal
+    assert CROSS_FIELD_RULES["run_op"](otx) is not None
 
 
 def test_otx_run_op_is_refused_before_authorization(policy):

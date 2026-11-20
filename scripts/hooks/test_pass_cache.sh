@@ -38,13 +38,18 @@ key() {
     tree="$(git -C "$ROOT" rev-parse 'HEAD^{tree}')" || return 1
     fw="$(_framework_rev)" || return 1
     req="$(cat "$ROOT/connector-fsr-agentic-assistant/requirements.txt" "$ROOT/pyproject.toml" | shasum -a 256 | cut -c1-16)"
-    # The parity tests read the chat widget and the harness, so their commits are
-    # inputs too; a dirty copy of either is never cached.
-    local faw="${FSR_ALL_WIDGETS:-$HOME/WebstormProjects/fsr_all_widgets}" wid=""
-    for d in "$faw" "$faw/widgets-src/agenticAssistant"; do
+    # The parity tests read the chat widget repo and, in the widgets checkout,
+    # only the harness's widget fixtures. Those are the inputs: their commits
+    # join the key and a dirty copy is never cached. Only those paths, not the
+    # whole widgets checkout: it is shared, and anyone's unrelated WIP there
+    # (a harness packager edit) made every pass uncacheable, so every push and
+    # ship re-ran the ~3 min suite.
+    local faw="${FSR_ALL_WIDGETS:-$HOME/WebstormProjects/fsr_all_widgets}" wid="" d spec
+    for pair in "$faw|fortisoar-widget-harness/widgets-src" "$faw/widgets-src/agenticAssistant|."; do
+        d="${pair%%|*}"; spec="${pair#*|}"
         if git -C "$d" rev-parse HEAD >/dev/null 2>&1; then
-            [[ -z "$(git -C "$d" status --porcelain -uno)" ]] || return 1
-            wid+="$(git -C "$d" rev-parse --short=12 HEAD)"
+            [[ -z "$(git -C "$d" status --porcelain -uno -- "$spec")" ]] || return 1
+            wid+="$(git -C "$d" log -1 --format=%h --abbrev=12 -- "$spec")"
         fi
     done
     echo "${tree}-${fw:0:12}-${req}-$(printf %s "$wid" | shasum | cut -c1-12)"

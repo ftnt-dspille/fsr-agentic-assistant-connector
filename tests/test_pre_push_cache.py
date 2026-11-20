@@ -108,3 +108,41 @@ def test_a_delete_only_push_runs_no_suite(tmp_path):
                                 FSR_TEST_PASS_CACHE=str(cache)))
     assert r.returncode == 0, r.stdout + r.stderr
     assert "only deleting remote refs" in r.stdout
+
+
+def _widgets(tmp_path):
+    faw = _repo(tmp_path, "faw", {"fortisoar-widget-harness/packager.ts": "a\n",
+                                  "fortisoar-widget-harness/widgets-src/x/fixture.json": "{}\n"})
+    wid = _repo(faw / "widgets-src", "agenticAssistant", {"widget/view.html": "<div/>\n"})
+    return faw, wid
+
+
+def _wcache(conn, fw, cache, faw, *args):
+    return subprocess.run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), *args],
+                          cwd=conn, capture_output=True, text=True,
+                          env=_env(FSRPB_FRAMEWORK_DIR=str(fw), FSR_TEST_PASS_CACHE=str(cache),
+                                   FSR_ALL_WIDGETS=str(faw)))
+
+
+def test_unrelated_wip_in_the_shared_widgets_checkout_keeps_the_pass(tmp_path):
+    # Live: someone's harness packager edit there made every pass uncacheable.
+    conn, fw, cache = _setup(tmp_path)
+    faw, _ = _widgets(tmp_path)
+    assert _wcache(conn, fw, cache, faw, "mark", "editable").returncode == 0
+    (faw / "fortisoar-widget-harness/packager.ts").write_text("someone else's WIP\n")
+    assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 0
+
+
+def test_the_inputs_the_tests_read_still_invalidate_the_pass(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    faw, wid = _widgets(tmp_path)
+    _wcache(conn, fw, cache, faw, "mark", "editable")
+    (faw / "fortisoar-widget-harness/widgets-src/x/fixture.json").write_text('{"a": 1}\n')
+    assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 1   # fixture dirty
+    _git(faw, "commit", "-qam", "fixture")
+    assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 1   # fixture moved
+    _wcache(conn, fw, cache, faw, "mark", "editable")
+    (wid / "widget/view.html").write_text("<span/>\n")
+    assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 1   # widget dirty
+    _git(wid, "commit", "-qam", "w")
+    assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 1   # widget moved
