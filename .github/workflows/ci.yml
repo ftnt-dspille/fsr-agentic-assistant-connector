@@ -55,4 +55,4 @@ jobs:
       - name: Test
         # Bare pytest from the repo root: a path argument would override
         # `testpaths`, which decides that both suites get collected.
-        run: python -m pytest -q --no-header
+        run: python -m pytest -q --no-header --durations=40

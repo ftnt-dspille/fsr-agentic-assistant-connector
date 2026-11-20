@@ -19,6 +19,11 @@ TEST_PY="${TEST_PY:-$(bash "$ROOT/scripts/dev_env.sh" python)}" || exit 1
 # The suite's widget-parity tests read the fsr_all_widgets checkout; without it
 # they skip, and the skip-policy (a skip is not a pass) fails the run. Mirror the
 # defaults `make test` sets so a bare `git push` runs them instead of skipping.
+# In an agent tree (scripts/agent_tree.sh) the root repo sits beside the
+# connector; use that one, never the shared checkout another session has out.
+if [[ -z "${FSR_ALL_WIDGETS:-}" && -d "$ROOT/../root/fortisoar-widget-harness" ]]; then
+    FSR_ALL_WIDGETS="$(cd "$ROOT/../root" && pwd)"
+fi
 : "${FSR_ALL_WIDGETS:=$HOME/WebstormProjects/fsr_all_widgets}"
 : "${FSR_WIDGET_HARNESS:=$FSR_ALL_WIDGETS/fortisoar-widget-harness}"
 export FSR_ALL_WIDGETS FSR_WIDGET_HARNESS
@@ -31,12 +36,13 @@ fi
 # What is being pushed (git feeds "<local ref> <local sha> <remote ref> <remote sha>").
 ZERO=0000000000000000000000000000000000000000
 HEAD_SHA="$(git rev-parse HEAD)"
-deletes_only=1; pushes_head=1
+deletes_only=1; pushes_head=1; pushes_main=0; main_sha=""; branch_shas=()
 while read -r _lref lsha _rref _rsha; do
     [[ -z "${lsha:-}" ]] && continue
     [[ "$lsha" == "$ZERO" ]] && continue
     deletes_only=0
     [[ "$lsha" == "$HEAD_SHA" ]] || pushes_head=0
+    if [[ "$_rref" == refs/heads/main ]]; then pushes_main=1; main_sha="$lsha"; else branch_shas+=("$lsha"); fi
 done
 if [[ "$deletes_only" == "1" ]]; then
     echo ">> pre-push: only deleting remote refs -- no code leaves, no suite to run"
@@ -73,7 +79,41 @@ else
     echo ">> pre-push: ruff not found -- skipping lint (install: pip install ruff)" >&2
 fi
 
-# 2. Full pytest suite (editable framework, always latest)
+# 2. Which suite this push needs. CI runs the full suite on every push, and
+# make promote moves main only when main's required checks are green on the
+# branch head (.github/required-checks). So:
+#   - a branch push runs ruff plus the test files the branch changed (fast
+#     feedback; CI is the full proof). PREPUSH_FULL=1 forces the full suite.
+#   - a main push (only promote does that) skips the suite when every required
+#     check is already green on that exact commit (a fast-forward of a CI-green
+#     head). A merge commit CI has not seen, or no answer from gh, runs it.
+SCOPE=full; SCOPE_WHY="default"
+required_green() {  # $1 sha: every check in .github/required-checks completed+success
+    local sha="$1" req slug url runs name st
+    req="$(sed 's/#.*//; s/^[[:space:]]*//; s/[[:space:]]*$//' "$ROOT/.github/required-checks" 2>/dev/null | grep -v '^$')" || return 1
+    [[ -n "$req" ]] && command -v gh >/dev/null || return 1
+    url="$(git remote get-url origin 2>/dev/null)" || return 1
+    slug="$(printf '%s' "$url" | sed -E 's#^(https://github\.com/|git@github\.com:|ssh://git@github\.com/)##; s#\.git$##')"
+    runs="$(gh api "repos/$slug/commits/$sha/check-runs?per_page=100" --jq '.check_runs[] | [.name, .status, (.conclusion // "")] | @tsv' 2>/dev/null)" || return 1
+    while IFS= read -r name; do
+        st="$(printf '%s\n' "$runs" | awk -F'\t' -v n="$name" '$1==n {print $2"/"$3}' | tail -1)"
+        [[ "$st" == completed/success ]] || return 1
+    done <<< "$req"
+}
+if [[ "${PREPUSH_FULL:-0}" == "1" ]]; then
+    SCOPE=full; SCOPE_WHY="PREPUSH_FULL=1"
+elif [[ "$pushes_main" == "1" ]]; then
+    if (( ${#branch_shas[@]} == 0 )) && required_green "$main_sha"; then
+        SCOPE=none; SCOPE_WHY="main at ${main_sha:0:9}: required CI already green on this exact commit"
+    else
+        SCOPE=full; SCOPE_WHY="main push without green CI on ${main_sha:0:9}"
+    fi
+else
+    SCOPE=changed; SCOPE_WHY="branch push: CI runs the full suite, promote requires it green"
+fi
+echo ">> pre-push: scope=$SCOPE ($SCOPE_WHY)"
+
+# 2b. pytest (editable framework, always latest)
 if [[ ! -x "$TEST_PY" ]] || ! "$TEST_PY" -c 'import pytest' >/dev/null 2>&1; then
     echo ">> pre-push ERROR: no pytest-capable python at $TEST_PY" >&2
     echo "   Set TEST_PY=/path/to/python, or push with --no-verify." >&2
@@ -83,7 +123,22 @@ fi
 # Bare, from $ROOT: a path ARGUMENT would override `testpaths` in pyproject.toml,
 # which is what decides both suites get collected.
 XDIST=""; "$TEST_PY" -c 'import xdist' 2>/dev/null && XDIST="-n auto"
-if cached editable; then
+if [[ "$SCOPE" == none ]]; then
+    :
+elif [[ "$SCOPE" == changed ]]; then
+    base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
+    mapfile -t changed_tests < <(git diff --name-only --diff-filter=AMR "${base:-HEAD~1}" HEAD -- \
+        'tests/test_*.py' 'connector-fsr-agentic-assistant/tests/test_*.py' 2>/dev/null)
+    if (( ${#changed_tests[@]} == 0 )); then
+        echo ">> pre-push: no test files changed on this branch; ruff only (CI runs the full suite)"
+    else
+        echo ">> pre-push: the ${#changed_tests[@]} test file(s) this branch changed"
+        if ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST -p no:randomly "${changed_tests[@]}" ); then
+            echo ">> pre-push ABORT: a changed test file is red -- nothing pushed." >&2
+            exit 1
+        fi
+    fi
+elif cached editable; then
     echo ">> pre-push: full suite already passed on this exact code (make test / earlier push) -- skipped"
 else
     echo ">> pre-push: full pytest suite (outer + connector), ${XDIST:-serial}, ~2 min"
