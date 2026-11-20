@@ -1,5 +1,22 @@
 # Release notes
 
+## 0.6.20 (2026-11-19)
+
+The reply language and the size of the request now hold on every kind of turn, not
+only a typed message. A quick-action chip, an answer to a choice card, and a short
+follow-up ("make it 6 hours") used to skip that step: replies drifted to Spanish, and a
+follow-up to a staged block re-ran a full investigation.
+
+- A quick-action chip is checked for its language and keeps its own flow.
+- A follow-up is read together with the assistant's last message, so an answer to a
+  staged action stays on that action and re-stages it.
+- A card answer resumes in the language of the session.
+- A value only the analyst can choose, such as a block duration, is left on the card
+  as a field to fill. The reply no longer asks for it.
+- The "sources not yet queried" reminder appears only in investigations, no longer in
+  playbook builds or blocks.
+
+
 ## 0.6.19 (2026-11-19)
 
 A request to act stages the action and stops. "Block ip <addr>" used to run a full
