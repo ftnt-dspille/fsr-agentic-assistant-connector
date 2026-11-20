@@ -85,27 +85,38 @@ def _snapshot(kw: dict) -> dict:
 
 
 def _framework_off_pin() -> str | None:
-    """Why the loaded fsr_playbooks is not the release requirements.txt pins, or None.
+    """Why the loaded fsr_playbooks is not framework MAIN (what ships), or None.
 
-    The goldens track the PINNED framework (that is what ships and what CI installs). A dev venv imports the
-    framework as an editable checkout, which moves ahead of the pin on every framework merge and drifts the
-    prompt (tool descriptions come from the framework). Only a git checkout can be off the pin: a wheel is the
-    pin, so CI and the box always compare."""
+    The goldens track framework main: the stable package bundles the wheel built
+    from it, and the connector needs main's API (TurnInputsEvent.scope). They
+    used to track the requirements.txt pin, which made them skip in every dev
+    venv (editable checkout ahead of the pin) and fail in CI (a wheel has no git,
+    so it was taken as the pin), so a prompt change landed with stale goldens.
+
+    Off main, and so skipped, when: the loaded framework IS the pinned release
+    (an index wheel; CI's informational pinned leg), or it is a git checkout
+    whose HEAD is not its upstream main or has uncommitted changes. A wheel built
+    from main (CI's bundled leg, the stable package) compares."""
     import subprocess
     import fsr_playbooks
     pin = None
     for line in (ROOT / "requirements.txt").read_text().splitlines():
         if line.strip().startswith("fsr-playbooks=="):
             pin = line.split("==", 1)[1].split("#")[0].strip()
+    ver = getattr(fsr_playbooks, "__version__", "")
+    if pin and ver == pin:
+        return f"the loaded framework is the pinned release {pin}, not framework main"
     src = Path(fsr_playbooks.__file__).resolve().parent
     git = lambda *a: subprocess.run(["git", "-C", str(src), *a], capture_output=True, text=True)  # noqa: E731
-    if not pin or git("rev-parse", "--git-dir").returncode != 0:
+    if git("rev-parse", "--git-dir").returncode != 0:
         return None
-    tags = git("tag", "--points-at", "HEAD").stdout.split()
-    if f"v{pin}" not in tags:
-        return f"the framework checkout at {src.parent} is not at the pinned release v{pin}"
+    remote = git("for-each-ref", "--format=%(upstream:remotename)", "refs/heads/main").stdout.strip()
+    main = git("rev-parse", "-q", "--verify", f"refs/remotes/{remote}/main" if remote else "refs/heads/main").stdout.strip()
+    head = git("rev-parse", "HEAD").stdout.strip()
+    if not main or head != main:
+        return f"the framework checkout at {src.parent} is not at framework main"
     if git("status", "--porcelain", "--", ".").stdout.strip():
-        return f"the framework checkout at {src.parent} has uncommitted changes on top of v{pin}"
+        return f"the framework checkout at {src.parent} has uncommitted changes"
     return None
 
 
@@ -122,8 +133,8 @@ def _check_golden(name: str, actual: dict) -> None:
     if text != expected:
         off_pin = _framework_off_pin()
         if off_pin:
-            pytest.skip(f"golden prompt drift, but {off_pin}: the goldens track the pin. "
-                        "Check out the pinned tag (or install the wheel) to compare.")
+            pytest.skip(f"golden prompt drift, but {off_pin}: the goldens track framework main. "
+                        "Run against a framework main tree (the pre-push gate does) to compare.")
     assert text == expected, (
         f"golden prompt drift for {name}: the assembled turn changed. "
         f"Review the diff, then regenerate with UPDATE_GOLDEN=1 if intended.")
