@@ -125,10 +125,10 @@ REDERIVED_ON_RESUME = {
         "is by definition past a narrow question.",
     "reply_language":
         "bound per chat turn with ask_scope, from the same scope declaration "
-        "(ops_scope). A resume carries no new ask, so it is unbound and the "
-        "round tail falls back to quoting the analyst's message, which is how "
-        "every turn ran before the language was declared. It gates nothing: "
-        "unbound only changes the wording of the language reminder.",
+        "(ops_scope), and stored per session (session_reply). A resume "
+        "carries no new ask, so _resume_conversation re-binds the stored one: "
+        "a build resumed from a choice card had none and answered an English "
+        "ask in Spanish. It gates nothing.",
     "user_message":
         "run_turn binds it from the message history (`latest_user_text`), and "
         "a resume replays that history. Unbound only denies the #132 intent "

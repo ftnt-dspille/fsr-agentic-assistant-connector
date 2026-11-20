@@ -53,7 +53,10 @@ _SCOPE_TEXT = {
         "emit_card(card_type='action'); the analyst approves it on the card. "
         "Take the target from the message or the record in hand. Do not "
         "investigate, enrich, search tickets or prior cases, and do not write "
-        "a verdict. If no target is named and the record holds none, ask the "
+        "a verdict. A value only the analyst can choose (a duration, a mode, "
+        "an option) goes on the card: list it in editable_fields and leave it "
+        "out of args, and the analyst picks it there. Do not ask for it in "
+        "the reply. If no target is named and the record holds none, ask the "
         "analyst for it in one sentence.\n"),
 }
 
@@ -98,28 +101,78 @@ def _resolve_ask_scope(provider: Any, text: Any, *, intent: str,
         entity=entity, loop=loop)[:3]
 
 
+def _previous_assistant_text(messages: Any) -> str:
+    """The assistant's last message before the latest analyst ask, as text.
+    The declaration reads it so a reply to the assistant's own question
+    ("6 hours" for a staged block) is labelled by the work it answers."""
+    seen_user = False
+    for m in reversed(list(messages or [])):
+        role = getattr(m, "role", None) or (m.get("role") if isinstance(m, dict) else None)
+        content = getattr(m, "content", None) if not isinstance(m, dict) else m.get("content")
+        if role == "user" and not seen_user:
+            seen_user = True
+            continue
+        if role == "assistant" and seen_user:
+            if isinstance(content, list):
+                content = " ".join(str(b.get("text") or "") for b in content
+                                   if isinstance(b, dict))
+            text = " ".join(str(content or "").split())
+            if text:
+                return text[-400:]
+    return ""
+
+
+def _session_reply(storage: Any, session_id: Any) -> tuple[str | None, str | None]:
+    """(language, scope) stored for the session; (None, None) on any miss."""
+    try:
+        got = storage.get_session_reply(session_id)
+        return (got[0], got[1]) if got else (None, None)
+    except Exception:  # noqa: BLE001 - a memory, never a failure
+        return None, None
+
+
+def _remember_reply(storage: Any, session_id: Any, *, language: str | None,
+                    scope: str | None) -> None:
+    try:
+        storage.set_session_reply(session_id, language=language or None,
+                                  scope=scope or None)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def _resolve_ask_scope_and_language(provider: Any, text: Any, *, intent: str,
                                     quick_action: Any, skip: bool = False,
-                                    entity: Any = None, loop: Any = None
+                                    entity: Any = None, loop: Any = None,
+                                    previous: str = "", prior_language: str = ""
                                     ) -> tuple[str | None, str, str, str]:
     """(scope, how, reason, language). The language is the one the model said
     the ask is written in, "" when nothing was declared (or the framework
-    predates it)."""
+    predates it). A quick-action chip is declared for its language only (the
+    framework returns no scope for it)."""
     if skip:
         return None, "skipped", "", ""
-    if quick_action or not isinstance(text, str) or not text.strip():
-        return None, "default", "", ""   # no typed ask: no model call
+    if not isinstance(text, str) or not text.strip():
+        return None, "default", "", ""   # no text: no model call
     try:
         from fsr_playbooks.llm import ask_scope
     except ImportError:  # older framework: no scope
         return None, "unavailable", "", ""
     resolve = getattr(ask_scope, "resolve_scope_and_language", None)
+    import inspect
     try:
         if resolve is None:   # framework without the declared language
+            if quick_action:
+                return None, "default", "", ""
             coro = ask_scope.resolve_scope(
                 provider, text, intent=intent or "triage",
                 quick_action=quick_action, record=_record_label(entity))
-        else:
+        elif "previous" in inspect.signature(resolve).parameters:
+            coro = resolve(provider, text, intent=intent or "triage",
+                           quick_action=quick_action, record=_record_label(entity),
+                           previous=previous, prior_language=prior_language or "")
+        else:   # framework that declares the language but takes no context
+            if quick_action:
+                return None, "default", "", ""
             coro = resolve(provider, text, intent=intent or "triage",
                            quick_action=quick_action, record=_record_label(entity))
         out = loop.run_until_complete(coro) if loop is not None else asyncio.run(coro)

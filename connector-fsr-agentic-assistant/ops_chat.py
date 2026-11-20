@@ -47,7 +47,8 @@ from .ops_prompts import (
 from .ops_redaction import redaction_mode, redaction_scope
 from .ops_resume import _chat_resume_routes
 from .ops_scope import (
-    _bind_ask_scope, _bind_reply_language, _close_loop, _reset_ask_scope,
+    _bind_ask_scope, _bind_reply_language, _close_loop, _previous_assistant_text,
+    _remember_reply, _reset_ask_scope, _session_reply,
     _reset_reply_language, _resolve_ask_scope_and_language, _scope_directive,
 )
 from .ops_tools import (
@@ -708,10 +709,16 @@ def chat_turn(config: dict, params: dict) -> dict:
             # question narrows the turn (lookup slice, no verdict, ends on its
             # answer); everything else keeps today's flow. Bound BEFORE the
             # slice is computed so the slice and dispatch agree.
+            _prior_lang, _ = _session_reply(storage, session_id)
             _scope, _scope_how, _scope_why, _reply_lang = _resolve_ask_scope_and_language(
                 provider, _clean_latest_user, intent=intent, loop=_turn_loop,
                 quick_action=quick_action, entity=_entity,
+                previous=_previous_assistant_text(wire_msgs),
+                prior_language=_prior_lang or "",
                 skip=bool(read_only or (_actor and _actor.get("system"))))
+            # Nothing declared (the call failed): keep the session's language.
+            _reply_lang = _reply_lang or _prior_lang or ""
+            _remember_reply(storage, session_id, language=_reply_lang, scope=_scope)
             _scope_token = _bind_ask_scope(_scope)
             _lang_token = _bind_reply_language(_reply_lang)
             if _reply_lang:

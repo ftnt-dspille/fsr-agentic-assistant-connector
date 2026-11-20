@@ -17,6 +17,7 @@ from .pydantic_models import (
 )
 from .history_replay import transcript_blocks
 
+from .ops_scope import _bind_reply_language, _reset_reply_language, _session_reply
 from .ops_approvals import _decider, _grant_from_card
 from .ops_cards import _derecord, _humanize_op
 from .ops_config import _provider_name
@@ -1970,6 +1971,13 @@ def _resume_conversation(config: dict, params: dict, decision: str,
     # update_record re-dispatches here -- the may_write gate must still see the
     # persona). Reset after.
     _prof_token = _bind_session_state({"profile": _write_profile})
+    # A resume carries no typed ask, so nothing declares a language: keep the
+    # one the session's asks declared. Live, a playbook build resumed from a
+    # choice card had none and answered an English ask in Spanish. The scope
+    # is NOT rebound: a resume is the analyst's decision, and the "Run the full
+    # investigation" pick must not stay capped by the lookup that offered it.
+    _resume_lang, _ = _session_reply(storage, session_id)
+    _lang_token = _bind_reply_language(_resume_lang) if _resume_lang else None
     _offered_token = None
     try:
         with _session_trace_scope(storage, session_id), \
@@ -2013,6 +2021,8 @@ def _resume_conversation(config: dict, params: dict, decision: str,
             ))
     finally:
         _unbind_session_state(_offered_token)
+        if _lang_token is not None:
+            _reset_reply_language(_lang_token)
         _unbind_session_state(_prof_token)
     _check_turn_result(result)  # same seam as chat_turn._finalize (#57)
     _wire_rec = _bind_session_state(  # see chat_turn._finalize

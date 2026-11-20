@@ -315,6 +315,15 @@ CREATE TABLE IF NOT EXISTS session_intent (
     updated_at REAL NOT NULL
 );
 
+-- The reply language and ask scope the latest typed ask declared, so a turn
+-- with no typed ask of its own (a card answer, a chip, "6 hours") keeps them.
+CREATE TABLE IF NOT EXISTS session_reply (
+    session_id TEXT PRIMARY KEY,
+    language TEXT,
+    scope TEXT,
+    updated_at REAL NOT NULL
+);
+
 -- The mounted-record module a session was opened against, so a later
 -- chat_resume (which carries no entity) can re-resolve the same Key Store
 -- persona and keep its prompt + tool slice across the HITL gap. Overwritten
@@ -1141,6 +1150,31 @@ class Storage:
                 (session_id,),
             ).fetchone()
         return row[0] if row else None
+
+    # ----- session reply language + ask scope ------------------------------
+
+    def set_session_reply(self, session_id: str, *, language: str | None = None,
+                          scope: str | None = None) -> None:
+        """Remember the declared language and scope. A None keeps what is
+        stored (a chip declares a language but no scope)."""
+        with self._write() as c:
+            c.execute(
+                "INSERT INTO session_reply (session_id, language, scope, updated_at) "
+                "VALUES (?, ?, ?, ?) ON CONFLICT(session_id) DO UPDATE SET "
+                "language=COALESCE(excluded.language, session_reply.language), "
+                "scope=COALESCE(excluded.scope, session_reply.scope), "
+                "updated_at=excluded.updated_at",
+                (session_id, language or None, scope or None, time.time()),
+            )
+
+    def get_session_reply(self, session_id: str) -> tuple[str | None, str | None]:
+        """(language, scope), each None when never declared."""
+        with self._conn() as c:
+            row = c.execute(
+                "SELECT language, scope FROM session_reply WHERE session_id=?",
+                (session_id,),
+            ).fetchone()
+        return (row[0], row[1]) if row else (None, None)
 
     # ----- session playbook scope (modify | create_new) ---------------------
 
