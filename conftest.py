@@ -252,6 +252,8 @@ SHELL_HEAVY_MODULES = frozenset({
     "tests/test_doctor_bundled_framework.py",
     "tests/test_dev_env_resolver.py",
     "tests/test_ship_secrets.py",
+    "tests/test_box_lease.py",
+    "tests/test_framework_dir.py",
 })
 
 
