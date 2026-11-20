@@ -158,6 +158,12 @@ class TestFrameworkOnBox:
         # calls would read it. Drop every GIT_* var for the whole test.
         for k in [k for k in os.environ if k.startswith("GIT_")]:
             monkeypatch.delenv(k)
+        # A throwaway repo: the machine's global hooks (content scans on every
+        # commit, ~3s each where a process launch is slow) have nothing to
+        # guard here, and made this fixture 13-20s per test.
+        monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+        monkeypatch.setenv("GIT_CONFIG_KEY_0", "core.hooksPath")
+        monkeypatch.setenv("GIT_CONFIG_VALUE_0", "/dev/null")
         def git(*a):
             return subprocess.run(["git", "-C", str(tmp_path), *a], check=True,
                                   capture_output=True, text=True).stdout.strip()
