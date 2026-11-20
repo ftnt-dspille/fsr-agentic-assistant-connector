@@ -42,6 +42,18 @@ if [[ "$deletes_only" == "1" ]]; then
     echo ">> pre-push: only deleting remote refs -- no code leaves, no suite to run"
     exit 0
 fi
+# Test against the framework that ships (its remote main), not whatever branch
+# the shared framework checkout is on. An explicit FSR_SRC / FSRPB_FRAMEWORK_DIR
+# is a deliberate choice and is kept.
+if [[ -z "${FSR_SRC:-}" && ( -z "${FSRPB_FRAMEWORK_DIR:-}" || "${FSRPB_FRAMEWORK_DIR}" == none ) ]]; then
+    # shellcheck source=../framework_at_main.sh
+    source "$ROOT/scripts/framework_at_main.sh"
+    framework_at_main "$ROOT" \
+        || echo ">> pre-push: could not make a framework tree at its remote main; using the resolver's checkout" >&2
+elif [[ -n "${FSR_SRC:-}" ]]; then
+    export FSRPB_FRAMEWORK_DIR="$FSR_SRC" PYTHONPATH="$FSR_SRC${PYTHONPATH:+:$PYTHONPATH}"
+fi
+
 CACHE_SH="$ROOT/scripts/hooks/test_pass_cache.sh"
 # A recorded pass counts only when the pushed commit is the checked-out, clean HEAD:
 # the suite runs against the working tree, so that is the code it proved.
