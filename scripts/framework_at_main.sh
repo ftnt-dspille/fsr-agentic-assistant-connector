@@ -17,25 +17,33 @@
 
 _fam_repo=""; _fam_dir=""
 
+_fam_env() { env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE -u GIT_COMMON_DIR \
+    -u GIT_OBJECT_DIRECTORY -u GIT_ALTERNATE_OBJECT_DIRECTORIES -u GIT_PREFIX "$@"; }
+_fam_git() { _fam_env git "$@"; }
+
 framework_at_main_cleanup() {
     if [[ -n "$_fam_dir" ]]; then
-        git -C "$_fam_repo" worktree remove --force "$_fam_dir" 2>/dev/null || rm -rf "$_fam_dir"
-        git -C "$_fam_repo" worktree prune 2>/dev/null || true
+        _fam_git -C "$_fam_repo" worktree remove --force "$_fam_dir" 2>/dev/null || rm -rf "$_fam_dir"
+        _fam_git -C "$_fam_repo" worktree prune 2>/dev/null || true
         rm -rf "$(dirname "$_fam_dir")"
     fi
     _fam_dir=""
 }
 
 framework_at_main() {
+    # Run from a git hook, git exports GIT_DIR/GIT_INDEX_FILE/... for the repo
+    # being pushed; with them set, `git -C <framework>` silently reads the
+    # connector instead (a pushed worktree made the "framework" tree the
+    # connector's own main). Every git call here goes through _fam_git, which drops them.
     local root="$1" repo remote sha base
-    repo="$(bash "$root/scripts/framework_dir.sh" --soft --stable "$root" 2>/dev/null)" || return 1
-    git -C "$repo" rev-parse --git-dir >/dev/null 2>&1 || return 1
-    remote="$(git -C "$repo" for-each-ref --format='%(upstream:remotename)' refs/heads/main)"
+    repo="$(_fam_env bash "$root/scripts/framework_dir.sh" --soft --stable "$root" 2>/dev/null)" || return 1
+    _fam_git -C "$repo" rev-parse --git-dir >/dev/null 2>&1 || return 1
+    remote="$(_fam_git -C "$repo" for-each-ref --format='%(upstream:remotename)' refs/heads/main)"
     [[ -n "$remote" ]] || return 1
-    git -C "$repo" fetch -q "$remote" main 2>/dev/null || return 1
-    sha="$(git -C "$repo" rev-parse "refs/remotes/$remote/main")" || return 1
+    _fam_git -C "$repo" fetch -q "$remote" main 2>/dev/null || return 1
+    sha="$(_fam_git -C "$repo" rev-parse "refs/remotes/$remote/main")" || return 1
     base="$(mktemp -d "${TMPDIR:-/tmp}/fsr-fw-main.XXXXXX")"
-    git -C "$repo" worktree add -q --detach "$base/framework" "$sha" 2>/dev/null \
+    _fam_git -C "$repo" worktree add -q --detach "$base/framework" "$sha" 2>/dev/null \
         || { rm -rf "$base"; return 1; }
     _fam_repo="$repo"; _fam_dir="$base/framework"
     trap framework_at_main_cleanup EXIT

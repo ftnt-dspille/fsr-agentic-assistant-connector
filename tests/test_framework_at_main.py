@@ -84,3 +84,16 @@ def test_pre_push_uses_it_unless_a_framework_is_named():
     src = (ROOT / "scripts" / "hooks" / "pre-push").read_text()
     gate = src.index('framework_at_main "$ROOT"')
     assert src.index('-z "${FSR_SRC:-}"') < gate < src.index('CACHE_SH="$ROOT/scripts/hooks/test_pass_cache.sh"')
+
+
+def test_a_hook_exported_git_dir_does_not_redirect_it_to_the_pushed_repo(tmp_path):
+    """git exports GIT_DIR to a pre-push run from a worktree. Live, that made
+    `git -C <framework>` read the connector, so the "framework at main" tree was
+    the connector's own main and the framework's eval tasks were missing."""
+    conn, fw, remote_main = _world(tmp_path)
+    _git(conn, "init", "-q", "-b", "main"); _git(conn, "add", "-A"); _git(conn, "commit", "-q", "-m", "c")
+    gd = _git(conn, "rev-parse", "--absolute-git-dir")
+    r = _run(conn, f'export GIT_DIR="{gd}" GIT_INDEX_FILE="{gd}/index"; framework_at_main "{conn}" || exit 3; '
+                   'unset GIT_DIR GIT_INDEX_FILE; git -C "$FSRPB_FRAMEWORK_DIR" rev-parse HEAD', tmp_path)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.strip().splitlines()[-1] == remote_main
