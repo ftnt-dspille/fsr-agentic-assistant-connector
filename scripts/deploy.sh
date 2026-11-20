@@ -412,9 +412,25 @@ fi
 # 'fsrpb-frank' (internal gateway) is NOT installed: that gateway is LOCAL-ONLY and
 # never reachable from a SOAR appliance, so as DEFAULT it broke every real turn.
 echo ">> [config] install + anthropic fallback config 'fsrpb-anthropic' (non-default) onto $FSR_BASE_URL"
+_INSTALL_LOG="$(mktemp "${TMPDIR:-/tmp}/fsrpb-install.XXXXXX")"
 FSR_BUILDER_CONFIG_NAME=fsrpb-anthropic \
   "$PY" "$ROOT/scripts/install_to_fsr.py" --tarball "$TGZ" \
-    --with-config --provider anthropic --no-default "${INSTALL_ARGS[@]}"
+    --with-config --provider anthropic --no-default "${INSTALL_ARGS[@]}" | tee "$_INSTALL_LOG"
+_install_rc=${PIPESTATUS[0]}
+# The version the box reports for what was just installed. A same-version
+# re-ship (--bump none) can come back under the NEXT number: the platform
+# re-mints a version it already has a package dir for. The workers then run
+# this package (its build id matches) under that number, and checking them for
+# the built number failed a ship that had landed. Verify the live number; the
+# build-id check in verify_workers is what proves the code.
+LIVE_VER="$(sed -n 's/^ *installed: live version=\([^ ]*\).*/\1/p' "$_INSTALL_LOG" | tail -1)"
+rm -f "$_INSTALL_LOG"
+[[ "$_install_rc" -eq 0 ]] || exit "$_install_rc"
+VERIFY_VER="$NEW"
+if [[ -n "$LIVE_VER" && "$LIVE_VER" != "$NEW" ]]; then
+    echo ">> the box re-minted this install as $LIVE_VER (built $NEW); verifying $LIVE_VER by build id"
+    VERIFY_VER="$LIVE_VER"
+fi
 
 # shellcheck source=default_config.sh
 source "$ROOT/scripts/default_config.sh"
@@ -468,7 +484,7 @@ _lap "4b. confirm the platform's dependency in"
 # back to the live connector definition. --no-warmup skips it.
 if [[ "$WARMUP" -eq 1 ]]; then
     echo ">> warmup (populate op catalogue)"
-    FSR_BUILDER_VERSION="$NEW" "$PY" - "$ROOT" <<'PY' || echo "!! warmup failed (non-fatal -- first chat / config-save will backfill)"
+    FSR_BUILDER_VERSION="$VERIFY_VER" "$PY" - "$ROOT" <<'PY' || echo "!! warmup failed (non-fatal -- first chat / config-save will backfill)"
 import sys, time
 sys.path.insert(0, sys.argv[1] + "/scripts")
 from fsr_live import LiveFSR
@@ -507,10 +523,10 @@ if [[ "$VERIFY" -eq 1 ]]; then
     # is a silent no-op and every worker then reports the target version from
     # the OLD package -- a gate whose pass and fail states were
     # indistinguishable (card #110).
-    echo ">> verify all workers on $NEW"
-    if ! FSR_BUILDER_VERSION="$NEW" "$PY" "$ROOT/scripts/verify_workers.py" \
-            --version "$NEW" --tarball "$TGZ"; then
-        echo "!! worker verification FAILED -- some workers are NOT on $NEW."
+    echo ">> verify all workers on $VERIFY_VER"
+    if ! FSR_BUILDER_VERSION="$VERIFY_VER" "$PY" "$ROOT/scripts/verify_workers.py" \
+            --version "$VERIFY_VER" --tarball "$TGZ"; then
+        echo "!! worker verification FAILED -- some workers are NOT on $VERIFY_VER."
         echo "   Stale bytecode: re-run 'scripts/deploy.sh --bump none' to"
         echo "   re-publish/recycle, then 'scripts/verify_workers.py' to re-check."
         echo "   Build-id mismatch: re-running THIS version cannot help -- the box"
@@ -529,7 +545,7 @@ _lap "6. verify rollout reached every worker"
 # they landed instead of waiting for someone to drive a probe (#147).
 if [[ "$VERIFY" -eq 1 ]]; then
     echo ">> post-ship card smoke: emit every card type on the box"
-    if ! "$PY" "$ROOT/scripts/card_smoke.py" --version "$NEW"; then
+    if ! "$PY" "$ROOT/scripts/card_smoke.py" --version "$VERIFY_VER"; then
         echo "!! CARD SMOKE FAILED -- the deployed code refuses at least one card."
         echo "   The ship is live but the card surface is broken; fix and ship"
         echo "   the next patch. Re-run just the smoke with:"

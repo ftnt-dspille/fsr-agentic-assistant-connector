@@ -1,5 +1,12 @@
-# The connector suite against the PINNED framework wheel (requirements.txt), the
-# same gate the pre-push hook leaves to CI. Port of the former .gitlab-ci.yml.
+# The connector suite against two frameworks:
+#   bundled: framework main. `make stable` bundles the promoted framework main
+#            wheel into the solution pack, so this is the code that ships to a
+#            box. Required.
+#   pinned:  the PyPI release in requirements.txt, what an outside user's pip
+#            install gets. Informational (continue-on-error): red means the
+#            connector needs framework code that is not released yet, i.e. a
+#            framework release is owed. Releases are cut by the owner.
+# Port of the former .gitlab-ci.yml.
 name: ci
 on:
   push:
@@ -8,7 +15,13 @@ permissions:
   contents: read
 jobs:
   test:
+    name: test (${{ matrix.framework }} framework)
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.framework == 'pinned' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        framework: [bundled, pinned]
     env:
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
       FSRPB_DEV: "1"
@@ -26,14 +39,19 @@ jobs:
           # pytest-timeout honours `timeout = 120` in pyproject.toml; pytest-randomly
           # shuffles order like `make test` does.
           pip install "pytest>=7" "pytest-randomly>=3" "pytest-timeout>=2" "ruff==0.15.20"
-      - name: Framework tooling at the pinned tag
+      - name: Framework checkout (main for bundled, the pinned tag for pinned)
         # The wheel does not ship tooling/ (probes, evals); local_turn and
         # analyst-sim tests import it.
         run: |
           FW_VER=$(sed -n 's/^fsr-playbooks==//p' connector-fsr-agentic-assistant/requirements.txt)
-          git clone -q --depth 1 --branch "v$FW_VER" https://github.com/ftnt-dspille/fsr-playbook-framework.git /tmp/fsr-playbook-framework
+          REF=main; [ "${{ matrix.framework }}" = pinned ] && REF="v$FW_VER"
+          git clone -q --depth 1 --branch "$REF" https://github.com/ftnt-dspille/fsr-playbook-framework.git /tmp/fsr-playbook-framework
+          echo "framework $REF at $(git -C /tmp/fsr-playbook-framework rev-parse --short HEAD)"
           echo "FSRPB_FRAMEWORK_DIR=/tmp/fsr-playbook-framework" >> "$GITHUB_ENV"
           echo "PYTHONPATH=/tmp/fsr-playbook-framework/tooling" >> "$GITHUB_ENV"
+      - name: Install framework main over the pin (bundled only)
+        if: matrix.framework == 'bundled'
+        run: pip install --no-deps /tmp/fsr-playbook-framework/packaging/fsr_playbooks
       - name: Test
         # Bare pytest from the repo root: a path argument would override
         # `testpaths`, which decides that both suites get collected.
