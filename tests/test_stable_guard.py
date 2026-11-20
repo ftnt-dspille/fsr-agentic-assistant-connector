@@ -28,6 +28,12 @@ def role_of(alias: str) -> str:
 # The throwaway repos must not run the developer's global git hooks (a pre-push hook
 # would run a full test suite per push). GIT_CONFIG_* points core.hooksPath at nothing
 # for these child processes only; the developer's config is untouched.
+# Each test drives ~100 git processes. A process launch costs ~0.1-0.2s on a
+# workstation with endpoint security, so one test takes ~8s alone and passed
+# the 120s per-test timeout under `-n auto` load, failing ships at random. The
+# timeout is a hang guard, not a speed budget.
+pytestmark = pytest.mark.timeout(600)
+
 GIT_ENV = {**os.environ, "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "core.hooksPath",
            "GIT_CONFIG_VALUE_0": "/dev/null"}
 
