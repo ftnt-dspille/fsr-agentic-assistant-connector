@@ -125,8 +125,8 @@ class World:
         for name, path in self.all_repos().items():
             self.stamp(name, git(path, "rev-parse", "HEAD"), box=box)
 
-    def run(self, box: str = "stable-box") -> sg.Report:
-        return sg.guard(box, self.specs(), self.stamps, role_of=role_of)
+    def run(self, box: str = "stable-box", **kw) -> sg.Report:
+        return sg.guard(box, self.specs(), self.stamps, role_of=role_of, **kw)
 
 
 @pytest.fixture(scope="module")
@@ -193,6 +193,42 @@ def test_a_commit_not_on_the_remote_refuses(world):
 def test_a_head_off_main_refuses(world):
     git(world.widgets["agenticAssistant"], "checkout", "-q", "-b", "feat/x")
     rep = world.run()
+    assert not rep.ok and "not main" in _joined(rep)
+
+
+# --- promoted source: make stable builds from detached trees at remote main ---
+
+def _detach(repo, at="HEAD"):
+    git(repo, "checkout", "-q", "--detach", at)
+
+
+def test_a_detached_tree_at_the_promoted_commit_passes_as_promoted_source(world):
+    # make stable builds here: the shared checkouts are often on someone else's branch.
+    for r in world.all_repos().values():
+        _detach(r)
+    assert world.run(detached_ok=True).ok, _joined(world.run(detached_ok=True))
+
+
+def test_a_detached_tree_is_still_refused_without_the_flag(world):
+    _detach(world.conn)
+    rep = world.run()
+    assert not rep.ok and "not main" in _joined(rep)
+
+
+def test_a_detached_tree_off_the_promoted_commit_is_refused(world):
+    repo = world.framework
+    (repo / "packaging" / "p.toml").write_text("unpromoted\n")
+    git(repo, "commit", "-q", "-am", "never pushed")
+    sha = git(repo, "rev-parse", "HEAD")
+    world.stamp("fsr-playbook-framework", sha)   # even VERIFIED, it is not on remote main
+    _detach(repo)
+    rep = world.run(detached_ok=True)
+    assert not rep.ok and "is not the upstream" in _joined(rep)
+
+
+def test_promoted_source_still_refuses_another_branch(world):
+    git(world.widgets["agenticAssistant"], "checkout", "-q", "-b", "feat/x")
+    rep = world.run(detached_ok=True)
     assert not rep.ok and "not main" in _joined(rep)
 
 

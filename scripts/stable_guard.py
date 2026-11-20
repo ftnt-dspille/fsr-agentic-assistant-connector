@@ -9,8 +9,11 @@ This guard refuses the install unless every condition below holds:
      changes and no untracked files there. The connector scopes this to what it
      packages (connector package, scripts/); a stray untracked directory elsewhere
      in the repo is someone's WIP, not a package input.
-  3. Each source repo is on main and its HEAD equals the remote's main
-     (`git ls-remote`). Nothing unpushed or unpromoted reaches a customer box.
+  3. Each source repo's HEAD equals the remote's main (`git ls-remote`): either a
+     checkout on main, or (`--promoted-source`) a detached tree that `make stable`
+     created at the promoted commit. Nothing unpushed or unpromoted reaches a
+     customer box. `make stable` builds from detached trees at each remote's main,
+     so the shared checkouts (often on someone else's branch) are never read.
   4. Each HEAD has a VERIFIED, clean live-sanity stamp taken on an EXPERIMENTAL
      box (the stamp's `box` alias must read role = "experimental"). A stable box
      never proves its own code; the proof is the experimental run of that commit.
@@ -83,13 +86,19 @@ def check_clean(spec: RepoSpec) -> list[str]:
     return [f"{spec.name}: not clean on the package inputs ({shown}). Commit or promote it first."]
 
 
-def head_of(spec: RepoSpec) -> tuple[str | None, list[str]]:
-    """The HEAD sha when the checkout is on main, else (None, problems)."""
+def head_of(spec: RepoSpec, *, detached_ok: bool = False) -> tuple[str | None, list[str]]:
+    """The HEAD sha when the checkout is on main, else (None, problems).
+
+    `detached_ok`: a detached HEAD is accepted too. The caller then relies on
+    check_remote_main, which every head goes through, to prove it is the
+    promoted commit; a checkout on another branch is still refused."""
     r = _git(spec.path, "rev-parse", "--verify", "-q", "HEAD")
     head = r.stdout.strip()
     if r.returncode != 0 or not head:
         return None, [f"{spec.name}: no HEAD"]
     branch = _git(spec.path, "symbolic-ref", "--short", "-q", "HEAD").stdout.strip()
+    if detached_ok and not branch:
+        return head, []
     if branch != "main":
         return None, [f"{spec.name}: checked out on '{branch or '?'}', not main. Only main ships."]
     return head, []
@@ -171,7 +180,7 @@ def box_role(alias: str) -> str:
 
 
 def guard(box: str, specs: list[RepoSpec], stamp_dir: Path,
-          role_of: Callable[[str], str] = box_role) -> Report:
+          role_of: Callable[[str], str] = box_role, *, detached_ok: bool = False) -> Report:
     rep = Report()
     if not box:
         rep.problems.append("no BOX=<alias>. There is no default box.")
@@ -182,7 +191,7 @@ def guard(box: str, specs: list[RepoSpec], stamp_dir: Path,
                             f"stable box; an experimental box takes code with make push/loop.")
     for spec in specs:
         rep.problems += check_clean(spec)
-        head, why = head_of(spec)
+        head, why = head_of(spec, detached_ok=detached_ok)
         rep.problems += why
         if head is None:
             continue
@@ -203,9 +212,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--framework", required=True, type=Path)
     ap.add_argument("--conn", required=True, type=Path)
     ap.add_argument("--stamp-dir", type=Path, default=None)
+    ap.add_argument("--promoted-source", action="store_true",
+                    help="the repos are detached trees at the promoted commits (make stable)")
     args = ap.parse_args(argv)
     rep = guard(args.box, repo_specs(args.monorepo, args.framework, args.conn),
-                args.stamp_dir or default_stamp_dir())
+                args.stamp_dir or default_stamp_dir(), detached_ok=args.promoted_source)
     if not rep.ok:
         print("make stable: REFUSED", file=sys.stderr)
         for p in rep.problems:
