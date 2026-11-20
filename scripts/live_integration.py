@@ -50,6 +50,7 @@ from fsr_playbooks.harness.frames import (
     frames_of,
     tool_calls,
     tool_results,
+    turn_inputs,
 )
 from fsr_playbooks.llm.tools import _tier_for_run_op
 
@@ -577,10 +578,8 @@ def chk_chat_resume(fsr) -> Result:
 
 
 def _turn_language(d) -> str | None:
-    for e in (d or {}).get("transcript") or []:
-        if isinstance(e, dict) and e.get("type") == "turn_inputs":
-            return e.get("language")
-    return None
+    ti = turn_inputs(d)
+    return ti.get("language") if ti else None
 
 
 def chk_resume_language(fsr) -> Result:
