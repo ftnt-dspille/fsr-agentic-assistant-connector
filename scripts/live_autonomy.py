@@ -35,6 +35,7 @@ import json
 import signal
 import sys
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -633,6 +634,19 @@ def _tuning_flips_close(disposition: str) -> tuple[bool, str]:
                 f"auto-closes@{tuned}={not blocked_tuned})")
 
 
+def _close_alert_body(high_iri: str) -> dict:
+    """The seeded scanner alert. Its name carries a per-run token: the
+    connector groups alerts that share an address and a name within the storm
+    window under one lead and runs no turn for the members, so a fixed name made
+    a second run inside that window a silent no-turn."""
+    token = uuid.uuid4().hex[:8]
+    return {"name": f"[test] Port scan detected from {SCANNER_IP} ({token})",
+            "severity": high_iri, "source": SOURCE, "rule": SCAN_RULE,
+            "sourceIp": SCANNER_IP, "destinationIp": "10.66.1.10",
+            "description": f"One source ({SCANNER_IP}, host {SCANNER_HOST}) probed 20 "
+                           "distinct ports across 4 internal subnets."}
+
+
 def run_close(box: Box) -> int:
     """One false-positive alert from the org's own scanner, under an enforced
     close rule: the policy closes it alone with a comment, the tuning table
@@ -669,11 +683,7 @@ def run_close(box: Box) -> int:
             raise SystemExit(f"set_auto_triage failed: {trig}")
         box.set_policy(_close_policy())
 
-        body = {"name": f"[test] Port scan detected from {SCANNER_IP}",
-                "severity": iris["High"], "source": SOURCE, "rule": SCAN_RULE,
-                "sourceIp": SCANNER_IP, "destinationIp": "10.66.1.10",
-                "description": f"One source ({SCANNER_IP}, host {SCANNER_HOST}) probed 20 "
-                               "distinct ports across 4 internal subnets."}
+        body = _close_alert_body(iris["High"])
         r = box.s.post(f"{box.base}/api/3/alerts", json=body, verify=box.verify, timeout=60)
         r.raise_for_status()
         u = r.json()["uuid"]
