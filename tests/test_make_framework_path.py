@@ -12,7 +12,15 @@ import os
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def _dev_env_ok() -> bool:
+    out = subprocess.run(["bash", "scripts/dev_env.sh", "status"], cwd=ROOT,
+                         capture_output=True, text=True)
+    return out.stdout.strip() == "ok"
 
 
 def _resolved() -> str:
@@ -21,6 +29,7 @@ def _resolved() -> str:
     return out.stdout.strip()
 
 
+@pytest.mark.skipif(not _dev_env_ok(), reason="no dev env (make setup); CI installs deps without one")
 def test_make_imports_the_resolved_framework():
     want = _resolved()
     assert want, "framework_dir.sh resolved nothing"

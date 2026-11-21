@@ -7,6 +7,9 @@
 # Every entry below was read against its source on the day it was written.
 # A new skip that is not listed here fails `make test`; add it only with a why.
 skips:
+  - node: "tests/test_make_framework_path.py::*"
+    reason: "no dev env (make setup)*"
+    why: "It checks the Makefile's dev-env wiring (make framework-path runs the dev venv's python). CI installs deps without a dev venv, so the Makefile refuses there by design. It runs on every dev machine, where the wiring it guards is used. No coverage lost where it matters."
   - node: "connector-fsr-agentic-assistant/tests/test_toolkit_workflows_registered.py::*"
     reason: "fsr-agentic-toolkit not importable*"
     why: "fsr-agentic-toolkit is a pinned requirement, so it is installed on the box and in CI, where this test RUNS (it registers the toolkit workflows into the library REGISTRY). It skips only in a bare dev venv without the toolkit; exercise it there by setting FSR_AGENTIC_TOOLKIT_SRC to a toolkit source checkout. No coverage lost where the dep exists."
