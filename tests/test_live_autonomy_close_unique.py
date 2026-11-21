@@ -28,3 +28,37 @@ def test_two_close_runs_get_distinct_alert_names(la):
     b = la._close_alert_body("/api/3/picklists/x")
     assert a["name"] != b["name"]
     assert a["sourceIp"] == b["sourceIp"]
+
+
+class _Resp:
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return {"uuid": "u"}
+
+
+class _FakeBox:
+    base, verify = "https://box.example.com", False
+
+    def __init__(self):
+        self.posted = []
+        self.s = self
+
+    def post(self, url, json=None, **_kw):
+        self.posted.append(json)
+        return _Resp()
+
+
+def test_two_c2_seeds_of_one_pair_get_distinct_alert_names(la):
+    """The C2 rows reuse the same (source, destination) pair when the harness
+    is rerun inside the storm window; a fixed name made every row of the rerun
+    a grouped member with no turn."""
+    box = _FakeBox()
+    iris = {"High": "/api/3/picklists/h"}
+    la._seed(box, iris, "198.51.100.1", "203.0.113.1")
+    la._seed(box, iris, "198.51.100.1", "203.0.113.1")
+    a, b = box.posted
+    assert a["name"] != b["name"]
+    assert (a["sourceIp"], a["destinationIp"]) == (b["sourceIp"], b["destinationIp"])
+    assert a["name"].startswith("[test] Traffic from 198.51.100.1 to C2 Tracker Malware IP 203.0.113.1")

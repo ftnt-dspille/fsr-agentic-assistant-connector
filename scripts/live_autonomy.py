@@ -301,7 +301,11 @@ def _pick_c2(box: Box, n: int, plant: bool = False,
 
 def _seed(box: Box, iris: dict, src: str, dst: str, *, severity: str = "High",
           label: str = "C2 Tracker Malware IP") -> str:
-    body = {"name": f"[test] Traffic from {src} to {label} {dst}",
+    # A per-seed token keeps the name unique: storm grouping keys on address
+    # plus name, so a rerun of the same pair inside the window (or two rows
+    # sharing an address) would otherwise group and run no turn.
+    token = uuid.uuid4().hex[:8]
+    body = {"name": f"[test] Traffic from {src} to {label} {dst} ({token})",
             "severity": iris[severity], "source": SOURCE,
             "sourceIp": src, "destinationIp": dst,
             "rule": "PH_Rule_C2_Tracker_MalwareIP_Outbound",
