@@ -575,6 +575,8 @@ def main() -> int:
     if os.environ.get("FSR_WRITABLE") != "1":
         print("refusing: this runner writes to the box. Set FSR_WRITABLE=1 in the env file of a test box.")
         return 2
+    from box_lock import hold_box
+    hold_box()   # one writing run per box; a second refuses, naming the holder
     rows, skipped = load_rows(args.category, [s for s in args.scenario.split(",") if s])
     if not rows:
         print("no runnable rows" + (": " + "; ".join(skipped) if skipped else ""))

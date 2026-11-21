@@ -218,3 +218,10 @@ TOOLING_SUITES = (
 import os as _os  # noqa: E402
 
 collect_ignore = list(TOOLING_SUITES) if _os.environ.get("SKIP_TOOLING_TESTS") == "1" else []
+
+
+@pytest.fixture(autouse=True)
+def _live_lock_in_tmp(tmp_path, monkeypatch):
+    """A test that runs a live script's main() takes that script's per-box lock;
+    keep the lockfile in the test's tmp dir, never in the real ~/.cache."""
+    monkeypatch.setenv("FSR_LIVE_LOCK_DIR", str(tmp_path / "live-lock"))

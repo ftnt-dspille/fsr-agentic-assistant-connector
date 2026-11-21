@@ -24,6 +24,13 @@ rest on the model's judgement.
 Cleanup always runs: undo/unblock, delete the seeded alerts, dismiss their
 escalations, restore the policy record, disable the trigger.
 
+Fail fast, with nothing to pass: the full run first prints an offline precheck
+(a policy floor the box model's recent confidence cannot reach is a predicted
+failure, shown up front), then runs ONE seeded alert end to end under a ~3 min
+cap. If that smoke fails the run stops there with the reason, instead of
+spending the full run finding out. A run also takes the box's lock
+(box_lock.py), so a second run on the same box refuses at once.
+
     make live MODE=autonomy        # BOX=<name> picks the box (no default)
     make live MODE=autonomy ARGS=--close   # the close rule only (one turn)
     make live MODE=autonomy ARGS=--triage-proof  # A1 (#29): cited verdict, unattended
@@ -42,6 +49,9 @@ from typing import Any
 
 import requests
 
+import re
+
+from box_lock import hold_box
 from fsr_live import LiveFSR
 from harness_caps import harness_caps, skip_reason
 from fsr_playbooks.harness.frames import frames, frames_of
@@ -60,6 +70,7 @@ INTERNAL_DST = "10.66.77.88"
 BENIGN_DST = "8.8.8.8"
 TURN_TIMEOUT = 420
 RUN_BUDGET = 1800      # seconds for all rows; past it the run stops and cleans up
+SMOKE_TIMEOUT = 180    # seconds the one-alert smoke may wait for its turn (plus ~25s read-back)
 
 #: A real investigated verdict reached one of these dispositions -- not an empty
 #: or placeholder label. (The autonomy policy acts only on `true_positive`;
@@ -317,11 +328,12 @@ def _seed(box: Box, iris: dict, src: str, dst: str, *, severity: str = "High",
     return r.json()["uuid"]
 
 
-def _wait_triaged(box: Box, uuid: str, *, expect_turn: bool = True) -> dict:
+def _wait_triaged(box: Box, uuid: str, *, expect_turn: bool = True,
+                  timeout: int = TURN_TIMEOUT) -> dict:
     """Wait for the trigger's auto-triage turn on ``uuid`` to finish. Returns
     {turned, verdict, decision, escalated}."""
     sid = f"auto:alerts:{uuid}"
-    deadline = time.time() + (TURN_TIMEOUT if expect_turn else 90)
+    deadline = time.time() + (timeout if expect_turn else 90)
     turned = False
     while time.time() < deadline:
         h = box.op("chat_history", {"session_id": sid}, timeout=60)
@@ -441,6 +453,65 @@ def _policy_refuses(policy_value: dict, ip: str, reason: str, *,
                 f"refuses for {reason!r}: outcome={out.get('outcome')}, failed={failed}")
 
 
+def _smoke_verdict(r: dict) -> tuple[bool, str]:
+    """Did one seeded alert go end to end: the trigger fired, a turn ran, and the
+    turn left something -- a verdict, a staged card, a policy decision or an
+    escalation? Returns (ok, reason). The reason names the stage that broke, so
+    an aborted run says where to look."""
+    if not r.get("turned"):
+        return False, (f"no auto-triage turn within {SMOKE_TIMEOUT}s: the trigger did "
+                       "not fire or the turn never ran (check the trigger, the "
+                       "connector worker and that the box model is reachable)")
+    if not (r.get("verdict") or r.get("staged") or r.get("decision") or r.get("escalated")):
+        return False, ("a turn ran but delivered nothing: no verdict, no staged card, "
+                       "no policy decision, no escalation (the model call likely failed)")
+    return True, f"turn ran and left something ({_staged(r)})"
+
+
+_BELOW = re.compile(r"confidence\s+([0-9.]+)\s+is below\s+([0-9.]+)")
+
+
+def precheck_floors(decisions: list[dict], floors: dict[str, float]) -> list[str]:
+    """Offline precheck: compare the policy rule floors this run installs with the
+    confidence the box model has recently given. ``decisions`` are the box's own
+    recent shadow decisions; a failed check there reads "confidence C is below F".
+    Honest and small: when the box has recorded at least 3 such misses, none of
+    its recent decisions would act, and every observed confidence sits under a
+    floor, the acting row cannot be expected to act -- a predicted failure, as a
+    warning. Anything less (too few decisions, or some would_act) predicts nothing."""
+    seen: list[float] = []
+    would_act = 0
+    for d in decisions:
+        pol = d.get("policy") or {}
+        if pol.get("outcome") == "would_act":
+            would_act += 1
+        for f in pol.get("failed") or []:
+            m = _BELOW.search(str(f))
+            if m:
+                seen.append(float(m.group(1)))
+    if would_act or len(seen) < 3:
+        return []
+    top = max(seen)
+    return [f"WARN  row {row}: its confidence floor is {floor} but the box model's "
+            f"recent verdicts topped out at {top} ({len(seen)} below-floor decisions, "
+            f"0 would_act in {len(decisions)}): predicted to stay on the fail-safe path, "
+            "the acting step will not run"
+            for row, floor in floors.items() if top < floor]
+
+
+def _precheck(box: Box, floors: dict[str, float]) -> None:
+    try:
+        decisions = box.op("list_shadow_decisions", {"since_hours": 720}).get("decisions") or []
+    except Exception as e:  # noqa: BLE001 -- a precheck never blocks the run
+        print(f"  precheck skipped: could not read recent decisions ({type(e).__name__})")
+        return
+    warns = precheck_floors(decisions, floors)
+    print("  precheck: " + (f"{len(warns)} predicted failure(s)" if warns else
+                            f"no floor looks unreachable ({len(decisions)} recent decisions)"))
+    for w in warns:
+        print(f"    {w}")
+
+
 class Report:
     def __init__(self):
         self.rows: list[dict] = []
@@ -494,11 +565,25 @@ def run(box: Box, plant: bool = False, c2_file: str | None = None) -> int:
             if box.quarantined(ip):
                 raise SystemExit(f"{ip} is already quarantined on the FortiGate; "
                                  "unblock it first so the rows mean something")
+        _precheck(box, {"tp_blocked_alone_then_undone":
+                        _policy([prot])["rules"][0]["when"]["verdict"]["min_confidence"]})
         trig = box.op("set_auto_triage", {"agent_config": box.fsr.config, "module": "alerts",
                                           "severities": ["High", "Critical"],
                                           "sources": [SOURCE], "enabled": True})
         if not trig.get("ok"):
             raise SystemExit(f"set_auto_triage failed: {trig}")
+        # Smoke: ONE alert end to end before the full run. The benign
+        # destination is on the protected list here, so nothing can act.
+        box.set_policy(_policy([prot, BENIGN_DST]))
+        print("  smoke: one seeded alert end to end ...")
+        u = _seed(box, iris, tp_src, BENIGN_DST, label="smoke destination"); seeded.append(u)
+        t0 = time.time()
+        ok, why = _smoke_verdict(_wait_triaged(box, u, timeout=SMOKE_TIMEOUT))
+        print(f"  smoke: {'ok' if ok else 'FAIL'} in {round(time.time() - t0)}s: {why}")
+        if not ok:
+            print(f"\nABORTED after the smoke, the full run was not started: {why}")
+            print("[[LIVE-AUTONOMY-SMOKE-FAIL]]")
+            return 1
         box.set_policy(_policy([prot]))
 
         # 1. TP C2 -> the policy blocks it alone; it reads back; Undo removes it.
@@ -970,6 +1055,8 @@ def main(argv=None) -> int:
     # Rows print as they finish; through a pipe the default block buffering
     # showed nothing until the end, so a stall could not be placed.
     sys.stdout.reconfigure(line_buffering=True)
+    if not args.inspect:
+        hold_box()   # every other mode writes the trigger and the policy: one run per box
     box = Box(LiveFSR.from_env())
     if args.inspect:
         return inspect(box)

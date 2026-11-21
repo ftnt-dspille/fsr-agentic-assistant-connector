@@ -480,7 +480,7 @@ loop: ## THE dev command: local tests + Frank agent smoke -> dev-push -> live sm
 dev-push: ## Copy framework + connector WORKING TREES onto the BOX=<alias> box, install unmet requirements.txt pins, one recycle, wait for every worker on this build (seconds, not a release). SYNC=tar: for boxes whose sudo user cannot rsync (fortidemo labuser allowlist); same trees via allowlisted tar+find+rm
 	@bash "$(REPO)/scripts/dev_push.sh"
 
-live: ## Box gates on the BOX=<alias> box, through the INSTALLED connector. MODE=quick (~35s smoke; NO_AGENT=1 drops the LLM turn) | rows (sweep rows that mount a real record; CATEGORY= S= RUNS= ARGS=; read-only) | writes (WRITING rows, approve, read back; CATEGORY= S= RUNS= DEVICE= KEEP=1 ARGS=; needs FSR_WRITABLE=1) | integration (POST-SHIP gate; ONLY= NO_AGENT=1 GOLDEN=1) | autonomy (seeded alerts, ~6 paid turns; cleans up) | p3 (agent-bound FortiGate on demand; invoke twice)
+live: ## Box gates on the BOX=<alias> box, through the INSTALLED connector. MODE=quick (~35s smoke; NO_AGENT=1 drops the LLM turn) | rows (sweep rows that mount a real record; CATEGORY= S= RUNS= ARGS=; read-only) | writes (WRITING rows, approve, read back; CATEGORY= S= RUNS= DEVICE= KEEP=1 ARGS=; needs FSR_WRITABLE=1) | integration (POST-SHIP gate; ONLY= NO_AGENT=1 GOLDEN=1) | autonomy (one-alert smoke first, aborts on failure; then seeded alerts, ~6 paid turns; cleans up) | p3 (agent-bound FortiGate on demand; invoke twice)
 	@case "$(MODE)" in \
 	  quick) $(with_env); cd "$(REPO)/scripts" && $(PY) live_integration.py --only health,compile,validate_ok,validate_bad,resolve,render_jinja$(if $(NO_AGENT),,$(COMMA)chat_action_card) ;; \
 	  rows) $(with_env); FSRPB_DEV=1 $(PY) scripts/live_rows.py \
