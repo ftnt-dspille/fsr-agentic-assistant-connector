@@ -253,7 +253,7 @@ def test_the_language_does_not_leak_into_the_next_turn(env):
     assert "reply_language" not in seen["tags"]
 
 
-def test_the_turn_inputs_record_carries_scope_and_language():
+def test_the_turn_inputs_record_carries_scope_and_language(operations):
     from fsr_playbooks.llm.provider import TurnInputsEvent
     mod = sys.modules.get("_fsrpb_conn_scope.ops_turn_io")
     if mod is None:
