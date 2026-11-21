@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import signal
 import sys
 import time
@@ -190,9 +191,28 @@ def _reputation(box: Box, ip: str) -> str | None:
     return None
 
 
-def _pick_c2(box: Box, n: int) -> tuple[list[tuple[str, str]], dict]:
+def _synthetic_c2(n: int, have: set[str] = frozenset()) -> list[tuple[str, str]]:
+    """n distinct synthetic (internal source, C2 destination) pairs, drawn from
+    the documentation ranges (RFC 5737) so no real address is ever planted. The
+    pairs feed `_seed`, so the planted alerts carry the same shape the C2
+    selector reads (name, sourceIp, destinationIp, rule) and are deleted by the
+    run's normal cleanup."""
+    out = []
+    for i in range(1, 250):
+        dst = f"203.0.113.{i}"
+        if dst in have:
+            continue
+        out.append((f"198.51.100.{i}", dst))
+        if len(out) == n:
+            return out
+    raise ValueError(f"cannot plant {n} distinct C2 pairs")
+
+
+def _pick_c2(box: Box, n: int, plant: bool = False) -> tuple[list[tuple[str, str]], dict]:
     """n distinct (internal source, C2 destination) pairs from the box's own
-    recent C2-tracker alerts, plus picklist IRIs copied from them."""
+    recent C2-tracker alerts, plus picklist IRIs copied from them. With
+    ``plant``, a shortfall is topped up with synthetic pairs (`_synthetic_c2`);
+    the seeded alerts are removed by the run's cleanup."""
     rows = box.get("/api/3/alerts", **{"$limit": 200, "$orderby": "-createDate",
                                        "$relationships": "false"}).get("hydra:member") or []
     pairs, seen, iris = [], set(), {}
@@ -226,6 +246,10 @@ def _pick_c2(box: Box, n: int) -> tuple[list[tuple[str, str]], dict]:
             pairs.append((mal, src, dst))
             if "type" not in iris and isinstance(a.get("type"), dict):
                 iris["type"] = a["type"]["@id"]
+    if len(pairs) < n and plant:
+        have = {dst for _m, _s, dst in pairs}
+        pairs += [(0, src, dst) for src, dst in _synthetic_c2(n - len(pairs), have)]
+        print(f"  planted {n - len([p for p in pairs if p[0]])} synthetic C2 pair(s) (--plant-c2)")
     if len(pairs) < n:
         raise SystemExit(f"need {n} distinct C2 alerts on the box, found {len(pairs)}")
     if "High" not in iris or "Medium" not in iris:
@@ -396,7 +420,7 @@ RUN_REQUIRES = ("connector:fortigate-firewall", "connector:virustotal",
                 "connector:fortinet-fortiguard-ioc")
 
 
-def run(box: Box) -> int:
+def run(box: Box, plant: bool = False) -> int:
     _req_connectors = tuple(r.split(":", 1)[1] for r in RUN_REQUIRES
                             if r.startswith("connector:"))
     reason = skip_reason(RUN_REQUIRES,
@@ -406,7 +430,7 @@ def run(box: Box) -> int:
         # measured, so this is a SKIP with the reason, not a FAIL or a pass.
         print(f"SKIP  live autonomy  ({reason})")
         return 2
-    pairs, iris = _pick_c2(box, 4)
+    pairs, iris = _pick_c2(box, 4, plant)
     (tp_src, tp), (pr_src, prot), (ks_src, ks), (rc_src, rc) = pairs
     test_ips = [tp, prot, ks, rc, INTERNAL_DST, BENIGN_DST]
     prior = box.policy_record()
@@ -569,16 +593,19 @@ SCANNER_HOST = "vuln-scanner-test-01"
 SCAN_RULE = "Test_Portscan_Internal"
 
 
-def _close_policy() -> dict:
+def _close_policy(floor: float | None = None) -> dict:
     """The admin's close rule, as the fixture world ka_authorized_scanner_close_policy
-    has it, in enforce mode."""
+    has it, in enforce mode. ``floor`` (or env LIVE_AUTONOMY_CLOSE_FLOOR) overrides
+    the 0.9 confidence floor for one proof; the run restores the prior policy."""
+    if floor is None:
+        floor = float(os.environ.get("LIVE_AUTONOMY_CLOSE_FLOOR") or 0.9)
     return {"version": 1, "enabled": True, "mode": "enforce", "protected": {},
             "rules": [{"id": CLOSE_RULE,
                        "action": {"tool": "update_record", "module": "alerts",
                                   "fields": ["status", "closureReason", "closureNotes"],
                                   "values": {"status": ["Closed"]}},
                        "when": {"verdict": {"disposition": ["false_positive", "benign"],
-                                            "min_confidence": 0.9},
+                                            "min_confidence": floor},
                                 "target": {"kind": "record"},
                                 "evidence": {"cites_tool_kind": "read"}}}]}
 
@@ -889,6 +916,9 @@ def main(argv=None) -> int:
     ap.add_argument("--triage-proof", dest="triage_proof", action="store_true",
                     help="A1 (#29): one seeded alert reaches a cited verdict unattended, "
                          "no policy, no acting")
+    ap.add_argument("--plant-c2", dest="plant_c2", action="store_true",
+                    help="top up a box with too few C2 alerts using synthetic "
+                         "documentation-range pairs (seeded, then cleaned up)")
     args = ap.parse_args(argv)
     # Rows print as they finish; through a pipe the default block buffering
     # showed nothing until the end, so a stall could not be placed.
@@ -900,7 +930,7 @@ def main(argv=None) -> int:
         return run_close(box)
     if args.triage_proof:
         return run_triage_proof(box)
-    return run(box)
+    return run(box, plant=args.plant_c2)
 
 
 if __name__ == "__main__":
