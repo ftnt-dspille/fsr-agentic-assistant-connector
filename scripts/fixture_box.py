@@ -356,10 +356,10 @@ SKILL_MODULE = "assistant_skills"
 _PICKLIST_MODULES = ("picklists", "picklist_names")
 
 
-def _reference_picklists(module: str, query: str) -> Optional[dict]:
-    """`/api/3/picklists?listName.name=X` / `/api/3/picklist_names` from the
-    reference DB, in the API's shape. None when the DB can't be read -- then
-    the read stays an honest miss."""
+def _reference_picklist_members() -> Optional[list[dict]]:
+    """Every picklist item in the reference DB, in the API's shape, with a
+    stable stand-in IRI where the shipped baseline blanks it. None when the DB
+    can't be read."""
     try:
         import sqlite3
         from fsr_playbooks._db import default_db_path
@@ -369,8 +369,28 @@ def _reference_picklists(module: str, query: str) -> Optional[dict]:
         con.close()
     except Exception:  # noqa: BLE001 -- no catalog: leave it a visible miss
         return None
+    import uuid as _uuid
+    members = []
+    for ln, val, iri in rows:
+        # The shipped baseline blanks item IRIs (they are per install); a
+        # box always has one, so stand in a stable one for the shape.
+        if not iri:
+            iri = "/api/3/picklists/" + str(
+                _uuid.uuid5(_uuid.NAMESPACE_URL, f"picklist/{ln}/{val}"))
+        members.append({"@id": iri, "uuid": iri.rsplit("/", 1)[-1],
+                        "itemValue": val, "listName": {"name": ln}})
+    return members
+
+
+def _reference_picklists(module: str, query: str) -> Optional[dict]:
+    """`/api/3/picklists?listName.name=X` / `/api/3/picklist_names` from the
+    reference DB, in the API's shape. None when the DB can't be read -- then
+    the read stays an honest miss."""
+    all_members = _reference_picklist_members()
+    if all_members is None:
+        return None
     if module == "picklist_names":
-        names = sorted({r[0] for r in rows})
+        names = sorted({m["listName"]["name"] for m in all_members})
         members = [{"name": n} for n in names]
     else:
         want = None
@@ -378,19 +398,28 @@ def _reference_picklists(module: str, query: str) -> Optional[dict]:
             k, _, v = part.partition("=")
             if unquote_plus(k) == "listName.name":
                 want = unquote_plus(v)
-        import uuid as _uuid
-        members = []
-        for ln, val, iri in rows:
-            if want is not None and ln != want:
-                continue
-            # The shipped baseline blanks item IRIs (they are per install); a
-            # box always has one, so stand in a stable one for the shape.
-            if not iri:
-                iri = "/api/3/picklists/" + str(
-                    _uuid.uuid5(_uuid.NAMESPACE_URL, f"picklist/{ln}/{val}"))
-            members.append({"@id": iri, "uuid": iri.rsplit("/", 1)[-1],
-                            "itemValue": val, "listName": {"name": ln}})
+        members = [m for m in all_members
+                   if want is None or m["listName"]["name"] == want]
     return {"hydra:member": members, "hydra:totalItems": len(members)}
+
+
+def _reference_picklist_item(ident: str) -> Optional[dict]:
+    """`GET /api/3/picklists/<id>` from the reference DB (None: not there)."""
+    for m in _reference_picklist_members() or []:
+        if m["uuid"] == ident:
+            return m
+    return None
+
+
+def _reference_picklist_query(body: dict) -> Optional[dict]:
+    """`POST /api/query/picklists`: the reference items, filtered by the same
+    body matcher every other module's query uses."""
+    members = _reference_picklist_members()
+    if members is None:
+        return None
+
+    out = [m for m in members if _match_body(m, body or {})]
+    return {"hydra:member": out, "hydra:totalItems": len(out)}
 
 
 def _personas_as_module_rows(personas: dict[str, dict]) -> list[dict]:
@@ -865,6 +894,8 @@ class FixtureBox:
 
         if ident:
             rec = self.record(module, ident)
+            if rec is None and module == "picklists" and module not in self.modules:
+                rec = _reference_picklist_item(ident)
             if rec is None:
                 self.misses.append(url)
                 return 404, {"message": f"no {module} record {ident}"}
@@ -900,6 +931,10 @@ class FixtureBox:
             return 599, {"message": "fixture box serves reads only; this POST "
                                     "looks like a write and was not served"}
         module = m.group(1)
+        if module == "picklists" and module not in self.modules:
+            served = _reference_picklist_query(json_body or {})
+            if served is not None:
+                return 200, served
         if module not in self.modules:
             self.misses.append(f"POST {url}")
             return 404, {"hydra:member": [], "hydra:totalItems": 0}

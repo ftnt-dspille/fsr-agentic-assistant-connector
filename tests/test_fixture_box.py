@@ -454,3 +454,21 @@ def test_a_world_without_an_inventory_still_misses_honestly():
     assert box.replay("POST", "https://fsr.local/api/integration/connector_details/"
                               "?configured=true") is None
     assert box.http_misses
+
+
+def test_a_picklist_iri_is_reversible_to_its_label():
+    """The IRI the model gets from the resolver must read back: GET by id and
+    POST /api/query/picklists both answer from the reference DB."""
+    from scripts.fixture_box import FixtureBox
+    box = FixtureBox({"modules": {}})
+    _, items = box.get("https://127.0.0.1:9/api/3/picklists?listName.name=AlertStatus&$limit=200")
+    closed = next(m for m in items["hydra:member"] if m["itemValue"] == "Closed")
+    status, one = box.get("https://127.0.0.1:9" + closed["@id"])
+    assert status == 200 and one["itemValue"] == "Closed", one
+    status, q = box.post("https://127.0.0.1:9/api/query/picklists", {
+        "filters": [{"field": "itemValue", "operator": "eq", "value": "Closed"},
+                    {"field": "listName.name", "operator": "eq", "value": "AlertStatus"}]})
+    assert status == 200 and [m["@id"] for m in q["hydra:member"]] == [closed["@id"]], q
+    assert not box.misses
+    status, _ = box.get("https://127.0.0.1:9/api/3/picklists/ffffffff-ffff-ffff-ffff-ffffffffffff")
+    assert status == 404
