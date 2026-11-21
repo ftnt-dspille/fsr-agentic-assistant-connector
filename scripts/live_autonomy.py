@@ -208,7 +208,25 @@ def _synthetic_c2(n: int, have: set[str] = frozenset()) -> list[tuple[str, str]]
     raise ValueError(f"cannot plant {n} distinct C2 pairs")
 
 
-def _pick_c2(box: Box, n: int, plant: bool = False) -> tuple[list[tuple[str, str]], dict]:
+def _read_c2_file(path: str) -> list[tuple[str, str]]:
+    """(internal source, C2 destination) pairs from a local file kept out of
+    git. One pair per line: ``<destination>`` or ``<source> <destination>``;
+    blank lines and ``#`` comments are skipped. A bare destination gets a
+    documentation-range source (RFC 5737), so only the C2 address is real."""
+    out = []
+    for raw in Path(path).read_text().splitlines():
+        parts = raw.split("#", 1)[0].split()
+        if not parts:
+            continue
+        if len(parts) > 2:
+            raise ValueError(f"bad C2 line {raw!r}: want '<dst>' or '<src> <dst>'")
+        out.append((parts[0], parts[1]) if len(parts) == 2
+                   else (f"198.51.100.{len(out) + 1}", parts[0]))
+    return out
+
+
+def _pick_c2(box: Box, n: int, plant: bool = False,
+             c2_file: str | None = None) -> tuple[list[tuple[str, str]], dict]:
     """n distinct (internal source, C2 destination) pairs from the box's own
     recent C2-tracker alerts, plus picklist IRIs copied from them. With
     ``plant``, a shortfall is topped up with synthetic pairs (`_synthetic_c2`);
@@ -246,6 +264,26 @@ def _pick_c2(box: Box, n: int, plant: bool = False) -> tuple[list[tuple[str, str
             pairs.append((mal, src, dst))
             if "type" not in iris and isinstance(a.get("type"), dict):
                 iris["type"] = a["type"]["@id"]
+    if len(pairs) < n and c2_file:
+        # File pairs are held to the same bar as the box's own alerts: VirusTotal
+        # (through the box's connector) must rate the target strongly malicious
+        # and no source may call it clean. A pair that fails is dropped, never
+        # trusted on the file's say-so.
+        have = {dst for _m, _s, dst in pairs}
+        for src, dst in _read_c2_file(c2_file):
+            if len(pairs) >= n or dst in have:
+                continue
+            mal = box.vt_malicious(dst)
+            if mal is None:
+                print(f"  c2-file: {dst} not rated malicious by VirusTotal, skipped")
+                continue
+            fgd = box._rate("fortinet-fortiguard-ioc", "ioc_search", {"indicator": dst})
+            if (fgd or {}).get("verdict") == "clean":
+                print(f"  c2-file: {dst} rated clean by a source, skipped")
+                continue
+            have.add(dst)
+            pairs.append((mal, src, dst))
+        print(f"  c2-file supplied {len(pairs)} verified pair(s)")
     if len(pairs) < n and plant:
         have = {dst for _m, _s, dst in pairs}
         pairs += [(0, src, dst) for src, dst in _synthetic_c2(n - len(pairs), have)]
@@ -420,7 +458,7 @@ RUN_REQUIRES = ("connector:fortigate-firewall", "connector:virustotal",
                 "connector:fortinet-fortiguard-ioc")
 
 
-def run(box: Box, plant: bool = False) -> int:
+def run(box: Box, plant: bool = False, c2_file: str | None = None) -> int:
     _req_connectors = tuple(r.split(":", 1)[1] for r in RUN_REQUIRES
                             if r.startswith("connector:"))
     reason = skip_reason(RUN_REQUIRES,
@@ -430,7 +468,7 @@ def run(box: Box, plant: bool = False) -> int:
         # measured, so this is a SKIP with the reason, not a FAIL or a pass.
         print(f"SKIP  live autonomy  ({reason})")
         return 2
-    pairs, iris = _pick_c2(box, 4, plant)
+    pairs, iris = _pick_c2(box, 4, plant, c2_file)
     (tp_src, tp), (pr_src, prot), (ks_src, ks), (rc_src, rc) = pairs
     test_ips = [tp, prot, ks, rc, INTERNAL_DST, BENIGN_DST]
     prior = box.policy_record()
@@ -919,6 +957,11 @@ def main(argv=None) -> int:
     ap.add_argument("--plant-c2", dest="plant_c2", action="store_true",
                     help="top up a box with too few C2 alerts using synthetic "
                          "documentation-range pairs (seeded, then cleaned up)")
+    ap.add_argument("--c2-file", dest="c2_file", default=os.environ.get("LIVE_AUTONOMY_C2_FILE"),
+                    help="local file (kept out of git) of C2 pairs, one '<dst>' or "
+                         "'<src> <dst>' per line; each is re-rated through the box's "
+                         "VirusTotal connector and dropped unless strongly malicious "
+                         "(env LIVE_AUTONOMY_C2_FILE)")
     args = ap.parse_args(argv)
     # Rows print as they finish; through a pipe the default block buffering
     # showed nothing until the end, so a stall could not be placed.
@@ -930,7 +973,7 @@ def main(argv=None) -> int:
         return run_close(box)
     if args.triage_proof:
         return run_triage_proof(box)
-    return run(box, plant=args.plant_c2)
+    return run(box, plant=args.plant_c2, c2_file=args.c2_file)
 
 
 if __name__ == "__main__":

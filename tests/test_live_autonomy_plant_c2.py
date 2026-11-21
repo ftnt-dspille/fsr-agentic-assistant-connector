@@ -49,3 +49,33 @@ def test_close_policy_floor_override(la, monkeypatch):
     assert f(la._close_policy()) == 0.9
     monkeypatch.setenv("LIVE_AUTONOMY_CLOSE_FLOOR", "0.8")
     assert f(la._close_policy()) == 0.8
+
+
+class _VtBox(_EmptyBox):
+    """VirusTotal rates only the addresses in ``rated``; none is clean."""
+    def __init__(self, rated):
+        self.rated = rated
+
+    def vt_malicious(self, ip):
+        return self.rated.get(ip)
+
+    def _rate(self, *_a, **_k):
+        return {"verdict": "malicious"}
+
+
+def test_c2_file_supplies_only_vt_verified_pairs(la, tmp_path):
+    f = tmp_path / "c2.txt"
+    f.write_text("# local only\n192.0.2.10\n10.0.0.5 192.0.2.11\n192.0.2.12\n"
+                 "192.0.2.13\n192.0.2.14\n")
+    box = _VtBox({"192.0.2.10": 9, "192.0.2.11": 30, "192.0.2.13": 5, "192.0.2.14": 12})
+    pairs, _ = la._pick_c2(box, 4, c2_file=str(f))
+    assert {d for _s, d in pairs} == {"192.0.2.10", "192.0.2.11", "192.0.2.13", "192.0.2.14"}
+    assert pairs[0][1] == "192.0.2.11" and pairs[0][0] == "10.0.0.5"   # strongest first
+    assert "192.0.2.12" not in {d for _s, d in pairs}                   # unrated, dropped
+
+
+def test_c2_file_short_of_verified_pairs_refuses(la, tmp_path):
+    f = tmp_path / "c2.txt"
+    f.write_text("192.0.2.10\n192.0.2.12\n")
+    with pytest.raises(SystemExit, match="found 1"):
+        la._pick_c2(_VtBox({"192.0.2.10": 9}), 4, c2_file=str(f))
