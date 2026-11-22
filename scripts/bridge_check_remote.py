@@ -7,7 +7,7 @@ condition `operations._ensure_probes_bridge` needs to bind `probes._env`.
 
 If this prints `available: True` but the live widget still returns
 `no_fsr_configured`, the running workers are STALE (holding pre-bridge code
-in memory) — recycle them with a publish (`make ship`).
+in memory) - recycle them with a publish (`make ship-install`).
 """
 import glob
 import os

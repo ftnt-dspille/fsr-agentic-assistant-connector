@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Gate `make ship` on the ONE thing that silently ships a dead connector: the
+# Gate `make ship-install` on the ONE thing that silently ships a dead connector: the
 # pinned fsr_playbooks not being installable by the platform.
 #
 # What actually goes wrong (root-caused on .159, 2026-07-30)

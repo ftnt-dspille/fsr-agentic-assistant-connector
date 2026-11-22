@@ -23,9 +23,9 @@ Measured run times (one laptop, warm env, 10 cores):
 | known-answer | `make known-answer LLM=frank` | about 8.3 min (497 s; 12 scenarios x 2 runs, 3 jobs) | the free gateway; the model is stochastic, so a run can fail a scenario on model noise |
 | whole gate | `make quality-gate` | about 8.5 min | the free gateway |
 
-For comparison `make test` (pytest, already part of every ship) is about 22 s
-parallel. Before a push run the tests for your change, not the whole suite:
-pre-push runs the changed-scope tests and `make promote` waits for CI's full run.
+For comparison `make test` (the whole pytest suite) is about 22 s parallel. Day to day
+you run `make check` (the tests your diff touches or imports, `scripts/changed_tests.sh`, the
+same selection pre-push uses); CI runs the full suite and `make ship` waits for it.
 
 A skipped tier is not a pass. `known-answer` on the free model failed 3 of 24
 conversations in the measuring run (a verdict card not delivered, and two

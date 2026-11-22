@@ -252,7 +252,7 @@ fi
 # `verify_workers.py` (every worker on the new version AND the pinned
 # framework), which runs below.
 say "shipping the connector (BUMP=$BUMP) to $BOX_SSH"
-make -C "$ROOT" ship BUMP="$BUMP" BOX="$BOX" BOX_ENV="$BOX_ENV" BOX_SSH="$BOX_SSH" \
+make -C "$ROOT" ship-install BUMP="$BUMP" BOX="$BOX" BOX_ENV="$BOX_ENV" BOX_SSH="$BOX_SSH" \
     || die "ship failed"
 
 say "done -- framework $TARGET, connector shipped to $BOX_SSH"

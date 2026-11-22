@@ -7,7 +7,7 @@
 #
 #   make help                 # list targets
 #   make deploy         # THE deploy command -- see below
-#   make ship                 # connector only: bump → build → install → verify workers recycled
+#   make ship-install         # connector only: bump → build → install → verify workers recycled (the release-path install; `make ship` is the front door)
 #   make verify               # confirm every worker is on info.json's version AND the pinned framework
 #   make warmup / make health # exercise the live connector (proves the crudhub bridge)
 #   make bridge-check         # SSH the box and prove probes/crudhub resolves in the worker ctx
@@ -35,7 +35,7 @@
 #     → poll PyPI until it ACTUALLY serves the wheel (the GitHub release only
 #       triggers the publish workflow; that gap is the bug)
 #     → symbol-verified pin bump (scripts/bump_framework.sh refuses a skew)
-#     → make ship
+#     → make ship-install
 # Every step no-ops when already satisfied, so running it is always safe.
 #
 #   make deploy              # ship the current pin (releases nothing)
@@ -107,7 +107,7 @@ export BOX_ENV BOX_SSH BOX_SSH_BIN
 export PATH := $(BOX_SSH_BIN):$(PATH)
 unexport ENV FSR_ENV SSH_HOST
 endif
-BOX_TARGETS := deploy release-ship ship ship-noverify verify dev-push loop ship-dev ship-dev-status ship-dev-restore live quick-live live-rows live-writes live-integration live-autonomy p3-proof ship-accept warmup health ssh workers logs bridge-check mcp-bridge-check configure eval-selfcheck eval-s1 eval-effect session-export plant release-scores
+BOX_TARGETS := deploy release-ship ship-install verify dev-push loop ship-dev ship-dev-status ship-dev-restore live quick-live live-rows live-writes live-integration live-autonomy p3-proof ship-accept warmup health ssh workers logs bridge-check mcp-bridge-check configure eval-selfcheck eval-s1 eval-effect session-export plant release-scores
 BUMP        ?= patch
 BOX_INTEG   := /opt/cyops-integrations/integrations
 BOX_PY      := /opt/cyops/configs/integrations/packages/integrations_env/bin/python
@@ -117,7 +117,16 @@ define with_env
 set -a; . "$(BOX_ENV)"; set +a; PATH="$(VENV)/bin:$$PATH"
 endef
 
-.PHONY: framework-path session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore chat-sweep-smoke regrade help deploy release-ship ship ship-noverify ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-turn t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+.PHONY: check ship ship-install framework-path session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore regrade help deploy release-ship ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+
+# --- The two front doors live in the root repo (scripts/door.sh); these forward there,
+# telling it which repo you are in. `make ship` is the front door; the old connector
+# install is `make ship-install` (the release path, user-run).
+check: ## FRONT DOOR 1: tests for what you changed, no box (+ local-chat when the agent loop changed). Forwards to the root repo's door
+	@$(MAKE) --no-print-directory -C "$(FSR_ALL_WIDGETS)" check DOOR_REPO="$(REPO)"
+
+ship: ## FRONT DOOR 2: push, stamp on BOX=<alias> only when the diff ships, then promote (DRY_RUN=1 stops before the merge). Forwards to the root repo's door
+	@$(MAKE) --no-print-directory -C "$(FSR_ALL_WIDGETS)" ship DOOR_REPO="$(REPO)" $(if $(RESOLVED_BOX),BOX=$(RESOLVED_BOX),$(if $(BOX),BOX=$(BOX),)) $(if $(DRY_RUN),DRY_RUN=1,)
 
 framework-path: ## Print the fsr_playbooks every target imports (check this before trusting a sweep from a worktree or agent tree)
 	@$(PY) -c "import fsr_playbooks, os; print(os.path.dirname(os.path.dirname(os.path.abspath(fsr_playbooks.__file__))))"
@@ -243,9 +252,7 @@ preflight: ## T0 (~0.5s, offline): can the discovery tools resolve what each sce
 	@FSRPB_DEV=1 $(PY) scripts/preflight.py $(S) --verbose
 
 # A mounted playbook (PLAYBOOK=) is a BUILD-intent turn against the built-in
-# persona: the INTENT/PERSONA `?=` defaults above pick that. t1-turn is the old
-# name for the same invocation.
-t1-turn: local-turn
+# persona: the INTENT/PERSONA `?=` defaults above pick that.
 
 # --- T0: the whole tool surface, deterministically ------------------------
 # No LLM, no box, ~2s. Asserts the contract every tool must honour (resolvable /
@@ -308,9 +315,6 @@ analyst-sim: ## ANALYST SIM: an LLM plays the analyst (Frank, free) -- vague ask
 # plumbing break shows up for ~1/7th the tokens of the full corpus. Run this
 # before the full sweep, always -- a broken driver spends the whole corpus to
 # tell you the same thing one row would have.
-# Old name for `chat-sweep SAMPLE=1`: one scenario per surface, the cheap harness check.
-chat-sweep-smoke: SAMPLE = 1
-chat-sweep-smoke: chat-sweep
 
 # Grading is PURE -- it reads finished conversations and returns verdicts. So a
 # change that touches only grader code never needs the gateway: re-grade the
@@ -381,10 +385,6 @@ analyze: ## Bucket agent tool errors + signal density (TOOL=validate_yaml to sco
 	  $(if $(STORE),$(SESSION_FROM),$(if $(filter box,$(SOURCE)),--env "$(BOX_ENV)",)) \
 	  $(if $(TOOL),--tool $(TOOL),) $(SESSION_ARGS)
 
-# Old name for `analyze SOURCE=box`.
-analyze-box: SOURCE = box
-analyze-box: analyze
-
 LIMIT ?= 30
 SOURCE ?= box
 OUT ?=
@@ -452,17 +452,13 @@ ifeq ($(LOCAL),)
 doctor: box-guard
 endif
 
-ship: ## Ship the CONNECTOR: bump ($(BUMP)) → build → gate on the box resolving the framework pin → install → verify workers + framework (NOVERIFY=1 skips the worker-rollout gate and the post-ship warmup)
+ship-install: ## Install the CONNECTOR (the release path, not a front door): bump ($(BUMP)) → build → gate on the box resolving the framework pin → install → verify workers + framework (NOVERIFY=1 skips the worker-rollout gate and the post-ship warmup)
 	@$(with_env); bash "$(REPO)/scripts/deploy.sh" --bump $(BUMP) $(if $(NOVERIFY),--no-verify,)
 	@# Force a warmup so the op catalog re-syncs with the live box on every ship
 	@# (a reinstall preserves the prior DB; without this a ship can leave a stale
 	@# catalog missing newly-configured connectors, e.g. fortinet-fortiguard-ioc).
 	@# Non-fatal: a warmup failure warns rather than failing the ship.
 	@if [ -z "$(NOVERIFY)" ]; then $(with_env); cd "$(REPO)/scripts" && $(PY) -c "from fsr_live import LiveFSR; r=LiveFSR.from_env().execute('warmup', {'force': True}); print('warmup ok=', getattr(r,'ok',None), '| counts=', (getattr(r,'data',{}) or {}).get('counts'), '|', getattr(r,'error',None) or 'no error')" || echo "WARN: post-ship warmup failed - run 'make warmup' to refresh the op catalog"; fi
-
-# Old name for `ship NOVERIFY=1`.
-ship-noverify: NOVERIFY = 1
-ship-noverify: ship
 
 build: ## Bump + build the tarball only, no install (CI / dry run)
 	@bash "$(REPO)/scripts/deploy.sh" --bump $(BUMP) --no-install
@@ -554,8 +550,8 @@ live-autonomy: MODE = autonomy
 p3-proof: MODE = p3
 quick-live live-rows live-writes live-integration live-autonomy p3-proof: live
 
-ship-accept: ## ship, then immediately gate on the live-integration acceptance run
-	@$(MAKE) ship BUMP=$(BUMP)
+ship-accept: ## ship-install, then immediately gate on the live-integration acceptance run
+	@$(MAKE) ship-install BUMP=$(BUMP)
 	@$(MAKE) live MODE=integration
 
 # --- build-persona evals (docs/plans/build-persona-validation-plan.md) -----
@@ -587,9 +583,6 @@ plant: ## Plant/find/clean up needles in an external source (ServiceNow) for liv
 release-scores: ## P3: plant the ServiceNow needles, run the N5 planted rows on the INSTALLED connector, append a row (version, commit, model, per-scenario score) to docs/release_scores.jsonl. CONFIG=<ServiceNow config> required; RUNS= (default 1; paid when the box model is paid); SHOW=1 prints the table, no box
 	@$(if $(SHOW),$(PY) "$(REPO)/scripts/release_scores.py" --show,$(with_env); $(PY) "$(REPO)/scripts/release_scores.py" --role "$(or $(ROLE),experimental)" --config "$(CONFIG)" --runs $(or $(RUNS),1) $(ARGS))
 
-# Old name for `eval-s1 CASE=refine`.
-eval-s1b: CASE = refine
-eval-s1b: eval-s1
 
 # --- widget side (delegates to the fsr_all_widgets repo) -------------------
 matrix: ## Drive the live prompt/flow matrix (T1-T10/P1-P5) through the deployed widget

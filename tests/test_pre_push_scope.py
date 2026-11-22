@@ -41,6 +41,7 @@ def repo(tmp_path):
     r = tmp_path / "conn"
     (r / "scripts" / "hooks").mkdir(parents=True)
     shutil.copy(ROOT / "scripts" / "hooks" / "pre-push", r / "scripts" / "hooks" / "pre-push")
+    shutil.copy(ROOT / "scripts" / "changed_tests.sh", r / "scripts" / "changed_tests.sh")
     _write(r, ".github/required-checks", "test (bundled framework)\n")
     _write(r, "connector-fsr-agentic-assistant/shared_mod.py", "X = 1\n")
     _write(r, "connector-fsr-agentic-assistant/other_mod.py", "Y = 1\n")

@@ -1,6 +1,6 @@
 """A same-version re-ship that the platform re-mints is verified under the live number.
 
-Live: `make ship BUMP=none` installed 0.6.20 onto a box already on 0.6.20; the
+Live: `make ship-install BUMP=none` installed 0.6.20 onto a box already on 0.6.20; the
 box stored it as 0.6.21, every worker ran the shipped package (build id
 matched), and the worker check for 0.6.20 failed a ship that had landed.
 """

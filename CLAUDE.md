@@ -27,31 +27,18 @@ promises, so most product cards land here:
 
 ## Where work is tracked
 
-- **Board:** https://github.com/users/ftnt-dspille/projects/1. **Claim a card before
-  working it** (several agents run in parallel). Card ops: the framework's
-  `scripts/tracker.sh`, never raw `gh issue`.
-- **Roadmap:** `ROADMAP.md` in `~/PycharmProjects/agentic-assistant-tracker` is the source;
-  edit it there, the user pushes. Box-specific plans: `fsr_all_widgets/docs/plans/` (gitignored).
+Board, roadmap and card ops are in the root repo's `CLAUDE.md` (claim a card before working it; card
+ops through the framework's `scripts/tracker.sh`, never raw `gh issue`).
 
-## Deploying: `make deploy`. Releases are the user's.
+## Releases are the user's
 
-```
-make deploy              # ship the current pin (releases nothing)
-make deploy FW=next      # release the next framework patch, then ship
-make deploy FW=0.6.4     # release that exact version, then ship
-make deploy FW=next BUMP=minor BOX=<alias>
-```
-
-Every step no-ops when already satisfied. Agents don't run this, or `make ship`,
-unless the user asks. Run `make help` for the rest of the targets. Don't hand-run
-`scripts/deploy.sh`, `scripts/deploy_chain.sh`, raw `ssh`, or ad-hoc `pyfsr`
-snippets. The Makefile carries the box, env and venv wiring, and the deploy scripts
-carry gates that a hand-run bypasses.
-
-Why one command: every outage in the framework/connector seam was an **ordering**
-mistake (shipping before PyPI served the pin; pinning a version missing an imported
-symbol). `deploy` enforces release, PyPI poll, symbol-verified pin bump, ship.
-Details: `RELEASING.md` in the framework repo.
+`make deploy [FW=next|X.Y.Z]` releases the framework to PyPI and installs the connector; agents never
+run it, `make ship-install` (the release-path install) or `release-ship`. Don't hand-run
+`scripts/deploy.sh`, `scripts/deploy_chain.sh`, raw `ssh`, or ad-hoc `pyfsr` snippets: the Makefile
+carries the box, env and venv wiring, and the deploy scripts carry gates a hand-run bypasses. Why one
+command: every outage in the framework/connector seam was an **ordering** mistake (shipping before
+PyPI served the pin; pinning a version missing an imported symbol). Details: `RELEASING.md` in the
+framework repo.
 
 ### Never hand-install a wheel onto a box
 
@@ -90,35 +77,34 @@ reports it. `box.sh --python` is a thin alias. `make test` prints its shuffle se
 Edit `../../fsr-playbook-framework/fsr_playbooks/`, never a copy under this repo. Then
 `make deploy FW=next` (user-run) releases it and ships in one go.
 
-## Dev loop: box testing without a release
+## The dev loop: two commands
 
-- `make loop` is the default. It runs local tests and a Frank smoke, pushes the working
-  trees to the box, then runs a ~35s live smoke. `LOCAL_ONLY=1` skips the box.
-- `make dev-push BOX=<alias>` copies working trees and recycles once (`scripts/dev_push.sh`), then runs live
-  sanity and stamps the pushed heads (`SKIP_LIVE_SANITY=1` opts out). Framework: your own tree
-  (agent tree, `.fsr_src`), else a clean export of its remote main, never the shared checkout;
-  the synced sha is printed.
-- **A new operation needs an install, not a release.** FortiSOAR registers operations
-  at install, so an op new in `info.json` returns "Operation matching query does not
-  exist" after a plain copy. A bumped install registers it without the public release:
-  `make ship BUMP=patch` (bump -> build -> platform install -> warmup re-syncs the op
-  catalog). `dev_push.sh` detects a new op and AUTO-ESCALATES to that install, then
-  re-applies the framework dev-patch (a connector install reinstalls the pinned
-  fsr-playbooks wheel and would otherwise clear it).
-- `make live MODE=quick` is a ~35s smoke of the installed connector.
-- Before you believe a result from a box, run `make ship-dev ACTION=status`. A dev-patched box
-  reports the wheel's version while it runs other code. `make ship-dev ACTION=restore` undoes it.
+Work in a worktree off origin/main (or an agent tree), then:
+
+- `make check`: pytest for the files your diff touches or imports (the shell-heavy ones CI owns are
+  left out and named), plus the tool sweep, plus `make local-chat` when you touched the connector
+  package. Includes uncommitted files. A diff no test maps to prints `NOT RUN`: add the test.
+- `make ship [BOX=<alias>]`: commit first. Pushes the branch, and when the diff ships (the package
+  dir and the build/deploy scripts: `.github/package-inputs` in the root repo) puts the working code
+  on the box, stamps the head, then promotes. Tooling-only diffs need no box. `DRY_RUN=1` stops
+  before the merge. Both forward to the root repo's door (`scripts/door.sh`).
+
+The box path is `make dev-push` internally (framework: your own tree, else a clean export of its
+remote main, never the shared checkout; one recycle; live sanity; stamps the pushed heads). Don't type
+it. Two things to know: a NEW operation in `info.json` needs an install to register, and dev-push
+escalates to one by itself (`make ship-install` bumps and installs; it is the release path). A
+dev-patched box reports the wheel's version while running other code: `make doctor` says so.
 
 ## Testing
 
-The inner loop runs in-process with no box. Run `FSRPB_DEV=1 .venv/bin/python -m pytest`
-for the suite. Never `uv run` (it builds an env without `fsr_playbooks`). To install
-packages use `uv pip install --python .venv/bin/python ...`; plain `pip` fails here.
+The inner loop runs in-process with no box. For the suite by hand: `FSRPB_DEV=1 .venv/bin/python -m
+pytest`; never `uv run` (it builds an env without `fsr_playbooks`); to install packages use `uv pip
+install --python .venv/bin/python ...`. `make check` is what you type; these tiers are the drill-down:
 
 | target | tier | what it answers |
 |---|---|---|
 | `make tool-sweep` | T0, no LLM, ~2s | contract invariants over **every** tool (61). An LLM run can't guarantee it touched all of them. |
-| `make test` | T0, deterministic | THE gate (also the ship gate, and what CI runs): whole suite, parallel, shuffled, 120s per-test timeout. `PYTEST_ARGS=tests/x.py` for a subset. Before a push run the tests for your change, not the whole suite: pre-push runs the changed-scope tests and CI runs the full one. |
+| `make test` | T0, deterministic | The whole suite, parallel, shuffled, 120s per-test timeout: what CI runs. `PYTEST_ARGS=tests/x.py` for a subset. `make check` runs the changed-scope subset; pre-push runs the same selection. |
 | `make mutants` | T0, ~2-3 min | reverts each fix named in its manifest and expects its test red |
 | `make local-turn` (`PLAYBOOK=` mounts a playbook) | T1, one turn | drive one turn by hand while iterating |
 | `make t1-scenarios` | T1, single-turn invariants | `JOBS=`, `S=` |
@@ -198,15 +184,10 @@ Until the next framework release bumps the pin, the connector cannot import
 
 ## Which box a script talks to (no default box)
 
-Every script that reaches a box resolves its target through `scripts/box.sh`, which asks
-the pyfsr registry (`~/.pyfsr/instances.toml`, via `python -m pyfsr.cli instances env`).
-Pass `BOX=<alias>`; `scripts/box.sh --list` prints the agent-targetable aliases. The env
-file and the ssh target (the alias's `[instances.<alias>.appliance]` subtable) both come
-from that one answer: box.sh writes an ssh config and puts an ssh/scp shim on PATH, so
-`ssh "$BOX_SSH"` and rsync reach the box with no `~/.ssh/config` alias. A missing BOX, an
-alias not on the list or not in the registry, or an ssh target with no ssh profile is
-refused before anything runs; the first line printed is `>> target box: <alias>`. The old
-`ENV=`/`FSR_ENV=`/`SSH_HOST=` knobs are retired (one release: humans get a warning and a
-registered env file maps to its alias; agents are refused). Never add a default box to a
-script or Makefile variable; add the box to the registry and `FSR_BOX_ALLOW` instead.
-`make doctor` lists registry problems (alias missing, no answer, no ssh profile).
+Every script that reaches a box resolves it through `scripts/box.sh` (the pyfsr registry,
+`~/.pyfsr/instances.toml`). Pass `BOX=<alias>`; `scripts/box.sh --list` prints the agent-targetable
+aliases. The env file and the ssh target both come from that one answer, and the first line printed
+is `>> target box: <alias>`. A missing BOX, an alias not on the list or not in the registry, or an ssh
+target with no ssh profile is refused before anything runs. The old `ENV=`/`FSR_ENV=`/`SSH_HOST=`
+knobs are retired (agents are refused). Never add a default box to a script or Makefile variable; add
+the box to the registry and `FSR_BOX_ALLOW` instead. `make doctor` lists registry problems.

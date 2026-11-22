@@ -158,7 +158,7 @@ def verify(target: str, *, max_calls: int, settle: int, verbose: bool,
               f"than the pinned {pin}: {skewed}")
         print("      Every op on those workers dies on the version-mismatch guard.")
         print("      Fix: scripts/ensure_framework.sh --ssh-host <box> "
-              "(this is what `make ship` runs).")
+              "(this is what `make ship-install` runs).")
         ok = False
     if wrong_build:
         print(f"\nFAIL: {len(wrong_build)} worker(s) report version {target} but a "

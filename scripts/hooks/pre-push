@@ -122,24 +122,7 @@ echo ">> pre-push: scope=$SCOPE ($SCOPE_WHY)"
 # script it changed. CI still runs everything before main moves.
 selected_tests=()
 if [[ "$SCOPE" == changed ]]; then
-    base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
-    declare -A _sel=()
-    mapfile -t _test_files < <(cd "$ROOT" && git ls-files 'tests/test_*.py' 'connector-fsr-agentic-assistant/tests/test_*.py')
-    while IFS= read -r f; do
-        [[ -n "$f" ]] || continue
-        case "$f" in
-            tests/test_*.py|connector-fsr-agentic-assistant/tests/test_*.py) [[ -f "$ROOT/$f" ]] && _sel[$f]=1 ;;
-            *.py)
-                m="$(basename "$f" .py)"; [[ "$m" == __init__ ]] && continue
-                while IFS= read -r t; do [[ -n "$t" ]] && _sel[$t]=1; done < <(cd "$ROOT" && grep -lE \
-                    "^[[:space:]]*(from|import)[[:space:]]+([A-Za-z0-9_.]*\.)?$m([^A-Za-z0-9_]|\$)|^[[:space:]]*from[[:space:]]+[A-Za-z0-9_.]+[[:space:]]+import[[:space:]](.*[^A-Za-z0-9_])?$m([^A-Za-z0-9_]|\$)" \
-                    "${_test_files[@]}" 2>/dev/null) ;;
-            scripts/*)
-                n="$(basename "$f")"
-                while IFS= read -r t; do [[ -n "$t" ]] && _sel[$t]=1; done < <(cd "$ROOT" && grep -lF "$n" "${_test_files[@]}" 2>/dev/null) ;;
-        esac
-    done < <(git diff --name-only --diff-filter=AMR "${base:-HEAD~1}" HEAD 2>/dev/null)
-    selected_tests=("${!_sel[@]}")
+    mapfile -t selected_tests < <(cd "$ROOT" && bash scripts/changed_tests.sh)   # the one selection, shared with `make check`
 fi
 if [[ "${PREPUSH_SCOPE_ONLY:-0}" == "1" ]]; then
     printf 'selected %s\n' "${selected_tests[@]}"

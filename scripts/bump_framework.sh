@@ -9,7 +9,7 @@
 # and runs the preflight symbol check (scripts/preflight_framework.py) against
 # it, and only rewrites the pin if every symbol the connector imports resolves.
 # So you can never pin to a release the connector's imports don't satisfy (the
-# 0.4.43-class skew). It does NOT ship -- run `make ship` after.
+# 0.4.43-class skew). It does NOT ship -- run `make ship-install` after.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -91,4 +91,4 @@ new = re.sub(r'^fsr-playbooks==\S+', f'fsr-playbooks=={ver}', src, count=1, flag
 assert new != src, "pin line not found in requirements.txt"
 open(req, "w").write(new)
 PY
-echo ">> pinned fsr-playbooks==$VERSION (verified). Next: make ship"
+echo ">> pinned fsr-playbooks==$VERSION (verified). Next: make ship-install"

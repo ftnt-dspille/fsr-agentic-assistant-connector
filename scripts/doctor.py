@@ -478,7 +478,7 @@ def check_box(env: dict, use_ssh: bool, ssh_host: str,
     elif _vkey(box_v) < _vkey(local_v):
         out.append(Check("box", "connector version", "WARN",
                          f"box runs {box_v}, tree is {local_v}: box results are about {box_v}",
-                         "make ship   (or deploy)"))
+                         "make ship-install   (or deploy)"))
     else:
         out.append(Check("box", "connector version", "FAIL",
                          f"box runs {box_v}, NEWER than tree {local_v} -- tree is stale",

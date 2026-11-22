@@ -140,7 +140,7 @@ fi
 
 _lap "0a'. QUALITY GATE"
 # --- 0b. TEST GATE: the whole pytest suite, before anything is mutated -----
-# Every ship path funnels through this script (make ship / make ship NOVERIFY=1 /
+# Every ship path funnels through this script (make ship-install / make ship-install NOVERIFY=1 /
 # build / deploy / prompt_loop.py), so this is the one place that gates
 # them all -- including a direct `scripts/deploy.sh` invocation, which a
 # Makefile-level gate would miss.
@@ -465,7 +465,7 @@ if [[ "$DEPS" -eq 1 ]]; then
         if ! bash "$ROOT/scripts/ensure_framework.sh" --mode verify --ssh-host "$BOX_SSH"; then
             echo "!! the platform could not install fsr-playbooks -- aborting." >&2
             echo "   The connector is live but EVERY op will fail the version guard." >&2
-            echo "   Fix the dependency's availability, then re-run 'make ship BUMP=none'." >&2
+            echo "   Fix the dependency's availability, then re-run 'make ship-install BUMP=none'." >&2
             exit 1
         fi
     elif [[ $_rc -ne 0 ]]; then

@@ -48,11 +48,11 @@ else
          "mock mode will only work with FSR_MOCK_FIXTURES_DIR set at runtime"
 fi
 
-# Resolve a pip-capable interpreter. `make ship` runs build.sh with the
+# Resolve a pip-capable interpreter. `make ship-install` runs build.sh with the
 # connector's uv venv first on PATH (via the Makefile `with_env` macro), and a
 # uv venv ships WITHOUT pip -- so a bare `python3 -m pip` silently fails there
 # (this is why the bundled wheel historically never materialized under
-# `make ship`, and the box fell back to a PyPI install). Pick the first
+# `make ship-install`, and the box fell back to a PyPI install). Pick the first
 # interpreter that actually has pip, skipping the pip-less venv.
 PIPPY=""
 for _c in python3 python3.12 /opt/homebrew/bin/python3 /usr/local/bin/python3 /usr/bin/python3; do

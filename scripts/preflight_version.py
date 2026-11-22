@@ -84,7 +84,7 @@ def decide(target: str, live: str | None, *, allow_downgrade: bool = False,
         return 3, (f"{what}: the box already runs {live}. Installing the same "
                    f"version is a NO-OP that still reports success -- every "
                    f"worker would report {target} while serving the old code. "
-                   f"Ship {nxt} or later (`make ship` bumps the connector version).")
+                   f"Ship {nxt} or later (`make ship-install` bumps the connector version).")
     return 3, (f"{what}: target {target} is OLDER than the {live} on the box. "
                f"The box keeps what it has and the deploy still goes green. "
                f"Ship {nxt} or later, or pass --allow-downgrade if the rollback "

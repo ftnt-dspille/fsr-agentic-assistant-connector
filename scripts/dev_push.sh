@@ -4,7 +4,7 @@
 #
 # WHY
 # ---
-# `make ship` / `deploy` are the RELEASE path: version bump, tarball,
+# `make ship-install` / `deploy` are the RELEASE path: version bump, tarball,
 # platform install, PyPI for the framework, worker-rollout gate. Right for a
 # release, and minutes per change -- far too slow for building the agent, where
 # the question is "does my edit behave on the real box", asked many times an
@@ -125,7 +125,7 @@ BOX_SSH="$BOX_SSH" bash "$ROOT/scripts/dev_push_deps.sh"
 lap "deps checked"
 
 cdir="$(ssh "$BOX_SSH" "ls -d $CGLOB 2>/dev/null | sort -V | tail -1")"
-[[ -n "$cdir" ]] || { echo "!! connector not installed on $BOX_SSH -- run 'make ship' once" >&2; exit 1; }
+[[ -n "$cdir" ]] || { echo "!! connector not installed on $BOX_SSH -- run 'make ship-install' once" >&2; exit 1; }
 owner="$(ssh "$BOX_SSH" "stat -c '%U:%G' '$cdir'")"
 sha="$(git -C "$ROOT" rev-parse --short HEAD)"
 dirty=""; git -C "$ROOT" diff --quiet -- "$PKG_SRC" || dirty=" +uncommitted"
@@ -209,7 +209,7 @@ DEV PUSH -- not a release. info.json's version is the INSTALLED one, not this co
   source : $PKG_SRC
   commit : $sha$dirty
   by     : ${USER:-unknown}
-Undo: make ship / make deploy (installs a fresh version dir)
+Undo: make ship-install / make deploy (installs a fresh version dir)
 EOF
     ssh "$BOX_SSH" "sudo /usr/bin/cp '$box_home/.fsr_dev_marker' '$cdir/_DEV_PATCHED' \
         && sudo /usr/bin/chown '$owner' '$cdir/_DEV_PATCHED' \
@@ -220,7 +220,7 @@ DEV PUSH -- not a release. info.json's version is the INSTALLED one, not this co
   source : $PKG_SRC
   commit : $sha$dirty
   by     : ${USER:-unknown}
-Undo: make ship / make deploy (installs a fresh version dir)
+Undo: make ship-install / make deploy (installs a fresh version dir)
 EOF
 fi
 
