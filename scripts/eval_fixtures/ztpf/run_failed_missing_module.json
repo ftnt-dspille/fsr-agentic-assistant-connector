@@ -1,4 +1,5 @@
 {
+  "configured_connectors": [{"name": "fortinet-fortiedr", "status": "Completed", "version": "3.1.0", "label": "Fortinet FortiEDR", "config_count": 1}, {"name": "fortigate-firewall", "status": "Completed", "version": "5.1.0", "label": "Fortinet FortiGate", "config_count": 1}, {"name": "virustotal", "status": "Completed", "version": "3.0.0", "label": "VirusTotal", "config_count": 1}, {"name": "fortinet-fortisiem", "status": "Completed", "version": "4.0.0", "label": "Fortinet FortiSIEM", "config_count": 1}, {"name": "smtp", "status": "Completed", "version": "2.6.0", "label": "SMTP", "config_count": 1}],
   "_README": [
     "Failed-run evidence for the playbook 'ZZ Eval Missing Module' (broken_create_record_missing_module.yaml):",
     "the run history, run record, and the box-side workflow export the diagnosis tools read,",

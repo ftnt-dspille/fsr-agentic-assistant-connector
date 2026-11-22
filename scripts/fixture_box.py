@@ -303,6 +303,12 @@ def _qs_conditions(query: str) -> list[dict]:
             raise FixtureBoxError(
                 f"fixture box does not implement query param {field!r}")
         value = unquote_plus(v)
+        if field.endswith("$in"):
+            # crudhub's set filter: `type$in=a|b|c` (the warmup's scoped
+            # metadata and picklist reads).
+            conds.append({"field": field[:-len("$in")], "operator": "in",
+                          "value": value.split("|")})
+            continue
         if field.endswith("$like"):
             # crudhub's substring filter: `name$like=%abc%`, case-insensitive.
             conds.append({"field": field[:-len("$like")], "operator": "like",
@@ -422,6 +428,46 @@ def _stock_model_metadatas() -> list[dict]:
 
 
 _SCHEMA_CACHE: dict[str, Any] = {}
+
+
+def _staging_model_metadatas() -> Optional[list[dict]]:
+    """`/api/3/staging_model_metadatas`: the module list the connector's warmup
+    reads (`$relationships=true`, every module, its fields inline). Served
+    READ-ONLY from reference data: one row per module of the reference DB's
+    `modules` table (opened mode=ro, never written), its stock attribute list
+    from the schema shipped beside the bundles. The row carries the same label,
+    plural and description the table holds, so the warmup's write-back of what
+    it read leaves the module list as it was. None when the DB can't be read --
+    the read then stays an honest miss."""
+    try:
+        import sqlite3
+        from fsr_playbooks._db import default_db_path
+        path = str(default_db_path())
+        if path in _STAGING_CACHE:
+            return _STAGING_CACHE[path]
+        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            rows = con.execute(
+                "SELECT name, label, plural, description FROM modules "
+                "ORDER BY name").fetchall()
+        finally:
+            con.close()
+    except Exception:  # noqa: BLE001 -- no catalog: leave it a visible miss
+        return None
+    import uuid as _uuid
+    attrs = {m["type"]: m["attributes"] for m in _stock_model_metadatas()}
+    out = []
+    for name, label, plural, desc in rows:
+        u = str(_uuid.uuid5(_uuid.NAMESPACE_URL, f"staging_model_metadata/{name}"))
+        out.append({"@id": f"/api/3/staging_model_metadatas/{u}",
+                    "@type": "StagingModelMetadata", "uuid": u, "type": name,
+                    "displayName": label, "module": plural, "descriptions": desc,
+                    "attributes": copy.deepcopy(attrs.get(name) or [])})
+    _STAGING_CACHE[path] = out
+    return out
+
+
+_STAGING_CACHE: dict[str, list[dict]] = {}
 
 
 def _shipped_schema() -> dict:
@@ -734,6 +780,8 @@ class FixtureBox:
             return (_reference_tables() or {}).get(module)
         if module == "model_metadatas":
             return _stock_model_metadatas()
+        if module == "staging_model_metadatas":
+            return _staging_model_metadatas()
         return None
 
     def record(self, module: str, uuid: str) -> Optional[dict]:
@@ -1054,9 +1102,23 @@ class FixtureBox:
                              if isinstance(c, dict) and c.get("name")]}
         if method.upper() == "GET" and path == "/api/3/agents":
             return {"hydra:member": [], "hydra:totalItems": 0}
+        hc = re.match(r"^/api/integration/connectors/healthcheck/([^/]+)/[^/]+/?$", path)
+        if method.upper() == "GET" and hc:
+            # The warmup's health pass and the scoped probe. Answered from the
+            # connectors the bundle declares (Available unless a declared
+            # `health` says otherwise), not as a live check. A connector the
+            # bundle does not declare is not served: it stays a visible miss.
+            for c in self.configured_connectors or []:
+                if isinstance(c, dict) and c.get("name") == hc.group(1):
+                    return {"status": c.get("health", "Available"),
+                            "message": "Connector is available"
+                            if c.get("health", "Available") == "Available"
+                            else f"Connector is {c.get('health')}"}
+            return None
         if self.configured_connectors is None:
             return None
-        if (method.upper() == "POST" and path == "/api/integration/connector_details/"
+        if (method.upper() == "POST"
+                and path.rstrip("/") == "/api/integration/connector_details"
                 and str(query.get("configured")).lower() == "true"):
             return {"data": [
                 {"name": c["name"], "version": c.get("version"),
@@ -1124,6 +1186,16 @@ class FixtureBox:
                                 limit=int(qs.get("$limit") or 30),
                                 page=int(qs.get("$page") or 1),
                                 body={"filters": conds} if conds else None)
+        if (body and module == "picklist_names"
+                and str(qs.get("$relationships")).lower() == "true"):
+            # `$relationships=true` inlines each list's items (the warmup
+            # reads them this way); without it the box returns IRIs only.
+            items = (_reference_tables() or {}).get("picklists") or []
+            body["hydra:member"] = [
+                {**m, "picklists": [{"@id": it["@id"], "itemValue": it["itemValue"]}
+                                    for it in items
+                                    if it["listName"]["@id"] == m["@id"]]}
+                for m in body["hydra:member"]]
         return 200, (body or {"hydra:member": [], "hydra:totalItems": 0})
 
     def post(self, url: str, json_body: Optional[dict] = None) -> tuple[int, dict]:

@@ -1145,16 +1145,17 @@ def _cassette_rules(module: Optional[str], persona: str,
 # connector) fail to save offline with "unknown connector" -- the N2 row graded
 # that PASS for weeks because nothing graded the accept.
 _SELF_CATALOG: Optional[str] = None
-_SELF_CATALOG_TRIED = False
+_SELF_CATALOG_TRIED: Optional[str] = None
 
 
 def _provision_self_in_catalog(scope: PatchScope) -> None:
     """Point FSRPB_DB at a temp copy of the catalog that also knows this
-    connector. An explicit FSRPB_DB / FSR_REFERENCE_DB is left alone -- that is
-    the operator's catalog, e.g. a box warm. The copy is built once per process
-    and re-pointed per turn, so a sweep does not copy 88 MB per turn."""
-    if os.environ.get("FSRPB_DB") or os.environ.get("FSR_REFERENCE_DB"):
-        return
+    connector. The copy is ALWAYS made, also from an explicit FSRPB_DB /
+    FSR_REFERENCE_DB (an operator's catalog, e.g. a box warm): the offline
+    turn's connector warmup writes the catalog it runs on (it rewrites the
+    modules, fields and picklists it just read), and an offline turn must never
+    mutate a reference DB. The copy is built once per source DB per process and
+    re-pointed per turn, so a sweep does not copy 88 MB per turn."""
     path = _self_catalog_path()
     if path:
         scope.set_env("FSRPB_DB", path)
@@ -1163,15 +1164,25 @@ def _provision_self_in_catalog(scope: PatchScope) -> None:
 
 def _self_catalog_path() -> Optional[str]:
     global _SELF_CATALOG, _SELF_CATALOG_TRIED
-    if _SELF_CATALOG_TRIED:
-        return _SELF_CATALOG
-    _SELF_CATALOG_TRIED = True
     import shutil
     import sqlite3
     import tempfile
 
     import fsr_playbooks
     from fsr_playbooks._db import default_db_path
+    src = (os.environ.get("FSR_REFERENCE_DB") or os.environ.get("FSRPB_DB")
+           or str(default_db_path()))
+    if src == _SELF_CATALOG or _SELF_CATALOG_TRIED == src:
+        return _SELF_CATALOG
+    _SELF_CATALOG_TRIED = src
+    _SELF_CATALOG = None
+    # An 88 MB catalog copy per run, never removed, filled the disk (339 of
+    # them, 22 GB). The copy only has to outlive this process.
+    import atexit
+    db = Path(tempfile.mkdtemp(prefix="fsrpb-offline-")) / "fsr_reference.db"
+    atexit.register(shutil.rmtree, db.parent, ignore_errors=True)
+    shutil.copyfile(src, db)
+    _SELF_CATALOG = str(db)
     fw_root = Path(fsr_playbooks.__file__).resolve().parent.parent
     try:
         sys.path.insert(0, str(fw_root))
@@ -1180,20 +1191,13 @@ def _self_catalog_path() -> Optional[str]:
         print("[local_turn] WARNING: framework tooling/ not importable (wheel "
               "install?) -- the offline catalog does not know this connector, "
               "so trace-built playbooks cannot save", file=sys.stderr)
-        return None
+        return _SELF_CATALOG
     finally:
         if sys.path and sys.path[0] == str(fw_root):
             sys.path.pop(0)
-    db = Path(tempfile.mkdtemp(prefix="fsrpb-offline-")) / "fsr_reference.db"
-    # An 88 MB catalog copy per run, never removed, filled the disk (339 of
-    # them, 22 GB). The copy only has to outlive this process.
-    import atexit
-    atexit.register(shutil.rmtree, db.parent, ignore_errors=True)
-    shutil.copyfile(default_db_path(), db)
     info, info_path = load_local(str(_HERE.parent / "connector-fsr-agentic-assistant"))
     with sqlite3.connect(db) as conn:
         write_connector(conn, info, "local", info_path)
-    _SELF_CATALOG = str(db)
     return _SELF_CATALOG
 
 
