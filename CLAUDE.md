@@ -149,8 +149,8 @@ Rules these tiers enforce:
 - **Order leaks.** `make test` shuffles. A test that patches a global, env var or
   ContextVar must undo it (fixture teardown or `monkeypatch`).
 - **Shell.** Scripts use `#!/usr/bin/env bash`. zsh doesn't word-split `$FLAGS`, so
-  `FLAGS="--model x"; cmd $FLAGS` passes one argument and quietly fakes a regression.
-  Use arrays.
+  `cmd $FLAGS` with FLAGS holding two words passes one argument and quietly fakes a
+  regression. Use arrays.
 - **Shared-checkout WIP.** Never `git stash` or `pop` over another agent's uncommitted
   changes. Use `git worktree add` for branch work.
 
