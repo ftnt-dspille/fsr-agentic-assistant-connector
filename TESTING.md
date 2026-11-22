@@ -24,7 +24,8 @@ Measured run times (one laptop, warm env, 10 cores):
 | whole gate | `make quality-gate` | about 8.5 min | the free gateway |
 
 For comparison `make test` (pytest, already part of every ship) is about 22 s
-parallel.
+parallel. Before a push run the tests for your change, not the whole suite:
+pre-push runs the changed-scope tests and `make promote` waits for CI's full run.
 
 A skipped tier is not a pass. `known-answer` on the free model failed 3 of 24
 conversations in the measuring run (a verdict card not delivered, and two

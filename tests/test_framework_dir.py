@@ -92,3 +92,33 @@ def test_stable_mode_ignores_session_overrides(repo, tmp_path):
     (repo / ".fsr_src").write_text(str(other))
     r = _run(repo, {"FSR_SRC": str(other)}, "--stable")
     assert Path(r.stdout.strip()).resolve() == mono.resolve()
+
+
+def test_own_answers_only_the_callers_framework_never_the_shared_sibling(tmp_path):
+    """dev-push syncs the caller's own framework; with only the shared sibling
+    checkout left (other sessions' WIP) --own exits 1 so it exports main instead."""
+    conn = tmp_path / "p" / "q" / "conn"
+    (conn / "scripts").mkdir(parents=True)
+    (conn / "scripts" / "box.sh").write_text((ROOT / "scripts" / "box.sh").read_text())
+    subprocess.run(["git", "init", "-q", str(conn)], check=True)
+    sibling = _fw(tmp_path / "p" / "fsr-playbook-framework")  # <main>/../../fsr-playbook-framework
+    assert Path(_run(conn).stdout.strip()).resolve() == sibling.resolve()
+    own = _run(conn, None, "--own")
+    assert own.returncode == 1 and own.stdout.strip() == ""
+    mine = _fw(tmp_path / "mine")
+    assert Path(_run(conn, {"FSR_SRC": str(mine)}, "--own").stdout.strip()).resolve() == mine.resolve()
+    (conn / ".fsr_src").write_text(str(mine))
+    assert Path(_run(conn, None, "--own").stdout.strip()).resolve() == mine.resolve()
+
+
+def test_dev_push_stamps_and_never_syncs_the_shared_framework():
+    """Static contract of scripts/dev_push.sh: it picks the caller's own framework or
+    the clean remote main, and every exit path goes through live sanity (the stamp)."""
+    src = (ROOT / "scripts" / "dev_push.sh").read_text()
+    assert "framework_dir.sh\" --own" in src and "framework_at_main" in src
+    assert "live_sanity_hook.sh" in src
+    assert src.rstrip().endswith("finish")
+    # the escalate-to-install path ends in finish too, not a bare exit 0
+    assert src.splitlines().count("    exit 0") == 1  # only inside finish()
+    # a dirty framework is left out of the stamp list
+    assert "will NOT be stamped" in src
