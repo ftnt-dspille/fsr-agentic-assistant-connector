@@ -32,6 +32,28 @@ conversations in the measuring run (a verdict card not delivered, and two
 policy-confidence results just under the 0.9 threshold); the gate treats that as
 red, so re-run or fix the cause rather than bypass.
 
+## Write checks run offline first
+
+A check that reads back what an approved write saved runs on a `writable: true`
+fixture bundle (a sweep row graded by `world_after`, `writes_match_calls` and
+`update_cards_show_overwrite`; `make chat-sweep CATEGORY=triage_act`) before it
+goes to a box. The box refuses what the platform refuses: a value over its
+field's length, a close with no closure reason, a picklist item the list does
+not hold. `make live MODE=writes` keeps only what needs the platform:
+
+| Live row | Why it stays live |
+|---|---|
+| `ztpf_author_render_interface_descriptions` | Runs `Render Script - Template` on a real device and compares the output with an oracle collected from that device; no fixture has a device or the playbook engine. |
+| the sweep rows that carry `world_after` | They also run live to compare the saved record on a real box with the offline world; the offline pass is the gate. |
+
+Of the three platform-side defects the live tier was built for, the fixture
+reproduces two: a card that executes the call's preview (every long string
+saved cut at 600 characters) shows as a saved value that differs from the
+model's call, and an update card with no overwrite detail fails
+`update_cards_show_overwrite`. `test_template` rendering against an empty
+context stays live: the box's renderer is not the local sandbox the fixture
+uses.
+
 ## Skipping a gate on the release path
 
 Every skip flag needs a reason, is appended to `.ship-ungated.log` (gitignored)

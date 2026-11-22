@@ -3250,6 +3250,95 @@ def world_after(clauses: list[dict]) -> Grader:
     return grade
 
 
+def writes_match_calls(*, side_effects: tuple[str, ...] = ()) -> Grader:
+    """Every approved write the box took holds exactly what the MODEL'S OWN
+    call sent -- not what the card showed.
+
+    This is the live-writes check (``scripts/live_writes.py``) run against the
+    writable fixture box: three defects shipped past thousands of green tests
+    and were found only by reading back what an approved card saved. The one a
+    fixture reproduces honestly is a card that executes the framework's PREVIEW
+    of the call (every long string saved cut at 600 characters): the box stores
+    whatever body the tool sent, so a cut value differs from the call's input
+    here exactly as it did on the platform. An update must also leave every
+    field the call did not name as it was (``side_effects`` names the fields
+    the platform itself stamps, per row).
+    """
+    def grade(c: ConvCtx) -> tuple[bool, str]:
+        from fsr_playbooks.harness.frames import tool_calls
+        from scripts.live_writes import write_problems
+        box = getattr(c.conv, "world", None)
+        if box is None or not getattr(box, "writable", False):
+            return False, "no writable fixture box behind this arc"
+        calls = []
+        for step in c.conv.steps:
+            for tc in tool_calls(step.transcript):
+                if tc.name in ("create_record", "update_record") and tc.has_result:
+                    calls.append(tc)
+        if not box.writes:
+            return False, "the box took no write, so there is nothing to read back"
+        problems: list[str] = []
+        used: set[int] = set()
+        for w in box.writes:
+            module = w["url"].split("?", 1)[0].rstrip("/").split("/")[-2 if w["method"] == "PUT" else -1]
+            hit = None
+            for i, tc in enumerate(calls):
+                if i in used:
+                    continue
+                a = tc.args if isinstance(tc.args, dict) else {}
+                if a.get("module") != module:
+                    continue
+                if tc.name == "update_record" and str(a.get("uuid", "")) not in w["iri"]:
+                    continue
+                if tc.name == "create_record" and w["method"] != "POST":
+                    continue
+                hit = i
+                break
+            if hit is None:
+                problems.append(f"{w['method']} {module}: no model call matches this write")
+                continue
+            used.add(hit)
+            saved = box.record(module, w["iri"].rsplit("/", 1)[-1]) or {}
+            before = w.get("before")
+            problems += [f"{module}: {p}" for p in write_problems(
+                calls[hit].args, saved, before, frozenset(side_effects))]
+        if problems:
+            return False, "; ".join(problems[:5])
+        return True, f"{len(box.writes)} write(s) hold exactly what the call sent"
+    return grade
+
+
+def update_cards_show_overwrite() -> Grader:
+    """Every update card names the record it overwrites and, for each field,
+    what it holds now.
+
+    The platform-side defect: update cards said only "Update <module>/<uuid>"
+    with the new values, so nothing showed an existing record being
+    overwritten. The card's ``target.name`` and each change's ``before`` are
+    that detail; the fixture box serves the read the card builds it from.
+    """
+    def grade(c: ConvCtx) -> tuple[bool, str]:
+        from fsr_playbooks.harness.frames import frames_of
+        seen, problems = 0, []
+        for step in c.conv.steps:
+            for f in frames_of(step.transcript, *sorted(_APPROVAL_CARD_FRAMES)):
+                if f.get("tool") != "update_record":
+                    continue
+                seen += 1
+                if not str((f.get("target") or {}).get("name") or "").strip():
+                    problems.append("an update card does not name the record")
+                for ch in f.get("changes") or []:
+                    if isinstance(ch, dict) and "before" not in ch:
+                        problems.append(f"change to {ch.get('field')!r} has no "
+                                        "current value")
+        if not seen:
+            return False, "no update card in the arc"
+        if problems:
+            return False, "; ".join(problems[:4])
+        return True, f"{seen} update card(s) show what they overwrite"
+    return grade
+
+
 def carded(*, tool: str, args: dict[str, Any]) -> Grader:
     """Some approval card in the arc proposes ``tool`` with these arg values.
 

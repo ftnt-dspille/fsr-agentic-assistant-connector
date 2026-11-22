@@ -105,7 +105,9 @@ def test_no_network_in_fake_mode(no_inet_socket):
     # source-availability check reads. Anything else must be an unserved miss,
     # which is a recorded gap, not a live client.
     _PERSONA_READS = ("/api/3/keys", "/api/3/assistant_personas", "/api/3/assistant_skills",
-                      "/api/integration/connector_details")
+                      "/api/integration/connector_details",
+                      # served and stored by the fixture box: the per-turn audit row
+                      "/api/3/llm_activity_logs")
     unexpected = [g for g in res.cassette_gets
                   if not any(p in g for p in _PERSONA_READS)
                   and g not in res.cassette_misses]

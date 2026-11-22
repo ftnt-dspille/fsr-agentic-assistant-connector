@@ -75,10 +75,6 @@ class WorldServer:
                      "active": True, "configuration_count": c.get("config_count", 1)}
                     for i, c in enumerate(box.configured_connectors or [])]
             return 200, {"data": rows, "totalItems": len(rows)}
-        if method == "GET" and path.startswith("/api/integration/connectors/healthcheck/"):
-            return 200, {"status": "Available", "message": "Connector is available"}
-        if method == "GET" and path.rstrip("/") == "/api/3/staging_model_metadatas":
-            return 200, {"hydra:member": [], "hydra:totalItems": 0}  # no pending schema
         if method == "GET" and not path.startswith(("/api/3/keys",)):
             declared = box._declared_inventory("GET", path, {})
             if declared is not None:
