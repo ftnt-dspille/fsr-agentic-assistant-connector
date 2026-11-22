@@ -24,7 +24,7 @@ rest on the model's judgement.
 Cleanup always runs: undo/unblock, delete the seeded alerts, dismiss their
 escalations, restore the policy record, disable the trigger.
 
-Fail fast, with nothing to pass: the full run first prints an offline precheck
+Fail fast, with nothing to pass: the full run and the --close run first print an offline precheck
 (a policy floor the box model's recent confidence cannot reach is a predicted
 failure, shown up front), then runs ONE seeded alert end to end under a ~3 min
 cap. If that smoke fails the run stops there with the reason, instead of
@@ -823,6 +823,8 @@ def run_close(box: Box) -> int:
     signal.signal(signal.SIGALRM, _overrun)
     signal.alarm(RUN_BUDGET)
     try:
+        _precheck(box, {"fp_closed_alone_then_reopened":
+                        _close_policy()["rules"][0]["when"]["verdict"]["min_confidence"]})
         r = box.s.post(f"{box.base}/api/3/assets", verify=box.verify, timeout=60, json={
             "name": SCANNER_HOST, "hostname": SCANNER_HOST, "ip": SCANNER_IP,
             "description": "Tenable Nessus vulnerability scanner owned by the Security "
