@@ -1,0 +1,8 @@
+{
+ "_README": [
+  "WRITABLE KNOWN-ANSWER world for the triage-then-close arc: the authorized-scanner evidence and the admin's close policy of ka_authorized_scanner_close_policy, with `writable: true` so an approved close of the alert applies in memory.",
+  "The row that uses it grades the WORLD (the alert holds status Closed, its closure reason and notes, and nothing else changed), not the card. The box enforces the stock alert schema: a close without a closure reason is refused, as the platform refuses it."
+ ],
+ "extends": "ka_authorized_scanner_close_policy",
+ "writable": true
+}

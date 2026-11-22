@@ -1,0 +1,60 @@
+{
+ "name": "triage_close_if_false_positive",
+ "category": "triage_act",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "triage_close_writable",
+ "persona": "fixture",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02"
+ },
+ "offline_only": true,
+ "why": [
+  "The triage-then-act request as one turn: the analyst asks for a verdict and, if it is a false positive, a close for approval.",
+  "Proves the effect, not the card: the arc approves the close, then the writable fixture box is read back and the alert must hold status Closed with a closure reason and notes, its other fields untouched (the old live-writes row of the same name, converted).",
+  "Also grades the two record-write defects a fixture reproduces: the saved record must hold exactly what the model's call sent, and the update card must name the record and each field's current value."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert and give me your verdict. If it is a false positive, close it with the right closure reason for my approval."
+  },
+  {
+   "resume": {
+    "decision": "approve",
+    "repeat": 2
+   }
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "called": [
+   "update_record"
+  ],
+  "writes_match_calls": {
+   "side_effects": [
+    "resolveddate",
+    "comments"
+   ]
+  },
+  "update_cards_show_overwrite": true,
+  "world_after": [
+   {
+    "module": "alerts",
+    "where": {
+     "uuid": "5c1e2a90-1b7d-4c55-9a3e-7d0c2b1a4e02"
+    },
+    "count": {
+     "min": 1,
+     "max": 1
+    },
+    "contains": [
+     {
+      "status": "Closed",
+      "description~": "FortiSIEM detected one source probing 20 distinct ports"
+     }
+    ]
+   }
+  ]
+ }
+}

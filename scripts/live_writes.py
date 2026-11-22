@@ -27,6 +27,12 @@ For each row it:
      clauses against the live box, and an optional `oracle`;
   6. deletes what it created and puts back what it updated (`--keep` skips).
 
+Write checks run offline first: a row a writable fixture bundle can grade is a
+sweep row (`world_after`, `writes_match_calls`, `update_cards_show_overwrite`)
+and carries `"offline_only": true` when it has no live twin (see
+`triage_close_if_false_positive`). Only a row that needs the platform lives in
+`scripts/conversations/live_writes/`, each with its reason in TESTING.md.
+
 Rows: sweep rows carrying `expect.world_after`, plus live-only rows in
 `scripts/conversations/live_writes/`. It writes to the box, so it refuses to
 run unless the env names the box writable (`FSR_WRITABLE=1`).
@@ -75,6 +81,9 @@ def load_rows(category: str | None, names: list[str]) -> tuple[list[dict], list[
         if names and spec["name"] not in names:
             continue
         if category and spec.get("category") != category:
+            continue
+        if spec.get("offline_only"):
+            skipped.append(f"{spec['name']}: graded offline on a writable fixture bundle")
             continue
         expect = spec.get("expect", {})
         live_only = p.parent == LIVE_ONLY

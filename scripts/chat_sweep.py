@@ -395,6 +395,26 @@ def _world_after(value: Any):
     return CS.world_after(clauses)
 
 
+def _writes_match_calls(value: Any):
+    """`"writes_match_calls": true` -- every approved write holds what the
+    model's call sent. `{"side_effects": [field, ...]}` names the fields the
+    platform stamps itself."""
+    if value is True:
+        return CS.writes_match_calls()
+    if isinstance(value, dict) and set(value) <= {"side_effects"}:
+        return CS.writes_match_calls(
+            side_effects=tuple(value.get("side_effects") or ()))
+    raise ValueError("expected `true` or {side_effects: [field, ...]}")
+
+
+def _update_cards_show_overwrite(value: Any):
+    """`"update_cards_show_overwrite": true` -- each update card names its
+    record and the current value of every field it changes."""
+    if value is not True:
+        raise ValueError("expected `true`")
+    return CS.update_cards_show_overwrite()
+
+
 def _no_excessive_fan_out(value: Any):
     """`"no_excessive_fan_out": true` -- at most 5 get_record calls per turn.
     `{"tool": "get_record", "limit": 10}` -- custom."""
@@ -545,6 +565,12 @@ EXPECTATIONS: dict[str, tuple[Any, str]] = {
                "an approval card proposes this tool with these arguments"),
     "world_after": (_world_after,
                     "the records a build left behind are right, read back"),
+    "writes_match_calls": (_writes_match_calls,
+                           "every approved write holds what the model's call sent "
+                           "(no value cut short, no field changed that was not named)"),
+    "update_cards_show_overwrite": (_update_cards_show_overwrite,
+                                    "update cards name the record and each field's "
+                                    "current value"),
     "offer_accept_compiles": (_offer_accept_compiles,
                 "accepting the playbook offer compiles a savable playbook"),
 }

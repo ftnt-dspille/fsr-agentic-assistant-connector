@@ -352,74 +352,88 @@ SKILL_MODULE = "assistant_skills"
 # that carries none is answered from the reference DB the `picklist` tool
 # already reads first -- the same catalog, so the live fallback it takes for a
 # name the DB lacks gets a real box's answer (200, no items) instead of an
-# unserved 404 (N5: `build_from_alert_context` asked for one).
+# unserved 404 (N5: `build_from_alert_context` asked for one). Both modules
+# answer a collection read, a read by id or by name, and a query.
 _PICKLIST_MODULES = ("picklists", "picklist_names")
 
 
-def _reference_picklist_members() -> Optional[list[dict]]:
-    """Every picklist item in the reference DB, in the API's shape, with a
-    stable stand-in IRI where the shipped baseline blanks it. None when the DB
-    can't be read."""
+_REF_TABLES: dict[str, list[dict]] = {}
+
+
+def _reference_tables() -> Optional[dict[str, list[dict]]]:
+    """The reference DB's picklists as two record tables in the API's shape:
+    `picklist_names` (one row per list) and `picklists` (one row per item, its
+    `listName` a stub naming the list by @id, uuid and name). Item IRIs the
+    shipped baseline blanks (they are per install) get a stable stand-in, as a
+    box always has one. None when the DB can't be read -- then every picklist
+    read stays an honest miss."""
     try:
         import sqlite3
         from fsr_playbooks._db import default_db_path
-        con = sqlite3.connect(f"file:{default_db_path()}?mode=ro", uri=True)
+        path = str(default_db_path())
+        if path in _REF_TABLES:
+            return _REF_TABLES[path]
+        con = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
         rows = con.execute(
             "SELECT list_name, item_value, item_iri FROM picklists").fetchall()
         con.close()
     except Exception:  # noqa: BLE001 -- no catalog: leave it a visible miss
         return None
     import uuid as _uuid
-    members = []
-    for ln, val, iri in rows:
-        # The shipped baseline blanks item IRIs (they are per install); a
-        # box always has one, so stand in a stable one for the shape.
+    names: dict[str, dict] = {}
+    items: list[dict] = []
+    for ln, val, iri in sorted(rows, key=lambda r: (r[0], r[1])):
+        if ln not in names:
+            nid = str(_uuid.uuid5(_uuid.NAMESPACE_URL, f"picklist_name/{ln}"))
+            names[ln] = {"@id": f"/api/3/picklist_names/{nid}",
+                         "@type": "PicklistName", "uuid": nid, "name": ln}
         if not iri:
             iri = "/api/3/picklists/" + str(
                 _uuid.uuid5(_uuid.NAMESPACE_URL, f"picklist/{ln}/{val}"))
-        members.append({"@id": iri, "uuid": iri.rsplit("/", 1)[-1],
-                        "itemValue": val, "listName": {"name": ln}})
-    return members
+        items.append({"@id": iri, "@type": "Picklist",
+                      "uuid": iri.rsplit("/", 1)[-1], "itemValue": val,
+                      "listName": dict(names[ln])})
+    out = {"picklist_names": list(names.values()), "picklists": items}
+    _REF_TABLES[path] = out
+    return out
 
 
-def _reference_picklists(module: str, query: str) -> Optional[dict]:
-    """`/api/3/picklists?listName.name=X` / `/api/3/picklist_names` from the
-    reference DB, in the API's shape. None when the DB can't be read -- then
-    the read stays an honest miss."""
-    all_members = _reference_picklist_members()
-    if all_members is None:
-        return None
-    if module == "picklist_names":
-        names = sorted({m["listName"]["name"] for m in all_members})
-        members = [{"name": n} for n in names]
-    else:
-        want = None
-        for part in query.split("&"):
-            k, _, v = part.partition("=")
-            if unquote_plus(k) == "listName.name":
-                want = unquote_plus(v)
-        members = [m for m in all_members
-                   if want is None or m["listName"]["name"] == want]
-    return {"hydra:member": members, "hydra:totalItems": len(members)}
+def _stock_model_metadatas() -> list[dict]:
+    """`/api/3/model_metadatas`: one row per stock module with its attribute
+    list (name, type, the picklist a field draws from), from the schema
+    shipped beside the bundles. The framework's record-write pre-checks (an
+    unknown field, a text field sent a structure, a picklist label no list
+    holds) read it and fail open when it is unserved, so no offline row ever
+    ran them. A module the schema lacks (a custom or ZTPF one) has no row, and
+    those checks stay open for it exactly as before."""
+    if "attrs" not in _SCHEMA_CACHE:
+        import uuid as _uuid
+        p = Path(__file__).parent / "eval_fixtures" / "module_attributes.json"
+        try:
+            raw = json.loads(p.read_text())
+        except (OSError, ValueError):
+            raw = {}
+        _SCHEMA_CACHE["attrs"] = [
+            {"@id": f"/api/3/model_metadatas/{u}", "@type": "ModelMetadata",
+             "uuid": u, "type": mod, "attributes": attrs}
+            for mod, attrs in sorted(raw.items())
+            for u in [str(_uuid.uuid5(_uuid.NAMESPACE_URL, f"model_metadata/{mod}"))]]
+    return _SCHEMA_CACHE["attrs"]
 
 
-def _reference_picklist_item(ident: str) -> Optional[dict]:
-    """`GET /api/3/picklists/<id>` from the reference DB (None: not there)."""
-    for m in _reference_picklist_members() or []:
-        if m["uuid"] == ident:
-            return m
-    return None
+_SCHEMA_CACHE: dict[str, Any] = {}
 
 
-def _reference_picklist_query(body: dict) -> Optional[dict]:
-    """`POST /api/query/picklists`: the reference items, filtered by the same
-    body matcher every other module's query uses."""
-    members = _reference_picklist_members()
-    if members is None:
-        return None
-
-    out = [m for m in members if _match_body(m, body or {})]
-    return {"hydra:member": out, "hydra:totalItems": len(out)}
+def _shipped_schema() -> dict:
+    """Field limits of a stock module schema (maxlength, required, the picklist
+    a field draws from), shipped beside the bundles."""
+    if "m" not in _SCHEMA_CACHE:
+        p = Path(__file__).parent / "eval_fixtures" / "module_schema.json"
+        try:
+            _SCHEMA_CACHE["m"] = json.loads(p.read_text()).get("modules") or {}
+        except (OSError, ValueError):
+            _SCHEMA_CACHE["m"] = {}
+    return _SCHEMA_CACHE["m"]
 
 
 def _personas_as_module_rows(personas: dict[str, dict]) -> list[dict]:
@@ -526,6 +540,26 @@ def _op_matches(entry: dict, connector: str, op: str, params: dict) -> bool:
     return True
 
 
+def render_jinja(body: Optional[dict]) -> tuple[int, dict]:
+    """`POST /api/wf/api/jinja-editor/`: render `template` against `values`
+    with the sandbox the framework's own local-render fallback uses
+    (`fsr_playbooks.compiler.local_render`), answering the box's
+    `{"result": ...}`. A template that fails to parse or render is a 400, as
+    the box's is. Not the box's engine (it ships the Ansible filter set), so a
+    filter this one lacks is a 400 here too: said, not guessed. 599 only when
+    the renderer cannot be imported."""
+    if not isinstance(body, dict) or "template" not in body:
+        return 400, {"message": "template is required"}
+    try:
+        from fsr_playbooks.compiler import local_render
+    except Exception as exc:  # noqa: BLE001
+        return 599, {"message": f"no local renderer: {exc}"}
+    r = local_render.render(str(body["template"]), body.get("values") or {})
+    if r.get("unrendered"):
+        return 400, {"message": f"template did not render: {r['unrendered']}"}
+    return 200, {"result": r["value"]}
+
+
 class FixtureBox:
     """Answers the read surface from an in-memory record table.
 
@@ -557,10 +591,24 @@ class FixtureBox:
             self.modules["workflows"] = [
                 {"@id": f"/api/3/workflows/{r.get('uuid')}", **r}
                 for r in bundle["playbooks"] if isinstance(r, dict)]
+        # The audit trail every LLM turn posts to; served from the start so a
+        # read of it is an answer (empty until a turn writes), not a miss.
+        self.modules.setdefault("llm_activity_logs", [])
         self.reads: list[str] = []
         self.misses: list[str] = []
         self.writable: bool = bool(bundle.get("writable"))
         self.writes: list[dict] = []
+        # Approved writes the box REFUSED (a value over the field's length, a
+        # missing required field, an unknown picklist item). Not in `writes`: a
+        # rejected write changed nothing, and a grader can still see it tried.
+        self.rejected: list[dict] = []
+        self.audit_logs: list[dict] = []
+        # A bundle's own `schema` ({module: {field: {maxlength, required,
+        # picklist}}}) overrides the shipped stock-module limits per field.
+        self.schema: dict[str, dict] = {
+            m: dict(f) for m, f in _shipped_schema().items()}
+        for m, f in (bundle.get("schema") or {}).items():
+            self.schema.setdefault(m, {}).update(f)
 
         # The CONNECTOR world: recorded responses for other connectors' ops,
         # which the agent reaches through `run_op` (enrichment, SIEM, EDR). The
@@ -676,8 +724,20 @@ class FixtureBox:
             members = [m for m in members if m.get("key") == key]
         return {"hydra:member": members, "hydra:totalItems": len(members)}
 
+    def _rows(self, module: str) -> Optional[list[dict]]:
+        """The rows of a module: the bundle's own table, else (for the platform
+        content every box has) the reference DB's, else None -- an unserved
+        module, which the caller logs as a miss."""
+        if module in self.modules:
+            return self.modules[module]
+        if module in _PICKLIST_MODULES:
+            return (_reference_tables() or {}).get(module)
+        if module == "model_metadatas":
+            return _stock_model_metadatas()
+        return None
+
     def record(self, module: str, uuid: str) -> Optional[dict]:
-        for r in self.modules.get(module, []):
+        for r in self._rows(module) or []:
             if r.get("uuid") == uuid or str(r.get("id")) == str(uuid):
                 return r
         return None
@@ -701,11 +761,98 @@ class FixtureBox:
         target = self.record(m.group(1), m.group(2))
         stub: dict[str, Any] = {"@id": v.strip(), "uuid": m.group(2)}
         if target is None and m.group(1) == "picklists":
+            hit = self._pick(True, v.strip())
+            if hit is not None:
+                stub["itemValue"] = hit["itemValue"]
             return stub
         for k in ("name", "itemValue", "stepSequence"):
             if target is not None and k in target:
                 stub[k] = target[k]
         return stub
+
+    def _pick(self, listname: Any, value: Any) -> Optional[dict]:
+        """The picklist item a value names (an IRI, or an itemValue within the
+        list), or None. `listname` True means any list."""
+        items = (_reference_tables() or {}).get("picklists") or []
+        if isinstance(value, dict):
+            value = value.get("@id") or value.get("itemValue")
+        v = str(value).strip()
+        iri = v if v.startswith("/api/3/picklists/") else None
+        for it in items:
+            if listname not in (True, None) and it["listName"]["name"] != listname:
+                continue
+            if iri and it["@id"] == iri:
+                return it
+            if not iri and it["itemValue"].lower() == v.lower():
+                return it
+        return None
+
+    def _validate(self, module: str, body: dict, *, creating: bool,
+                  current: Optional[dict] = None) -> list[str]:
+        """What the platform would refuse about this write, from the module
+        schema: a string over its field's length (the 600-character cut a card
+        once applied to every long value passes only on a field that allows
+        it), a required field left empty on create, a field required while
+        another holds a value (a closed alert needs its closure reason), a
+        picklist value its list does not hold. A field the schema does not
+        know is left alone -- only what it states is enforced."""
+        spec = self.schema.get(module) or {}
+        bad: list[str] = []
+        for k, v in body.items():
+            f = spec.get(k) or {}
+            if f.get("maxlength") and isinstance(v, str) and len(v) > f["maxlength"]:
+                bad.append(f"{k}: {len(v)} characters is over the {f['maxlength']} "
+                           f"the {module} field allows")
+            pl = f.get("picklist")
+            if pl and v not in (None, "", []) and _reference_tables() is not None \
+                    and not (isinstance(v, str) and v.startswith("/api/3/picklists/")):
+                if self._pick(pl, v) is None:
+                    bad.append(f"{k}: {v!r} is not an item of the "
+                               f"{pl if pl is not True else 'picklist'} list")
+        merged = {**(current or {}), **body}
+        for k, f in spec.items():
+            if creating and f.get("required") is True and _is_empty(body.get(k)):
+                bad.append(f"{k}: is required")
+            for other, item in (f.get("required_when") or {}).items():
+                held = _scalarize(merged.get(other))
+                if isinstance(held, str) and held.startswith("/api/3/picklists/"):
+                    hit = self._pick(True, held)
+                    held = hit["itemValue"] if hit else held
+                if str(held).lower() == str(item).lower() and _is_empty(merged.get(k)):
+                    bad.append(f"{k}: is required when {other} is {item}")
+        return bad
+
+    def _coerce(self, module: str, field: str, v: Any) -> Any:
+        """A picklist field written by its display value ("Closed") is stored
+        as the item the box resolves it to, so the next read sees a picklist
+        stub like any other record."""
+        pl = (self.schema.get(module) or {}).get(field, {}).get("picklist")
+        if pl and isinstance(v, str) and not v.startswith("/api/3/picklists/"):
+            hit = self._pick(pl, v)
+            if hit is not None:
+                return hit["@id"]
+        return v
+
+    def _audit_log(self, body: Optional[dict]) -> tuple[int, dict]:
+        """`POST /api/3/llm_activity_logs`: the audit row every LLM turn posts
+        (best-effort on the connector's side). Accepted, stored, and served
+        back through `/api/3/llm_activity_logs` and `/api/query/...`, as the
+        box's `llm_activity_logs` module does. Never gated: it is telemetry,
+        not an analyst-approved write, so it does not count in `writes`."""
+        rows = self.modules.setdefault("llm_activity_logs", [])
+        uid = str(_uuid.uuid5(_uuid.NAMESPACE_URL,
+                              f"fixture-audit:{len(rows)}:{json.dumps(body, sort_keys=True, default=str)}"))
+        rec = {"@id": f"/api/3/llm_activity_logs/{uid}", "@type": "LlmActivityLog",
+               "uuid": uid, "id": len(rows) + 1, **(body if isinstance(body, dict) else {})}
+        rows.append(rec)
+        self.audit_logs.append(rec)
+        return 201, _public(rec)
+
+    def render(self, body: Optional[dict]) -> tuple[int, dict]:
+        status, out = render_jinja(body)
+        if status == 599:
+            self.misses.append("POST /api/wf/api/jinja-editor/")
+        return status, out
 
     def write(self, method: str, url: str,
               body: Optional[dict]) -> tuple[int, dict]:
@@ -721,7 +868,14 @@ class FixtureBox:
         if rows is None:
             self.misses.append(f"{method.upper()} {url}")
             return 404, {"message": f"no module {module}"}
-        fields = {k: self._link(v) for k, v in body.items()}
+        bad = self._validate(module, body, creating=method.upper() == "POST",
+                             current=self.record(module, ident) if ident else None)
+        if bad:
+            self.rejected.append({**entry, "errors": bad})
+            return 400, {"@type": "hydra:Error", "hydra:title": "An error occurred",
+                         "hydra:description": "; ".join(bad)}
+        fields = {k: self._link(self._coerce(module, k, v))
+                  for k, v in body.items()}
         if method.upper() == "POST" and not ident:
             uid = str(_uuid.uuid5(_uuid.NAMESPACE_URL,
                                   f"fixture-write:{module}:{len(self.writes)}"))
@@ -733,6 +887,7 @@ class FixtureBox:
             rec = self.record(module, ident)
             if rec is None:
                 return 404, {"message": f"no {module} record {ident}"}
+            entry["before"] = copy.deepcopy(rec)
             rec.update(fields)
         else:
             self.misses.append(f"{method.upper()} {url}")
@@ -744,7 +899,7 @@ class FixtureBox:
     def _collection(self, module: str, *, body: Optional[dict] = None,
                     q: str = "", limit: int = 30, page: int = 1,
                     sort: Any = None) -> Optional[dict]:
-        rows = self.modules.get(module)
+        rows = self._rows(module)
         if rows is None:
             return None
         out = [r for r in rows if (not body or _match_body(r, body))
@@ -831,7 +986,8 @@ class FixtureBox:
         path = urlparse(url).path
         return any(h.get("path") == path for h in self.http)
 
-    def replay(self, method: str, url: str) -> Optional[tuple[int, Any]]:
+    def replay(self, method: str, url: str,
+               body: Any = None) -> Optional[tuple[int, Any]]:
         """The recorded response for a raw request, or None (and a logged
         miss). Matches method + path exactly and every RECORDED query param;
         params the recording did not carry (cache-busters, ordering added by
@@ -850,6 +1006,25 @@ class FixtureBox:
         declared = self._declared_inventory(method, u.path, got)
         if declared is not None:
             return 200, declared
+        # A record read the connector or framework makes through the pyfsr
+        # client (the warmup's picklist and module-metadata reads, the write
+        # pre-checks') is the same read the cassette serves: answer it from
+        # the same table.
+        rm = re.match(r"^/api/3/([a-zA-Z0-9_]+)(?:/[^/]+)?/?$", u.path)
+        if method.upper() == "GET" and rm and self._rows(rm.group(1)) is not None:
+            status, out = self.get(url)
+            if status == 200:
+                return 200, out
+        # The two POSTs the framework and connector send through the pyfsr
+        # client rather than the record API: a template to render, and the
+        # per-turn audit row. Both are answered, not missed.
+        if method.upper() == "POST":
+            if u.path.rstrip("/").endswith("/api/wf/api/jinja-editor"):
+                status, out = render_jinja(body)
+                if status != 599:
+                    return status, out
+            elif re.search(r"/api/3/llm_activity_logs/?$", u.path):
+                return self._audit_log(body if isinstance(body, dict) else None)
         self.http_misses.append(f"{method.upper()} {u.path}?{u.query}")
         return None
 
@@ -861,6 +1036,24 @@ class FixtureBox:
         `connector_details?configured=true` through it; unanswered, every block
         card was refused as "not configured" on a world that configures the
         FortiGate (the policy rows went from 2/2 to 0/2)."""
+        if path.rstrip("/") == "/api/integration/connectors" and method.upper() == "GET":
+            # The connector roster (the catalog probe and warmup read it, one
+            # page, newest `data` list). A world that declares its connectors
+            # lists exactly those; one that does not lists the reference
+            # catalog's, as a box that has the library installed would.
+            return {"data": self._connector_roster(), "nextPage": None}
+        if (method.upper() == "POST" and path.rstrip("/") == "/api/integration/connector_details"
+                and str(query.get("configured")).lower() != "true"
+                and not query.get("agent")):
+            # The unfiltered catalog read the warmup makes. Nothing in a
+            # fixture carries operation schemas, so it lists the declared
+            # connectors without ops (or nothing), never an invented op list.
+            return {"data": [{"name": c["name"], "version": c.get("version"),
+                              "label": c.get("label"), "operations": []}
+                             for c in (self.configured_connectors or [])
+                             if isinstance(c, dict) and c.get("name")]}
+        if method.upper() == "GET" and path == "/api/3/agents":
+            return {"hydra:member": [], "hydra:totalItems": 0}
         if self.configured_connectors is None:
             return None
         if (method.upper() == "POST" and path == "/api/integration/connector_details/"
@@ -876,6 +1069,24 @@ class FixtureBox:
         if method.upper() == "GET" and path == "/api/3/agents":
             return {"hydra:member": [], "hydra:totalItems": 0}
         return None
+
+    def _connector_roster(self) -> list[dict]:
+        if self.configured_connectors is not None:
+            return [{"name": c["name"], "version": c.get("version"),
+                     "label": c.get("label"), "status": c.get("status", "Completed")}
+                    for c in self.configured_connectors
+                    if isinstance(c, dict) and c.get("name")]
+        try:
+            import sqlite3
+            from fsr_playbooks._db import default_db_path
+            con = sqlite3.connect(f"file:{default_db_path()}?mode=ro", uri=True)
+            rows = con.execute(
+                "SELECT name, version, label FROM connectors ORDER BY name").fetchall()
+            con.close()
+        except Exception:  # noqa: BLE001 -- no catalog: an empty roster
+            return []
+        return [{"name": n, "version": v, "label": lb, "status": "Completed"}
+                for n, v, lb in rows]
 
     def get(self, url: str) -> tuple[int, dict]:
         self.reads.append(url)
@@ -894,18 +1105,16 @@ class FixtureBox:
 
         if ident:
             rec = self.record(module, ident)
-            if rec is None and module == "picklists" and module not in self.modules:
-                rec = _reference_picklist_item(ident)
+            if rec is None and module in _PICKLIST_MODULES:
+                # `/picklist_names/<name>` is not a route, but the model asks
+                # for a list by its name; the box answers an id only.
+                rec = None
             if rec is None:
                 self.misses.append(url)
                 return 404, {"message": f"no {module} record {ident}"}
             return 200, _public(rec)
 
-        if module in _PICKLIST_MODULES and module not in self.modules:
-            served = _reference_picklists(module, query)
-            if served is not None:
-                return 200, served
-        if module not in self.modules:
+        if self._rows(module) is None:
             self.misses.append(url)
             return 404, {"hydra:member": [], "hydra:totalItems": 0}
         qs = {unquote_plus(k): v for k, v in
@@ -922,7 +1131,11 @@ class FixtureBox:
         path = url.split("?", 1)[0]
         qs = dict(p.split("=", 1) for p in url.split("?", 1)[1].split("&")
                   if "=" in p) if "?" in url else {}
+        if path.rstrip("/").endswith("/api/wf/api/jinja-editor"):
+            return self.render(json_body)
         m = re.search(r"/api/query/([a-zA-Z0-9_]+)", path)
+        if not m and re.search(r"/api/3/llm_activity_logs/?$", path):
+            return self._audit_log(json_body)
         if not m:
             # A POST that is not a query is a WRITE. Refusing it loudly is the
             # point: a write has to stop at the approval gate, and a box that
@@ -931,11 +1144,7 @@ class FixtureBox:
             return 599, {"message": "fixture box serves reads only; this POST "
                                     "looks like a write and was not served"}
         module = m.group(1)
-        if module == "picklists" and module not in self.modules:
-            served = _reference_picklist_query(json_body or {})
-            if served is not None:
-                return 200, served
-        if module not in self.modules:
+        if self._rows(module) is None:
             self.misses.append(f"POST {url}")
             return 404, {"hydra:member": [], "hydra:totalItems": 0}
         body = json_body or {}

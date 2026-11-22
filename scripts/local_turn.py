@@ -367,14 +367,24 @@ class _CassetteSession:
         """
         self.gets.append(f"POST {url}")
         if _RENDER_PATH in url:
-            # The jinja renderer is a READ, but the cassette has no renderer to
-            # answer it (a picklist or a box-side filter cannot be evaluated
-            # from the bundle). It is a miss: it goes on the work list and
-            # answers the way an unreachable renderer does, so the framework's
-            # own local-render fallback decides the step.
+            # The jinja renderer is a READ. A fixture box renders it locally
+            # with the sandbox the framework's own local-render fallback uses;
+            # without a box it is a miss, on the work list, and answers the
+            # way an unreachable renderer does so the fallback decides.
+            from scripts.fixture_box import render_jinja
+            status, body = (self._box.post(url, kw.get("json"))
+                            if self._box is not None
+                            else render_jinja(kw.get("json")))
+            if status != 599:
+                return _Resp(status, body)
             self.misses.append(f"POST {url}")
             return _Resp(599, {"message": "CASSETTE-MISS: no offline jinja "
                                "renderer for this template"})
+        if self._box is not None and "/api/3/llm_activity_logs" in url:
+            # The per-turn audit row: telemetry, not a gated write. The box
+            # stores it and serves it back.
+            status, body = self._box.post(url, kw.get("json"))
+            return _Resp(status, body)
         if "/api/query/" not in url:
             if self._box is not None and getattr(self._box, "writable", False):
                 return self._write("post", url, **kw)
@@ -532,7 +542,13 @@ class _ReplayAdapter:
         if isinstance(log, list):
             log.append(request.url if request.method.upper() == "GET"
                        else f"{request.method.upper()} {request.url}")
-        hit = self._box.replay(request.method, request.url)
+        payload = None
+        if request.body:
+            try:
+                payload = json.loads(request.body)
+            except (TypeError, ValueError):
+                payload = None
+        hit = self._box.replay(request.method, request.url, payload)
         resp = requests.Response()
         resp.request = request
         resp.url = request.url
@@ -581,8 +597,14 @@ class _NoRecordedBox:
     recorded, so every replayed request is a miss: a loud 599 REPLAY-MISS on
     the work list, never a connection."""
 
-    def replay(self, method: str, url: str) -> None:
-        return None
+    def __init__(self):
+        from scripts.fixture_box import FixtureBox
+        # Holds no records, but answers the two POSTs that need no data: a
+        # template to render and the per-turn audit row.
+        self._empty = FixtureBox({"modules": {}})
+
+    def replay(self, method: str, url: str, body: Any = None):
+        return self._empty.replay(method, url, body)
 
 
 def _install_replay_client(box: Any, scope: PatchScope) -> None:

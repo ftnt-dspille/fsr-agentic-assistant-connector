@@ -1,0 +1,1001 @@
+{
+ "_README": [
+  "Field limits from a stock FortiSOAR module schema: maxlength, required (on create), required_when ({field: itemValue}: required while that picklist field holds that value, e.g. a closure reason once an alert is Closed), and the picklist a picklist field draws from.",
+  "FixtureBox enforces them on an approved create/update, so a value the platform would reject is rejected here too.",
+  "A bundle's own `schema` map overrides a module or field."
+ ],
+ "modules": {
+  "agents": {
+   "agentId": {
+    "maxlength": 80,
+    "required": true
+   },
+   "agentType": {
+    "picklist": "Agent Type"
+   },
+   "authType": {
+    "picklist": "Auth Type",
+    "required": true
+   },
+   "clientCert": {
+    "required_when": {
+     "authType": "Certificate Auth"
+    }
+   },
+   "clientKey": {
+    "required_when": {
+     "authType": "Certificate Auth"
+    }
+   },
+   "configstatus": {
+    "picklist": "Configuration Status"
+   },
+   "configurationHealth": {
+    "picklist": "Configuration Health"
+   },
+   "installerType": {
+    "picklist": "InstallerType",
+    "required": true
+   },
+   "name": {
+    "required": true
+   },
+   "upgradeState": {
+    "picklist": "Agent Upgrade Status"
+   }
+  },
+  "alerts": {
+   "ackSlaStatus": {
+    "picklist": "SLAState"
+   },
+   "attachmentNames": {
+    "maxlength": 1024
+   },
+   "bytesTransferred": {
+    "maxlength": 1024
+   },
+   "closureNotes": {
+    "required_when": {
+     "status": "Closed"
+    }
+   },
+   "closureReason": {
+    "picklist": "Closure Reason",
+    "required_when": {
+     "status": "Closed"
+    }
+   },
+   "commandLine": {
+    "maxlength": 1024
+   },
+   "computerName": {
+    "maxlength": 1024
+   },
+   "decodedCommandLine": {
+    "maxlength": 1024
+   },
+   "destinationIp": {
+    "maxlength": 1024
+   },
+   "destinationPort": {
+    "maxlength": 1024
+   },
+   "deviceType": {
+    "picklist": "AssetCategory"
+   },
+   "deviceUID": {
+    "maxlength": 1024
+   },
+   "domain": {
+    "maxlength": 1024
+   },
+   "emailClassification": {
+    "picklist": "Email Classification"
+   },
+   "emailFrom": {
+    "maxlength": 1024
+   },
+   "emailSubject": {
+    "maxlength": 2048
+   },
+   "emailTo": {
+    "maxlength": 1024
+   },
+   "epochTime": {
+    "maxlength": 1024
+   },
+   "escalatedtoincident": {
+    "picklist": "EscalatedToIncident"
+   },
+   "escalationReason": {
+    "required_when": {
+     "escalatedtoincident": "Yes"
+    }
+   },
+   "eventTime": {
+    "maxlength": 1024
+   },
+   "fileHash": {
+    "maxlength": 1024
+   },
+   "fileName": {
+    "maxlength": 1024
+   },
+   "filePath": {
+    "maxlength": 2048
+   },
+   "killChainPhase": {
+    "picklist": "KillChainPhases"
+   },
+   "latestLogin": {
+    "maxlength": 1024
+   },
+   "mitreTechnique": {
+    "maxlength": 1024
+   },
+   "mitreattackid": {
+    "maxlength": 1024
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "parentProcessCmdLine": {
+    "maxlength": 1024
+   },
+   "parentProcessName": {
+    "maxlength": 1024
+   },
+   "parentProcessPid": {
+    "maxlength": 1024
+   },
+   "processGuid": {
+    "maxlength": 1024
+   },
+   "processId": {
+    "maxlength": 1024
+   },
+   "processName": {
+    "maxlength": 1024
+   },
+   "processTree": {
+    "maxlength": 1024
+   },
+   "registryKey": {
+    "maxlength": 1024
+   },
+   "registryKeyValue": {
+    "maxlength": 1024
+   },
+   "reporter": {
+    "maxlength": 1024
+   },
+   "respSlaStatus": {
+    "picklist": "SLAState"
+   },
+   "returnPath": {
+    "maxlength": 1024
+   },
+   "scheduledTask": {
+    "maxlength": 1024
+   },
+   "senderDomain": {
+    "maxlength": 1024
+   },
+   "senderEmailAddress": {
+    "maxlength": 1024
+   },
+   "services": {
+    "maxlength": 1024
+   },
+   "severity": {
+    "picklist": "Severity"
+   },
+   "source": {
+    "maxlength": 1024
+   },
+   "sourceId": {
+    "maxlength": 255
+   },
+   "sourceIp": {
+    "maxlength": 1024
+   },
+   "sourcePort": {
+    "maxlength": 1024
+   },
+   "sourceProcess": {
+    "maxlength": 1024
+   },
+   "sourceTool": {
+    "maxlength": 1024
+   },
+   "sourceType": {
+    "maxlength": 1024
+   },
+   "state": {
+    "picklist": "AlertState"
+   },
+   "status": {
+    "picklist": "AlertStatus"
+   },
+   "targetAsset": {
+    "maxlength": 1024
+   },
+   "targetProcess": {
+    "maxlength": 1024
+   },
+   "type": {
+    "picklist": "AlertType"
+   },
+   "url": {
+    "maxlength": 2048
+   },
+   "userDetails": {
+    "maxlength": 255
+   },
+   "userName": {
+    "maxlength": 255
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "announcements": {
+   "announcementCriticality": {
+    "picklist": "AnnouncementCriticality"
+   },
+   "announcementType": {
+    "picklist": "AnnoucementType"
+   }
+  },
+  "appliances": {
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "approvals": {
+   "approvaldescription": {
+    "maxlength": 1024
+   },
+   "approvalhost": {
+    "maxlength": 1024
+   },
+   "message": {
+    "maxlength": 1024
+   },
+   "method": {
+    "picklist": "Approval Methods"
+   },
+   "playbookiri": {
+    "maxlength": 1024
+   },
+   "playbookname": {
+    "maxlength": 1024
+   },
+   "playbookuuid": {
+    "maxlength": 1024
+   },
+   "status": {
+    "picklist": "ApprovalStatus"
+   },
+   "workflowid": {
+    "maxlength": 1024
+   }
+  },
+  "assets": {
+   "assetClass": {
+    "picklist": "AssetClass"
+   },
+   "assetRisk": {
+    "picklist": "AssetRisk"
+   },
+   "assetType": {
+    "picklist": "AssetType"
+   },
+   "bESCyberAssetCategory": {
+    "picklist": "BES Cyber Asset Category"
+   },
+   "category": {
+    "picklist": "AssetCategory"
+   },
+   "criticality": {
+    "picklist": "Criticality"
+   },
+   "description": {
+    "maxlength": -1
+   },
+   "hostname": {
+    "maxlength": 1024
+   },
+   "ip": {
+    "maxlength": 1024
+   },
+   "level": {
+    "picklist": "AssetLevel"
+   },
+   "location": {
+    "maxlength": 1024
+   },
+   "macAddress": {
+    "maxlength": 1024
+   },
+   "managedBy": {
+    "maxlength": 1024
+   },
+   "name": {
+    "maxlength": 1024
+   },
+   "operatingSystem": {
+    "picklist": "OperatingSystem"
+   },
+   "propertyOf": {
+    "maxlength": 1024
+   },
+   "protocol": {
+    "picklist": "AssetProtocol"
+   },
+   "serialNumber": {
+    "maxlength": 1024
+   },
+   "state": {
+    "picklist": "AssetState"
+   },
+   "status": {
+    "picklist": "AssetStatus"
+   },
+   "tag": {
+    "maxlength": 1024
+   },
+   "uuid": {
+    "maxlength": 36
+   },
+   "vulnerabilityRiskStatus": {
+    "picklist": "VulnerabilityRiskStatus"
+   },
+   "zone": {
+    "picklist": "AssetZone"
+   }
+  },
+  "attachments": {
+   "description": {
+    "maxlength": -1
+   },
+   "file": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "type": {
+    "picklist": "AttachmentsType"
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "c_v_es": {
+   "cVEID": {
+    "required": true
+   },
+   "isInKEVCatalog": {
+    "picklist": "YesNoInput"
+   },
+   "kEVTagSource": {
+    "picklist": "KEVTagSource",
+    "required_when": {
+     "isInKEVCatalog": "Yes"
+    }
+   },
+   "knownToBeUsedInRansomwareCampaigns": {
+    "picklist": "Known to be Used in Ransomware Campaign"
+   },
+   "severity": {
+    "picklist": "Severity"
+   },
+   "vulnerabilityStatus": {
+    "picklist": "CVEVulnerabilityStatus"
+   }
+  },
+  "campaigns": {
+   "attackVector": {
+    "picklist": "CampaignVector"
+   },
+   "name": {
+    "required": true
+   },
+   "status": {
+    "picklist": "CampaignStatus"
+   }
+  },
+  "comments": {
+   "content": {
+    "maxlength": -1
+   },
+   "type": {
+    "picklist": "Comment Type"
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "communication": {
+   "msgDirection": {
+    "picklist": "Communication State"
+   },
+   "type": {
+    "picklist": "Communication Type"
+   }
+  },
+  "companies": {
+   "industry": {
+    "picklist": "Industry"
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "phoneFax": {
+    "maxlength": 1024
+   },
+   "phoneMain": {
+    "maxlength": 1024
+   },
+   "phoneTollfree": {
+    "maxlength": 1024
+   },
+   "status": {
+    "picklist": "CompanyStatus"
+   },
+   "type": {
+    "picklist": "CompanyType"
+   },
+   "url": {
+    "maxlength": 1024
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "devices": {
+   "connectorConfig": {
+    "required": true
+   },
+   "deviceName": {
+    "required": true
+   },
+   "zTPPhase": {
+    "picklist": "ZTP Phase"
+   },
+   "zTPPhaseLast": {
+    "picklist": "ZTP Phase"
+   }
+  },
+  "events": {
+   "description": {
+    "maxlength": -1
+   },
+   "name": {
+    "maxlength": 1024
+   },
+   "source": {
+    "maxlength": 1024
+   },
+   "sourceId": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "fsr_queues": {
+   "assignmentMethod": {
+    "maxlength": 1024
+   },
+   "description": {
+    "maxlength": 1024
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   }
+  },
+  "hunt": {
+   "huntStart": {
+    "required": true
+   },
+   "name": {
+    "required": true
+   },
+   "siems": {
+    "picklist": "SIEMs"
+   },
+   "timeCreated": {
+    "required": true
+   }
+  },
+  "incidents": {
+   "category": {
+    "picklist": "IncidentType"
+   },
+   "deliveryVector": {
+    "picklist": "DeliveryVector"
+   },
+   "destinationIP": {
+    "maxlength": 1024
+   },
+   "deviceUID": {
+    "maxlength": 1024
+   },
+   "escalated": {
+    "picklist": "YesNoInput"
+   },
+   "filehash": {
+    "maxlength": 1024
+   },
+   "incidentsummary": {
+    "required_when": {
+     "status": "Resolved"
+    }
+   },
+   "mitreattackid": {
+    "maxlength": 255
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "nextsteps": {
+    "required_when": {
+     "status": "Resolved"
+    }
+   },
+   "phase": {
+    "picklist": "IncidentPhase",
+    "required": true
+   },
+   "receipientEmailAddress": {
+    "maxlength": 1024
+   },
+   "resSla": {
+    "picklist": "SLAState"
+   },
+   "senderDomain": {
+    "maxlength": 1024
+   },
+   "senderEmailAddress": {
+    "maxlength": 1024
+   },
+   "severity": {
+    "picklist": "Severity"
+   },
+   "slaState": {
+    "picklist": "SLAState"
+   },
+   "source": {
+    "maxlength": 1024
+   },
+   "sourceIP": {
+    "maxlength": 1024
+   },
+   "sourceId": {
+    "maxlength": 255
+   },
+   "state": {
+    "picklist": "AlertState"
+   },
+   "status": {
+    "picklist": "IncidentStatus",
+    "required": true
+   },
+   "targetAsset": {
+    "maxlength": 1024
+   },
+   "uuid": {
+    "maxlength": 36
+   },
+   "wasPersonalDataAffected": {
+    "picklist": "YesNoInput"
+   }
+  },
+  "indicators": {
+   "description": {
+    "maxlength": -1
+   },
+   "enrichmentStatus": {
+    "picklist": "Enrichment Status"
+   },
+   "expiredStatus": {
+    "picklist": "IndicatorExpiryStatus"
+   },
+   "file": {
+    "required_when": {
+     "typeofindicator": "File"
+    }
+   },
+   "indicatorStatus": {
+    "picklist": "IndicatorStatus"
+   },
+   "reputation": {
+    "picklist": "IndicatorReputation"
+   },
+   "sources": {
+    "maxlength": 1024
+   },
+   "tlp": {
+    "picklist": "TrafficLightProtocol"
+   },
+   "typeofindicator": {
+    "picklist": "IndicatorType"
+   },
+   "uuid": {
+    "maxlength": 36
+   },
+   "value": {
+    "maxlength": 255
+   }
+  },
+  "keys": {
+   "key": {
+    "required": true
+   }
+  },
+  "leave_schedules": {
+   "analyst": {
+    "required": true
+   },
+   "fromDate": {
+    "required": true
+   },
+   "toDate": {
+    "required": true
+   }
+  },
+  "managers": {
+   "adminStatus": {
+    "picklist": "EnableDisable"
+   }
+  },
+  "metafield_templates": {
+   "name": {
+    "required": true
+   }
+  },
+  "mitre_software": {
+   "type": {
+    "picklist": "Mitre Software Types"
+   }
+  },
+  "people": {
+   "accessType": {
+    "maxlength": 255
+   },
+   "department": {
+    "maxlength": 1024
+   },
+   "description": {
+    "maxlength": -1
+   },
+   "email": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "firstname": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "lastname": {
+    "maxlength": 1024
+   },
+   "phoneFax": {
+    "maxlength": 1024
+   },
+   "phoneHome": {
+    "maxlength": 1024
+   },
+   "phoneMobile": {
+    "maxlength": 1024
+   },
+   "phoneWork": {
+    "maxlength": 1024
+   },
+   "title": {
+    "maxlength": 1024
+   },
+   "type": {
+    "picklist": "PeopleType"
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "routers": {
+   "address": {
+    "required": true
+   },
+   "apiPort": {
+    "required": true
+   },
+   "certificate": {
+    "required": true
+   },
+   "configstatus": {
+    "picklist": "Configuration Status"
+   },
+   "intraTCPPort": {
+    "required": true
+   },
+   "name": {
+    "required": true
+   },
+   "password": {
+    "required": true
+   },
+   "tcpPort": {
+    "required": true
+   },
+   "type": {
+    "picklist": "Secure Message Exchange Type"
+   },
+   "username": {
+    "required": true
+   }
+  },
+  "saved_reports": {
+   "file": {
+    "required": true
+   },
+   "name": {
+    "maxlength": 200,
+    "required": true
+   },
+   "reportId": {
+    "required": true
+   },
+   "scheduleId": {
+    "maxlength": 200
+   }
+  },
+  "scans": {
+   "isIngestionCompleted": {
+    "picklist": "YesNoInput"
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "scanId": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "scanReferenceID": {
+    "required": true
+   },
+   "state": {
+    "maxlength": 1024
+   },
+   "userId": {
+    "maxlength": 1024
+   },
+   "uuid": {
+    "maxlength": 36
+   }
+  },
+  "scenario": {
+   "description": {
+    "required": true
+   },
+   "steps": {
+    "required": true
+   },
+   "title": {
+    "required": true
+   }
+  },
+  "scripts": {
+   "scriptType": {
+    "picklist": "Script Type"
+   }
+  },
+  "shifts": {
+   "endDate": {
+    "required": true
+   },
+   "name": {
+    "required": true
+   },
+   "startDate": {
+    "required": true
+   }
+  },
+  "sla_template": {
+   "alertAckTrackedOn": {
+    "picklist": "AlertStatus"
+   },
+   "alertResTrackedOn": {
+    "picklist": "AlertStatus"
+   },
+   "altPauseSLAOn": {
+    "picklist": "AlertStatus"
+   },
+   "incPauseSLAOn": {
+    "picklist": "IncidentStatus"
+   },
+   "incSeverity": {
+    "picklist": "Severity"
+   },
+   "resSlaTrackedOn": {
+    "picklist": "IncidentStatus"
+   },
+   "slaTrackedOn": {
+    "picklist": "IncidentStatus"
+   }
+  },
+  "tasks": {
+   "approvalhost": {
+    "maxlength": 1024
+   },
+   "description": {
+    "maxlength": -1
+   },
+   "name": {
+    "maxlength": 1024,
+    "required": true
+   },
+   "priority": {
+    "picklist": "TaskPriority"
+   },
+   "status": {
+    "picklist": "TaskStatus"
+   },
+   "taskdata": {
+    "maxlength": -1
+   },
+   "tasktype": {
+    "maxlength": -1
+   },
+   "type": {
+    "picklist": "TaskType"
+   },
+   "uuid": {
+    "maxlength": 36
+   },
+   "workflowid": {
+    "maxlength": 1024
+   }
+  },
+  "tenants": {
+   "name": {
+    "required": true
+   },
+   "tenantId": {
+    "maxlength": 80
+   }
+  },
+  "threat_intel_feeds": {
+   "killChainPhases": {
+    "picklist": "KillChainPhases"
+   },
+   "reputation": {
+    "picklist": "IndicatorReputation"
+   },
+   "tLP": {
+    "picklist": "TrafficLightProtocol"
+   },
+   "threatTypes": {
+    "picklist": "Threat Type"
+   },
+   "typeOfFeed": {
+    "picklist": "ThreatIntelFeedType"
+   },
+   "value": {
+    "required": true
+   }
+  },
+  "threat_intel_reports": {
+   "informationReliability": {
+    "picklist": "Information Reliability"
+   },
+   "relevanceRating": {
+    "picklist": "Relevance Rating"
+   },
+   "reportID": {
+    "required": true
+   },
+   "reportStatus": {
+    "picklist": "Report Status"
+   },
+   "reportTitle": {
+    "required": true
+   },
+   "reportType": {
+    "picklist": "Report Type"
+   },
+   "sourceCategory": {
+    "picklist": "Source Category"
+   },
+   "sourceReliability": {
+    "picklist": "Source Reliability"
+   },
+   "tLP": {
+    "picklist": "TrafficLightProtocol"
+   }
+  },
+  "vulnerabilities": {
+   "cvss": {
+    "maxlength": 100
+   },
+   "exploitSkills": {
+    "maxlength": 255
+   },
+   "lastSeenScan": {
+    "maxlength": 255
+   },
+   "name": {
+    "maxlength": 255
+   },
+   "risk": {
+    "maxlength": 255
+   },
+   "severity": {
+    "picklist": "Severity"
+   },
+   "status": {
+    "picklist": "VulnerabilityStatus"
+   },
+   "uuid": {
+    "maxlength": 36
+   },
+   "vulnerabilityId": {
+    "maxlength": 255,
+    "required": true
+   }
+  },
+  "warrooms": {
+   "status": {
+    "picklist": "WarRoomStatus",
+    "required": true
+   },
+   "title": {
+    "required": true
+   }
+  },
+  "workspaces": {
+   "description": {
+    "required": true
+   },
+   "name": {
+    "required": true
+   },
+   "status": {
+    "picklist": "Workspace Status"
+   }
+  },
+  "z_t_p_profiles": {
+   "assignmentMode": {
+    "picklist": "ZTP Assignment Mode"
+   },
+   "assignmentSearchField": {
+    "picklist": "ZTP Assignment Search Field"
+   },
+   "assignmentSearchType": {
+    "picklist": "ZTP Assignment Search Type"
+   },
+   "name": {
+    "required": true
+   },
+   "profileMode": {
+    "picklist": "ZTP Profile Mode"
+   },
+   "zTPPhaseStart": {
+    "picklist": "ZTP Phase"
+   }
+  }
+ }
+}
