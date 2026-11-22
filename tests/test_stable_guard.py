@@ -23,7 +23,17 @@ import stable_guard as sg  # noqa: E402
 pytestmark = pytest.mark.timeout(400)
 
 ROLES = {"stable-box": "stable", "exp-box": "experimental", "unset-box": "unset"}
-CONN_INPUTS = ("connector-fsr-agentic-assistant", "scripts")
+# The shape of the root repo's .github/package-inputs (the one definition of the inputs):
+# conn ships its package dir and keeps a wider clean set (scripts), the rest are as noted.
+PACKAGE_INPUTS = """\
+conn_main  ship   connector-fsr-agentic-assistant
+conn_main  extra  scripts
+fsr-playbook-framework  ship  packaging
+agenticAssistant         ship  .
+agenticAssistantMonitor  ship  .
+fsr_all_widgets  extra  fortisoar-widget-harness
+fsr_all_widgets  extra  scripts   # a comment
+"""
 
 
 def role_of(alias: str) -> str:
@@ -87,7 +97,8 @@ class World:
             return
         self.stamps.mkdir(parents=True)
         self.monorepo = make_repo(base, "fsr_all_widgets", {"fortisoar-widget-harness/a.js": "a\n",
-                                                             "scripts/x.sh": "x\n"})
+                                                             "scripts/x.sh": "x\n",
+                                                             ".github/package-inputs": PACKAGE_INPUTS})
         self.framework = make_repo(base, "fsr-playbook-framework", {"packaging/p.toml": "p\n"})
         self.conn = make_repo(base, "conn_main", {"connector-fsr-agentic-assistant/c.py": "c\n",
                                                   "scripts/s.sh": "s\n",
@@ -109,11 +120,11 @@ class World:
         return w
 
     def specs(self):
-        return [
-            sg.RepoSpec("fsr_all_widgets", self.monorepo, ("fortisoar-widget-harness", "scripts")),
-            sg.RepoSpec("fsr-playbook-framework", self.framework, ("packaging",)),
-            sg.RepoSpec("conn_main", self.conn, CONN_INPUTS),
-        ] + [sg.RepoSpec(w, r) for w, r in self.widgets.items()]
+        # the inputs come from the one shared file (the monorepo's .github/package-inputs)
+        paths = {"fsr_all_widgets": self.monorepo, "fsr-playbook-framework": self.framework,
+                 "conn_main": self.conn, **self.widgets}
+        return [sg.RepoSpec(s.name, paths[s.name], s.inputs)
+                for s in sg.repo_specs(self.monorepo, self.framework, self.conn)]
 
     def all_repos(self):
         return {s.name: s.path for s in self.specs()}
@@ -181,8 +192,8 @@ def test_happy_path_every_repo_clean_pushed_and_verified_on_an_experimental_box(
     assert set(rep.heads) == set(world.all_repos())
 
 
-def test_the_guard_covers_the_five_repos_a_stable_package_is_built_from():
-    names = {s.name for s in sg.repo_specs(Path("/m"), Path("/f"), Path("/c"))}
+def test_the_guard_covers_the_five_repos_a_stable_package_is_built_from(world):
+    names = {s.name for s in sg.repo_specs(world.monorepo, world.framework, world.conn)}
     assert names == {"fsr_all_widgets", "fsr-playbook-framework", "conn_main",
                      "agenticAssistant", "agenticAssistantMonitor"}
 
@@ -321,3 +332,24 @@ def test_a_worktree_is_stamped_under_its_main_checkouts_name(world, tmp_path):
     git(main, "worktree", "add", "-q", str(wt), "-b", "feat/x")
     assert sg.stamp_name(wt) == main.name
     assert sg.stamp_name(main) == main.name
+
+
+def test_inputs_are_read_from_the_one_shared_file_not_listed_in_the_guard(world):
+    specs = {s.name: s.inputs for s in sg.repo_specs(world.monorepo, world.framework, world.conn)}
+    assert specs["conn_main"] == ("connector-fsr-agentic-assistant", "scripts")   # ship, then extra
+    assert specs["fsr-playbook-framework"] == ("packaging",)
+    assert specs["agenticAssistant"] == ()                                         # `.` = whole repo
+    # editing the file changes the guard: a path added as `ship` is now a clean-check input
+    f = world.monorepo / ".github" / "package-inputs"
+    f.write_text(f.read_text() + "conn_main  ship  docs\n")
+    assert "docs" in {s.name: s.inputs for s in sg.repo_specs(world.monorepo, world.framework, world.conn)}["conn_main"]
+
+
+def test_a_missing_or_incomplete_inputs_file_is_refused_not_guessed(world):
+    f = world.monorepo / ".github" / "package-inputs"
+    f.write_text("conn_main  ship  connector-fsr-agentic-assistant\n")
+    with pytest.raises(KeyError, match="no line for"):
+        sg.repo_specs(world.monorepo, world.framework, world.conn)
+    f.unlink()
+    with pytest.raises(OSError):
+        sg.repo_specs(world.monorepo, world.framework, world.conn)

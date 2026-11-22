@@ -6,9 +6,10 @@ This guard refuses the install unless every condition below holds:
 
   1. BOX is a registry alias with role = "stable" (scripts/box.sh --role).
   2. Each source repo is clean on the inputs that go into the package: no tracked
-     changes and no untracked files there. The connector scopes this to what it
-     packages (connector package, scripts/); a stray untracked directory elsewhere
-     in the repo is someone's WIP, not a package input.
+     changes and no untracked files there. The inputs come from the root repo's
+     .github/package-inputs (the same file make promote classifies by): a repo's
+     `ship` paths plus its `extra` paths. A stray untracked directory elsewhere in
+     the repo is someone's WIP, not a package input.
   3. Each source repo's HEAD equals the remote's main (`git ls-remote`): either a
      checkout on main, or (`--promoted-source`) a detached tree that `make stable`
      created at the promoted commit. Nothing unpushed or unpromoted reaches a
@@ -60,16 +61,34 @@ def _git(path: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(path), *args], capture_output=True, text=True)
 
 
+PACKAGE_INPUTS = Path(".github") / "package-inputs"
+
+
+def load_package_inputs(monorepo: Path) -> dict[str, tuple[str, ...]]:
+    """repo name -> the pathspecs that must be clean: its `ship` plus `extra` lines of the
+    root repo's .github/package-inputs. `.` (the whole repo) becomes () = no pathspec.
+    Raises OSError when the file is missing; a repo with no line at all is
+    repo_specs's problem (it refuses)."""
+    f = monorepo / PACKAGE_INPUTS
+    out: dict[str, list[str]] = {}
+    for raw in f.read_text().splitlines():
+        parts = raw.split("#", 1)[0].split()
+        if len(parts) == 3 and parts[1] in ("ship", "extra"):
+            out.setdefault(parts[0], []).append(parts[2])
+    return {k: () if "." in v else tuple(v) for k, v in out.items()}
+
+
 def repo_specs(monorepo: Path, framework: Path, conn: Path) -> list[RepoSpec]:
-    """The five source repos a stable package is built from."""
-    specs = [
-        RepoSpec("fsr_all_widgets", monorepo, ("fortisoar-widget-harness", "scripts")),
-        RepoSpec("fsr-playbook-framework", framework, ("packaging", "fsr_playbooks", "pyproject.toml")),
-        RepoSpec("conn_main", conn, ("connector-fsr-agentic-assistant", "scripts")),
-    ]
+    """The five source repos a stable package is built from. What each must be clean on is
+    not listed here: it is the one definition in the root repo's .github/package-inputs."""
+    inputs = load_package_inputs(monorepo)
+    paths = {"fsr_all_widgets": monorepo, "fsr-playbook-framework": framework, "conn_main": conn}
     for w in WIDGET_NAMES:
-        specs.append(RepoSpec(w, monorepo / "widgets-src" / w))
-    return specs
+        paths[w] = monorepo / "widgets-src" / w
+    missing = [n for n in paths if n not in inputs]
+    if missing:
+        raise KeyError(f"{monorepo / PACKAGE_INPUTS} has no line for: {', '.join(missing)}")
+    return [RepoSpec(n, p, inputs[n]) for n, p in paths.items()]
 
 
 def check_clean(spec: RepoSpec) -> list[str]:
@@ -215,7 +234,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--promoted-source", action="store_true",
                     help="the repos are detached trees at the promoted commits (make stable)")
     args = ap.parse_args(argv)
-    rep = guard(args.box, repo_specs(args.monorepo, args.framework, args.conn),
+    try:
+        specs = repo_specs(args.monorepo, args.framework, args.conn)
+    except (OSError, KeyError) as exc:
+        print(f"make stable: cannot read the package inputs: {exc}", file=sys.stderr)
+        return 2
+    rep = guard(args.box, specs,
                 args.stamp_dir or default_stamp_dir(), detached_ok=args.promoted_source)
     if not rep.ok:
         print("make stable: REFUSED", file=sys.stderr)
