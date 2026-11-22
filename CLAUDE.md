@@ -94,7 +94,10 @@ Edit `../../fsr-playbook-framework/fsr_playbooks/`, never a copy under this repo
 
 - `make loop` is the default. It runs local tests and a Frank smoke, pushes the working
   trees to the box, then runs a ~35s live smoke. `LOCAL_ONLY=1` skips the box.
-- `make dev-push BOX=<alias>` copies working trees and recycles once (`scripts/dev_push.sh`).
+- `make dev-push BOX=<alias>` copies working trees and recycles once (`scripts/dev_push.sh`), then runs live
+  sanity and stamps the pushed heads (`SKIP_LIVE_SANITY=1` opts out). Framework: your own tree
+  (agent tree, `.fsr_src`), else a clean export of its remote main, never the shared checkout;
+  the synced sha is printed.
 - **A new operation needs an install, not a release.** FortiSOAR registers operations
   at install, so an op new in `info.json` returns "Operation matching query does not
   exist" after a plain copy. A bumped install registers it without the public release:
@@ -115,7 +118,7 @@ packages use `uv pip install --python .venv/bin/python ...`; plain `pip` fails h
 | target | tier | what it answers |
 |---|---|---|
 | `make tool-sweep` | T0, no LLM, ~2s | contract invariants over **every** tool (61). An LLM run can't guarantee it touched all of them. |
-| `make test` | T0, deterministic | THE gate (also the ship gate, and what CI runs): whole suite, parallel, shuffled, 120s per-test timeout. `PYTEST_ARGS=tests/x.py` for a subset. |
+| `make test` | T0, deterministic | THE gate (also the ship gate, and what CI runs): whole suite, parallel, shuffled, 120s per-test timeout. `PYTEST_ARGS=tests/x.py` for a subset. Before a push run the tests for your change, not the whole suite: pre-push runs the changed-scope tests and CI runs the full one. |
 | `make mutants` | T0, ~2-3 min | reverts each fix named in its manifest and expects its test red |
 | `make local-turn` (`PLAYBOOK=` mounts a playbook) | T1, one turn | drive one turn by hand while iterating |
 | `make t1-scenarios` | T1, single-turn invariants | `JOBS=`, `S=` |

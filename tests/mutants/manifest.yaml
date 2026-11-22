@@ -606,3 +606,14 @@ mutants:
     tests:
       - fsr_playbooks/tests/test_siem_window_covers_alert.py::test_blank_window_reaches_a_26h_old_alert
       - fsr_playbooks/tests/test_siem_window_covers_alert.py::test_explicit_short_window_is_widened_to_the_alert
+
+  - id: close_run_floor_precheck
+    fix: "the --close run prints the offline floor precheck up front, like the full autonomy run"
+    file: scripts/live_autonomy.py
+    old: |2
+              _precheck(box, {"fp_closed_alone_then_reopened":
+                              _close_policy()["rules"][0]["when"]["verdict"]["min_confidence"]})
+    new: |2
+              pass
+    tests:
+      - tests/test_live_autonomy_close_precheck.py::test_close_run_warns_when_floor_unreachable

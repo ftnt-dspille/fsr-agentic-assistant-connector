@@ -135,8 +135,33 @@ class World:
 
 
 @pytest.fixture(scope="module")
-def template(tmp_path_factory):
-    return World(tmp_path_factory.mktemp("stable_guard_template"))
+def template(tmp_path_factory, request):
+    """The throwaway repos, built once per RUN, not once per xdist worker.
+
+    Each worker used to build its own template (~100 git execs); with ten workers on
+    a loaded machine that was 20-100s of setup per worker and most of the suite's
+    wall time. Under xdist the first worker to get here builds it in the run's shared
+    base dir while the rest wait on a file lock, then every worker copies it (tests
+    only copy; none pushes to the template's bare remotes).
+    """
+    if not hasattr(request.config, "workerinput"):
+        return World(tmp_path_factory.mktemp("stable_guard_template"))
+    import fcntl
+    shared = tmp_path_factory.getbasetemp().parent / "stable_guard_shared"
+    shared.mkdir(exist_ok=True)
+    with open(shared / ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        built = shared / "tpl"
+        if not (shared / ".done").exists():
+            World(built)
+            (shared / ".done").write_text("ok")
+        fcntl.flock(lock, fcntl.LOCK_UN)
+    w = World(built, build=False)
+    w.monorepo = built / "repos" / "fsr_all_widgets"
+    w.framework = built / "repos" / "fsr-playbook-framework"
+    w.conn = built / "repos" / "conn_main"
+    w.widgets = {n: built / "repos" / n for n in sg.WIDGET_NAMES}
+    return w
 
 
 @pytest.fixture()

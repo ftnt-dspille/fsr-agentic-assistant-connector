@@ -3,12 +3,15 @@
 # framework checkout (deploy, ship-dev, loop, pre-push, tests) asks this, instead
 # of re-deriving FSR_SRC / FSRPB_FRAMEWORK_DIR / a sibling path on its own.
 #
-#   bash scripts/framework_dir.sh [--soft] [--stable] [<connector repo root>]
+#   bash scripts/framework_dir.sh [--soft] [--stable] [--own] [<connector repo root>]
 #
 # Prints the absolute path of the framework checkout (the dir holding
 # `fsr_playbooks/`), or fails with one message naming every place it looked.
 # --stable: ignore 1-3 (per-session overrides) and answer from the layout only; the
 # shared dev venv uses this so one session's FSR_SRC cannot re-point it for everyone.
+# --own: answer only from rules 1-4 (the caller's own framework: an explicit variable,
+# .fsr_src, or the monorepo layout); exit 1 quietly when only the shared sibling
+# checkout (5) is left. dev-push uses it to tell "my framework" from "another agent's".
 # --soft: print the best guess and exit 0 even when nothing is valid (callers that
 # only want a default to show or to pass on; strict is the default).
 #
@@ -24,9 +27,9 @@
 # (python) implements the same precedence.
 set -u
 
-soft=0; stable=0
+soft=0; stable=0; own=0
 while [[ "${1:-}" == --* ]]; do
-    case "$1" in --soft) soft=1 ;; --stable) stable=1 ;; *) echo "framework_dir: unknown flag $1" >&2; exit 2 ;; esac
+    case "$1" in --soft) soft=1 ;; --stable) stable=1 ;; --own) own=1 ;; *) echo "framework_dir: unknown flag $1" >&2; exit 2 ;; esac
     shift
 done
 ROOT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -60,6 +63,7 @@ if [[ $stable == 0 && -s "$ROOT/.fsr_src" ]]; then
     _try ".fsr_src" "$(head -1 "$ROOT/.fsr_src")" || true
 fi
 _try "monorepo" "$ROOT/../framework" || true
+[[ $own == 1 ]] && exit 1
 main="$(bash "$ROOT/scripts/box.sh" --main-checkout "$ROOT" 2>/dev/null)" || main="$ROOT"
 _try "sibling" "$main/../../fsr-playbook-framework" || true
 

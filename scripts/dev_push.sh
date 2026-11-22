@@ -25,6 +25,19 @@
 # pushed, and `make doctor` reports it. A real `make deploy` installs into
 # a fresh version dir and reinstalls the pinned wheel, which clears both.
 #
+# WHICH FRAMEWORK
+# ---------------
+# The caller's OWN framework (FSR_SRC, .fsr_src, or an agent tree's framework/) is
+# synced as is. With none, the shared framework checkout is NOT used (it holds other
+# sessions' WIP, so the box would run non-reproducible code): the framework's remote
+# main is exported clean instead. Either way the synced sha is printed.
+#
+# STAMP
+# -----
+# Ends with live sanity (scripts/live_sanity_hook.sh) and stamps the connector and
+# the framework it synced, so no second `make doctor SANITY=1 STAMP=` is needed.
+# A dirty framework tree is never stamped. SKIP_LIVE_SANITY=1 opts out.
+#
 #   scripts/dev_push.sh                   # framework + connector
 #   scripts/dev_push.sh --connector-only  # skip the framework sync
 #   BOX_SSH=fsr206 BOX_ENV=... scripts/dev_push.sh
@@ -55,12 +68,47 @@ FRAMEWORK=1
 for a in "$@"; do
     case "$a" in
         --connector-only) FRAMEWORK=0 ;;
-        -h|--help) sed -n '1,29p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        -h|--help) sed -n '1,40p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *) echo "unknown arg: $a (try --help)" >&2; exit 2 ;;
     esac
 done
 
 t0=$SECONDS
+
+# Which framework tree to sync (see WHICH FRAMEWORK). Exported as FSR_SRC so
+# ship_dev.sh, which resolves through framework_dir.sh, syncs exactly this tree.
+FW_DIR=""; FW_STAMP=""
+if [[ "$FRAMEWORK" == "1" ]]; then
+    if FW_DIR="$(bash "$ROOT/scripts/framework_dir.sh" --own "$ROOT" 2>/dev/null)"; then
+        echo ">> framework: the caller's own tree $FW_DIR"
+    else
+        # shellcheck source=framework_at_main.sh
+        source "$ROOT/scripts/framework_at_main.sh"
+        _pp="${PYTHONPATH-}"; _fd="${FSRPB_FRAMEWORK_DIR-}"
+        framework_at_main "$ROOT" || {
+            echo "!! no framework of your own and the framework's remote main could not be exported." >&2
+            echo "   Set FSR_SRC=<your framework checkout>, or --connector-only." >&2
+            exit 1
+        }
+        FW_DIR="$_fam_dir"
+        # The export also points this process's imports at the tree; only the dir is wanted here.
+        if [[ -n "$_pp" ]]; then export PYTHONPATH="$_pp"; else unset PYTHONPATH; fi
+        if [[ -n "$_fd" ]]; then export FSRPB_FRAMEWORK_DIR="$_fd"; else unset FSRPB_FRAMEWORK_DIR; fi
+    fi
+    export FSR_SRC="$FW_DIR"
+    fw_sha="$(git -C "$FW_DIR" rev-parse --short HEAD)"
+    if git -C "$FW_DIR" diff --quiet HEAD; then
+        FW_STAMP="$FW_DIR"; echo ">> framework sha to sync: $fw_sha (clean)"
+    else
+        echo ">> framework sha to sync: $fw_sha +uncommitted -- it will NOT be stamped (a dirty tree proves no commit)"
+    fi
+fi
+
+# Live sanity (stamps the pushed heads); SKIP_LIVE_SANITY=1 opts out.
+finish() {
+    bash "$ROOT/scripts/live_sanity_hook.sh" "$ROOT" ${FW_STAMP:+"$FW_STAMP"} || exit 1
+    exit 0
+}
 
 # Syntax-check before touching the box: a broken import would take every
 # worker down, and the traceback is far easier to read here.
@@ -118,7 +166,7 @@ if [[ -n "$new_ops" ]]; then
     "$PY" "$ROOT/scripts/doctor.py" --env "$BOX_ENV" --expect-build "$want"
     lap "workers on build"
     echo ">> dev push escalated to install in $((SECONDS - t0))s -- ops registered, box runs this tree (build $want)"
-    exit 0
+    finish
 fi
 
 # storage.db is the box's own runtime state and wheels/ are install-time
@@ -186,3 +234,4 @@ echo ">> waiting for workers to report build $want"
 "$PY" "$ROOT/scripts/doctor.py" --env "$BOX_ENV" --expect-build "$want"
 lap "workers on build"
 echo ">> dev push done in $((SECONDS - t0))s -- box runs this tree (build $want)"
+finish

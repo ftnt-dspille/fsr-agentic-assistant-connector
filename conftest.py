@@ -37,6 +37,33 @@ _GIT_REPO_VARS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRE
 for _v in _GIT_REPO_VARS:
     os.environ.pop(_v, None)
 
+# The developer's GLOBAL core.hooksPath (a commit-msg/customer-term scanner) runs on
+# every `git commit` the suite's throwaway repos make: ~1-4s each on a loaded
+# machine, and the git-heavy suites (stable guard, promote, agent tree) make
+# thousands. That, not a missing -n, made `make test` take minutes. Point git's
+# global config at the user's own file plus an overriding hooksPath: identity and
+# aliases stay, the global hook is skipped, and a test's own repo-level
+# core.hooksPath still applies (the hook tests set one). An explicit
+# GIT_CONFIG_GLOBAL (a test or CI choosing its own) is left alone.
+if "GIT_CONFIG_GLOBAL" not in os.environ:
+    import hashlib
+    import tempfile
+
+    _home_cfg = os.path.expanduser("~/.gitconfig")
+    _body = ("[include]\n\tpath = %s\n[core]\n\thooksPath = %s\n" % (_home_cfg, os.devnull)
+             if os.path.exists(_home_cfg) else "[core]\n\thooksPath = %s\n" % os.devnull)
+    _cfg = os.path.join(tempfile.gettempdir(),
+                        "fsr-test-gitconfig-%s" % hashlib.sha256(_body.encode()).hexdigest()[:12])
+    try:
+        if not os.path.exists(_cfg):
+            _tmp = "%s.%d" % (_cfg, os.getpid())
+            with open(_tmp, "w") as _f:
+                _f.write(_body)
+            os.replace(_tmp, _cfg)  # atomic: xdist workers race to create it
+        os.environ["GIT_CONFIG_GLOBAL"] = _cfg
+    except OSError:
+        pass
+
 # Put the framework's tooling/ on sys.path at conftest load -- before any test
 # module is collected -- so tests whose skip-guard imports tooling/evals at
 # import time (eval_canon, the offline dev-harness suite) RUN against it instead
