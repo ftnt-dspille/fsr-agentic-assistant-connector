@@ -129,7 +129,8 @@
    }
   ],
   "incidents": [],
-  "indicators": []
+  "indicators": [],
+  "identities": []
  },
  "ops": [
   {
@@ -320,6 +321,16 @@
   {
    "connector": "servicenow",
    "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
    "response": {
     "ok": true,
     "data": {

@@ -130,7 +130,8 @@
    }
   ],
   "incidents": [],
-  "indicators": []
+  "indicators": [],
+  "identities": []
  },
  "ops": [
   {
@@ -259,6 +260,25 @@
     "ok": true,
     "data": {
      "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c0a1d0a10f3e4a518c01aa0000000121",
+       "number": "CHG-3310",
+       "state": "Implemented",
+       "short_description": "Hourly package pulls from the vendor mirror",
+       "description": "Approved standing change: build-srv-02 pulls package updates from the vendor mirror at 203.0.113.140 over HTTPS every hour.",
+       "approval": "approved"
+      }
+     ]
     }
    }
   }

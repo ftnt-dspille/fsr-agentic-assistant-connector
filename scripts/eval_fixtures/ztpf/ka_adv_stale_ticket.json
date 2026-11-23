@@ -115,7 +115,8 @@
   ],
   "assets": [],
   "incidents": [],
-  "indicators": []
+  "indicators": [],
+  "identities": []
  },
  "ops": [
   {
@@ -489,6 +490,16 @@
        "priority": "5"
       }
      ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
     }
    }
   }
