@@ -31,7 +31,7 @@ _CHANGE_OPS: dict[str, tuple[str, Any]] = {
 }
 
 
-def _asset_rows(names: list[str]) -> list[dict] | None:
+def _asset_rows(names: list[str], stats: dict[str, int] | None = None) -> list[dict] | None:
     """Asset rows found for ``names``; None when the lookup could not be made."""
     from fsr_playbooks.mcp_server import _shared  # noqa: PLC0415
     client = _shared._live_client()
@@ -41,6 +41,8 @@ def _asset_rows(names: list[str]) -> list[dict] | None:
     answered = False
     for n in names:
         url = f"{client.base_url}/api/3/assets?$search={quote(n)}&$limit=5"
+        if stats is not None:
+            stats["asset_requests"] = stats.get("asset_requests", 0) + 1
         try:
             r = live_request("get", client, url)
             if getattr(r, "status_code", None) != 200:
@@ -53,7 +55,7 @@ def _asset_rows(names: list[str]) -> list[dict] | None:
     return rows if answered else None
 
 
-def _change_rows(names: list[str]) -> list[Any] | None:
+def _change_rows(names: list[str], stats: dict[str, int] | None = None) -> list[Any] | None:
     """Change request rows for the first name, from the configured ticketing
     connector; [] when none is configured, None when it could not be asked."""
     try:
@@ -73,6 +75,8 @@ def _change_rows(names: list[str]) -> list[Any] | None:
     answered = False
     for connector, op, build in asks:
         for params in build(names[0]):
+            if stats is not None:
+                stats["change_ops"] = stats.get("change_ops", 0) + 1
             try:
                 with mute_recording():
                     res = te.run_op(connector=connector, op=op, params=params)
@@ -85,18 +89,20 @@ def _change_rows(names: list[str]) -> list[Any] | None:
 
 
 def read_subject_records(names: list[str]) -> dict[str, Any]:
-    """``{"asset": rows | None, "change": rows | None}`` for the subject's names.
-    Never raises; a kind it could not look up is None."""
+    """``{"asset": rows | None, "change": rows | None, "stats": {...}}`` for the
+    subject's names (``stats``: the requests it made, reported on the card as the
+    lookup's cost). Never raises; a kind it could not look up is None."""
     names = [n for n in names if isinstance(n, str) and n.strip()][:4]
-    out: dict[str, Any] = {"asset": None, "change": None}
+    stats: dict[str, int] = {"asset_requests": 0, "change_ops": 0}
+    out: dict[str, Any] = {"asset": None, "change": None, "stats": stats}
     if not names:
         return out
     try:
-        out["asset"] = _asset_rows(names)
+        out["asset"] = _asset_rows(names, stats)
     except Exception:  # noqa: BLE001
         log.debug("asset existence lookup failed", exc_info=True)
     try:
-        out["change"] = _change_rows(names)
+        out["change"] = _change_rows(names, stats)
     except Exception:  # noqa: BLE001
         log.debug("change existence lookup failed", exc_info=True)
     return out

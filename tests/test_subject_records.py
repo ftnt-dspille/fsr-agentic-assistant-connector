@@ -103,8 +103,9 @@ def test_a_lookup_that_cannot_be_made_is_none_not_empty(host, monkeypatch):
     monkeypatch.setattr(_shared, "_live_client", lambda: None)
     monkeypatch.setattr(tools_execution, "run_op",
                         lambda **kw: {"ok": False, "code": "no_live_fsr"})
-    assert read_subject_records(["sec-sandbox-02"]) == {"asset": None, "change": None}
-    assert read_subject_records([]) == {"asset": None, "change": None}
+    for names in (["sec-sandbox-02"], []):
+        got = read_subject_records(names)
+        assert got["asset"] is None and got["change"] is None
 
 
 def test_the_turn_binds_the_reader_beside_the_subject():
@@ -117,3 +118,14 @@ def test_the_turn_binds_the_reader_beside_the_subject():
         assert cv._turn_subject_records.get() is read_subject_records
     finally:
         cv.set_turn_subject_records(None)
+
+
+def test_the_lookup_reports_the_requests_it_made(host):
+    from fsr_soc_triage.subject_records import read_subject_records
+    use, calls = host
+    use("ka_trap_closed_case_other_host")
+    got = read_subject_records(["sec-sandbox-02", "10.20.9.14", "a-3", "b-4", "c-5"])
+    # names are capped at four; the ticketing connector is asked two listings
+    assert got["stats"] == {"asset_requests": 4, "change_ops": 2}
+    assert len(calls.ops) == 2
+    assert read_subject_records([])["stats"] == {"asset_requests": 0, "change_ops": 0}
