@@ -1,0 +1,29 @@
+{
+  "name": "ka_trap_asset_leans_benign_change_scopes",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_trap_asset_leans_benign_change_scopes",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000207"
+  },
+  "why": [
+    "KNOWN-ANSWER row (trap): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Trap: the asset record says vendor portal sessions are expected; the standing change scopes that to 198.51.100.0/24 and the alert's address is outside it. A fixed five-minute beacon to an uncovered address is a true positive."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "true_positive"
+      ]
+    }
+  }
+}

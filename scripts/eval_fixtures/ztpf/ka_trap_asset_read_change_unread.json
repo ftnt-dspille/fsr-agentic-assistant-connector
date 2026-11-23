@@ -1,0 +1,399 @@
+{
+  "_README": [
+    "ADVERSARIAL trap (read-and-still-wrong): the asset record the model finds first is plain (an evaluation VM with internet egress allowed) and invites a conviction.",
+    "The explanation is in a SECOND record, an approved change whose window covers the alert and names this host and the rated address (a vendor C2-emulation proof of concept).",
+    "Answer: benign / false_positive. A confident true_positive after reading only the asset means the second record was never read.",
+    "strict_ops: any op not recorded here is an honest miss."
+  ],
+  "strict_ops": true,
+  "configured_connectors": [
+    {
+      "name": "virustotal",
+      "status": "Completed",
+      "version": "3.0.0",
+      "label": "VirusTotal",
+      "config_count": 1
+    },
+    {
+      "name": "fortinet-fortisiemv2",
+      "status": "Completed",
+      "version": "6.1.1",
+      "label": "Fortinet FortiSIEM V2",
+      "config_count": 1
+    },
+    {
+      "name": "servicenow",
+      "status": "Completed",
+      "version": "3.4.0",
+      "label": "ServiceNow",
+      "config_count": 1
+    }
+  ],
+  "enrichment_actions": {
+    "ip": [
+      {
+        "connector": "virustotal",
+        "op": "query_ip",
+        "title": "Query IP Reputation",
+        "category": "threat-intel",
+        "tier": 1,
+        "requires_approval": false,
+        "status": "Available",
+        "deprecated": false,
+        "required_params": [
+          {
+            "name": "ip",
+            "type": "string"
+          }
+        ],
+        "params": [
+          {
+            "name": "ip",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "runs_on_agent": false
+      }
+    ],
+    "domain": [
+      {
+        "connector": "virustotal",
+        "op": "get_domain_report",
+        "title": "Get Domain Report",
+        "category": "threat-intel",
+        "tier": 1,
+        "requires_approval": false,
+        "status": "Available",
+        "deprecated": false,
+        "required_params": [
+          {
+            "name": "domain",
+            "type": "string"
+          }
+        ],
+        "params": [
+          {
+            "name": "domain",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "runs_on_agent": false
+      }
+    ]
+  },
+  "personas": {},
+  "skills": [],
+  "modules": {
+    "alerts": [
+      {
+        "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000206",
+        "@type": "Alert",
+        "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000206",
+        "id": 94206,
+        "name": "Beaconing to external host from lab-eval-12",
+        "description": "Repeated HTTPS sessions from lab-eval-12 to 203.0.113.77 every five minutes.",
+        "sourceIp": "10.50.8.17",
+        "destinationIp": "203.0.113.77",
+        "source": "Fortinet FortiSIEM",
+        "createDate": 1790690820.0,
+        "computerName": "lab-eval-12",
+        "status": {
+          "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+          "@type": "Picklist",
+          "itemValue": "Open",
+          "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+        },
+        "severity": {
+          "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+          "@type": "Picklist",
+          "itemValue": "High",
+          "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+        },
+        "sourceId": "142206"
+      }
+    ],
+    "assets": [
+      {
+        "@id": "/api/3/assets/6b1d0a10-2f3e-4a51-8c01-aa0000000216",
+        "@type": "Asset",
+        "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000216",
+        "id": 7216,
+        "name": "lab-eval-12",
+        "ipAddress": "10.50.8.17",
+        "hostName": "lab-eval-12",
+        "description": "Evaluation VM owned by Security Engineering, used for product evaluations and vendor proofs of concept. Internet egress is allowed from this host.",
+        "owner": "Security Engineering",
+        "criticality": "Medium"
+      }
+    ],
+    "incidents": [],
+    "indicators": [],
+    "identities": []
+  },
+  "ops": [
+    {
+      "connector": "virustotal",
+      "op": "query_ip",
+      "match": {
+        "ip": "203.0.113.77"
+      },
+      "response": {
+        "ok": true,
+        "data": {
+          "data": {
+            "id": "203.0.113.77",
+            "type": "ip_address",
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 31,
+                "suspicious": 4,
+                "harmless": 20,
+                "undetected": 39,
+                "timeout": 0
+              },
+              "reputation": -41,
+              "as_owner": "Example Hosting Co",
+              "country": "US",
+              "tags": [
+                "c2"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "connector": "virustotal",
+      "op": "query_ip",
+      "match": {
+        "ip": "10.50.8.17"
+      },
+      "response": {
+        "ok": true,
+        "data": {
+          "error": "private address: no reputation data"
+        }
+      }
+    },
+    {
+      "connector": "fortinet-fortisiem*",
+      "op": "execute_api_request",
+      "match": {
+        "endpoint": "/rest/pub/v2/query/eventQuery"
+      },
+      "response": {
+        "ok": true,
+        "data": {
+          "queryId": "ka-q-1"
+        }
+      }
+    },
+    {
+      "connector": "fortinet-fortisiem*",
+      "op": "execute_api_request",
+      "match": {
+        "endpoint": "/rest/pub/v2/query/progress"
+      },
+      "response": {
+        "ok": true,
+        "data": {
+          "progress": 100
+        }
+      }
+    },
+    {
+      "connector": "fortinet-fortisiem*",
+      "op": "execute_api_request",
+      "match": {
+        "endpoint": "/rest/pub/v2/query/events/results"
+      },
+      "response": {
+        "ok": true,
+        "data": [
+          {
+            "phRecvTime": "2026-09-29T13:55:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152011"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:50:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152010"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:45:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152009"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:40:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152008"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:35:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152007"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:30:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152006"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:25:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152005"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:20:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152004"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:15:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152003"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:10:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152002"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:05:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152001"
+          },
+          {
+            "phRecvTime": "2026-09-29T13:00:00Z",
+            "srcIpAddr": "10.50.8.17",
+            "destIpAddr": "203.0.113.77",
+            "destIpPort": 443,
+            "sentBytes64": 640,
+            "hostName": "lab-eval-12",
+            "eventType": "Permitted traffic flow",
+            "incidentId": "152000"
+          }
+        ]
+      }
+    },
+    {
+      "connector": "fortinet-fortisiem*",
+      "op": "get_incidents",
+      "match": {},
+      "response": {
+        "ok": true,
+        "data": []
+      }
+    },
+    {
+      "connector": "servicenow",
+      "op": "advance_search",
+      "response": {
+        "ok": true,
+        "data": {
+          "result": []
+        }
+      }
+    },
+    {
+      "connector": "servicenow",
+      "op": "fetch_incidents",
+      "response": {
+        "ok": true,
+        "data": {
+          "result": []
+        }
+      }
+    },
+    {
+      "connector": "servicenow",
+      "op": "search_record",
+      "response": {
+        "ok": true,
+        "data": {
+          "result": []
+        }
+      }
+    },
+    {
+      "connector": "servicenow",
+      "op": "get_all_change_requests",
+      "response": {
+        "ok": true,
+        "data": {
+          "result": [
+            {
+              "sys_id": "c0a1d0a10f3e4a518c01aa0000007101",
+              "number": "CHG-7101",
+              "state": "Implement",
+              "short_description": "Vendor C2 emulation proof of concept",
+              "description": "Approved: lab-eval-12 runs the vendor's command-and-control emulation proof of concept against the vendor-hosted endpoint 203.0.113.77. Beacons every five minutes are the test traffic.",
+              "approval": "approved",
+              "start_date": "2026-09-29 08:00:00",
+              "end_date": "2026-09-30 08:00:00"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

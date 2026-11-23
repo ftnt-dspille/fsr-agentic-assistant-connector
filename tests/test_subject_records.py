@@ -129,3 +129,29 @@ def test_the_lookup_reports_the_requests_it_made(host):
     assert got["stats"] == {"asset_requests": 4, "change_ops": 2}
     assert len(calls.ops) == 2
     assert read_subject_records([])["stats"] == {"asset_requests": 0, "change_ops": 0}
+
+
+@pytest.mark.parametrize("row,names", [
+    ("ka_trap_asset_read_change_unread", {"lab-eval-12", "10.50.8.17"}),
+    ("ka_trap_asset_leans_benign_change_scopes", {"ops-jump-03", "10.50.7.40"}),
+])
+def test_read_and_still_wrong_worlds_hold_both_records(host, row, names):
+    """The asset record and a second, change record both exist for the subject:
+    the explanation (or the scope) lives only in the change."""
+    from fsr_playbooks.mcp_server._evidence_score import subject_records_exist
+    from fsr_soc_triage.subject_records import read_subject_records
+    use, _ = host
+    use(row)
+    assert subject_records_exist(read_subject_records, names) == {"asset": True, "change": True}
+
+
+def test_the_approved_change_window_covers_the_alert_in_the_poc_world():
+    """The change in the proof-of-concept world is live at the alert time, so a
+    model that reads it is right to close; the window rule must not discard it."""
+    from fsr_playbooks.mcp_server._evidence_score import _epoch, window_covers
+    bundle = load_bundle("ka_trap_asset_read_change_unread")
+    alert_t = bundle["modules"]["alerts"][0]["createDate"]
+    chg = next(o for o in bundle["ops"] if o["op"] == "get_all_change_requests")
+    row = chg["response"]["data"]["result"][0]
+    win = [_epoch(row["start_date"]), _epoch(row["end_date"])]
+    assert window_covers({"window": win}, [alert_t])

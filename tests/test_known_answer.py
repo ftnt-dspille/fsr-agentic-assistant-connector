@@ -29,7 +29,10 @@ KA_ROWS = ("ka_c2_beacon", "ka_authorized_scanner", "ka_cdn_first_seen",
            "ka_adv_stale_ticket", "ka_adv_clean_intel_real_c2",
            "ka_trap_cdn_rated_malicious", "ka_trap_echo_ten_second_beacon",
            "ka_trap_closed_case_other_host", "ka_trap_stale_intel_reassigned_ip",
-           "ka_trap_unsanctioned_scanner")
+           "ka_trap_unsanctioned_scanner", "ka_trap_change_other_window",
+           "ka_trap_asset_decommissioned_reassigned",
+           "ka_trap_asset_read_change_unread",
+           "ka_trap_asset_leans_benign_change_scopes")
 
 
 def _box(**world):
