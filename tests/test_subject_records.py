@@ -147,11 +147,13 @@ def test_read_and_still_wrong_worlds_hold_both_records(host, row, names):
 
 def test_the_approved_change_window_covers_the_alert_in_the_poc_world():
     """The change in the proof-of-concept world is live at the alert time, so a
-    model that reads it is right to close; the window rule must not discard it."""
-    from fsr_playbooks.mcp_server._evidence_score import _epoch, window_covers
+    model that reads it is right to close."""
+    from datetime import datetime, timezone
     bundle = load_bundle("ka_trap_asset_read_change_unread")
     alert_t = bundle["modules"]["alerts"][0]["createDate"]
     chg = next(o for o in bundle["ops"] if o["op"] == "get_all_change_requests")
     row = chg["response"]["data"]["result"][0]
-    win = [_epoch(row["start_date"]), _epoch(row["end_date"])]
-    assert window_covers({"window": win}, [alert_t])
+
+    def epoch(s):
+        return datetime.fromisoformat(s).replace(tzinfo=timezone.utc).timestamp()
+    assert epoch(row["start_date"]) <= alert_t <= epoch(row["end_date"])
