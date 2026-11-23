@@ -1,0 +1,30 @@
+{
+  "name": "ka_trap_closed_case_other_host",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_trap_closed_case_other_host",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000203"
+  },
+  "why": [
+    "KNOWN-ANSWER row (trap): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Trap: the earlier closed case convicted a different host; the asset record says this host is the sandbox."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "benign",
+        "false_positive"
+      ]
+    }
+  }
+}

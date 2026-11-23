@@ -1,0 +1,330 @@
+{
+ "_README": [
+  "ADVERSARIAL trap: a threat-intel hit that is old. The address was reassigned to a SaaS vendor after the detections were recorded.",
+  "VirusTotal shows 9/94 detections but the last analysis is more than a year old and the owner and certificate are recent.",
+  "The deciding evidence is the asset record and the change request that moved the vendor allow list to this address.",
+  "Answer: benign / false_positive. A confident true_positive means stale intel was taken for current.",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000204",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000204",
+    "id": 94204,
+    "name": "Connection to a flagged address from dev-ws-22",
+    "description": "Threat feed matched the destination 198.51.100.230 for HTTPS sessions from dev-ws-22.",
+    "sourceIp": "10.32.6.9",
+    "destinationIp": "198.51.100.230",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790690820.0,
+    "computerName": "dev-ws-22",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "sourceId": "142204"
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/6b1d0a10-2f3e-4a51-8c01-aa0000000214",
+    "@type": "Asset",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000214",
+    "id": 7214,
+    "name": "dev-ws-22",
+    "ipAddress": "10.32.6.9",
+    "hostName": "dev-ws-22",
+    "description": "Developer workstation. Syncs documents with the Example Docs service; the vendor moved to Example Cloud Hosting and its endpoint is now 198.51.100.230 (change CHG-8803).",
+    "owner": "Platform Engineering",
+    "criticality": "Medium"
+   }
+  ],
+  "incidents": [],
+  "indicators": [],
+  "identities": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.230"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.230",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 9,
+        "suspicious": 1,
+        "harmless": 48,
+        "undetected": 36,
+        "timeout": 0
+       },
+       "reputation": -4,
+       "as_owner": "Example Cloud Hosting",
+       "country": "US",
+       "last_analysis_date": 1725000000,
+       "last_modification_date": 1725000000,
+       "whois_date": 1787234820,
+       "last_https_certificate": {
+        "subject": {
+         "CN": "docs.vendor-example.com"
+        },
+        "validity": {
+         "not_before": "2026-08-12 00:00:00"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.32.6.9"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-29T12:37:00Z",
+      "srcIpAddr": "10.32.6.9",
+      "destIpAddr": "198.51.100.230",
+      "destIpPort": 443,
+      "sentBytes64": 3000,
+      "rcvdBytes64": 90000,
+      "hostName": "dev-ws-22",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "152000"
+     },
+     {
+      "phRecvTime": "2026-09-29T13:12:11Z",
+      "srcIpAddr": "10.32.6.9",
+      "destIpAddr": "198.51.100.230",
+      "destIpPort": 443,
+      "sentBytes64": 7100,
+      "rcvdBytes64": 340000,
+      "hostName": "dev-ws-22",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "152001"
+     },
+     {
+      "phRecvTime": "2026-09-29T13:54:24Z",
+      "srcIpAddr": "10.32.6.9",
+      "destIpAddr": "198.51.100.230",
+      "destIpPort": 443,
+      "sentBytes64": 11200,
+      "rcvdBytes64": 590000,
+      "hostName": "dev-ws-22",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "152002"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:43:39Z",
+      "srcIpAddr": "10.32.6.9",
+      "destIpAddr": "198.51.100.230",
+      "destIpPort": 443,
+      "sentBytes64": 15300,
+      "rcvdBytes64": 840000,
+      "hostName": "dev-ws-22",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "152003"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "get_incidents",
+   "match": {},
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c0a1d0a10f3e4a518c01aa0000008803",
+       "number": "CHG-8803",
+       "state": "Implemented",
+       "short_description": "Example Docs endpoint moved",
+       "description": "Approved: the Example Docs vendor endpoint is now 198.51.100.230 after its move to a new hosting provider; the egress allow list is updated.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

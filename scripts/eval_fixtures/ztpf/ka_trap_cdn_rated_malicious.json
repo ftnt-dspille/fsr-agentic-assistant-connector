@@ -1,0 +1,344 @@
+{
+ "_README": [
+  "ADVERSARIAL trap: a malicious-looking rating on a shared CDN address backed by hourly traffic.",
+  "VirusTotal rates the address 8/94 (real detections), the SIEM shows hourly sessions with large downloads.",
+  "The deciding evidence is the asset record and the change request: the design-tools sync client is approved to reach the vendor's CDN range.",
+  "Answer: benign / false_positive. A confident true_positive here is the easy wrong path (rating plus periodic traffic).",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000201",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000201",
+    "id": 94201,
+    "name": "Outbound HTTPS to a flagged address from mkt-ws-31",
+    "description": "Threat feed matched the destination 198.51.100.60 for repeated HTTPS sessions from mkt-ws-31.",
+    "sourceIp": "10.31.2.18",
+    "destinationIp": "198.51.100.60",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790690820.0,
+    "computerName": "mkt-ws-31",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "sourceId": "142201"
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/6b1d0a10-2f3e-4a51-8c01-aa0000000211",
+    "@type": "Asset",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000211",
+    "id": 7211,
+    "name": "mkt-ws-31",
+    "ipAddress": "10.31.2.18",
+    "hostName": "mkt-ws-31",
+    "description": "Marketing design workstation. Runs the design-tools desktop sync client, which pulls project assets from the vendor's CDN at 198.51.100.60 every hour (change CHG-5120).",
+    "owner": "Marketing Operations",
+    "criticality": "Medium"
+   }
+  ],
+  "incidents": [],
+  "indicators": [],
+  "identities": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.60"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.60",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 8,
+        "suspicious": 3,
+        "harmless": 50,
+        "undetected": 33,
+        "timeout": 0
+       },
+       "reputation": -6,
+       "as_owner": "Example CDN Inc",
+       "country": "US",
+       "tags": [
+        "cdn"
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.31.2.18"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-29T14:07:00Z",
+      "srcIpAddr": "10.31.2.18",
+      "destIpAddr": "198.51.100.60",
+      "destIpPort": 443,
+      "sentBytes64": 2100,
+      "rcvdBytes64": 48000000,
+      "hostName": "mkt-ws-31",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "150000"
+     },
+     {
+      "phRecvTime": "2026-09-29T13:07:00Z",
+      "srcIpAddr": "10.31.2.18",
+      "destIpAddr": "198.51.100.60",
+      "destIpPort": 443,
+      "sentBytes64": 2137,
+      "rcvdBytes64": 48091000,
+      "hostName": "mkt-ws-31",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "150001"
+     },
+     {
+      "phRecvTime": "2026-09-29T12:07:00Z",
+      "srcIpAddr": "10.31.2.18",
+      "destIpAddr": "198.51.100.60",
+      "destIpPort": 443,
+      "sentBytes64": 2174,
+      "rcvdBytes64": 48182000,
+      "hostName": "mkt-ws-31",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "150002"
+     },
+     {
+      "phRecvTime": "2026-09-29T11:07:00Z",
+      "srcIpAddr": "10.31.2.18",
+      "destIpAddr": "198.51.100.60",
+      "destIpPort": 443,
+      "sentBytes64": 2211,
+      "rcvdBytes64": 48273000,
+      "hostName": "mkt-ws-31",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "150003"
+     },
+     {
+      "phRecvTime": "2026-09-29T10:07:00Z",
+      "srcIpAddr": "10.31.2.18",
+      "destIpAddr": "198.51.100.60",
+      "destIpPort": 443,
+      "sentBytes64": 2248,
+      "rcvdBytes64": 48364000,
+      "hostName": "mkt-ws-31",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "150004"
+     },
+     {
+      "phRecvTime": "2026-09-29T09:07:00Z",
+      "srcIpAddr": "10.31.2.18",
+      "destIpAddr": "198.51.100.60",
+      "destIpPort": 443,
+      "sentBytes64": 2285,
+      "rcvdBytes64": 48455000,
+      "hostName": "mkt-ws-31",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "150005"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "get_incidents",
+   "match": {},
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c0a1d0a10f3e4a518c01aa0000005120",
+       "number": "CHG-5120",
+       "state": "Implemented",
+       "short_description": "Roll out design-tools desktop sync",
+       "description": "Approved standing change: design workstations pull project assets from the vendor CDN at 198.51.100.60 over HTTPS every hour.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

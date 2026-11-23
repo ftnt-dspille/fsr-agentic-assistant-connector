@@ -26,7 +26,10 @@ from scripts.local_conversation import Conversation, Step, unserved_shape  # noq
 KA_ROWS = ("ka_c2_beacon", "ka_authorized_scanner", "ka_cdn_first_seen",
            "ka_prior_case_false_positive", "ka_needle_in_ticket_siem_empty",
            "ka_adv_log_echo", "ka_adv_ambiguous_asset", "ka_adv_fabricated_ip",
-           "ka_adv_stale_ticket", "ka_adv_clean_intel_real_c2")
+           "ka_adv_stale_ticket", "ka_adv_clean_intel_real_c2",
+           "ka_trap_cdn_rated_malicious", "ka_trap_echo_ten_second_beacon",
+           "ka_trap_closed_case_other_host", "ka_trap_stale_intel_reassigned_ip",
+           "ka_trap_unsanctioned_scanner")
 
 
 def _box(**world):

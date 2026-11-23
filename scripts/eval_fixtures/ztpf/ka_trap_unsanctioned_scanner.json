@@ -1,0 +1,354 @@
+{
+ "_README": [
+  "ADVERSARIAL trap: a host named and recorded as a vulnerability scanner scans a subnet outside its approved scope and window.",
+  "The asset record says it is the Security team's scanner and the only change request covers the server subnet on Sunday nights. The alert is a Wednesday afternoon scan of the finance subnet, shortly after a remote desktop logon to the scanner from an external address (rated malicious).",
+  "Answer: true_positive. A confident benign close means the scanner's name and record were taken for authorization.",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000205",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000205",
+    "id": 94205,
+    "name": "Port scan from vuln-scan-02 against the finance subnet",
+    "description": "Sequential connection attempts from vuln-scan-02 to hosts in 10.50.7.0/24 on SMB, RDP, SQL and SSH ports.",
+    "sourceIp": "10.20.5.52",
+    "destinationIp": "10.50.7.10",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790690800.0,
+    "computerName": "vuln-scan-02",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "sourceId": "142205"
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/6b1d0a10-2f3e-4a51-8c01-aa0000000215",
+    "@type": "Asset",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000215",
+    "id": 7215,
+    "name": "vuln-scan-02",
+    "ipAddress": "10.20.5.52",
+    "hostName": "vuln-scan-02",
+    "description": "Vulnerability scanner owned by Security Engineering. Scan scopes and windows are approved per change request.",
+    "owner": "Security Engineering",
+    "criticality": "Medium"
+   }
+  ],
+  "incidents": [],
+  "indicators": [],
+  "identities": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "203.0.113.99"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "203.0.113.99",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 17,
+        "suspicious": 3,
+        "harmless": 40,
+        "undetected": 34,
+        "timeout": 0
+       },
+       "reputation": -22,
+       "as_owner": "Example Transit Ltd",
+       "country": "US",
+       "tags": [
+        "rdp-bruteforce"
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.20.5.52"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.50.7.10"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-29T13:47:00Z",
+      "srcIpAddr": "203.0.113.99",
+      "destIpAddr": "10.20.5.52",
+      "destIpPort": 3389,
+      "hostName": "vuln-scan-02",
+      "eventType": "Windows logon success (remote desktop)",
+      "user": "svc-scan",
+      "incidentId": "151900"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:06:30Z",
+      "srcIpAddr": "10.20.5.52",
+      "destIpAddr": "10.50.7.10",
+      "destIpPort": 445,
+      "hostName": "vuln-scan-02",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "142205"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:06:31Z",
+      "srcIpAddr": "10.20.5.52",
+      "destIpAddr": "10.50.7.11",
+      "destIpPort": 3389,
+      "hostName": "vuln-scan-02",
+      "eventType": "Denied traffic flow",
+      "incidentId": "142205"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:06:32Z",
+      "srcIpAddr": "10.20.5.52",
+      "destIpAddr": "10.50.7.12",
+      "destIpPort": 1433,
+      "hostName": "vuln-scan-02",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "142205"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:06:33Z",
+      "srcIpAddr": "10.20.5.52",
+      "destIpAddr": "10.50.7.13",
+      "destIpPort": 445,
+      "hostName": "vuln-scan-02",
+      "eventType": "Denied traffic flow",
+      "incidentId": "142205"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:06:34Z",
+      "srcIpAddr": "10.20.5.52",
+      "destIpAddr": "10.50.7.14",
+      "destIpPort": 22,
+      "hostName": "vuln-scan-02",
+      "eventType": "Permitted traffic flow",
+      "incidentId": "142205"
+     },
+     {
+      "phRecvTime": "2026-09-29T14:06:35Z",
+      "srcIpAddr": "10.20.5.52",
+      "destIpAddr": "10.50.7.15",
+      "destIpPort": 445,
+      "hostName": "vuln-scan-02",
+      "eventType": "Denied traffic flow",
+      "incidentId": "142205"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "get_incidents",
+   "match": {},
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c0a1d0a10f3e4a518c01aa0000009001",
+       "number": "CHG-9001",
+       "state": "Implemented",
+       "short_description": "Weekly authorized vulnerability scan",
+       "description": "Approved: vuln-scan-02 scans the 10.60.0.0/24 server subnet on Sundays 02:00-05:00 UTC. No other subnet or window is covered.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}
