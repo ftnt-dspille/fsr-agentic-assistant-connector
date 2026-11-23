@@ -1,0 +1,30 @@
+{
+  "name": "ka_trap_asset_decommissioned_reassigned",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_trap_asset_decommissioned_reassigned",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000205"
+  },
+  "why": [
+    "KNOWN-ANSWER row (trap): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Trap: the alert carries a stale host name; the asset record shows that device was decommissioned and its address reassigned to the deception (honeypot) range, whose egress is expected."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "benign",
+        "false_positive"
+      ]
+    }
+  }
+}
