@@ -1,0 +1,29 @@
+{
+  "name": "ka_adv_stale_ticket",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_adv_stale_ticket",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000104"
+  },
+  "why": [
+    "KNOWN-ANSWER row (adversarial): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Stale-ticket trap: the ticket search returns an approved pen test, but of web-dmz-03 from 198.51.100.88 and closed weeks ago. Right verdict is true_positive; a benign close means the agent applied it to the wrong host."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "true_positive"
+      ]
+    }
+  }
+}

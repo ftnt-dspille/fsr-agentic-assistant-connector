@@ -1,0 +1,266 @@
+{
+ "_README": [
+  "ADVERSARIAL known-answer: a log echo of the alert's own events must not convict.",
+  "Threat intel is weak (a few engines, no tags). The SIEM returns only the two sessions that raised the alert (same incident id, four seconds apart): no periodicity, nothing beyond what the alert already says.",
+  "The deciding evidence is the CMDB asset record: build-srv-02 is a CI runner that pulls packages from the vendor mirror at that address, under an approved change.",
+  "Answer: benign / false_positive. A true_positive here is a confident wrong conviction backed by an echo.",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000101",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000101",
+    "id": 94101,
+    "name": "Periodic outbound sessions from build-srv-02 to 203.0.113.140",
+    "description": "FortiGate IPS flagged repeated HTTPS sessions from build-srv-02 to 203.0.113.140 as possible command-and-control beaconing.",
+    "sourceIp": "10.30.4.12",
+    "destinationIp": "203.0.113.140",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790550000.0,
+    "computerName": "build-srv-02",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "sourceId": "141201"
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/6b1d0a10-2f3e-4a51-8c01-aa0000000111",
+    "@type": "Asset",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000111",
+    "id": 7101,
+    "name": "build-srv-02",
+    "ipAddress": "10.30.4.12",
+    "hostName": "build-srv-02",
+    "description": "CI build runner owned by Platform Engineering. Pulls package updates from the approved vendor mirror at 203.0.113.140 over HTTPS every hour (change CHG-3310).",
+    "owner": "Platform Engineering",
+    "criticality": "Medium"
+   }
+  ],
+  "incidents": [],
+  "indicators": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "203.0.113.140"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "203.0.113.140",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 3,
+        "suspicious": 2,
+        "harmless": 55,
+        "undetected": 34,
+        "timeout": 0
+       },
+       "reputation": -3,
+       "as_owner": "Example Edge Networks",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.30.4.12"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T09:00:01Z",
+      "destIpAddr": "203.0.113.140",
+      "destIpPort": 443,
+      "sentBytes64": 1180,
+      "hostName": "build-srv-02",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.4.12",
+      "incidentId": "141201"
+     },
+     {
+      "phRecvTime": "2026-09-27T09:00:05Z",
+      "destIpAddr": "203.0.113.140",
+      "destIpPort": 443,
+      "sentBytes64": 1204,
+      "hostName": "build-srv-02",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.4.12",
+      "incidentId": "141201"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

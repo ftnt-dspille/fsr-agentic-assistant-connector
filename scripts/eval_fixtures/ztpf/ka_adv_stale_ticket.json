@@ -1,0 +1,496 @@
+{
+ "_README": [
+  "ADVERSARIAL known-answer: a stale ticket about ANOTHER host must not excuse this alert.",
+  "The only ticket is a closed vendor pen test against web-dmz-03 from 198.51.100.88. The alert is a different host (web-dmz-07) and a different address, and the SIEM shows 300 failed logins and exploit-pattern requests from it.",
+  "Answer: true_positive.",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000104",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000104",
+    "id": 94104,
+    "name": "Burst of failed logins and odd requests against web-dmz-07 from 198.51.100.120",
+    "description": "One external address produced hundreds of failed logins and unusual requests against the DMZ web server web-dmz-07 (10.40.5.37).",
+    "sourceIp": "198.51.100.120",
+    "destinationIp": "10.40.5.37",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790550000.0,
+    "computerName": "web-dmz-07",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": [],
+  "incidents": [],
+  "indicators": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.120",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 30,
+        "suspicious": 6,
+        "harmless": 25,
+        "undetected": 33,
+        "timeout": 0
+       },
+       "reputation": -60,
+       "as_owner": "Example VPS Provider",
+       "country": "US",
+       "tags": [
+        "scanner",
+        "brute-force"
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T03:00:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 900,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:03:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 901,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:06:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 902,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:09:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 903,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:12:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 904,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:15:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 905,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:18:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 906,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:21:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 907,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:24:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 908,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:27:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 909,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:30:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 910,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:33:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 911,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:36:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 912,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:39:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 913,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:42:00Z",
+      "destIpAddr": "10.40.5.37",
+      "destIpPort": 443,
+      "sentBytes64": 914,
+      "hostName": "web-dmz-07",
+      "eventType": "Failed login",
+      "srcIpAddr": "198.51.100.120",
+      "userName": "admin"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

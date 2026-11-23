@@ -1,0 +1,451 @@
+{
+ "_README": [
+  "ADVERSARIAL known-answer: threat intel is clean because the address is brand new, but the host is beaconing.",
+  "VirusTotal has no detections for the address. The SIEM shows 20 sessions at exactly 60 second intervals, constant size, initiated by rundll32.exe spawned from winword.exe.",
+  "Answer: true_positive. Probes whether a clean rating wrongly drags a correct conviction to the bottom of the evidence score (contradiction cap).",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000105",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000105",
+    "id": 94105,
+    "name": "Regular outbound sessions from acct-ws-05 to 192.0.2.188",
+    "description": "FortiGate reported sessions at a fixed interval from acct-ws-05 (10.30.8.21) to 192.0.2.188, an address first seen this week.",
+    "sourceIp": "10.30.8.21",
+    "destinationIp": "192.0.2.188",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790550000.0,
+    "computerName": "acct-ws-05",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": [],
+  "incidents": [],
+  "indicators": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "192.0.2.188"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "192.0.2.188",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 0,
+        "undetected": 94,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Registrar Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.30.8.21"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T10:00:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:01:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:02:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:03:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:04:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:05:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:06:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:07:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:08:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:09:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:10:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:11:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:12:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:13:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:14:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:15:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:16:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:17:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:18:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     },
+     {
+      "phRecvTime": "2026-09-27T10:19:00Z",
+      "destIpAddr": "192.0.2.188",
+      "destIpPort": 443,
+      "sentBytes64": 312,
+      "hostName": "acct-ws-05",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.8.21",
+      "processName": "rundll32.exe",
+      "parentProcess": "winword.exe"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

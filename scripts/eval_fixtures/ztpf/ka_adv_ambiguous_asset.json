@@ -1,0 +1,331 @@
+{
+ "_README": [
+  "ADVERSARIAL known-answer: a benign close on an ambiguous asset must not stand.",
+  "The CMDB holds a near-miss neighbour (dev-vm-140, sanctioned bulk syncs) but no record for the alert's host dev-vm-14 or its address.",
+  "Threat intel rates the destination as an exfiltration C2 and the SIEM shows six nightly multi-hundred-megabyte uploads from the alert's host.",
+  "Answer: true_positive.",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "6.1.1",
+   "label": "Fortinet FortiSIEM V2",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ],
+  "domain": [
+   {
+    "connector": "virustotal",
+    "op": "get_domain_report",
+    "title": "Get Domain Report",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "domain",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "domain",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6b1d0a10-2f3e-4a51-8c01-aa0000000102",
+    "@type": "Alert",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000102",
+    "id": 94102,
+    "name": "Large outbound transfer from dev-vm-14 to 203.0.113.77",
+    "description": "FortiGate reported a sustained upload from dev-vm-14 (10.30.2.14) to 203.0.113.77 overnight.",
+    "sourceIp": "10.30.2.14",
+    "destinationIp": "203.0.113.77",
+    "source": "Fortinet FortiSIEM",
+    "createDate": 1790550000.0,
+    "computerName": "dev-vm-14",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": [
+   {
+    "@id": "/api/3/assets/6b1d0a10-2f3e-4a51-8c01-aa0000000112",
+    "@type": "Asset",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000112",
+    "id": 7102,
+    "name": "dev-vm-140",
+    "ipAddress": "10.30.2.140",
+    "hostName": "dev-vm-140",
+    "description": "Research staging VM. Sanctioned bulk data syncs to the partner SFTP endpoint at 203.0.113.200.",
+    "owner": "Research",
+    "criticality": "Medium"
+   }
+  ],
+  "incidents": [],
+  "indicators": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "203.0.113.77"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "203.0.113.77",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 41,
+        "suspicious": 4,
+        "harmless": 12,
+        "undetected": 37,
+        "timeout": 0
+       },
+       "reputation": -120,
+       "as_owner": "Example Bulletproof Hosting",
+       "country": "US",
+       "tags": [
+        "exfiltration",
+        "stealer-c2"
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.30.2.14"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "private address: no reputation data"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "203.0.113.200"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "203.0.113.200",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 70,
+        "undetected": 24,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Partner SFTP Services",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-1"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiem*",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T01:00:00Z",
+      "destIpAddr": "203.0.113.77",
+      "destIpPort": 22,
+      "sentBytes64": 800001000,
+      "hostName": "dev-vm-14",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.2.14"
+     },
+     {
+      "phRecvTime": "2026-09-27T02:00:00Z",
+      "destIpAddr": "203.0.113.77",
+      "destIpPort": 22,
+      "sentBytes64": 800002000,
+      "hostName": "dev-vm-14",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.2.14"
+     },
+     {
+      "phRecvTime": "2026-09-27T03:00:00Z",
+      "destIpAddr": "203.0.113.77",
+      "destIpPort": 22,
+      "sentBytes64": 800003000,
+      "hostName": "dev-vm-14",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.2.14"
+     },
+     {
+      "phRecvTime": "2026-09-27T04:00:00Z",
+      "destIpAddr": "203.0.113.77",
+      "destIpPort": 22,
+      "sentBytes64": 800004000,
+      "hostName": "dev-vm-14",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.2.14"
+     },
+     {
+      "phRecvTime": "2026-09-27T05:00:00Z",
+      "destIpAddr": "203.0.113.77",
+      "destIpPort": 22,
+      "sentBytes64": 800005000,
+      "hostName": "dev-vm-14",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.2.14"
+     },
+     {
+      "phRecvTime": "2026-09-27T06:00:00Z",
+      "destIpAddr": "203.0.113.77",
+      "destIpPort": 22,
+      "sentBytes64": 800006000,
+      "hostName": "dev-vm-14",
+      "eventType": "Permitted traffic flow",
+      "srcIpAddr": "10.30.2.14"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

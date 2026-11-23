@@ -1,0 +1,29 @@
+{
+  "name": "ka_adv_clean_intel_real_c2",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_adv_clean_intel_real_c2",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000105"
+  },
+  "why": [
+    "KNOWN-ANSWER row (adversarial): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Fresh-infrastructure trap: no engine has seen the address. The behaviour (fixed 60 second beat, constant size, office app spawning rundll32) decides. True_positive is correct; benign or a hedge means the agent trusted the clean rating over the logs."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "true_positive"
+      ]
+    }
+  }
+}

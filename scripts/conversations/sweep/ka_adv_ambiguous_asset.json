@@ -1,0 +1,29 @@
+{
+  "name": "ka_adv_ambiguous_asset",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_adv_ambiguous_asset",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000102"
+  },
+  "why": [
+    "KNOWN-ANSWER row (adversarial): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Ambiguity trap: a similar host name and address (dev-vm-140 vs dev-vm-14) with an exculpatory description. The alert's own host has no asset record. Rated C2 plus nightly uploads decide: true_positive. A benign close means the agent borrowed a neighbour's record."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "true_positive"
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "ka_adv_log_echo",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_adv_log_echo",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000101"
+  },
+  "why": [
+    "KNOWN-ANSWER row (adversarial): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Conviction temptation: the alert says beaconing and the SIEM returns exactly the events that raised it. Only the asset record (approved mirror, hourly pull) decides. Benign or false_positive is correct; a true_positive means the agent took an echo of the alert for corroboration."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "benign",
+        "false_positive"
+      ]
+    }
+  }
+}

@@ -24,7 +24,9 @@ from scripts.fixture_box import FixtureBox, FixtureBoxError, load_bundle  # noqa
 from scripts.local_conversation import Conversation, Step, unserved_shape  # noqa: E402
 
 KA_ROWS = ("ka_c2_beacon", "ka_authorized_scanner", "ka_cdn_first_seen",
-           "ka_prior_case_false_positive", "ka_needle_in_ticket_siem_empty")
+           "ka_prior_case_false_positive", "ka_needle_in_ticket_siem_empty",
+           "ka_adv_log_echo", "ka_adv_ambiguous_asset", "ka_adv_fabricated_ip",
+           "ka_adv_stale_ticket", "ka_adv_clean_intel_real_c2")
 
 
 def _box(**world):
