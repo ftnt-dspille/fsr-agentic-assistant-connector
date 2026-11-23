@@ -80,6 +80,10 @@ TURN_SCOPED_SAFE = {
         "not-yet-queried note and the verdict card's sources list (I5); "
         "unbound lists none and changes no decision. Re-set by "
         "_advertised_tools when the resumed turn builds its tool list.",
+    "_turn_known_context":
+        "defaults None. Text the host hands the evidence score so an address in "
+        "it counts as sourced (Phase 2 shadow); unbound sources nothing extra, "
+        "and no decision reads the score, so no decision changes.",
     "_turn_connector_labels":
         "defaults None. Only supplies catalog display labels to the change "
         "offer card (U6); unbound adds no label and the widget humanizes the "
