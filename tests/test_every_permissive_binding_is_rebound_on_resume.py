@@ -224,8 +224,22 @@ def test_every_context_var_is_adjudicated():
         "TURN_SCOPED_SAFE with the reason.")
 
 
+#: Adjudicated for framework code that an older (pinned, released) framework does
+#: not have yet. The bundled leg (framework main) still checks them; the pinned
+#: leg is informational and must not call them stale.
+_NEWER_THAN_PINNED = {"_turn_known_context", "_turn_subject_records"}
+
+
+def _framework_predates_subject_records() -> bool:
+    from fsr_playbooks.mcp_server import _citation_validator as cv
+    return not hasattr(cv, "set_turn_subject_records")
+
+
 def test_no_adjudication_is_stale():
-    stale = sorted(ADJUDICATED - set(_discover_context_vars()))
+    expected = set(ADJUDICATED)
+    if _framework_predates_subject_records():
+        expected -= _NEWER_THAN_PINNED
+    stale = sorted(expected - set(_discover_context_vars()))
     assert not stale, (
         f"adjudicated ContextVar(s) no longer exist in the source: {stale} -- "
         "remove the entry, or fix the rename")

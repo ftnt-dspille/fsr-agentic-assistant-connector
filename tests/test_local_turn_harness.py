@@ -107,7 +107,12 @@ def test_no_network_in_fake_mode(no_inet_socket):
     _PERSONA_READS = ("/api/3/keys", "/api/3/assistant_personas", "/api/3/assistant_skills",
                       "/api/integration/connector_details",
                       # served and stored by the fixture box: the per-turn audit row
-                      "/api/3/llm_activity_logs")
+                      "/api/3/llm_activity_logs",
+                      # the first turn in a process warms the (temp copy of the)
+                      # catalog against the cassette: whether this turn is that
+                      # one depends on test order, so these reads are allowed
+                      "/api/integration/connectors/", "/api/3/agents",
+                      "/api/3/picklist_names", "/api/3/staging_model_metadatas")
     unexpected = [g for g in res.cassette_gets
                   if not any(p in g for p in _PERSONA_READS)
                   and g not in res.cassette_misses]

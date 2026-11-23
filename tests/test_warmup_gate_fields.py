@@ -116,7 +116,15 @@ def test_trigger_logs_the_skip_when_warm(monkeypatch, warmed_db):
                and "absent" not in m for m in logs), logs
 
 
-def test_claim_is_single_flight_then_backs_off():
+def _fresh_claim_state(monkeypatch):
+    """A warm an earlier test (or turn) started leaves the process in backoff;
+    these tests are about the claim itself, so they start from none."""
+    monkeypatch.setattr(ow, "_gated_warm_started_at", None)
+    monkeypatch.setattr(ow, "_gated_warm_busy", False)
+
+
+def test_claim_is_single_flight_then_backs_off(monkeypatch):
+    _fresh_claim_state(monkeypatch)
     assert ow._claim_gated_warm() is None
     busy = ow._claim_gated_warm()
     assert busy and "already running" in busy
@@ -126,6 +134,7 @@ def test_claim_is_single_flight_then_backs_off():
 
 
 def test_claim_is_free_again_after_the_backoff(monkeypatch):
+    _fresh_claim_state(monkeypatch)
     assert ow._claim_gated_warm() is None
     ow._release_gated_warm()
     monkeypatch.setattr(ow, "_gated_warm_started_at",

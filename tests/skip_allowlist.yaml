@@ -7,6 +7,12 @@
 # Every entry below was read against its source on the day it was written.
 # A new skip that is not listed here fails `make test`; add it only with a why.
 skips:
+  - node: "tests/test_subject_records.py::test_the_turn_binds_the_reader_beside_the_subject"
+    reason: "the framework predates the subject-records binding*"
+    why: "Runs against framework main (the bundled CI leg, where it RUNS). It skips only against an older released framework that lacks set_turn_subject_records, so the informational pinned leg does not fail on code that is not released yet. No coverage lost on the leg that decides."
+  - node: "tests/test_subject_records.py::test_the_trap_world_hands_over_the_sandbox_asset_and_the_change"
+    reason: "could not import 'fsr_playbooks.mcp_server._evidence_score'*"
+    why: "Same as above: the premise module ships in framework main, not yet in the released pin. Runs on the bundled leg."
   - node: "tests/test_make_framework_path.py::*"
     reason: "no dev env (make setup)*"
     why: "It checks the Makefile's dev-env wiring (make framework-path runs the dev venv's python). CI installs deps without a dev venv, so the Makefile refuses there by design. It runs on every dev machine, where the wiring it guards is used. No coverage lost where it matters."

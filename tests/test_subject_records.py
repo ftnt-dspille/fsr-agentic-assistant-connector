@@ -84,6 +84,7 @@ def test_every_known_answer_world_serves_the_existence_lookup(host, row):
 
 
 def test_the_trap_world_hands_over_the_sandbox_asset_and_the_change(host):
+    pytest.importorskip("fsr_playbooks.mcp_server._evidence_score")
     from fsr_playbooks.mcp_server._evidence_score import subject_records_exist
     from fsr_soc_triage.subject_records import read_subject_records
     use, _ = host
@@ -110,6 +111,8 @@ def test_a_lookup_that_cannot_be_made_is_none_not_empty(host, monkeypatch):
 
 def test_the_turn_binds_the_reader_beside_the_subject():
     from fsr_playbooks.mcp_server import _citation_validator as cv
+    if not hasattr(cv, "set_turn_subject_records"):
+        pytest.skip("the framework predates the subject-records binding (released framework owed)")
     from fsr_soc_triage.subject_records import read_subject_records
     from ops_policy import _bind_autonomy_subject
     cv.set_turn_subject_records(None)
