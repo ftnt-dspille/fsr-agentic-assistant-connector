@@ -174,6 +174,15 @@ def _bind_autonomy_subject() -> None:
         set_turn_subject(get_active_record_iri())
     except Exception:  # noqa: BLE001 -- an older framework has no record rules
         pass
+    # Phase 2 (shadow): the premise check asks whether the subject has an asset
+    # or change record when the turn read none. The reader runs only then, at
+    # verdict time; the model sees nothing of it.
+    try:
+        from fsr_playbooks.mcp_server._citation_validator import set_turn_subject_records
+        from fsr_soc_triage.subject_records import read_subject_records
+        set_turn_subject_records(read_subject_records)
+    except Exception:  # noqa: BLE001 -- an older framework has no premise check
+        pass
 
 
 def _bind_autonomy_policy(session_id: str | None = None) -> None:

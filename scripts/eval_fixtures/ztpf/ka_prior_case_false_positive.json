@@ -97,6 +97,7 @@
  "personas": {},
  "skills": [],
  "modules": {
+  "assets": [],
   "alerts": [
    {
     "@id": "/api/3/alerts/7a3f9c10-4d2e-4b6a-8c51-2e9d0f6b3a01",

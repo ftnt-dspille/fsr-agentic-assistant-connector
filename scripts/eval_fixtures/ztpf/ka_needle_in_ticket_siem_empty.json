@@ -92,6 +92,7 @@
  "personas": {},
  "skills": [],
  "modules": {
+  "assets": [],
   "alerts": [
    {
     "@id": "/api/3/alerts/9d4e7b20-3c18-4f5a-a6d2-81b0c5e7f301",
@@ -121,6 +122,16 @@
   ]
  },
  "ops": [
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
   {
    "connector": "virustotal",
    "op": "query_ip",

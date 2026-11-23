@@ -84,6 +84,11 @@ TURN_SCOPED_SAFE = {
         "defaults None. Text the host hands the evidence score so an address in "
         "it counts as sourced (Phase 2 shadow); unbound sources nothing extra, "
         "and no decision reads the score, so no decision changes.",
+    "_turn_subject_records":
+        "defaults None. A bounded lookup the premise check calls at verdict time "
+        "to tell an unread record from none existing (Phase 2 shadow); unbound "
+        "the premise stays `unread`, and no decision reads the premise. Re-set "
+        "by _bind_autonomy_subject, which the turn and both resumes call.",
     "_turn_connector_labels":
         "defaults None. Only supplies catalog display labels to the change "
         "offer card (U6); unbound adds no label and the widget humanizes the "
