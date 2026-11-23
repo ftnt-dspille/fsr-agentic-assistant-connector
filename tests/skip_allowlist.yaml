@@ -7,6 +7,9 @@
 # Every entry below was read against its source on the day it was written.
 # A new skip that is not listed here fails `make test`; add it only with a why.
 skips:
+  - node: "tests/test_subject_records.py::test_read_and_still_wrong_worlds_hold_both_records*"
+    reason: "could not import 'fsr_playbooks.mcp_server._evidence_score'*"
+    why: "Framework main only (the premise module is not in the released pin); runs on the bundled leg."
   - node: "tests/test_subject_records.py::test_the_turn_binds_the_reader_beside_the_subject"
     reason: "the framework predates the subject-records binding*"
     why: "Runs against framework main (the bundled CI leg, where it RUNS). It skips only against an older released framework that lacks set_turn_subject_records, so the informational pinned leg does not fail on code that is not released yet. No coverage lost on the leg that decides."
