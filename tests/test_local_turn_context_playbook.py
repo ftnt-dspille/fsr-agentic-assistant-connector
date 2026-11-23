@@ -93,7 +93,10 @@ def test_mounted_turn_touches_no_network(no_inet_socket):
     allowed = ("/api/3/keys", "/api/3/assistant_personas",
                "/api/integration/connector_details",
                "/api/integration/connectors/",
-               "/api/3/llm_activity_logs")
+               "/api/3/llm_activity_logs",
+               # the first turn in a process warms the catalog copy against the
+               # cassette (whether this is that turn depends on test order)
+               "/api/3/agents", "/api/3/picklist_names", "/api/3/staging_model_metadatas")
     unexpected = [g for g in res.cassette_gets if not any(p in g for p in allowed)]
     assert unexpected == [], f"reads outside the offline allowlist: {unexpected}"
     # A non-failure turn never looks up failed runs. The lever's run lookup is

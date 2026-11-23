@@ -15,6 +15,7 @@ invocation and quietly false of any other.
 from __future__ import annotations
 
 import os
+import sys
 
 import pytest
 
@@ -209,6 +210,26 @@ def _no_leaked_live_client():
                 os.environ.pop(k, None)
             else:
                 os.environ[k] = v
+
+
+@pytest.fixture(autouse=True)
+def _fresh_source_availability_memo():
+    """Start every test with no memoized source availability or connector roster.
+
+    `fsr_soc_triage.source_availability` memoizes which log sources and
+    ticketing connectors a box has for a minute, in module state. A turn test
+    (a fixture world with a different roster) leaves its answer there, and a
+    later test that advertises tools from it (the ask-scope and advertised-surface
+    tests) then loses `siem_search` / `edr_host` or builds a different surface:
+    green or red by collection order. Dropping the memo around each test makes the
+    outcome independent of what ran before it."""
+    mod = sys.modules.get("fsr_soc_triage.source_availability")
+    if mod is not None:
+        mod.forget()
+    yield
+    mod = sys.modules.get("fsr_soc_triage.source_availability")
+    if mod is not None:
+        mod.forget()
 
 
 @pytest.fixture(autouse=True)
