@@ -145,7 +145,7 @@ def test_binding_returns_the_note_and_each_turn_rebinds(world):
         cv.set_turn_preread_records(None)
 
 
-def _observed_turn(monkeypatch, config, scope):
+def _observed_turn(monkeypatch, config, scope, intent="triage"):
     import ops_chat
     import ops_manual
     from fsr_playbooks.llm.fake_provider import FakeProvider
@@ -182,7 +182,7 @@ def _observed_turn(monkeypatch, config, scope):
                                       history_chars=1, stop_reason="end_turn")]])
     monkeypatch.setattr(ops_chat, "_build_provider", _factory)
     monkeypatch.setattr(ops_manual, "_build_provider", _factory)
-    _sync_turn(config, {"session_id": "pre-1", "intent": "triage",
+    _sync_turn(config, {"session_id": "pre-1", "intent": intent,
                         "entity": {"module": "alerts", "uuid": ALERT},
                         "messages": [{"role": "user",
                                       "content": "Triage this alert. Give me your verdict."}]})
@@ -203,5 +203,13 @@ def test_a_triage_turn_shows_the_model_the_records_and_binds_them(
 @pytest.mark.parametrize("scope", ["answer", "lookup", "act"])
 def test_a_narrow_ask_reads_nothing(tmp_db, monkeypatch, config, scope):
     seen, _ = _observed_turn(monkeypatch, config, scope)
+    assert "Records on file for this host" not in seen["system"]
+    assert seen["bound"] is None
+
+
+def test_a_build_turn_on_a_mounted_record_reads_nothing(tmp_db, monkeypatch, config):
+    """A mounted playbook (build intent) is not an alert: reading its 'subject'
+    would dial the box on a turn that has no verdict."""
+    seen, _ = _observed_turn(monkeypatch, config, None, intent="build")
     assert "Records on file for this host" not in seen["system"]
     assert seen["bound"] is None

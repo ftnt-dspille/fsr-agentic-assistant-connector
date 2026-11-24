@@ -762,7 +762,8 @@ def chat_turn(config: dict, params: dict) -> dict:
             # that gives no verdict reads nothing.
             _preread_note = _bind_subject_preread(
                 _triage_lookup_key(_entity),
-                wanted=bool(_scope in (None, "", "investigate")
+                wanted=bool(intent == "triage"
+                             and _scope in (None, "", "investigate")
                              and persona.concludes_with_verdict(entity_module)),
                 tags=_turn_tags)
             try:
