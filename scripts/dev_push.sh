@@ -140,16 +140,26 @@ box = {o.get("operation") for o in json.load(sys.stdin).get("operations", [])}
 tree = json.load(open(sys.argv[1])).get("operations", [])
 print(" ".join(o["operation"] for o in tree if o.get("operation") not in box))
 ' "$PKG_SRC/info.json" 2>/dev/null || true)"
-if [[ -n "$new_ops" ]]; then
+# A changed info.json VERSION needs the same install: a copy leaves the new code in the
+# old version's directory, and every worker then reports a stale version (live: a
+# BUMP=patch ship to 0.6.24 failed live sanity, 6 workers on the 0_6_23 dir).
+box_ver="$(ssh "$BOX_SSH" "cat '$cdir/info.json'" | "$PY" -c 'import json, sys; print(json.load(sys.stdin).get("version", ""))' 2>/dev/null || true)"
+tree_ver="$("$PY" -c 'import json, sys; print(json.load(open(sys.argv[1])).get("version", ""))' "$PKG_SRC/info.json")"
+ver_bump=""
+if [[ -n "$box_ver" && -n "$tree_ver" && "$box_ver" != "$tree_ver" ]]; then
+    ver_bump="none"
+    echo ">> info.json version $box_ver on the box, $tree_ver in this tree: escalating to an install of $tree_ver (no further bump)"
+fi
+if [[ -n "$new_ops" || -n "$ver_bump" ]]; then
     # A copy cannot make a new op callable, so escalate THIS push to an install
     # (bump + build + platform install), which registers the op. The one case a
     # dev push is not "seconds": a new op is rare, and the alternative is an op
     # that 404s ("Operation matching query does not exist") until a release.
     # Idempotent: once the op is registered, a later push finds no new op and
     # takes the fast copy path below.
-    echo ">> new op(s) in info.json need registration: $new_ops"
-    echo ">> escalating this push to an install (bump patch + build + install)"
-    BOX_ENV="$BOX_ENV" bash "$ROOT/scripts/deploy.sh" --bump patch --ssh-host "$BOX_SSH"
+    [[ -n "$new_ops" ]] && echo ">> new op(s) in info.json need registration: $new_ops"
+    echo ">> escalating this push to an install (bump ${ver_bump:-patch} + build + install)"
+    BOX_ENV="$BOX_ENV" bash "$ROOT/scripts/deploy.sh" --bump "${ver_bump:-patch}" --ssh-host "$BOX_SSH"
     lap "install (bump + build + platform install)"
     # A connector install makes the platform reinstall the pinned fsr-playbooks
     # wheel, which clears any framework dev-patch. If this push synced the
