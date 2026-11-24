@@ -222,14 +222,28 @@ def _fresh_source_availability_memo():
     later test that advertises tools from it (the ask-scope and advertised-surface
     tests) then loses `siem_search` / `edr_host` or builds a different surface:
     green or red by collection order. Dropping the memo around each test makes the
-    outcome independent of what ran before it."""
-    mod = sys.modules.get("fsr_soc_triage.source_availability")
-    if mod is not None:
-        mod.forget()
+    outcome independent of what ran before it.
+
+    The framework keeps its own two-minute cache of the configured connector
+    rows (`tools_execution._CONFIGURED_CACHE`), keyed by nothing, and the
+    availability pass reads connector readiness through it. A cassette world with
+    only FortiEDR configured left it behind, and the next test's turn then saw
+    FortiAnalyzer, FortiManager and FortiSIEM as "installed but no active
+    configuration" and put a log-sources block into its prompt (the persona
+    prompt-size test failed on it, by order only). It is cleared with the memo;
+    a framework without the name is left alone."""
+    def _drop() -> None:
+        mod = sys.modules.get("fsr_soc_triage.source_availability")
+        if mod is not None:
+            mod.forget()
+        te = sys.modules.get("fsr_playbooks.mcp_server.tools_execution")
+        cache = getattr(te, "_CONFIGURED_CACHE", None)
+        if isinstance(cache, dict):
+            cache["rows"], cache["ts"] = None, 0.0
+
+    _drop()
     yield
-    mod = sys.modules.get("fsr_soc_triage.source_availability")
-    if mod is not None:
-        mod.forget()
+    _drop()
 
 
 @pytest.fixture(autouse=True)
