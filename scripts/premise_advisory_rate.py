@@ -18,13 +18,11 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any, Iterable, Optional
+from typing import Iterable, Optional
+
+from fsr_playbooks.harness.frames import frames_of
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-
-def verdict_cards(frames: Iterable[Any]) -> list[dict]:
-    return [f for f in frames if isinstance(f, dict) and f.get("type") == "verdict_card"]
 
 
 def advisory_of(card: dict) -> list[dict]:
@@ -40,7 +38,7 @@ def collect(histories: Iterable[tuple[str, dict]]) -> dict:
     turns = []
     for sid, hist in histories:
         for n, entry in enumerate((hist or {}).get("turns") or []):
-            cards = verdict_cards((entry or {}).get("transcript") or [])
+            cards = frames_of(entry or {}, "verdict_card")
             if not cards:
                 continue
             card = cards[-1]

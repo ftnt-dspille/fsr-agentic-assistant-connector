@@ -34,7 +34,7 @@ _FRAME_CALLS = {"frames", "frames_of"}
 MIGRATED = {
     "live_writes.py", "live_integration.py", "live_rows.py", "live_autonomy.py",
     "session_analyze.py", "record_world.py", "eval_s2_modify.py", "drive.py",
-    "analyst_sim.py", "turn_diagnosis.py",
+    "analyst_sim.py", "turn_diagnosis.py", "premise_advisory_rate.py",
 }
 
 #: Scripts still reading frames privately, with the reads they had when the
