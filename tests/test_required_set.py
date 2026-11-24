@@ -84,17 +84,17 @@ def test_min_version_is_enforced(monkeypatch):
 
 def test_doctor_warns_and_names_the_converge_command(monkeypatch):
     monkeypatch.setattr(cs, "required_gaps",
-                        lambda c: [{"key": "fortiedr", "state": "NOT_CONFIGURED", "detail": "x"}])
+                        lambda c, alias="": [{"key": "fortiedr", "state": "NOT_CONFIGURED", "detail": "x"}])
     chk = doctor._required_set(object(), "92")
     assert chk.status == "WARN" and "fortiedr: not_configured" in chk.detail
     assert chk.fix == "make box-prep BOX=92"
 
 
 def test_doctor_passes_a_complete_box_and_skips_when_it_cannot_know(monkeypatch):
-    monkeypatch.setattr(cs, "required_gaps", lambda c: [])
+    monkeypatch.setattr(cs, "required_gaps", lambda c, alias="": [])
     assert doctor._required_set(object(), "92").status == "PASS"
 
-    def boom(c):
+    def boom(c, alias=""):
         raise RuntimeError("down")
     monkeypatch.setattr(cs, "required_gaps", boom)
     assert doctor._required_set(object(), "92").status == "SKIP"
@@ -167,3 +167,35 @@ def test_a_hung_integration_probe_is_a_warn_not_a_lost_box_check(monkeypatch):
     gate.set()
     assert got["fortigate-firewall"].status == "PASS"
     assert got["fortinet-fortisiem"].status == "WARN" and "timeout" in got["fortinet-fortisiem"].detail
+
+
+def _siem_key():
+    return next(k for k, (names, _, _) in cs.REQUIRED.items() if "fortinet-fortisiemv2" in names)
+
+
+def test_a_box_that_cannot_reach_the_siem_skips_it_by_registry(tmp_path, monkeypatch):
+    # A box outside the lab network cannot reach the lab SIEM: its registry entry says so,
+    # and the required set neither demands nor probes it there.
+    k = _siem_key()
+    reg = tmp_path / "instances.toml"
+    reg.write_text(f'[instances.demo]\nrole = "experimental"\nrequired_skip = ["{k}", "no-such-key"]\n'
+                   '[instances.lab]\nrole = "experimental"\n')
+    monkeypatch.setenv("PYFSR_INSTANCES", str(reg))
+    assert cs.box_skips("demo") == {k}
+    assert cs.box_skips("lab") == set()
+    inv = [r for r in _good() if not r["name"].startswith("fortinet-fortisiem")]
+    assert _states(inv)[k]["state"] == "NOT_INSTALLED"
+    got = {r["key"]: r for r in cs.evaluate(inv, ["assets"], cs.box_skips("demo"))}
+    assert all(r["state"] == "OK" for r in got.values())
+
+
+def test_a_skipped_key_is_not_health_probed():
+    k = _siem_key()
+    probed = []
+    conn = SimpleNamespace(
+        list_configured=lambda refresh=True: [SimpleNamespace(name="fortinet-fortisiem", version="5.4.3",
+                                                              configurations=[SimpleNamespace(name="s", default=True)])],
+        healthcheck=lambda *a, **kw: probed.append(a) or SimpleNamespace(status="Available"))
+    client = SimpleNamespace(connectors=conn, get=lambda *_: {"hydra:member": []})
+    inv, _ = cs.fetch_inventory(client, {k})
+    assert inv == [] and probed == []

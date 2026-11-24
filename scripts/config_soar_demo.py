@@ -98,7 +98,21 @@ def _vkey(v: str) -> tuple:
     return tuple(int(x) if x.isdigit() else 0 for x in (v or "0").split("."))
 
 
-def evaluate(inventory: list[dict], modules: "list[str] | None" = None) -> list[dict]:
+def box_skips(alias: str) -> "set[str]":
+    """REQUIRED keys a box cannot carry, from its registry entry `required_skip = [...]`
+    (local, not tracked: e.g. a box outside the lab network that cannot reach the lab SIEM)."""
+    import tomllib
+    reg = os.environ.get("PYFSR_INSTANCES") or os.path.expanduser("~/.pyfsr/instances.toml")
+    try:
+        with open(reg, "rb") as f:
+            v = tomllib.load(f).get("instances", {}).get(alias, {}).get("required_skip", [])
+    except Exception:  # noqa: BLE001 - no registry means nothing is skipped
+        return set()
+    return {str(k) for k in v} & set(REQUIRED)
+
+
+def evaluate(inventory: list[dict], modules: "list[str] | None" = None,
+             skip: "set[str] | None" = None) -> list[dict]:
     """Pure: judge REQUIRED against an inventory, [{name, version, configs:
     [{name, default, health}]}]. One row per entry: {key, state, detail, pick}.
     state: OK | NOT_INSTALLED | OLD_VERSION | NOT_CONFIGURED | NO_DEFAULT |
@@ -106,6 +120,9 @@ def evaluate(inventory: list[dict], modules: "list[str] | None" = None) -> list[
     (NO_DEFAULT only)."""
     out = []
     for key, (names, min_v, _why) in REQUIRED.items():
+        if key in (skip or ()):
+            out.append({"key": key, "state": "OK", "detail": "not required on this box (registry required_skip)"})
+            continue
         rows = [r for r in inventory if r["name"] in names]
         if not rows:
             out.append({"key": key, "state": "NOT_INSTALLED", "detail": f"{names[0]} is not installed"})
@@ -138,10 +155,11 @@ def evaluate(inventory: list[dict], modules: "list[str] | None" = None) -> list[
     return out
 
 
-def fetch_inventory(client) -> "tuple[list[dict], list[str]]":
+def fetch_inventory(client, skip: "set[str] | None" = None) -> "tuple[list[dict], list[str]]":
     """Read-only: the REQUIRED connectors' installed rows with per-config health,
-    plus which REQUIRED_MODULES exist."""
-    wanted = {n for names, _, _ in REQUIRED.values() for n in names}
+    plus which REQUIRED_MODULES exist. A skipped key is not probed (its health
+    check is the one that hangs)."""
+    wanted = {n for k, (names, _, _) in REQUIRED.items() if k not in (skip or ()) for n in names}
     rows = [r for r in client.connectors.list_configured(refresh=True) if r.name in wanted]
     jobs = [(r.name, r.version, cf.name) for r in rows for cf in r.configurations]
 
@@ -175,10 +193,11 @@ def fetch_inventory(client) -> "tuple[list[dict], list[str]]":
     return inv, mods
 
 
-def required_gaps(client) -> list[dict]:
+def required_gaps(client, alias: str = "") -> list[dict]:
     """The non-OK rows of evaluate() for this box (what doctor reports)."""
-    inv, mods = fetch_inventory(client)
-    return [r for r in evaluate(inv, mods) if r["state"] != "OK"]
+    skip = box_skips(alias) if alias else set()
+    inv, mods = fetch_inventory(client, skip)
+    return [r for r in evaluate(inv, mods, skip) if r["state"] != "OK"]
 
 
 def _load_env_file(path: str) -> int:
@@ -266,8 +285,9 @@ def converge(args, ap) -> int:
         print(f"refusing: box {alias} has role {role!r}; --required only converges experimental boxes")
         return 2
     client = cc.EnvConfig.from_env().client()
-    inv, mods = fetch_inventory(client)
-    before = evaluate(inv, mods)
+    skip = box_skips(alias)
+    inv, mods = fetch_inventory(client, skip)
+    before = evaluate(inv, mods, skip)
     _print_states(f"BEFORE ({alias})", before)
     todo = [r for r in before if r["state"] != "OK"]
     if args.dry_run or not todo:
@@ -315,8 +335,8 @@ def converge(args, ap) -> int:
         client.connectors.clear_cache()
     except Exception:  # noqa: BLE001
         pass
-    inv, mods = fetch_inventory(client)
-    after = evaluate(inv, mods)
+    inv, mods = fetch_inventory(client, skip)
+    after = evaluate(inv, mods, skip)
     _print_states(f"AFTER ({alias})", after)
     print("\n  actions:")
     for k, v in notes.items():

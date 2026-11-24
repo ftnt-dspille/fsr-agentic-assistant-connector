@@ -539,7 +539,7 @@ def _required_set(c, alias: str) -> Check:
     try:
         sys.path.insert(0, str(ROOT / "scripts"))
         import config_soar_demo as cs
-        gaps = cs.required_gaps(c)
+        gaps = cs.required_gaps(c, alias)
     except Exception as e:  # noqa: BLE001 - not knowing is not a pass
         return Check("box", "required connectors", "SKIP", f"{type(e).__name__}: {str(e)[:80]}")
     if not gaps:
