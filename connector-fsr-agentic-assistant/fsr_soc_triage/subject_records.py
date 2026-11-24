@@ -15,7 +15,11 @@ subject (a neighbour's record does not count).
 """
 from __future__ import annotations
 
+import concurrent.futures
+import contextvars
 import logging
+import os
+import time
 from typing import Any
 from urllib.parse import quote
 
@@ -106,3 +110,61 @@ def read_subject_records(names: list[str]) -> dict[str, Any]:
     except Exception:  # noqa: BLE001
         log.debug("change existence lookup failed", exc_info=True)
     return out
+
+
+#: Wall-clock bound on the whole start-of-turn read (the alert record's GET, the
+#: asset search and the change listing). A read that overruns binds nothing: the
+#: turn carries on without it and the premise falls back to ``read_subject_records``
+#: at verdict time.
+PREREAD_TIMEOUT_S = 6.0
+
+
+def _timed(fn: Any, names: list[str], stats: dict[str, int], key: str) -> tuple[Any, int]:
+    t0 = time.monotonic()
+    try:
+        return fn(names, stats), int((time.monotonic() - t0) * 1000)
+    except Exception:  # noqa: BLE001
+        log.debug("subject pre-read %s lookup failed", key, exc_info=True)
+        return None, int((time.monotonic() - t0) * 1000)
+
+
+def _preread(key: str) -> dict[str, Any] | None:
+    from fsr_playbooks.mcp_server._evidence_score import subject_context  # noqa: PLC0415
+    from .triage_preflight import fetch_raw_record  # noqa: PLC0415
+    t0 = time.monotonic()
+    ctx = subject_context(fetch_raw_record(key))
+    names = [n for n in ctx.get("names") or [] if isinstance(n, str)][:4]
+    if not names:
+        return None
+    stats: dict[str, int] = {"asset_requests": 0, "change_ops": 0}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        fa = pool.submit(contextvars.copy_context().run, _timed, _asset_rows, names, stats, "asset")
+        fc = pool.submit(contextvars.copy_context().run, _timed, _change_rows, names, stats, "change")
+        (asset, asset_ms), (change, change_ms) = fa.result(), fc.result()
+    return {**ctx, "names": names, "asset": asset, "change": change, "stats": stats,
+            "asset_ms": asset_ms, "change_ms": change_ms,
+            "ms": int((time.monotonic() - t0) * 1000)}
+
+
+def preread_subject_records(key: str | None, *, timeout: float = PREREAD_TIMEOUT_S
+                            ) -> dict[str, Any] | None:
+    """The subject's asset and change records, read once at the start of a triage
+    turn (same muted transport as ``read_subject_records``): the mounted alert's
+    own host names and addresses are found from the alert record, then the asset
+    search and the change listing run side by side. ``None`` when the turn has no
+    record, the record names no internal host, the read overran ``timeout`` or
+    anything failed; never raises, never holds the turn past ``timeout``. The
+    result is what the framework's ``set_turn_preread_records`` takes."""
+    if not key or os.environ.get("FSR_SUBJECT_PREREAD", "1") == "0":
+        return None
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        return pool.submit(contextvars.copy_context().run, _preread, key).result(timeout=timeout)
+    except concurrent.futures.TimeoutError:
+        log.info("subject pre-read overran %.1fs; the turn carries on without it", timeout)
+        return None
+    except Exception:  # noqa: BLE001
+        log.debug("subject pre-read failed", exc_info=True)
+        return None
+    finally:
+        pool.shutdown(wait=False)
