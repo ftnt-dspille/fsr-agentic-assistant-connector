@@ -709,18 +709,21 @@ def _integrations(c) -> list[Check]:
     names = [n for n in SWEEP_INTEGRATIONS if n in installed]
     missing = [n for n in SWEEP_INTEGRATIONS if n not in installed]
     out = []
-    with ThreadPoolExecutor(len(names) or 1) as ex:
-        futs = {ex.submit(c.connectors.healthcheck, n, agent_timeout=15): n for n in names}
-        for f in as_completed(futs, timeout=60):
-            n = futs[f]
-            try:
-                r = f.result()
-                st, msg = r.status or "?", " ".join((r.message or "").split())[:80]
-            except Exception as e:  # noqa: BLE001
-                st, msg = "error", str(e)[:80]
-            ok = st == "Available"
-            out.append(Check("integration", f"{n} {installed[n]}", "PASS" if ok else "WARN",
-                             st if ok else f"{st} {msg} -- rows that need it will ENV-SKIP"))
+    ex = ThreadPoolExecutor(len(names) or 1)
+    futs = {ex.submit(c.connectors.healthcheck, n, agent_timeout=15): n for n in names}
+    deadline = time.monotonic() + 60
+    for f, n in futs.items():
+        # A probe that never answers is a finding about that integration, not a
+        # reason to lose every other box check (TimeoutError used to escape here).
+        try:
+            r = f.result(timeout=max(0.1, deadline - time.monotonic()))
+            st, msg = r.status or "?", " ".join((r.message or "").split())[:80]
+        except Exception as e:  # noqa: BLE001
+            st, msg = ("timeout", "health check did not answer") if isinstance(e, TimeoutError) else ("error", str(e)[:80])
+        ok = st == "Available"
+        out.append(Check("integration", f"{n} {installed[n]}", "PASS" if ok else "WARN",
+                         st if ok else f"{st} {msg} -- rows that need it will ENV-SKIP"))
+    ex.shutdown(wait=False, cancel_futures=True)
     if missing:
         # Informational: fortisiem v1 and v2 are alternatives, so one of them
         # missing is the normal state.

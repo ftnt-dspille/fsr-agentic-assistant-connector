@@ -144,3 +144,26 @@ def test_a_hanging_health_probe_reads_as_timeout_not_a_hang(monkeypatch):
     gate.set()
     assert inv[0]["configs"][0]["health"] == "timeout"
     assert _t.time() - t0 < 4
+
+
+def test_a_hung_integration_probe_is_a_warn_not_a_lost_box_check(monkeypatch):
+    import threading
+    gate = threading.Event()
+    monkeypatch.setattr(doctor.time, "monotonic", lambda: 0.0)  # deadline = 60s from "now"
+
+    def health(n, agent_timeout=0):
+        if n == "fortinet-fortisiem":
+            gate.wait(3)
+        return SimpleNamespace(status="Available", message="")
+    rows = [SimpleNamespace(name=n, version="1.0") for n in ("fortigate-firewall", "fortinet-fortisiem")]
+    c = SimpleNamespace(connectors=SimpleNamespace(
+        list_configured=lambda refresh=True: rows, healthcheck=health,
+        operations=lambda n: []))
+    real = doctor.Future if hasattr(doctor, "Future") else None  # noqa: F841
+    from concurrent.futures import Future
+    orig = Future.result
+    monkeypatch.setattr(Future, "result", lambda self, timeout=None: orig(self, 0.5 if timeout else timeout))
+    got = {x.name.split()[0]: x for x in doctor._integrations(c) if x.area == "integration"}
+    gate.set()
+    assert got["fortigate-firewall"].status == "PASS"
+    assert got["fortinet-fortisiem"].status == "WARN" and "timeout" in got["fortinet-fortisiem"].detail
