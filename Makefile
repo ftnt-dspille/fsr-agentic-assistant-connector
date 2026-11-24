@@ -400,6 +400,9 @@ else
 	  $(if $(MAX_FAIL_RATE),--max-fail-rate $(MAX_FAIL_RATE),) $(SESSION_ARGS)
 endif
 
+premise-advisory-rate: ## How often the verdict card showed the records advisory, per verdict turn, read from stored cards (BOX=<alias> reads that box; STORE=1 BOX=<alias> the exported store; LIMIT=60 sessions)
+	@FSRPB_DEV=1 $(PY) scripts/premise_advisory_rate.py $(SESSION_FROM) --limit $(LIMIT)
+
 session-bundle: ## One session -> one review file (SESSION=<id> [TURN=n] [OUT=file.md]; reads the local session store by default, STORE=<alias> narrows it, BOX=<alias> reads that box live): per round tools offered vs called, args, results, guard firings, tokens, answer, then the fixed verdict list
 	@test -n "$(SESSION)" || { echo "session-bundle: pass SESSION=<session id>"; exit 2; }
 	@FSRPB_DEV=1 $(PY) scripts/session_bundle.py "$(SESSION)" \

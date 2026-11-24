@@ -149,6 +149,28 @@ def test_read_and_still_wrong_worlds_hold_both_records(host, row, names):
     assert subject_records_exist(read_subject_records, names) == {"asset": True, "change": True}
 
 
+@pytest.mark.parametrize("row,names", [
+    ("ka_trap_asset_read_change_unread", {"lab-eval-12", "10.50.8.17"}),
+    ("ka_trap_asset_leans_benign_change_scopes", {"ops-jump-03", "10.50.7.40"}),
+])
+def test_the_card_advisory_names_each_unread_kind_the_lookup_found(host, row, names):
+    """What the verdict card says: the lookup served the world's two records, a
+    turn that read neither is advised about both kinds, and one that read the
+    asset only about the change. Kinds only."""
+    _es = pytest.importorskip("fsr_playbooks.mcp_server._evidence_score")
+    if not hasattr(_es, "premise_advisory"):
+        pytest.skip("the framework predates the card advisory")
+    from fsr_soc_triage.subject_records import read_subject_records
+    use, _ = host
+    use(row)
+    exists = _es.subject_records_exist(read_subject_records, names)
+    assert _es.premise_advisory({"status": "unread_exists", "exists": exists}) == [
+        {"kind": "asset", "state": "unread"}, {"kind": "change", "state": "unread"}]
+    assert _es.premise_advisory({"status": "read", "read_kinds": ["asset"],
+                                 "unread_kinds_exist": ["change"]}) == [
+        {"kind": "change", "state": "unread"}]
+
+
 def test_the_approved_change_window_covers_the_alert_in_the_poc_world():
     """The change in the proof-of-concept world is live at the alert time, so a
     model that reads it is right to close."""
