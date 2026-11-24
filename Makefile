@@ -107,7 +107,7 @@ export BOX_ENV BOX_SSH BOX_SSH_BIN
 export PATH := $(BOX_SSH_BIN):$(PATH)
 unexport ENV FSR_ENV SSH_HOST
 endif
-BOX_TARGETS := deploy release-ship ship-install verify dev-push loop ship-dev ship-dev-status ship-dev-restore live quick-live live-rows live-writes live-integration live-autonomy p3-proof ship-accept warmup health ssh workers logs bridge-check mcp-bridge-check configure eval-selfcheck eval-s1 eval-effect session-export plant release-scores
+BOX_TARGETS := deploy release-ship ship-install verify dev-push loop ship-dev ship-dev-status ship-dev-restore live quick-live live-rows live-writes live-integration live-autonomy p3-proof ship-accept warmup health ssh workers logs bridge-check mcp-bridge-check configure eval-selfcheck eval-s1 eval-effect session-export plant release-scores box-prep
 BUMP        ?= patch
 BOX_INTEG   := /opt/cyops-integrations/integrations
 BOX_PY      := /opt/cyops/configs/integrations/packages/integrations_env/bin/python
@@ -117,7 +117,7 @@ define with_env
 set -a; . "$(BOX_ENV)"; set +a; PATH="$(VENV)/bin:$$PATH"
 endef
 
-.PHONY: check ship ship-install framework-path session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore regrade help deploy release-ship ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+.PHONY: box-prep check ship ship-install framework-path session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore regrade help deploy release-ship ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
 
 # --- The two front doors live in the root repo (scripts/door.sh); these forward there,
 # telling it which repo you are in. `make ship` is the front door; the old connector
@@ -446,6 +446,8 @@ BOX_NEED := env,ssh
 # doctor reports a box with no ssh profile instead of refusing it.
 doctor: BOX_NEED := env,ssh?
 session-export: BOX_NEED := env
+# box-prep writes the box: take its lease like a push does (refused while another agent holds it; --dry-run only reads).
+box-prep: BOX_NEED := $(if $(findstring --dry-run,$(ARGS)),env,env,lease)
 box-guard:
 	@BOX='$(or $(RESOLVED_BOX),$(BOX))' ENV='$(ENV)' FSR_ENV='$(FSR_ENV)' SSH_HOST='$(SSH_HOST)' bash "$(REPO)/scripts/box.sh" --need '$(BOX_NEED)'
 
@@ -578,6 +580,9 @@ configure: ## Create or update a connector configuration on the ENV box, then he
 
 provision: ## Provision an EXPERIMENTAL box with the Agentic Assistant from a pack: enable PyPI in the box pip.conf (ssh), import via the Import Wizard (pyfsr), publish both widgets. BOX=<alias> (or omit to be ASKED for URL/user/pass for a box that was never set up); PACK=<zip> or RELEASE=<tag|latest>; ARGS='--dry-run|--skip-pypi|--skip-publish'
 	@$(PY) "$(REPO)/scripts/provision_box.py" $(if $(BOX),--box $(BOX)) $(if $(PACK),--pack $(PACK)) $(if $(RELEASE),--from-release $(RELEASE)) $(ARGS)
+
+box-prep: ## Converge an EXPERIMENTAL box to the required connector set (scripts/config_soar_demo.py REQUIRED): only what is missing, from the .env.<connector> cred files; a missing cred file is SKIPPED. BOX=<alias>; ARGS=--dry-run to look
+	@$(with_env); $(PY) "$(REPO)/scripts/config_soar_demo.py" --required $(ARGS)
 
 plant: ## Plant/find/clean up needles in an external source (ServiceNow) for live graded rows. VERB=health|plant|find|cleanup; plant needs CONFIG=<ServiceNow config name> (run VERB=health first); SCENARIO= (default snow_incident_needle) TOKEN= for find. Writes only to the lab ServiceNow, never FortiSOAR
 	@$(with_env); $(PY) "$(REPO)/scripts/planter.py" $(or $(VERB),health) \

@@ -88,6 +88,9 @@ REGISTRY: dict[str, dict] = {
         # Declarative fields above cover the common ones; the hook adds the rest.
         "build_config": "_build_fortisiem_config",
         "secrets": ["password"],  # hook-added; declarative secrets auto-detected
+        # fsm_type / is_fsoc arrived after 5.x: an older install rejects them as
+        # undeclared fields, so they are dropped when its schema lacks them.
+        "newer_fields": ["fsm_type", "is_fsoc"],
     },
     "fortiedr": {
         "connector": "fortinet-fortiedr",
@@ -380,6 +383,18 @@ def _ensure_installed(client, connector: str, pin_version: str | None) -> None:
         pass
 
 
+def _drop_undeclared(client, connector: str, cfg: dict, names, version=None) -> dict:
+    """Drop `names` from cfg when the installed connector's schema does not declare
+    them (a config field added in a later release must not break an older install)."""
+    if not any(n in cfg for n in names):
+        return cfg
+    if version is None:
+        have = [r.version for r in client.connectors.list_configured() if r.name == connector]
+        version = max(have, key=lambda v: tuple(int(x) if x.isdigit() else 0 for x in v.split("."))) if have else None
+    declared = {getattr(f, "name", None) for f in client.connectors.config_schema(connector, version=version)}
+    return {k: v for k, v in cfg.items() if k not in names or k in declared}
+
+
 def _configure_one(key: str, spec: dict, args) -> int:
     connector = spec["connector"]
     cfg = _build_config(spec)
@@ -393,6 +408,8 @@ def _configure_one(key: str, spec: dict, args) -> int:
     client = EnvConfig.from_env().client()
     if spec.get("supports_install") and not args.no_install:
         _ensure_installed(client, connector, args.install_version)
+    if spec.get("newer_fields"):
+        cfg = _drop_undeclared(client, connector, cfg, spec["newer_fields"], spec.get("version"))
     conf = client.connectors.upsert_configuration(
         connector, cfg, name=name, default=args.default,
         version=spec.get("version"))

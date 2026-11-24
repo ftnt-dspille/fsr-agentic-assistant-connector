@@ -434,7 +434,7 @@ def _health(c, config: str | None) -> dict:
 
 
 def check_box(env: dict, use_ssh: bool, ssh_host: str,
-              release: bool = False) -> list[Check]:
+              release: bool = False, required_for: "str | None" = None) -> list[Check]:
     out: list[Check] = []
     try:
         c = _client(env)
@@ -527,7 +527,26 @@ def check_box(env: dict, use_ssh: bool, ssh_host: str,
 
     out.append(_widget_on_box(c))
     out.extend(_integrations(c))
+    if required_for:
+        out.append(_required_set(c, required_for))
     return out
+
+
+def _required_set(c, alias: str) -> Check:
+    """An experimental box must carry config_soar_demo.REQUIRED (one source), or
+    live rows ENV-SKIP and two experimental boxes drift apart."""
+    fix = f"make box-prep BOX={alias}"
+    try:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import config_soar_demo as cs
+        gaps = cs.required_gaps(c)
+    except Exception as e:  # noqa: BLE001 - not knowing is not a pass
+        return Check("box", "required connectors", "SKIP", f"{type(e).__name__}: {str(e)[:80]}")
+    if not gaps:
+        return Check("box", "required connectors", "PASS",
+                     f"{len(cs.REQUIRED)} connectors + {', '.join(cs.REQUIRED_MODULES)} module configured, default, healthy")
+    return Check("box", "required connectors", "WARN",
+                 "; ".join(f"{g['key']}: {g['state'].lower()}" for g in gaps)[:200], fix)
 
 
 _BUNDLED_FW = re.compile(r"^(?P<pin>\d+\.\d+\.\d+)\.post1\.dev\d+\+g(?P<sha>[0-9a-f]{7,40})$")
@@ -903,7 +922,8 @@ def main() -> int:
             env_path = Path(a.env)
             if env_path.exists():
                 futs.append(ex.submit(check_box, _load_env(env_path), not a.no_ssh, a.ssh_host,
-                                      a.release))
+                                      a.release,
+                                      a.box if a.box and _box_role(a.box) == "experimental" else None))
             else:
                 checks.append(Check("box", "env file", "FAIL", f"missing {env_path}"))
         for f in futs:
