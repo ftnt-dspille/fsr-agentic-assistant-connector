@@ -773,7 +773,6 @@ def chat_turn(config: dict, params: dict) -> dict:
                     "connector_rules": len(_CONNECTOR_INVARIANT_RULES),
                     "source_availability": len(_source_note),
                     "plan_constraints": len(_plan_suffix),
-                    "subject_records": len(_preread_note),
                 }
             except ImportError:
                 # A framework without the record would leave the tag on every
