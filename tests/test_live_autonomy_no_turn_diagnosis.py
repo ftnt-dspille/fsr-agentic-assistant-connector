@@ -75,9 +75,28 @@ def test_connector_step_error_carries_the_message(la):
     assert case == "trigger_step_error" and "config 'x' not found" in ev
 
 
+def test_step_still_active_is_not_called_a_skip_or_error(la):
+    case, ev = la._classify_no_turn(_facts(runs=[_run({}, status="active", step_status="active")]))
+    assert case == "turn_in_progress" and "still active" in ev
+
+
+def test_finished_run_with_dropped_data_defers_to_the_alert_facts(la):
+    """FortiSOAR drops a finished run's step results, so the run proves the
+    trigger fired and the alert's own facts say why there was no turn."""
+    gone = _run({}, status="finished")
+    gone["by"] = "time"
+    case, _ = la._classify_no_turn(_facts(runs=[gone], alert={"severity": "Medium",
+                                                              "source": "Agentic Assistant Test"}))
+    assert case == "filter_skip"
+    case, _ = la._classify_no_turn(_facts(runs=[gone], comments=["Triage deferred: too many"]))
+    assert case == "storm"
+    case, ev = la._classify_no_turn(_facts(runs=[gone]))
+    assert case == "unknown" and "/wf/api/workflows/9/" in ev
+
+
 def test_trigger_never_ran(la):
     case, ev = la._classify_no_turn(_facts())
-    assert case == "trigger_not_run" and "never called auto_triage" in ev
+    assert case == "trigger_not_run" and "never ran" in ev
 
 
 def test_smoke_reason_names_the_case(la):
@@ -113,6 +132,16 @@ class _Box:
 
     def __init__(self, runs):
         self.s = _Sess(runs)
+
+
+def test_trigger_runs_matches_a_finished_run_by_time(la):
+    gone = {"@id": "/wf/api/workflows/4/", "name": "Agentic Assistant Auto-Triage -- alerts",
+            "status": "finished", "created": "2026-01-01T00:00:10Z", "env": {},
+            "steps": [{"name": "auto_triage", "status": "finished", "result": {}}]}
+    early = {**gone, "@id": "/wf/api/workflows/5/", "created": "2025-12-31T23:59:00Z"}
+    since = la._epoch("2026-01-01T00:00:00Z")
+    runs = la._trigger_runs(_Box([gone, early]), UUID, since)
+    assert [(r["id"], r["by"]) for r in runs] == [("/wf/api/workflows/4/", "time")]
 
 
 def test_trigger_runs_keeps_only_runs_for_this_alert(la):

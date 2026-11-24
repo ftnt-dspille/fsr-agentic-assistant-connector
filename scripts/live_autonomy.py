@@ -357,11 +357,19 @@ def _find_key(obj: Any, key: str) -> Any:
     return None
 
 
-def _trigger_runs(box: Box, uuid: str) -> list[dict]:
-    """The trigger playbook's recent top-level runs that were started for this
-    alert: [{id, status, steps: [{name, status, result, message}]}], newest first.
-    FortiSOAR keeps playbook execution history at /api/wf/api/workflows/ (the
-    run's own detail with step_detail=true carries each step's result)."""
+def _epoch(iso: str) -> float:
+    from datetime import datetime
+    return datetime.fromisoformat(str(iso).replace("Z", "+00:00")).timestamp()
+
+
+def _trigger_runs(box: Box, uuid: str, since: float | None = None) -> list[dict]:
+    """The trigger playbook's recent top-level runs for this alert, newest first:
+    [{id, status, by, steps: [{name, status, result, message}]}]. FortiSOAR keeps
+    playbook execution history at /api/wf/api/workflows/; the run's detail with
+    step_detail=true carries each step's result. A run still active (or failed)
+    holds the alert uuid and the connector's answer; a FINISHED run has had its
+    step data dropped, so it is matched by time instead: created at or after
+    ``since`` (the alert's creation, epoch seconds) -> by="time"."""
     r = box.s.get(f"{box.base}/api/wf/api/workflows/", verify=box.verify, timeout=60,
                   params={"format": "json", "limit": 25, "ordering": "-created",
                           "parent_wf__isnull": "True", "search": TRIGGER_PLAYBOOK})
@@ -372,9 +380,12 @@ def _trigger_runs(box: Box, uuid: str) -> list[dict]:
             continue
         d = box.s.get(f"{box.base}/api{m['@id']}", params={"step_detail": "true"},
                       verify=box.verify, timeout=60).json()
-        if uuid not in json.dumps(d, default=str):
+        by = ("uuid" if uuid in json.dumps(d, default=str)
+              else "time" if since is not None and _epoch(m.get("created") or d.get("created")) >= since
+              else None)
+        if not by:
             continue
-        runs.append({"id": m["@id"], "status": d.get("status") or m.get("status"),
+        runs.append({"id": m["@id"], "status": d.get("status") or m.get("status"), "by": by,
                      "steps": [{"name": st.get("name"), "status": st.get("status"),
                                 "result": st.get("result"),
                                 "message": st.get("message") or st.get("error")}
@@ -395,17 +406,19 @@ def _no_turn_facts(box: Box, uuid: str) -> dict:
     a = read("alert", lambda: box.get(f"/api/3/alerts/{uuid}", **{"$relationships": "false"})) or {}
     facts["alert"] = {f: (a.get(f).get("itemValue") if isinstance(a.get(f), dict) else a.get(f))
                       for f in ("severity", "source")}
+    created = a.get("createDate")
+    since = float(created) - 5 if isinstance(created, (int, float)) else None
     facts["comments"] = [str(c.get("content") or "") for c in read("comments", lambda: _comments(box, uuid)) or []]
     h = read("session", lambda: box.op("chat_history", {"session_id": f"auto:alerts:{uuid}"}, timeout=60)) or {}
     facts["initiator"] = bool(h.get("initiator"))
-    facts["runs"] = read("trigger runs", lambda: _trigger_runs(box, uuid)) or []
+    facts["runs"] = read("trigger runs", lambda: _trigger_runs(box, uuid, since)) or []
     return facts
 
 
 def _classify_no_turn(facts: dict) -> tuple[str, str]:
     """(case, evidence) for an alert that got no auto-triage turn. Case is one of
     filter_skip, storm, already_triaged, trigger_step_error, trigger_not_run,
-    unknown. The trigger run's own record decides; the alert's facts only
+    turn_in_progress, unknown. The trigger run's own record decides; the alert's facts only
     stand in when no run was recorded."""
     for run in facts.get("runs") or []:
         step = next((s for s in run["steps"] if s.get("name") == "auto_triage"), None)
@@ -417,6 +430,10 @@ def _classify_no_turn(facts: dict) -> tuple[str, str]:
             err = step.get("message") or _find_key(res, "error") or res
             return ("trigger_step_error",
                     f"playbook run {run['id']}: the auto_triage step ended {step.get('status')}: {str(err)[:300]}")
+        if str(step.get("status")).lower() in ("active", "awaiting", "running", "incipient"):
+            return ("turn_in_progress",
+                    f"playbook run {run['id']}: the auto_triage step is still {step.get('status')} "
+                    "(the turn has started but not stored; the wait was too short)")
         if skipped in ("severity", "source"):
             return ("filter_skip", f"playbook run {run['id']}: auto_triage returned skipped={skipped}")
         if skipped in ("grouped", "storm_cap"):
@@ -425,9 +442,12 @@ def _classify_no_turn(facts: dict) -> tuple[str, str]:
             return ("already_triaged", f"playbook run {run['id']}: auto_triage returned skipped=already_triaged")
         if skipped:
             return ("unknown", f"playbook run {run['id']}: auto_triage returned skipped={skipped}")
+        if run.get("by") == "time":
+            continue   # finished: FortiSOAR dropped the step data; the alert's own facts decide below
         return ("unknown", f"playbook run {run['id']}: auto_triage step {step.get('status')} "
                            f"with no skip and no turn stored: {json.dumps(res, default=str)[:300]}")
     alert = facts.get("alert") or {}
+    ran = next((r["id"] for r in facts.get("runs") or []), None)
     if any(n in c for c in facts.get("comments") or [] for n in _STORM_NOTES):
         return ("storm", "the alert carries a storm-routing comment")
     if facts.get("initiator"):
@@ -436,10 +456,14 @@ def _classify_no_turn(facts: dict) -> tuple[str, str]:
     if sev not in FILTER_SEVERITIES or src != SOURCE:
         return ("filter_skip", f"alert severity={sev!r} source={src!r} is outside the trigger "
                                f"filter (severity {list(FILTER_SEVERITIES)}, source {SOURCE!r})")
+    if ran:
+        return ("unknown", f"playbook run {ran} finished (its step data is not retained) but the alert "
+                           "shows no filter miss, no storm comment and no claimed session: auto_triage "
+                           "returned early without a turn (read the connector log for the alert)")
     return ("trigger_not_run",
-            "no trigger playbook run mentions this alert, the alert matches the filter, "
-            "no storm comment, no claimed session: the on-create playbook never called auto_triage "
-            "(trigger disabled, not firing, or its run history was purged)")
+            "no trigger playbook run exists for this alert, the alert matches the filter, "
+            "no storm comment, no claimed session: the on-create playbook never ran "
+            "(trigger disabled or not firing)")
 
 
 def _diagnose_no_turn(box: Box, uuid: str) -> dict:
