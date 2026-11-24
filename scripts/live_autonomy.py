@@ -328,6 +328,130 @@ def _seed(box: Box, iris: dict, src: str, dst: str, *, severity: str = "High",
     return r.json()["uuid"]
 
 
+# -- why no auto-triage turn ran ----------------------------------------------
+# An alert ends with no turn for four reasons the wait alone cannot tell apart:
+# the filter skipped it, storm routing grouped or deferred it, it was already
+# triaged, or the on-create playbook never called auto_triage (or its step
+# failed). The trigger playbook's own run records the connector's answer, so
+# the diagnosis reads that first and the alert's own facts only as a fallback.
+
+FILTER_SEVERITIES = ("High", "Critical")
+TRIGGER_PLAYBOOK = "Agentic Assistant Auto-Triage"
+_STORM_NOTES = ("Grouped with an earlier related alert", "Triage deferred")
+
+
+def _find_key(obj: Any, key: str) -> Any:
+    """First value stored under ``key`` anywhere in nested dicts/lists, else None."""
+    if isinstance(obj, dict):
+        if obj.get(key) not in (None, ""):
+            return obj[key]
+        for v in obj.values():
+            hit = _find_key(v, key)
+            if hit is not None:
+                return hit
+    elif isinstance(obj, list):
+        for v in obj:
+            hit = _find_key(v, key)
+            if hit is not None:
+                return hit
+    return None
+
+
+def _trigger_runs(box: Box, uuid: str) -> list[dict]:
+    """The trigger playbook's recent top-level runs that were started for this
+    alert: [{id, status, steps: [{name, status, result, message}]}], newest first.
+    FortiSOAR keeps playbook execution history at /api/wf/api/workflows/ (the
+    run's own detail with step_detail=true carries each step's result)."""
+    r = box.s.get(f"{box.base}/api/wf/api/workflows/", verify=box.verify, timeout=60,
+                  params={"format": "json", "limit": 25, "ordering": "-created",
+                          "parent_wf__isnull": "True", "search": TRIGGER_PLAYBOOK})
+    r.raise_for_status()
+    runs = []
+    for m in r.json().get("hydra:member") or []:
+        if TRIGGER_PLAYBOOK not in str(m.get("name") or ""):
+            continue
+        d = box.s.get(f"{box.base}/api{m['@id']}", params={"step_detail": "true"},
+                      verify=box.verify, timeout=60).json()
+        if uuid not in json.dumps(d, default=str):
+            continue
+        runs.append({"id": m["@id"], "status": d.get("status") or m.get("status"),
+                     "steps": [{"name": st.get("name"), "status": st.get("status"),
+                                "result": st.get("result"),
+                                "message": st.get("message") or st.get("error")}
+                               for st in d.get("steps") or []]})
+    return runs
+
+
+def _no_turn_facts(box: Box, uuid: str) -> dict:
+    """Everything the classifier needs, each read tolerant of failing on its own."""
+    facts: dict = {"alert": {}, "comments": [], "initiator": False, "runs": [], "errors": []}
+
+    def read(name, fn):
+        try:
+            return fn()
+        except Exception as e:  # noqa: BLE001
+            facts["errors"].append(f"{name}: {e}")
+            return None
+    a = read("alert", lambda: box.get(f"/api/3/alerts/{uuid}", **{"$relationships": "false"})) or {}
+    facts["alert"] = {f: (a.get(f).get("itemValue") if isinstance(a.get(f), dict) else a.get(f))
+                      for f in ("severity", "source")}
+    facts["comments"] = [str(c.get("content") or "") for c in read("comments", lambda: _comments(box, uuid)) or []]
+    h = read("session", lambda: box.op("chat_history", {"session_id": f"auto:alerts:{uuid}"}, timeout=60)) or {}
+    facts["initiator"] = bool(h.get("initiator"))
+    facts["runs"] = read("trigger runs", lambda: _trigger_runs(box, uuid)) or []
+    return facts
+
+
+def _classify_no_turn(facts: dict) -> tuple[str, str]:
+    """(case, evidence) for an alert that got no auto-triage turn. Case is one of
+    filter_skip, storm, already_triaged, trigger_step_error, trigger_not_run,
+    unknown. The trigger run's own record decides; the alert's facts only
+    stand in when no run was recorded."""
+    for run in facts.get("runs") or []:
+        step = next((s for s in run["steps"] if s.get("name") == "auto_triage"), None)
+        if step is None:
+            continue
+        res = step.get("result")
+        skipped = _find_key(res, "skipped")
+        if str(step.get("status")).lower() in ("failed", "error") or _find_key(res, "error"):
+            err = step.get("message") or _find_key(res, "error") or res
+            return ("trigger_step_error",
+                    f"playbook run {run['id']}: the auto_triage step ended {step.get('status')}: {str(err)[:300]}")
+        if skipped in ("severity", "source"):
+            return ("filter_skip", f"playbook run {run['id']}: auto_triage returned skipped={skipped}")
+        if skipped in ("grouped", "storm_cap"):
+            return ("storm", f"playbook run {run['id']}: auto_triage returned skipped={skipped}")
+        if skipped == "already_triaged":
+            return ("already_triaged", f"playbook run {run['id']}: auto_triage returned skipped=already_triaged")
+        if skipped:
+            return ("unknown", f"playbook run {run['id']}: auto_triage returned skipped={skipped}")
+        return ("unknown", f"playbook run {run['id']}: auto_triage step {step.get('status')} "
+                           f"with no skip and no turn stored: {json.dumps(res, default=str)[:300]}")
+    alert = facts.get("alert") or {}
+    if any(n in c for c in facts.get("comments") or [] for n in _STORM_NOTES):
+        return ("storm", "the alert carries a storm-routing comment")
+    if facts.get("initiator"):
+        return ("already_triaged", "session auto:alerts:<uuid> is claimed but holds no turn")
+    sev, src = alert.get("severity"), alert.get("source")
+    if sev not in FILTER_SEVERITIES or src != SOURCE:
+        return ("filter_skip", f"alert severity={sev!r} source={src!r} is outside the trigger "
+                               f"filter (severity {list(FILTER_SEVERITIES)}, source {SOURCE!r})")
+    return ("trigger_not_run",
+            "no trigger playbook run mentions this alert, the alert matches the filter, "
+            "no storm comment, no claimed session: the on-create playbook never called auto_triage "
+            "(trigger disabled, not firing, or its run history was purged)")
+
+
+def _diagnose_no_turn(box: Box, uuid: str) -> dict:
+    facts = _no_turn_facts(box, uuid)
+    case, evidence = _classify_no_turn(facts)
+    if facts["errors"]:
+        evidence += f"  (unreadable: {'; '.join(facts['errors'])[:300]})"
+    print(f"    no turn for {uuid}: {case}: {evidence}")
+    return {"case": case, "evidence": evidence, "facts": facts}
+
+
+
 def _wait_triaged(box: Box, uuid: str, *, expect_turn: bool = True,
                   timeout: int = TURN_TIMEOUT) -> dict:
     """Wait for the trigger's auto-triage turn on ``uuid`` to finish. Returns
@@ -359,7 +483,9 @@ def _wait_triaged(box: Box, uuid: str, *, expect_turn: bool = True,
     asked = any(r.get("stop_reason") in ("requested_action_staged",
                                          "containment_follow_through")
                 for r in usage.get("usage") or [])
-    return {"session_id": sid, "turned": turned, "staged": staged,
+    no_turn = (_diagnose_no_turn(box, uuid)
+               if expect_turn and not turned else None)
+    return {"session_id": sid, "turned": turned, "staged": staged, "no_turn": no_turn,
             "asked_to_contain": asked,
             "verdict": ({k: verdicts[-1].get(k) for k in ("disposition", "confidence")}
                         if verdicts else None),
@@ -459,6 +585,10 @@ def _smoke_verdict(r: dict) -> tuple[bool, str]:
     escalation? Returns (ok, reason). The reason names the stage that broke, so
     an aborted run says where to look."""
     if not r.get("turned"):
+        nt = r.get("no_turn")
+        if nt:
+            return False, (f"no auto-triage turn within {SMOKE_TIMEOUT}s: {nt['case']}: "
+                           f"{nt['evidence']}")
         return False, (f"no auto-triage turn within {SMOKE_TIMEOUT}s: the trigger did "
                        "not fire or the turn never ran (check the trigger, the "
                        "connector worker and that the box model is reachable)")
