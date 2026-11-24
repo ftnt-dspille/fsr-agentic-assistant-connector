@@ -185,6 +185,39 @@ def _bind_autonomy_subject() -> None:
         pass
 
 
+def _bind_subject_preread(key: str | None, *, wanted: bool, tags: dict | None = None) -> str:
+    """Phase 2 step 4 (shadow): read the mounted alert's subject's asset and change
+    records at the start of the turn, bind them for the evidence score and the
+    premise (they count as read), and return the note that shows the model what
+    was found (appended to the system prompt; "" when there is none). Rebinds on
+    every turn, to nothing when ``wanted`` is false or the read fails: a
+    turn never inherits the previous turn's records. Never raises."""
+    try:
+        from fsr_playbooks.mcp_server._citation_validator import set_turn_preread_records
+    except Exception:  # noqa: BLE001 -- an older framework has no pre-read
+        return ""
+    got = None
+    if wanted:
+        try:
+            from fsr_soc_triage.subject_records import preread_subject_records
+            got = preread_subject_records(key)
+        except Exception:  # noqa: BLE001
+            got = None
+    set_turn_preread_records(got)
+    if not got:
+        return ""
+    try:
+        from fsr_playbooks.mcp_server._evidence_score import preread_note
+        note = preread_note(got)
+    except Exception:  # noqa: BLE001
+        note = ""
+    if tags is not None:
+        tags["subject_preread_ms"] = got.get("ms")
+        tags["subject_preread_records"] = sum(
+            1 for k in ("asset", "change") if got.get(k))
+    return f"\n\n{note}" if note else ""
+
+
 def _bind_autonomy_policy(session_id: str | None = None) -> None:
     """Set this turn's policy (or none). Never raises."""
     try:

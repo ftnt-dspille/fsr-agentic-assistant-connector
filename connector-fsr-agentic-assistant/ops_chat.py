@@ -39,7 +39,7 @@ from .ops_mcp import _apply_mcp_allowlist
 from .ops_offers import _salvage_build_offer
 from .ops_personas import ResolvedPersona
 from .ops_playbooks import compile_yaml
-from .ops_policy import _bind_autonomy_policy, _bind_autonomy_subject
+from .ops_policy import _bind_autonomy_policy, _bind_autonomy_subject, _bind_subject_preread
 from .ops_prompts import (
     _QUICK_ACTION_DIRECTIVE, _legacy_intent_text, _load_prompt, _render_prompt_for_tools,
     _resolve_intent, _session_trace_scope,
@@ -757,6 +757,14 @@ def chat_turn(config: dict, params: dict) -> dict:
             _rendered_prompt += _scope_directive(_scope)
             _source_note = _source_availability_note(_turn_tools)
             _plan_suffix = _plan_constraints_suffix()
+            # Phase 2 step 4 (shadow): the subject's asset and change records, read
+            # now rather than only flagged afterwards. A narrow ask or a persona
+            # that gives no verdict reads nothing.
+            _preread_note = _bind_subject_preread(
+                _triage_lookup_key(_entity),
+                wanted=bool(_scope in (None, "", "investigate")
+                             and persona.concludes_with_verdict(entity_module)),
+                tags=_turn_tags)
             try:
                 from fsr_playbooks.llm.provider import TurnInputsEvent  # noqa: F401
                 _turn_tags["prompt_slices"] = {
@@ -764,6 +772,7 @@ def chat_turn(config: dict, params: dict) -> dict:
                     "connector_rules": len(_CONNECTOR_INVARIANT_RULES),
                     "source_availability": len(_source_note),
                     "plan_constraints": len(_plan_suffix),
+                    "subject_records": len(_preread_note),
                 }
             except ImportError:
                 # A framework without the record would leave the tag on every
@@ -772,7 +781,7 @@ def chat_turn(config: dict, params: dict) -> dict:
             try:
                 return _turn_loop.run_until_complete(run_agent_turn(
                     provider=provider,
-                    system=_rendered_prompt + _source_note + _plan_suffix,
+                    system=_rendered_prompt + _source_note + _plan_suffix + _preread_note,
                     messages=wire_msgs,
                     tools=_turn_tools,
                     tags=_turn_tags,
