@@ -6,8 +6,9 @@
 #   test_pass_cache.sh has  <mode>    exit 0 if <mode> passed for the current key
 #   test_pass_cache.sh mark <mode>    record that <mode> passed for the current key
 #
-# <mode> is `editable` (the dev env, framework as an editable checkout) or
-# `ci-mirror` (the pinned wheel). The key covers everything a pass depends on:
+# <mode> is `editable` (the dev env on the host, framework as an editable checkout),
+# `container` (the same suite in the Linux container, which the pre-push runs by default;
+# the widget-checkout parity checks skip there, as in CI) or `ci-mirror` (the pinned wheel). The key covers everything a pass depends on:
 # the connector tree, the framework checkout's commit (editable mode imports it),
 # and the requirements. Change any of them and the suite runs again.
 set -uo pipefail

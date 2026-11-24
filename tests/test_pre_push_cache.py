@@ -146,3 +146,78 @@ def test_the_inputs_the_tests_read_still_invalidate_the_pass(tmp_path):
     assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 1   # widget dirty
     _git(wid, "commit", "-qam", "w")
     assert _wcache(conn, fw, cache, faw, "has", "editable").returncode == 1   # widget moved
+
+
+# ---- the full suite runs in the container, once per tree -------------------------------------------------
+
+def _full_push(conn, fw, cache, tmp_path, *, runner_rc, extra=None):
+    """Run the pre-push for a full-suite push of HEAD with a fake container runner and a fake host python.
+    Returns (result, runner_calls, host_calls)."""
+    bin_ = tmp_path / "bin"; bin_.mkdir(exist_ok=True)
+    (bin_ / "ruff").write_text("#!/bin/sh\nexit 0\n"); (bin_ / "ruff").chmod(0o755)
+    runner_log, host_log = tmp_path / "runner.log", tmp_path / "host.log"
+    runner = tmp_path / "runner.sh"
+    runner.write_text(f'#!/bin/sh\necho "$DEVLOOP_FRAMEWORK_DIR|$*" >> {runner_log}\nexit {runner_rc}\n')
+    host_py = tmp_path / "hostpy"
+    host_py.write_text(f'#!/bin/sh\ncase "$1" in -c) exit 0;; esac\necho "$*" >> {host_log}\nexit 0\n')
+    for f in (runner, host_py):
+        f.chmod(0o755)
+    head = subprocess.run(["git", "-C", str(conn), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+    env = _env(PATH=f"{bin_}:{os.environ['PATH']}", TEST_PY=str(host_py), FSRPB_FRAMEWORK_DIR=str(fw),
+               FSR_TEST_PASS_CACHE=str(cache), FSR_LAP_LEDGER=str(tmp_path / "laps.tsv"),
+               PREPUSH_FULL="1", PREPUSH_PY_DOCKER=str(runner), **(extra or {}))
+    r = subprocess.run(["bash", str(conn / "scripts/hooks/pre-push"), "origin", "x"], cwd=conn, capture_output=True,
+                       text=True, input=f"refs/heads/b {head} refs/heads/b {'0' * 40}\n", env=env)
+    rd = lambda p: p.read_text().splitlines() if p.exists() else []  # noqa: E731
+    return r, rd(runner_log), rd(host_log)
+
+
+def test_the_full_suite_runs_in_the_container_with_the_framework_tree(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=0)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert runner == [f"{fw}|connector {conn} -x"], runner
+    assert host == [], "the suite must not also run on the host"
+
+
+def test_no_container_engine_falls_back_to_the_host_suite(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=75)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(runner) == 1 and len(host) == 1 and host[0].startswith("-m pytest"), (runner, host)
+    assert "no container engine" in r.stderr
+
+
+def test_door_docker_zero_forces_the_host(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=0, extra={"DOOR_DOCKER": "0"})
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert runner == [] and len(host) == 1
+
+
+def test_a_red_container_suite_blocks_the_push_and_is_not_retried_on_the_host(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=1)
+    assert r.returncode == 1 and "suite is red" in r.stderr
+    assert host == []
+    assert not (cache / "container").exists(), "a red run must not be recorded"
+
+
+def test_a_tree_that_passed_in_the_container_is_not_run_again(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    r1, runner1, _ = _full_push(conn, fw, cache, tmp_path, runner_rc=0)
+    assert r1.returncode == 0 and len(runner1) == 1
+    r2, runner2, host2 = _full_push(conn, fw, cache, tmp_path, runner_rc=1)   # would fail if it ran
+    assert r2.returncode == 0, r2.stdout + r2.stderr
+    assert "already passed on this exact code" in r2.stdout
+    assert runner2 == runner1 and host2 == []
+    (conn / "code.py").write_text("x = 3\n"); _git(conn, "commit", "-qam", "next")
+    r3, runner3, _ = _full_push(conn, fw, cache, tmp_path, runner_rc=0)       # a new tree runs again
+    assert r3.returncode == 0 and len(runner3) == 2
+
+
+def test_a_host_make_test_pass_also_satisfies_the_push(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    assert _cache(conn, fw, cache, "mark", "editable").returncode == 0
+    r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=1)
+    assert r.returncode == 0 and runner == [] and host == []
