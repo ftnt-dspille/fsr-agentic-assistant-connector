@@ -123,7 +123,7 @@ class World:
         # the inputs come from the one shared file (the monorepo's .github/package-inputs)
         paths = {"fsr_all_widgets": self.monorepo, "fsr-playbook-framework": self.framework,
                  "conn_main": self.conn, **self.widgets}
-        return [sg.RepoSpec(s.name, paths[s.name], s.inputs)
+        return [sg.RepoSpec(s.name, paths[s.name], s.inputs, s.ship)
                 for s in sg.repo_specs(self.monorepo, self.framework, self.conn)]
 
     def all_repos(self):
@@ -235,6 +235,96 @@ def test_a_head_off_main_refuses(world):
     git(world.widgets["agenticAssistant"], "checkout", "-q", "-b", "feat/x")
     rep = world.run()
     assert not rep.ok and "not main" in _joined(rep)
+
+
+# --- a tooling-only head has no stamp of its own: the newest stamped ancestor stands in ---
+
+def _commit_push(repo, rel, text="changed\n", msg="change"):
+    # The copied repos share the template's bare remotes, which no test may push to:
+    # point this repo at a private copy of its remote first.
+    url = git(repo, "remote", "get-url", "origin")
+    if "/private-remotes/" not in url:
+        mine = repo.parent.parent / "private-remotes" / f"{repo.name}.git"
+        mine.parent.mkdir(exist_ok=True)
+        subprocess.run(["git", "clone", "-q", "--bare", url, str(mine)], check=True, env=GIT_ENV)
+        git(repo, "remote", "set-url", "origin", str(mine))
+    f = repo / rel
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(text)
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", msg)
+    return push_head(repo)
+
+
+def test_a_tooling_only_head_after_a_stamped_ancestor_passes_and_names_it(world):
+    stamped = git(world.conn, "rev-parse", "HEAD")
+    _commit_push(world.conn, "scripts/s.sh")          # conn `extra`, not `ship`: tooling
+    _commit_push(world.conn, "docs/readme.md")
+    rep = world.run()
+    assert rep.ok, _joined(rep)
+    assert any(stamped[:9] in n and "tooling" in n for n in rep.notes), rep.notes
+
+
+def test_a_tooling_only_root_head_passes_by_the_remote_mains_tooling_paths(world):
+    _commit_push(world.monorepo, ".github/tooling-paths", "# c\nscripts/*\n")
+    world.stamp("fsr_all_widgets", git(world.monorepo, "rev-parse", "HEAD"))
+    _commit_push(world.monorepo, "scripts/x.sh")
+    rep = world.run()
+    assert rep.ok, _joined(rep)
+    assert any("tooling" in n for n in rep.notes)
+
+
+def test_a_root_path_off_tooling_paths_refuses(world):
+    _commit_push(world.monorepo, ".github/tooling-paths", "# c\nscripts/*\n")
+    world.stamp("fsr_all_widgets", git(world.monorepo, "rev-parse", "HEAD"))
+    _commit_push(world.monorepo, "fortisoar-widget-harness/a.js")
+    rep = world.run()
+    assert not rep.ok and "shipped path" in _joined(rep) and "a.js" in _joined(rep)
+
+
+def test_a_root_head_with_no_tooling_paths_on_remote_main_refuses(world):
+    _commit_push(world.monorepo, "scripts/x.sh")
+    rep = world.run()
+    assert not rep.ok and "cannot classify" in _joined(rep)
+
+
+def test_a_shipped_path_between_the_stamped_ancestor_and_head_refuses(world):
+    _commit_push(world.conn, "connector-fsr-agentic-assistant/c.py")   # shipped, unstamped
+    _commit_push(world.conn, "scripts/s.sh")
+    rep = world.run()
+    assert not rep.ok
+    out = _joined(rep)
+    assert "conn_main" in out and "shipped path" in out and "connector-fsr-agentic-assistant/c.py" in out
+
+
+def test_a_workflow_or_policy_change_is_shipped_even_when_it_is_under_dot_github(world):
+    _commit_push(world.conn, ".github/tooling-paths", "scripts/*\n")
+    rep = world.run()
+    assert not rep.ok and "shipped path" in _joined(rep)
+
+
+def test_no_stamped_ancestor_refuses(world):
+    shutil.rmtree(world.stamps / sg.stamp_name(world.conn))
+    _commit_push(world.conn, "scripts/s.sh")
+    rep = world.run()
+    assert not rep.ok and "no live-sanity stamp" in _joined(rep) and "ancestors" in _joined(rep)
+
+
+def test_a_stamp_that_is_not_verified_is_not_an_ancestor_to_lean_on(world):
+    name = sg.stamp_name(world.conn)
+    sha = git(world.conn, "rev-parse", "HEAD")
+    world.stamp(name, sha, verdict="FAILED")
+    _commit_push(world.conn, "scripts/s.sh")
+    rep = world.run()
+    assert not rep.ok and "no live-sanity stamp" in _joined(rep)
+
+
+def test_the_walk_back_is_bounded(world, monkeypatch):
+    monkeypatch.setattr(sg, "WALK_LIMIT", 2)
+    for i in range(3):
+        _commit_push(world.conn, "scripts/s.sh", f"{i}\n", f"t{i}")
+    rep = world.run()
+    assert not rep.ok and "ancestors" in _joined(rep)
 
 
 # --- promoted source: make stable builds from detached trees at remote main ---

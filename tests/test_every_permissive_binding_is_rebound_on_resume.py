@@ -89,6 +89,11 @@ TURN_SCOPED_SAFE = {
         "to tell an unread record from none existing (Phase 2 shadow); unbound "
         "the premise stays `unread`, and no decision reads the premise. Re-set "
         "by _bind_autonomy_subject, which the turn and both resumes call.",
+    "_turn_preread_records":
+        "defaults None. The subject's asset and change records the host read at "
+        "the start of the turn (Phase 2 shadow); unbound the premise falls back "
+        "to the verdict-time lookup, and no decision reads the premise. A resumed "
+        "turn does not re-read them: it binds nothing.",
     "_turn_connector_labels":
         "defaults None. Only supplies catalog display labels to the change "
         "offer card (U6); unbound adds no label and the widget humanizes the "
@@ -227,12 +232,14 @@ def test_every_context_var_is_adjudicated():
 #: Adjudicated for framework code that an older (pinned, released) framework does
 #: not have yet. The bundled leg (framework main) still checks them; the pinned
 #: leg is informational and must not call them stale.
-_NEWER_THAN_PINNED = {"_turn_known_context", "_turn_subject_records"}
+_NEWER_THAN_PINNED = {"_turn_known_context", "_turn_subject_records",
+                     "_turn_preread_records"}
 
 
 def _framework_predates_subject_records() -> bool:
     from fsr_playbooks.mcp_server import _citation_validator as cv
-    return not hasattr(cv, "set_turn_subject_records")
+    return not (hasattr(cv, "set_turn_subject_records")
+                and hasattr(cv, "set_turn_preread_records"))
 
 
 def test_no_adjudication_is_stale():

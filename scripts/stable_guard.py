@@ -18,6 +18,13 @@ This guard refuses the install unless every condition below holds:
   4. Each HEAD has a VERIFIED, clean live-sanity stamp taken on an EXPERIMENTAL
      box (the stamp's `box` alias must read role = "experimental"). A stable box
      never proves its own code; the proof is the experimental run of that commit.
+     A HEAD with no stamp at all is also accepted when the newest ancestor that
+     has such a stamp (looked for in the last 200 commits) is separated from HEAD
+     only by tooling paths, classified as make promote classifies them: the root
+     repo's package-inputs `ship` lines when the repo has some, else the repo's
+     .github/tooling-paths read from its remote main. A tooling-only promote has
+     no box stamp (CI is its proof), so it must not need one here. The report
+     names the ancestor used.
 
 Nothing here touches a box. The install is scripts/stable_install.py.
 
@@ -28,6 +35,7 @@ Exit 0 when every check passes; 1 with the failures listed; 2 on a usage error.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import os
 import subprocess
@@ -45,11 +53,13 @@ class RepoSpec:
     name: str                       # the stamp directory name (the main checkout's basename)
     path: Path                      # the main checkout
     inputs: tuple[str, ...] = ()    # pathspecs that go into the package; () = the whole repo
+    ship: tuple[str, ...] = ()      # the `ship` lines alone (what lands on a box); ("." ,) = the whole repo
 
 
 @dataclass
 class Report:
     heads: dict[str, str] = field(default_factory=dict)     # repo name -> HEAD sha
+    notes: list[str] = field(default_factory=list)          # e.g. "used stamped ancestor ..."
     problems: list[str] = field(default_factory=list)
 
     @property
@@ -78,17 +88,28 @@ def load_package_inputs(monorepo: Path) -> dict[str, tuple[str, ...]]:
     return {k: () if "." in v else tuple(v) for k, v in out.items()}
 
 
+def load_ship_inputs(monorepo: Path) -> dict[str, tuple[str, ...]]:
+    """repo name -> its `ship` lines alone (`.` kept as the whole repo)."""
+    out: dict[str, list[str]] = {}
+    for raw in (monorepo / PACKAGE_INPUTS).read_text().splitlines():
+        parts = raw.split("#", 1)[0].split()
+        if len(parts) == 3 and parts[1] == "ship":
+            out.setdefault(parts[0], []).append(parts[2])
+    return {k: tuple(v) for k, v in out.items()}
+
+
 def repo_specs(monorepo: Path, framework: Path, conn: Path) -> list[RepoSpec]:
     """The five source repos a stable package is built from. What each must be clean on is
     not listed here: it is the one definition in the root repo's .github/package-inputs."""
     inputs = load_package_inputs(monorepo)
+    ships = load_ship_inputs(monorepo)
     paths = {"fsr_all_widgets": monorepo, "fsr-playbook-framework": framework, "conn_main": conn}
     for w in WIDGET_NAMES:
         paths[w] = monorepo / "widgets-src" / w
     missing = [n for n in paths if n not in inputs]
     if missing:
         raise KeyError(f"{monorepo / PACKAGE_INPUTS} has no line for: {', '.join(missing)}")
-    return [RepoSpec(n, p, inputs[n]) for n, p in paths.items()]
+    return [RepoSpec(n, p, inputs[n], ships.get(n, ())) for n, p in paths.items()]
 
 
 def check_clean(spec: RepoSpec) -> list[str]:
@@ -162,11 +183,16 @@ def stamp_name(path: Path) -> str:
     return c.parent.name if c.name == ".git" else c.name
 
 
-def check_stamp(spec: RepoSpec, head: str, stamp_dir: Path,
-                role_of: Callable[[str], str]) -> list[str]:
-    """A VERIFIED, clean stamp for HEAD whose box reads role = experimental."""
+TOOLING_PATHS = ".github/tooling-paths"
+WALK_LIMIT = 200   # how many commits back to look for a stamped ancestor
+
+
+def _stamp_problem(spec: RepoSpec, sha: str, stamp_dir: Path,
+                   role_of: Callable[[str], str]) -> tuple[bool, list[str]]:
+    """(ok, reasons) for the stamp files of `sha`: ok only for a VERIFIED, clean stamp
+    whose box reads role = experimental. No stamp file at all gives ([], reasons empty)."""
     reasons: list[str] = []
-    for f in _stamp_files(stamp_dir, stamp_name(spec.path), head):
+    for f in _stamp_files(stamp_dir, stamp_name(spec.path), sha):
         try:
             st = json.loads(f.read_text())
         except (OSError, ValueError) as exc:
@@ -177,19 +203,94 @@ def check_stamp(spec: RepoSpec, head: str, stamp_dir: Path,
             reasons.append(f"stamp on box {box or '?'} reads {st.get('verdict')!r}, not VERIFIED")
         elif st.get("dirty") is not False:
             reasons.append(f"stamp on box {box or '?'} was taken on a dirty tree")
-        elif st.get("sha") != head:
+        elif st.get("sha") != sha:
             reasons.append("stamp names a different commit")
         else:
             role = role_of(box)
             if role == "experimental":
-                return []
+                return True, []
             reasons.append(f"VERIFIED stamp is from box {box or '?'} (role {role}); "
                            f"a stable box never proves its own code")
+    return False, reasons
+
+
+def _tooling_globs(spec: RepoSpec) -> list[str] | None:
+    """The repo's .github/tooling-paths from its remote main (never the working tree), as
+    scripts/promote.sh reads it. None when it cannot be read."""
+    remote = upstream_remote(spec)
+    if not remote:
+        return None
+    r = _git(spec.path, "show", f"refs/remotes/{remote}/main:{TOOLING_PATHS}")
+    if r.returncode != 0:
+        return None
+    globs = [ln.split("#", 1)[0].strip() for ln in r.stdout.splitlines()]
+    return [g for g in globs if g]
+
+
+def shipped_paths(spec: RepoSpec, base: str, head: str) -> tuple[list[str], str]:
+    """(paths changed between base and head that still need a box stamp, why-not when the
+    classification itself failed). Same rule as scripts/promote.sh: with `ship` lines a path
+    is shipped when it is under one of them (or under .github/); without, every path must match
+    a glob of the remote main's .github/tooling-paths. An empty diff counts as shipped."""
+    r = _git(spec.path, "diff", "--name-status", "-M", base, head)
+    if r.returncode != 0:
+        return [], f"git diff failed ({r.stderr.strip() or 'no output'})"
+    changed: list[str] = []
+    for line in r.stdout.splitlines():
+        changed += [p for p in line.split("\t")[1:] if p]
+    if not changed:
+        return ["(empty diff)"], ""
+    if spec.ship:
+        def is_ship(p: str) -> bool:
+            if p.startswith(".github/"):
+                return True
+            return any(i == "." or p == i or p.startswith(i + "/") for i in spec.ship)
+        return [p for p in changed if is_ship(p)], ""
+    globs = _tooling_globs(spec)
+    if globs is None:
+        return [], f"no {TOOLING_PATHS} on the remote main"
+    return [p for p in changed if not any(fnmatch.fnmatchcase(p, g) for g in globs)], ""
+
+
+def stamped_ancestor(spec: RepoSpec, head: str, stamp_dir: Path,
+                     role_of: Callable[[str], str]) -> str | None:
+    """The newest ancestor of HEAD (within WALK_LIMIT commits) with a valid stamp."""
+    r = _git(spec.path, "rev-list", f"--max-count={WALK_LIMIT + 1}", head)
+    for sha in r.stdout.split()[1:]:
+        if _stamp_problem(spec, sha, stamp_dir, role_of)[0]:
+            return sha
+    return None
+
+
+def check_stamp(spec: RepoSpec, head: str, stamp_dir: Path,
+                role_of: Callable[[str], str], notes: list[str] | None = None) -> list[str]:
+    """A VERIFIED, clean stamp for HEAD whose box reads role = experimental. A HEAD with no
+    stamp file at all is also accepted when only tooling paths lie between it and the newest
+    stamped ancestor (a tooling-only promote has no box stamp; CI proved it)."""
+    ok, reasons = _stamp_problem(spec, head, stamp_dir, role_of)
+    if ok:
+        return []
+    fix = ("Push it to an experimental box (make push BOX=<experimental> then make doctor "
+           "BOX=<experimental> SANITY=1 STAMP=<checkout>) and retry.")
     if not reasons:
-        reasons.append("no live-sanity stamp")
-    return [f"{spec.name}@{head[:9]}: {reasons[0]}. Push it to an experimental box "
-            f"(make push BOX=<experimental> then make doctor BOX=<experimental> SANITY=1 "
-            f"STAMP=<checkout>) and retry."]
+        anc = stamped_ancestor(spec, head, stamp_dir, role_of)
+        if anc is None:
+            reasons.append(f"no live-sanity stamp, and none on its last {WALK_LIMIT} ancestors")
+        else:
+            shipped, err = shipped_paths(spec, anc, head)
+            if err:
+                reasons.append(f"no live-sanity stamp; cannot classify the change since stamped "
+                               f"ancestor {anc[:9]} ({err})")
+            elif shipped:
+                shown = ", ".join(shipped[:4]) + (" ..." if len(shipped) > 4 else "")
+                reasons.append(f"no live-sanity stamp, and shipped path(s) changed since stamped "
+                               f"ancestor {anc[:9]} ({shown})")
+            else:
+                if notes is not None:
+                    notes.append(f"{spec.name}@{head[:9]}: no stamp of its own; only tooling paths "
+                                 f"changed since the VERIFIED stamp on ancestor {anc[:9]}")
+                return []
+    return [f"{spec.name}@{head[:9]}: {reasons[0]}. {fix}"]
 
 
 def box_role(alias: str) -> str:
@@ -216,7 +317,7 @@ def guard(box: str, specs: list[RepoSpec], stamp_dir: Path,
             continue
         rep.heads[spec.name] = head
         rep.problems += check_remote_main(spec, head)
-        rep.problems += check_stamp(spec, head, stamp_dir, role_of)
+        rep.problems += check_stamp(spec, head, stamp_dir, role_of, rep.notes)
     return rep
 
 
@@ -248,6 +349,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     for name, head in rep.heads.items():
         print(f"stable guard: {name} {head[:9]} clean, on remote main, VERIFIED on an experimental box")
+    for note in rep.notes:
+        print(f"stable guard: {note}")
     return 0
 
 
