@@ -1,0 +1,30 @@
+{
+  "name": "ka_trap_jira_change_row",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_trap_jira_change_row",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000208"
+  },
+  "why": [
+    "KNOWN-ANSWER row (trap): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Trap: the asset alone looks plain; an approved Jira change issue (a different row shape from ServiceNow) names this host and the rated address and explains the beaconing."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "benign",
+        "false_positive"
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "ka_trap_approval_no_window",
+  "category": "known_answer",
+  "intent": "triage",
+  "module": "alerts",
+  "records": "ka_trap_approval_no_window",
+  "mount": {
+    "module": "alerts",
+    "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000207"
+  },
+  "why": [
+    "KNOWN-ANSWER row (trap): its records bundle fixes the evidence (strict_ops).",
+    "",
+    "Trap: an approved change names this host and the rated address but states no change window; it approves a single file transfer and does not cover recurring beaconing."
+  ],
+  "steps": [
+    {
+      "user": "Triage this alert. Check the evidence and give me your verdict."
+    }
+  ],
+  "expect": {
+    "tools_are_real": true,
+    "verdict_is": {
+      "any_of": [
+        "true_positive"
+      ]
+    }
+  }
+}

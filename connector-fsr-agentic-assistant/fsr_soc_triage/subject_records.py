@@ -27,11 +27,20 @@ from ._common import live_request
 
 log = logging.getLogger(__name__)
 
+def _jql_phrase(text: str) -> str:
+    """``text`` as a JQL quoted phrase (backslash and quote escaped)."""
+    return '"' + str(text).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
 #: connector -> (operation, params builder taking the search text)
 _CHANGE_OPS: dict[str, tuple[str, Any]] = {
     "servicenow": ("get_all_change_requests", lambda q: [
         {"change_request_type": t, "textSearch": q, "sysparm_limit": 5}
         for t in ("Standard Change", "Normal Change")]),
+    # Jira: any issue that mentions the host (no issue-type filter: a project
+    # without a "Change" type would make the whole query an error)
+    "jirav2": ("list_tickets", lambda q: [
+        {"jql_query": f"text ~ {_jql_phrase(q)} ORDER BY created DESC", "maxResults": 5}]),
 }
 
 

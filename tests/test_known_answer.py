@@ -32,7 +32,8 @@ KA_ROWS = ("ka_c2_beacon", "ka_authorized_scanner", "ka_cdn_first_seen",
            "ka_trap_unsanctioned_scanner", "ka_trap_change_other_window",
            "ka_trap_asset_decommissioned_reassigned",
            "ka_trap_asset_read_change_unread",
-           "ka_trap_asset_leans_benign_change_scopes")
+           "ka_trap_asset_leans_benign_change_scopes",
+           "ka_trap_approval_no_window", "ka_trap_jira_change_row")
 
 
 def _box(**world):
