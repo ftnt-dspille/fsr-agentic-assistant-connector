@@ -66,6 +66,10 @@ CACHE_SH="$ROOT/scripts/hooks/test_pass_cache.sh"
 # the suite runs against the working tree, so that is the code it proved.
 cached() { [[ "$pushes_head" == "1" ]] && bash "$CACHE_SH" has "$1"; }
 export PREPUSH_PUSHES_HEAD="$pushes_head"
+# The full suite runs in the Linux container (scripts/devloop_docker_py.sh in the root repo: ~2 min warm
+# vs ~5-8 min on the Mac host, same tests and verdict). Exit 75 = no container engine: the host runs it.
+# DOOR_DOCKER=0 forces the host. PREPUSH_PY_DOCKER points at another runner (tests).
+PY_DOCKER="${PREPUSH_PY_DOCKER:-$FSR_ALL_WIDGETS/scripts/devloop_docker_py.sh}"
 
 # 1. Ruff lint (Pyflakes F-rules: undefined names, unused imports, etc.)
 # ~1s. Catches real bugs that pytest doesn't.
@@ -183,16 +187,31 @@ elif [[ "$SCOPE" == changed ]]; then
             rm -f "$_dur"
         fi
     fi
-elif cached editable; then
+elif cached editable || cached container; then
+    # Same code, same suite: `make test` (host, mode editable) or an earlier container run (mode container).
     echo ">> pre-push: full suite already passed on this exact code (make test / earlier push) -- skipped"
 else
-    echo ">> pre-push: full pytest suite (outer + connector), ${XDIST:-serial}, ~2 min"
-    if ! ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST ); then
+    _ran=0; _rc=0; _mode=editable
+    if [[ "${DOOR_DOCKER:-1}" != 0 && -f "$PY_DOCKER" ]]; then
+        _fw=""; [[ -d "${FSRPB_FRAMEWORK_DIR:-}" ]] && _fw="$FSRPB_FRAMEWORK_DIR"
+        echo ">> pre-push: full pytest suite (outer + connector) in the Linux container, ~2 min"
+        ( cd "$ROOT" && DEVLOOP_FRAMEWORK_DIR="$_fw" bash "$PY_DOCKER" connector "$ROOT" -x ); _rc=$?
+        if [[ $_rc -eq 75 ]]; then
+            echo ">> pre-push: no container engine; running the suite on the host" >&2; _rc=0
+        else
+            _ran=1; _mode=container
+        fi
+    fi
+    if [[ $_ran -eq 0 ]]; then
+        echo ">> pre-push: full pytest suite (outer + connector), ${XDIST:-serial}, ~5 min on the host"
+        ( cd "$ROOT" && FSRPB_DEV=1 "$TEST_PY" -m pytest -q --no-header -x $XDIST ); _rc=$?
+    fi
+    if [[ $_rc -ne 0 ]]; then
         echo ">> pre-push ABORT: suite is red -- nothing pushed." >&2
         echo "   Fix it, or push with --no-verify / SKIP_TESTS=1." >&2
         exit 1
     fi
-    [[ "$pushes_head" == "1" ]] && bash "$CACHE_SH" mark editable
+    [[ "$pushes_head" == "1" ]] && bash "$CACHE_SH" mark "$_mode"
 fi
 
 # 3. CI-mirror check (opt-in): the same suite against the pinned wheel. GitHub Actions CI
