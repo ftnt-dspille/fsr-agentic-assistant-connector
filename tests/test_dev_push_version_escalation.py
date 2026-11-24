@@ -16,6 +16,13 @@ def test_a_version_change_escalates_to_an_install():
     assert re.search(r'if \[\[ -n "\$new_ops" \|\| -n "\$ver_bump" \]\]', SRC), "a version change takes the install branch"
 
 
+def test_the_box_version_is_read_from_the_installed_directory_not_its_copied_info_json():
+    # Live: the first failed push copied 0.6.24's info.json into ..._0_6_23, so reading
+    # that file said 0.6.24 and the next push copied again instead of installing.
+    line = next(ln for ln in SRC.splitlines() if ln.startswith("box_ver="))
+    assert "basename" in line and "info.json" not in line
+
+
 def test_the_install_does_not_bump_again():
     assert 'ver_bump="none"' in SRC
     assert '--bump "${ver_bump:-patch}"' in SRC, "a new op still bumps patch; a version change installs as is"

@@ -143,7 +143,10 @@ print(" ".join(o["operation"] for o in tree if o.get("operation") not in box))
 # A changed info.json VERSION needs the same install: a copy leaves the new code in the
 # old version's directory, and every worker then reports a stale version (live: a
 # BUMP=patch ship to 0.6.24 failed live sanity, 6 workers on the 0_6_23 dir).
-box_ver="$(ssh "$BOX_SSH" "cat '$cdir/info.json'" | "$PY" -c 'import json, sys; print(json.load(sys.stdin).get("version", ""))' 2>/dev/null || true)"
+# The installed version is the one in the directory name (<name>_X_Y_Z): the info.json
+# inside it is whatever the last copy wrote, so an earlier push of the new version
+# would hide the change.
+box_ver="$(basename "$cdir" | sed -nE 's/.*_([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/p')"
 tree_ver="$("$PY" -c 'import json, sys; print(json.load(open(sys.argv[1])).get("version", ""))' "$PKG_SRC/info.json")"
 ver_bump=""
 if [[ -n "$box_ver" && -n "$tree_ver" && "$box_ver" != "$tree_ver" ]]; then
