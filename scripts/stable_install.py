@@ -20,9 +20,16 @@ Built from the checkouts at their main HEAD, into <conn>/dist/stable/:
 Installs EXACTLY the repo's info.json versions. The importer's auto-bump is off (it
 re-versions a box that already has the version on every run). Per artifact (connector,
 each widget): a version not on the box is installed; the same version at the same head
-as the install record is skipped; the same version at a different head is REFUSED with a
+as the install record is skipped (or resumed, when the record is "pending": see below); the same version at a different head is REFUSED with a
 "bump the version (BUMP=patch), promote, retry" message; a newer version on the box is
 refused. The record (dist/stable/installed-<box>.json) holds per-artifact version + head.
+
+Crash safety: the record is written with status "pending" BEFORE the import and finalized
+("installed") after verify. A run that dies after the import (transient box errors while
+the integration workers restart are retried first, for up to RETRY_WINDOW seconds) leaves a
+pending record; the next run sees the artifacts on the box matching it, skips the import
+and finishes the default config, widget publish and verify. A same-version artifact with
+no matching record is still refused.
 
 Environment (set by the Makefile):
   BOX_ENV        the box's env file (pyfsr registry; resolved by scripts/box.sh)
@@ -39,6 +46,8 @@ import os
 import shutil
 import subprocess
 import sys
+import time
+from functools import wraps
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -48,6 +57,64 @@ from pyfsr.api.import_config import connector_flags  # noqa: E402
 from stable_guard import WIDGET_NAMES  # noqa: E402
 
 DASHBOARD_TITLE = pack.DASHBOARD_TITLE
+
+# After a connector import the integration workers restart for a few minutes and box reads
+# fail ("Unknown error occurred"). Reads and idempotent writes after the import retry for
+# this long, with backoff, before failing with a clear message.
+RETRY_WINDOW = 180.0
+RETRY_FIRST_DELAY = 2.0
+RETRY_MAX_DELAY = 20.0
+_sleep = time.sleep
+_clock = time.monotonic
+
+
+def is_transient(exc: BaseException) -> bool:
+    """A box error worth retrying: a 5xx, no HTTP status at all (a dropped connection, an
+    unparseable body), or pyfsr's empty "Unknown error occurred". Auth, 4xx validation and
+    not-found errors are real and never retried."""
+    import requests
+    if isinstance(exc, (requests.ConnectionError, requests.Timeout)):
+        return True
+    try:
+        from pyfsr.exceptions import APIError, ResponseParseError
+    except ImportError:  # pragma: no cover
+        return False
+    if isinstance(exc, ResponseParseError):
+        return True
+    if isinstance(exc, APIError):
+        status = getattr(exc, "status_code", None)
+        return status is None or status >= 500 or "unknown error occurred" in str(exc).lower()
+    return False
+
+
+def retry_transient(fn, what: str, window: float | None = None):
+    """Call fn(); on a transient box error retry with backoff for `window` seconds, then fail."""
+    window = RETRY_WINDOW if window is None else window
+    start, delay, tries = _clock(), RETRY_FIRST_DELAY, 0
+    while True:
+        try:
+            return fn()
+        except Exception as e:  # noqa: BLE001  (filtered by is_transient)
+            if not is_transient(e):
+                raise
+            tries += 1
+            if _clock() - start + delay > window:
+                raise SystemExit(f"stable: {what} still failing after {tries} tries over "
+                                 f"{int(_clock() - start)}s ({e}); the box may still be restarting "
+                                 f"its integration workers. Re-run `make stable`: the install resumes.") from e
+            _say(f"retry     : {what}: {e} (box still settling, again in {delay:.0f}s)")
+            _sleep(delay)
+            delay = min(delay * 2, RETRY_MAX_DELAY)
+
+
+def retrying(what: str):
+    """Decorator for an idempotent box step that retries on transient errors."""
+    def deco(f):
+        @wraps(f)
+        def wrapper(*a, **kw):
+            return retry_transient(lambda: f(*a, **kw), what)
+        return wrapper
+    return deco
 
 
 def _say(msg: str) -> None:
@@ -142,6 +209,9 @@ def record_path(out: Path, box: str) -> Path:
     return out / f"installed-{box}.json"
 
 
+PENDING = "pending"
+
+
 def _vtuple(v: str) -> tuple:
     return tuple(int(x) if x.isdigit() else 0 for x in str(v).split("."))
 
@@ -166,6 +236,7 @@ def content_keys(conn: Path, widgets_src: Path, fw_ver: str, widget_names) -> di
     return keys
 
 
+@retrying("planning the install")
 def plan_install(client, state: dict, content: dict, expect: dict) -> dict:
     """Per artifact (connector, each widget): install, skip, or refuse.
 
@@ -176,6 +247,9 @@ def plan_install(client, state: dict, content: dict, expect: dict) -> dict:
       - same version, same content as recorded        -> skip (already there)
       - same version, different content (or no record) -> refuse: bump the version (BUMP=patch)
       - box holds a NEWER version                     -> refuse (the importer would skip the older tarball)
+    A record with status "pending" (written before the import) turns the "skip" case into
+    "resume": the artifact is on the box (an import landed, or a widget sits as a draft) but
+    the run never finished; the remaining steps (default config, publish, verify) run again.
     """
     rec = (state or {}).get("artifacts", {})
     actions: dict[str, str] = {}
@@ -190,7 +264,7 @@ def plan_install(client, state: dict, content: dict, expect: dict) -> dict:
         mine = rec.get(name, {})
         if ver in on_box:
             if mine.get("version") == ver and mine.get("content") == key:
-                actions[name] = "skip"
+                actions[name] = "resume" if (state or {}).get("status") == PENDING else "skip"
                 continue
             raise SystemExit(
                 f"stable: {name} {ver} is already on the box with different packaged content "
@@ -220,6 +294,7 @@ def run_import(client, zip_path: Path, install_connector: bool) -> dict:
         raise SystemExit(f"stable: import ended in status {status!r}: {getattr(job, 'errorMessage', '')}")
     return {"status": status}
 
+@retrying("reading the default configuration")
 def default_config_name(client, connector: str) -> "str | None":
     """The name of the connector's default configuration on the box, or None."""
     for c in client.connectors.list_configurations(connector=connector):
@@ -242,16 +317,20 @@ def keep_default_config(client, connector: str, before: "str | None") -> "str | 
     after = default_config_name(client, connector)
     if after == before:
         return None
-    if before not in {c.name for c in client.connectors.list_configurations(connector=connector)}:
+    names = retry_transient(lambda: {c.name for c in client.connectors.list_configurations(connector=connector)},
+                            "listing configurations")
+    if before not in names:
         _say(f"config    : the default before the import ({before!r}) is gone; leaving {after!r}")
         return None
-    client.connectors.set_default_configuration(connector, name=before)
+    retry_transient(lambda: client.connectors.set_default_configuration(connector, name=before),
+                    "restoring the default configuration")
     if default_config_name(client, connector) != before:
         raise SystemExit(f"stable: could not restore the default config {before!r} (box shows {after!r})")
     _say(f"config    : the import made {after!r} the default; restored {before!r}")
     return before
 
 
+@retrying("publishing the widgets")
 def publish_and_retire(client, expect: dict, bumps: list[dict]) -> None:
     """The wizard lands widgets as drafts. Publish the expected version of each widget,
     then retire the other installed versions that no dashboard still names."""
@@ -275,6 +354,7 @@ def publish_and_retire(client, expect: dict, bumps: list[dict]) -> None:
                 _say(f"retired   : {name} {r.version} (no dashboard names it)")
 
 
+@retrying("reading the box back")
 def installed_state(client, expect: dict, bumps: list[dict]) -> dict:
     """Read the box back: the connector and widget versions it now reports."""
     bumped_to = {b["name"]: b["to"] for b in bumps}
@@ -340,23 +420,30 @@ def main(argv: list[str] | None = None) -> int:
     actions = plan_install(client, state, content, expect)
     for name, act in actions.items():
         _say(f"plan      : {name} -> {act}")
+    cname0 = expect["connector"]["name"]
+    planned = {cname0: {"version": expect["connector"]["version"], "content": content[cname0],
+                        "head": heads["conn_main"]}}
+    planned.update({w: {"version": v, "content": content[w], "head": heads[w]}
+                    for w, v in expect["widgets"].items()})
     if all(a == "skip" for a in actions.values()):
         _say("box       : already carries these exact versions at these heads (nothing uploaded)")
     else:
-        _say("import    : uploading the pack through the Import Wizard (this takes a few minutes)")
-        cname0 = expect["connector"]["name"]
-        default_before = default_config_name(client, cname0)
-        run_import(client, zip_path, install_connector=actions[cname0] == "install")
+        if "install" in actions.values():
+            _say("import    : uploading the pack through the Import Wizard (this takes a few minutes)")
+            default_before = default_config_name(client, cname0)
+            # The record goes down BEFORE the import: a crash after it resumes, never needs --force.
+            rec.write_text(json.dumps({"status": PENDING, "heads": heads, "framework": fw_ver,
+                                       "default_config_before": default_before, "artifacts": planned}, indent=2))
+            run_import(client, zip_path, install_connector=actions[cname0] == "install")
+        else:
+            _say("resume    : the pack is already on the box (an earlier run did not finish); "
+                 "finishing the default config, publish and verify")
+            default_before = state.get("default_config_before")
         keep_default_config(client, cname0, default_before)
         publish_and_retire(client, expect, [])
     installed = installed_state(client, expect, [])
-    cname = expect["connector"]["name"]
-    artifacts = {cname: {"version": expect["connector"]["version"], "content": content[cname],
-                         "head": heads["conn_main"]}}
-    artifacts.update({w: {"version": v, "content": content[w], "head": heads[w]}
-                      for w, v in expect["widgets"].items()})
-    rec.write_text(json.dumps({"heads": heads, "framework": fw_ver, "installed": installed,
-                               "artifacts": artifacts}, indent=2))
+    rec.write_text(json.dumps({"status": "installed", "heads": heads, "framework": fw_ver,
+                               "installed": installed, "artifacts": planned}, indent=2))
     result = {"skipped": all(a == "skip" for a in actions.values()), "installed": installed,
               "actions": actions}
     inst = result["installed"]
