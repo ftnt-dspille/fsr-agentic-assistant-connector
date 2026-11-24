@@ -16,7 +16,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-ENV = {**{k: v for k, v in os.environ.items() if not k.startswith(("GIT_", "BOX", "FSR", "DRY"))},
+# MAKEFLAGS too: promote runs this suite (pre-push) under `make promote REPO=<tree>`,
+# and make hands that command-line REPO to every child make, overriding ours.
+ENV = {**{k: v for k, v in os.environ.items() if not k.startswith(("GIT_", "BOX", "FSR", "DRY", "MAKE"))},
        "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1",
        "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.com",
        "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.com"}
