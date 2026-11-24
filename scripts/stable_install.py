@@ -60,8 +60,9 @@ DASHBOARD_TITLE = pack.DASHBOARD_TITLE
 
 # After a connector import the integration workers restart for a few minutes and box reads
 # fail ("Unknown error occurred"). Reads and idempotent writes after the import retry for
-# this long, with backoff, before failing with a clear message.
-RETRY_WINDOW = 180.0
+# this long, with backoff, before failing with a clear message. Live: a stable box was still
+# failing these reads after 172s, so the window is 5 minutes.
+RETRY_WINDOW = 300.0
 RETRY_FIRST_DELAY = 2.0
 RETRY_MAX_DELAY = 20.0
 _sleep = time.sleep

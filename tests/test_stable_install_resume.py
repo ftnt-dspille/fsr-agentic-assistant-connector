@@ -123,3 +123,14 @@ def test_main_writes_the_pending_record_before_the_import_and_resumes_without_re
     src = Path(si.__file__).read_text()
     assert src.index("\"status\": PENDING") < src.index("            run_import(client, zip_path")
     assert "resume    :" in src and src.count("run_import(client, zip_path, install") == 1
+
+
+def test_the_retry_window_outlasts_an_observed_worker_restart():
+    # Live: the configuration read after an import was still failing at 172s on a stable box.
+    import importlib.util
+    from pathlib import Path
+    p = Path(__file__).resolve().parents[1] / "scripts" / "stable_install.py"
+    spec = importlib.util.spec_from_file_location("stable_install_window", p)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.RETRY_WINDOW >= 300
