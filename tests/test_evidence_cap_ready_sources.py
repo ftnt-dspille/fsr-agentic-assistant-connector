@@ -63,6 +63,19 @@ def test_ready_connector_sources_come_from_catalog_category_not_names(monkeypatc
                    "virustotal": {"label": "VirusTotal", "kind": "intel"}}
 
 
+def test_a_configured_jira_connector_is_a_ticket_source_though_the_catalog_lacks_it(monkeypatch):
+    """The packaged catalog has no Jira row; without the framework's known-name
+    fallback the start-of-turn read never asks the Jira connector."""
+    from fsr_playbooks.llm import autonomy
+    from fsr_playbooks.mcp_server import tools_connector_discovery as tcd
+    monkeypatch.setattr(tcd, "list_configured_connectors", lambda **kw: {"configured": [
+        {"name": "jirav2", "label": "Jira", "status": "Available"},
+        {"name": "slack", "label": "Slack", "status": "Available"}]})
+    monkeypatch.setattr(autonomy, "_connector_category", {"slack": "messaging"}.get)
+    sa.forget()
+    assert sa.ready_connector_sources() == {"jirav2": {"label": "Jira", "kind": "tickets"}}
+
+
 def test_advertised_tools_hands_ticket_and_intel_connectors_to_the_ledger(monkeypatch):
     _patch_connectors(monkeypatch)
     monkeypatch.setattr(sa, "source_availability", lambda: _avail({
