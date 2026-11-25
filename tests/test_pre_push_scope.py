@@ -64,12 +64,12 @@ def _gh(bin_, body):
     (bin_ / "gh").write_text(f"#!/bin/sh\n{body}\n"); (bin_ / "gh").chmod(0o755)
 
 
-def _scope(r, bin_, ref):
+def _scope(r, bin_, ref, extra=None):
     sha = _git(r, "rev-parse", "HEAD")
     out = subprocess.run(["bash", str(r / "scripts" / "hooks" / "pre-push"), "origin", "x"], cwd=r,
                          input=f"refs/heads/{ref} {sha} refs/heads/{ref} {ZERO}\n", capture_output=True, text=True,
                          env={**ENV, "PATH": f"{bin_}:{os.environ['PATH']}", "PREPUSH_SCOPE_ONLY": "1",
-                              "TEST_PY": shutil.which("python3"), "FSR_SRC": str(r)})
+                              "TEST_PY": shutil.which("python3"), "FSR_SRC": str(r), **(extra or {})})
     assert out.returncode == 0, out.stderr
     scope = next(l for l in out.stdout.splitlines() if "scope=" in l)
     sel = sorted(l.split(" ", 1)[1] for l in out.stdout.splitlines() if l.startswith("selected ") and len(l) > 9)
@@ -112,6 +112,20 @@ def test_a_merge_commit_ci_never_saw_runs_the_full_suite(repo):
     _gh(b, "echo 'gh: No commit found for SHA (HTTP 422)' >&2; exit 1")
     scope, _ = _scope(r, b, "main")
     assert "scope=full" in scope
+
+
+def test_a_per_change_ship_pushes_main_without_the_full_suite_or_a_ci_answer(repo):
+    # The door's per-change ship (PREPUSH_PER_CHANGE=1) ran the tests the diff touches and does not wait for CI:
+    # a merge commit CI never saw, a pending run and an unreadable CI must not start the full suite. Without it they do.
+    r, b = repo
+    _write(r, "tests/test_other.py", "from other_mod import Y\nW = 1\n"); _git(r, "commit", "-qam", "branch")
+    _git(r, "checkout", "-q", "main"); _write(r, "scripts/foo.sh", "echo main moved\n"); _git(r, "commit", "-qam", "main")
+    _git(r, "merge", "-q", "--no-ff", "--no-edit", "feat/x")
+    _gh(b, "echo 'gh: No commit found for SHA (HTTP 422)' >&2; exit 1")
+    assert "scope=full" in _scope(r, b, "main")[0]
+    scope, _ = _scope(r, b, "main", {"PREPUSH_PER_CHANGE": "1"})
+    assert "scope=none" in scope and "release-check" in scope
+    assert "scope=full" in _scope(r, b, "main", {"PREPUSH_PER_CHANGE": "1", "PREPUSH_FULL": "1"})[0]   # explicit full still wins
 
 
 def test_a_pending_or_failed_run_on_main_runs_the_full_suite(repo):
