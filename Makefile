@@ -107,7 +107,7 @@ export BOX_ENV BOX_SSH BOX_SSH_BIN
 export PATH := $(BOX_SSH_BIN):$(PATH)
 unexport ENV FSR_ENV SSH_HOST
 endif
-BOX_TARGETS := deploy release-ship ship-install verify dev-push loop ship-dev ship-dev-status ship-dev-restore live quick-live live-rows live-writes live-integration live-autonomy p3-proof ship-accept warmup health ssh workers logs bridge-check mcp-bridge-check configure eval-selfcheck eval-s1 eval-effect session-export plant release-scores box-prep
+BOX_TARGETS := deploy release-ship ship-install verify dev-push loop ship-dev ship-dev-status ship-dev-restore live quick-live live-rows live-writes live-integration live-autonomy live-holds p3-proof ship-accept warmup health ssh workers logs bridge-check mcp-bridge-check configure eval-selfcheck eval-s1 eval-effect session-export plant release-scores box-prep
 BUMP        ?= patch
 BOX_INTEG   := /opt/cyops-integrations/integrations
 BOX_PY      := /opt/cyops/configs/integrations/packages/integrations_env/bin/python
@@ -117,7 +117,7 @@ define with_env
 set -a; . "$(BOX_ENV)"; set +a; PATH="$(VENV)/bin:$$PATH"
 endef
 
-.PHONY: box-prep check ship ship-install framework-path session-export session-import session-summary setup live live-autonomy known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore regrade help deploy release-ship ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
+.PHONY: box-prep check ship ship-install framework-path session-export session-import session-summary setup live live-autonomy live-holds known-answer quality-gate loop dev-push quick-live doctor test mutants hooks ship-dev ship-dev-status ship-dev-restore regrade help deploy release-ship ship-widget build verify warmup health ssh workers logs bridge-check matrix bump-framework local-turn live-utterances preflight t1-scenarios tool-sweep conv conv-suite models live-integration p3-proof ship-accept live-rows live-writes eval-s1 eval-effect configure eval-ab plant release-scores provision
 
 # --- The two front doors live in the root repo (scripts/door.sh); these forward there,
 # telling it which repo you are in. `make ship` is the front door; the old connector
@@ -546,6 +546,9 @@ mcp-bridge-check: ## Read-only probe: can the live client reach FortiSOAR 8.0's 
 #   make live MODE=integration NO_AGENT=1       # deterministic paths only (fast)
 #   make live MODE=integration ONLY=compile,push
 #   make live MODE=integration GOLDEN=1         # refresh tests/golden/live/
+live-holds: ## FAST shadow-hold measurement on BOX=<alias> (~3-5 min): N=8 alerts seeded in parallel (C2 and benign destinations, half with an asset row), auto-triage for the test source only under a policy that can never act, all turns awaited concurrently, then the hold table; cleans up. Take the lease first (make box-lease BOX=<alias>)
+	@$(with_env); cd "$(REPO)/scripts" && FSRPB_DEV=1 $(PY) live_holds.py $(if $(N),--n $(N),)
+
 # Old names for `live MODE=...`: hidden aliases (no ## line, so they stay out of make help).
 quick-live: MODE = quick
 live-rows: MODE = rows
