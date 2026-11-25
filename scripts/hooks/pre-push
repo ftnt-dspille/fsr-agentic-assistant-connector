@@ -128,6 +128,10 @@ required_green() {  # $1 sha: every check in .github/required-checks completed+s
 }
 if [[ "${PREPUSH_FULL:-0}" == "1" ]]; then
     SCOPE=full; SCOPE_WHY="PREPUSH_FULL=1"
+elif [[ "$pushes_main" == "1" && "${PREPUSH_PER_CHANGE:-0}" == "1" ]]; then
+    # A per-change `make ship` (the door sets this): the door already ran the tests this diff touches and promote does not wait
+    # for CI. The full suite runs at the batch point (make release-check), or now with FULL=1 make ship (which does not set this).
+    SCOPE=none; SCOPE_WHY="per-change ship: the full suite runs at make release-check (FULL=1 make ship runs it here)"
 elif [[ "$pushes_main" == "1" ]]; then
     if (( ${#branch_shas[@]} == 0 )) && required_green "$main_sha"; then
         SCOPE=none; SCOPE_WHY="main at ${main_sha:0:9}: required CI already green on this exact commit"
