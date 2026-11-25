@@ -1535,6 +1535,22 @@ def _record_advertised_tools(scope: PatchScope) -> list[list[str]]:
     return seen
 
 
+def _forget_world_caches() -> None:
+    """Drop the process-wide caches that describe ONE box's connectors. A sweep
+    worker process runs many scenarios, each with its own fixture world; the
+    source roster memo (60 s) and the framework's configured-connector cache
+    are keyed by nothing, so the next world read the previous world's roster
+    (a Jira world saw ServiceNow's, and the start-of-turn read never asked
+    Jira)."""
+    sa = sys.modules.get("fsr_soc_triage.source_availability")
+    if sa is not None:
+        sa.forget()
+    te = sys.modules.get("fsr_playbooks.mcp_server.tools_execution")
+    cache = getattr(te, "_CONFIGURED_CACHE", None)
+    if isinstance(cache, dict):
+        cache["rows"], cache["ts"] = None, 0.0
+
+
 def install_offline_seams(scope: PatchScope, *, module: Optional[str] = None,
                           persona: str = "fixture",
                           persona_fixture: Optional[dict] = None,
@@ -1552,6 +1568,7 @@ def install_offline_seams(scope: PatchScope, *, module: Optional[str] = None,
     appliance. Returns the cassette client and any MCP config the box adds.
     """
     global _ACTIVE_WORLD, _ACTIVE_CASSETTE
+    _forget_world_caches()
     from fsr_playbooks.mcp_server import _shared
     box_mcp_config: dict = {}
     # Cassette mode means "no box", so make that true rather than assumed.
