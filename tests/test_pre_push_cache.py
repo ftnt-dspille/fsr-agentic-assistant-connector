@@ -163,9 +163,11 @@ def _full_push(conn, fw, cache, tmp_path, *, runner_rc, extra=None):
     for f in (runner, host_py):
         f.chmod(0o755)
     head = subprocess.run(["git", "-C", str(conn), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
-    env = _env(PATH=f"{bin_}:{os.environ['PATH']}", TEST_PY=str(host_py), FSRPB_FRAMEWORK_DIR=str(fw),
-               FSR_TEST_PASS_CACHE=str(cache), FSR_LAP_LEDGER=str(tmp_path / "laps.tsv"),
-               PREPUSH_FULL="1", PREPUSH_PY_DOCKER=str(runner), **(extra or {}))
+    base = dict(PATH=f"{bin_}:{os.environ['PATH']}", TEST_PY=str(host_py), FSRPB_FRAMEWORK_DIR=str(fw),
+                FSR_TEST_PASS_CACHE=str(cache), FSR_LAP_LEDGER=str(tmp_path / "laps.tsv"),
+                PREPUSH_FULL="1", PREPUSH_PY_DOCKER=str(runner))
+    env = _env(**{**base, **(extra or {})})
+    env = {k: v for k, v in env.items() if v is not None}   # extra={"X": None} unsets X
     r = subprocess.run(["bash", str(conn / "scripts/hooks/pre-push"), "origin", "x"], cwd=conn, capture_output=True,
                        text=True, input=f"refs/heads/b {head} refs/heads/b {'0' * 40}\n", env=env)
     rd = lambda p: p.read_text().splitlines() if p.exists() else []  # noqa: E731
@@ -284,3 +286,40 @@ def test_the_push_skips_a_suite_the_door_already_passed_on_the_same_content(tmp_
     assert r.returncode == 0, r.stdout + r.stderr
     assert "already passed on this exact code" in r.stdout
     assert runner == [] and host == []
+
+# ---- root tooling comes from the root repo's main, not from an agent tree's older checkout ----------------
+
+def _stale_root_tree(tmp_path):
+    """A root repo whose origin/main has the FIXED container runner, and an agent-tree-shaped clone that is
+    behind main and still holds the BROKEN one (the tar bug a stale tree kept running)."""
+    log = tmp_path / "root-runner.log"
+    runner = '#!/bin/sh\n{body}\n'
+    broken = runner.format(body='echo "tree-copy" >> "$ROOT_RUNNER_LOG"; exit 9')
+    fixed = runner.format(body='echo "main-copy pack=$([ -f "$(dirname "$0")/pack_tree.sh" ] && echo yes || echo no)" >> "$ROOT_RUNNER_LOG"; exit 0')
+    origin = _repo(tmp_path, "root-origin", {"scripts/devloop_docker_py.sh": broken, "scripts/pack_tree.sh": "#!/bin/sh\n"})
+    tree = tmp_path / "root-tree"
+    subprocess.run(["git", "clone", "-q", str(origin), str(tree)], env=_env(), check=True, capture_output=True)
+    (origin / "scripts/devloop_docker_py.sh").write_text(fixed)
+    _git(origin, "commit", "-qam", "fix the runner on main")
+    return tree, log
+
+
+def test_the_container_runner_is_root_mains_not_the_stale_trees(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    tree, log = _stale_root_tree(tmp_path)
+    r, _, host = _full_push(conn, fw, cache, tmp_path, runner_rc=0,
+                            extra={"PREPUSH_PY_DOCKER": None, "FSR_ALL_WIDGETS": str(tree), "ROOT_RUNNER_LOG": str(log)})
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert log.read_text().splitlines() == ["main-copy pack=yes"], log.read_text()   # main's runner, with its pack_tree.sh beside it
+    assert "root tooling from origin/main" in r.stderr
+    assert host == []
+
+
+def test_without_a_root_main_the_trees_own_runner_is_the_fallback(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    tree, log = _stale_root_tree(tmp_path)
+    subprocess.run(["git", "-C", str(tree), "remote", "remove", "origin"], env=_env(), check=True, capture_output=True)
+    r, _, _ = _full_push(conn, fw, cache, tmp_path, runner_rc=0,
+                         extra={"PREPUSH_PY_DOCKER": None, "FSR_ALL_WIDGETS": str(tree), "ROOT_RUNNER_LOG": str(log)})
+    assert log.read_text().splitlines() == ["tree-copy"], log.read_text()
+    assert r.returncode == 1   # the tree's runner is the broken one here: red, as before

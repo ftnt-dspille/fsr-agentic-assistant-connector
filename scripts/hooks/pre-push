@@ -69,7 +69,26 @@ export PREPUSH_PUSHES_HEAD="$pushes_head"
 # The full suite runs in the Linux container (scripts/devloop_docker_py.sh in the root repo: ~2 min warm
 # vs ~5-8 min on the Mac host, same tests and verdict). Exit 75 = no container engine: the host runs it.
 # DOOR_DOCKER=0 forces the host. PREPUSH_PY_DOCKER points at another runner (tests).
-PY_DOCKER="${PREPUSH_PY_DOCKER:-$FSR_ALL_WIDGETS/scripts/devloop_docker_py.sh}"
+# Unset, the runner (and its sibling pack_tree.sh) comes from the root repo's REMOTE MAIN, not from
+# FSR_ALL_WIDGETS' checkout: an agent tree holds the root as of the day it was made, so a tooling fix
+# on main never reached it. Same idea as the root's scripts/run_from_main.sh; inline here because a
+# stale tree may not have a resolver to call. PREPUSH_ROOT_FETCH=0 skips the fetch (tests).
+PY_DOCKER="${PREPUSH_PY_DOCKER:-}"; _tools_dir=""
+root_tools_from_main() {  # sets PY_DOCKER from a temp copy of root main's scripts (not in a subshell: _tools_dir is cleaned up); 1 = fall back to the checkout
+    local remote sha
+    git -C "$FSR_ALL_WIDGETS" rev-parse --git-dir >/dev/null 2>&1 || return 1
+    remote="$(git -C "$FSR_ALL_WIDGETS" for-each-ref --format='%(upstream:remotename)' refs/heads/main)"; remote="${remote:-origin}"
+    if [[ "${PREPUSH_ROOT_FETCH:-1}" != 0 ]]; then
+        git -C "$FSR_ALL_WIDGETS" fetch -q "$remote" main 2>/dev/null \
+            || echo ">> pre-push: could not fetch the root repo's $remote main; using the last fetched copy" >&2
+    fi
+    sha="$(git -C "$FSR_ALL_WIDGETS" rev-parse --verify -q "refs/remotes/$remote/main")" || return 1
+    _tools_dir="$(mktemp -d "${TMPDIR:-/tmp}/prepush-root-main.XXXXXX")" || return 1
+    git -C "$FSR_ALL_WIDGETS" archive "$sha" scripts/devloop_docker_py.sh scripts/pack_tree.sh 2>/dev/null \
+        | tar -x -C "$_tools_dir" 2>/dev/null || { rm -rf "$_tools_dir"; _tools_dir=""; return 1; }
+    echo ">> pre-push: root tooling from $remote/main ${sha:0:9}" >&2
+    PY_DOCKER="$_tools_dir/scripts/devloop_docker_py.sh"
+}
 
 # 1. Ruff lint (Pyflakes F-rules: undefined names, unused imports, etc.)
 # ~1s. Catches real bugs that pytest doesn't.
@@ -192,10 +211,14 @@ elif cached editable || cached container; then
     echo ">> pre-push: full suite already passed on this exact code (make test / earlier push) -- skipped"
 else
     _ran=0; _rc=0; _mode=editable
+    if [[ -z "$PY_DOCKER" && "${DOOR_DOCKER:-1}" != 0 ]]; then
+        root_tools_from_main || PY_DOCKER="$FSR_ALL_WIDGETS/scripts/devloop_docker_py.sh"
+    fi
     if [[ "${DOOR_DOCKER:-1}" != 0 && -f "$PY_DOCKER" ]]; then
         _fw=""; [[ -d "${FSRPB_FRAMEWORK_DIR:-}" ]] && _fw="$FSRPB_FRAMEWORK_DIR"
         echo ">> pre-push: full pytest suite (outer + connector) in the Linux container, ~2 min"
         ( cd "$ROOT" && DEVLOOP_FRAMEWORK_DIR="$_fw" bash "$PY_DOCKER" connector "$ROOT" -x ); _rc=$?
+        [[ -n "$_tools_dir" ]] && rm -rf "$_tools_dir"
         if [[ $_rc -eq 75 ]]; then
             echo ">> pre-push: no container engine; running the suite on the host" >&2; _rc=0
         else
