@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib
+import ipaddress
 import signal
 import sys
 import threading
@@ -33,6 +34,14 @@ def test_plan_sources_are_unique_and_c2_destinations_are_documentation_range():
     c2 = [p["dst"] for p in plan if p["kind"] == "c2"]
     assert len(set(c2)) == len(c2) and all(d.startswith("203.0.113.") for d in c2)
     assert all(p["dst"] == la.BENIGN_DST for p in plan if p["kind"] == "benign")
+
+
+def test_plan_sources_are_private_so_the_preread_can_name_them():
+    from fsr_playbooks.mcp_server._evidence_score import subject_context
+    plan = lh.plan_seeds(8)
+    for p in plan:
+        assert ipaddress.ip_address(p["src"]).is_private
+        assert subject_context({"sourceIp": p["src"]}).get("names") == [p["src"]]
 
 
 def test_plan_rejects_zero():
