@@ -153,6 +153,18 @@ if [[ -n "$box_ver" && -n "$tree_ver" && "$box_ver" != "$tree_ver" ]]; then
     ver_bump="none"
     echo ">> info.json version $box_ver on the box, $tree_ver in this tree: escalating to an install of $tree_ver (no further bump)"
 fi
+# A changed framework PIN needs the install too: a dev push never installs a wheel, so a
+# requirements.txt bumped to a newer fsr-playbooks (same connector version) leaves the box on
+# the old wheel and every worker dies on the version-mismatch guard (live: pin 0.13.0 on a
+# 0.6.24 connector). The platform install is what pip-installs the pin; the framework dev-patch
+# is re-applied after it below.
+box_py="/opt/cyops/configs/integrations/packages/integrations_env/bin/python"
+installed="$(ssh "$BOX_SSH" "$box_py -c 'from importlib.metadata import version; print(version(\"fsr-playbooks\"))'" 2>/dev/null || true)"
+pinned="$(sed -n 's/^fsr-playbooks==\([^[:space:]]*\).*/\1/p' "$PKG_SRC/requirements.txt")"
+if [[ -z "$ver_bump" && -n "$installed" && -n "$pinned" && "$installed" != "$pinned" ]]; then
+    ver_bump="none"
+    echo ">> framework pin fsr-playbooks==$pinned in this tree, $installed installed on the box: escalating to an install of $tree_ver (no further bump) so the platform installs the pin"
+fi
 if [[ -n "$new_ops" || -n "$ver_bump" ]]; then
     # A copy cannot make a new op callable, so escalate THIS push to an install
     # (bump + build + platform install), which registers the op. The one case a
@@ -203,9 +215,6 @@ fi
 # the box's INSTALLED wheel -- it never installs one -- so after a release bumps
 # the pin locally, syncing it verbatim took every worker down until the next
 # deploy. On the box copy only, pin what is installed, and say so.
-box_py="/opt/cyops/configs/integrations/packages/integrations_env/bin/python"
-installed="$(ssh "$BOX_SSH" "$box_py -c 'from importlib.metadata import version; print(version(\"fsr-playbooks\"))'" 2>/dev/null || true)"
-pinned="$(sed -n 's/^fsr-playbooks==\([^[:space:]]*\).*/\1/p' "$PKG_SRC/requirements.txt")"
 if [[ -n "$installed" && -n "$pinned" && "$installed" != "$pinned" ]]; then
     echo "   !! local pin fsr-playbooks==$pinned, box has $installed installed:"
     echo "      the box copy pins $installed (a dev push never installs a wheel;"

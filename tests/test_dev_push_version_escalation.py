@@ -26,3 +26,14 @@ def test_the_box_version_is_read_from_the_installed_directory_not_its_copied_inf
 def test_the_install_does_not_bump_again():
     assert 'ver_bump="none"' in SRC
     assert '--bump "${ver_bump:-patch}"' in SRC, "a new op still bumps patch; a version change installs as is"
+
+
+def test_a_changed_framework_pin_escalates_to_an_install():
+    # Live: connector main pinned fsr-playbooks==0.13.0 without a connector version change; the
+    # dev push copied the code, the box kept the old wheel, and every worker died on the guard.
+    esc = SRC.index('if [[ -n "$new_ops" || -n "$ver_bump" ]]; then')
+    head = SRC[:esc]
+    assert 'installed="$(ssh' in head and 'pinned="$(sed' in head, "pin and installed wheel are read before the escalation decision"
+    assert re.search(r'-z "\$ver_bump" && -n "\$installed" && -n "\$pinned" && "\$installed" != "\$pinned"', head)
+    block = head[head.index('-z "$ver_bump" && -n "$installed"'):]
+    assert 'ver_bump="none"' in block, "a pin change installs the current version, no further bump"
