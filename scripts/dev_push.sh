@@ -149,9 +149,20 @@ print(" ".join(o["operation"] for o in tree if o.get("operation") not in box))
 box_ver="$(basename "$cdir" | sed -nE 's/.*_([0-9]+)_([0-9]+)_([0-9]+)$/\1.\2.\3/p')"
 tree_ver="$("$PY" -c 'import json, sys; print(json.load(open(sys.argv[1])).get("version", ""))' "$PKG_SRC/info.json")"
 ver_bump=""
+box_ahead=""
 if [[ -n "$box_ver" && -n "$tree_ver" && "$box_ver" != "$tree_ver" ]]; then
-    ver_bump="none"
-    echo ">> info.json version $box_ver on the box, $tree_ver in this tree: escalating to an install of $tree_ver (no further bump)"
+    if [[ "$(printf '%s\n%s\n' "$box_ver" "$tree_ver" | sort -V | tail -1)" == "$box_ver" ]]; then
+        # The box is AHEAD of the tree: the platform re-mints a same-version reinstall (a pin-only
+        # escalation installs the tree's version again and the box stores it as the next number).
+        # Installing the tree's older number again would re-mint once more, forever (live: tree
+        # 0.6.24, box 0.6.25 after a pin install, so every later push escalated). Copy into the
+        # box's own directory and keep ITS info.json, so workers keep reporting the box's version.
+        box_ahead=1
+        echo ">> info.json version $box_ver on the box is ahead of $tree_ver in this tree (the platform re-minted an earlier install): copying, keeping the box's info.json"
+    else
+        ver_bump="none"
+        echo ">> info.json version $box_ver on the box, $tree_ver in this tree: escalating to an install of $tree_ver (no further bump)"
+    fi
 fi
 # A changed framework PIN needs the install too: a dev push never installs a wheel, so a
 # requirements.txt bumped to a newer fsr-playbooks (same connector version) leaves the box on
@@ -174,7 +185,10 @@ if [[ -n "$new_ops" || -n "$ver_bump" ]]; then
     # takes the fast copy path below.
     [[ -n "$new_ops" ]] && echo ">> new op(s) in info.json need registration: $new_ops"
     echo ">> escalating this push to an install (bump ${ver_bump:-patch} + build + install)"
-    BOX_ENV="$BOX_ENV" bash "$ROOT/scripts/deploy.sh" --bump "${ver_bump:-patch}" --ssh-host "$BOX_SSH"
+    # FSR_ESCALATED_INSTALL=1: the install skips what this push proves once on the final state
+    # below (full-suite gate, publish-recycle, rollout verify, card smoke, live sanity); see
+    # the ESCALATED note in deploy.sh. A release install never sets it.
+    FSR_ESCALATED_INSTALL=1 BOX_ENV="$BOX_ENV" bash "$ROOT/scripts/deploy.sh" --bump "${ver_bump:-patch}" --ssh-host "$BOX_SSH"
     lap "install (bump + build + platform install)"
     # A connector install makes the platform reinstall the pinned fsr-playbooks
     # wheel, which clears any framework dev-patch. If this push synced the
@@ -190,6 +204,15 @@ if [[ -n "$new_ops" || -n "$ver_bump" ]]; then
     want="$("$PY" -c "import sys; sys.path.insert(0, '$ROOT/scripts'); import build_fingerprint as b; from pathlib import Path; print(b.from_dir(Path('$PKG_SRC')))")"
     "$PY" "$ROOT/scripts/doctor.py" --env "$BOX_ENV" --expect-build "$want"
     lap "workers on build"
+    # The one behavioral proof of the final state (the install's own smoke is deferred to here):
+    # every card type through the deployed emit_card path. Live sanity follows in finish().
+    echo ">> post-install card smoke: emit every card type on the box"
+    ( set -a; [[ -f "$BOX_ENV" ]] && . "$BOX_ENV"; set +a; "$PY" "$ROOT/scripts/card_smoke.py" ) \
+        || { echo "!! CARD SMOKE FAILED -- the box refuses at least one card type." >&2; exit 1; }
+    lap "card smoke"
+    # An install that bumped the version leaves info.json + release_notes.md dirty: the stamp
+    # counts a version-only change as clean (the install's own sanity used to pass this).
+    export LIVE_SANITY_VERSION_BUMP_FILES="connector-fsr-agentic-assistant/info.json:connector-fsr-agentic-assistant/release_notes.md"
     echo ">> dev push escalated to install in $((SECONDS - t0))s -- ops registered, box runs this tree (build $want)"
     finish
 fi
@@ -200,6 +223,7 @@ fi
 # every .py, so a lingering one failed the rollout gate) and nothing else.
 _excl=(--exclude '__pycache__/' --exclude 'storage.db' --exclude 'wheels/'
        --exclude 'scratchpad/' --exclude '.DS_Store' --exclude '_DEV_PATCHED')
+[[ -n "$box_ahead" ]] && _excl+=(--exclude 'info.json')
 if [[ "${SYNC:-rsync}" == "tar" ]]; then
     # Same SYNC=tar contract as ship_dev.sh: only allowlisted sudo commands
     # (fortidemo/managed boxes run labuser, whose allowlist has no rsync).

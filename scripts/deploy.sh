@@ -77,6 +77,18 @@ VERSION_CHECK=1       # pre-bump: refuse a version the box already has (step 1a)
 BOX_SSH="${BOX_SSH:-}"   # no default box: resolved below via scripts/box.sh
 BOX="${BOX:-}"        # pyfsr registry alias (--box or $BOX)
 INSTALL_ARGS=()
+# ESCALATED: dev_push.sh escalated a dev push to this install (new op, version or framework-pin
+# change) and sets FSR_ESCALATED_INSTALL=1. dev_push then re-applies the framework, recycles
+# the workers, proves the final state (workers on build, card smoke, live sanity, stamp). So
+# the steps that overlap that proof are skipped here: the full-suite test gate (the door
+# ran the scoped tests; `make release-check` runs the full suite), the publish-recycle (dev_push
+# restarts uwsgi + celeryd), the rollout verify, the card smoke and the live sanity. A RELEASE
+# (FSR_RELEASE_INSTALL=1, deploy_chain.sh) never takes this mode: it keeps every gate.
+ESCALATED=0
+if [[ "${FSR_ESCALATED_INSTALL:-}" == "1" && "${FSR_RELEASE_INSTALL:-}" != "1" ]]; then
+    ESCALATED=1
+    INSTALL_ARGS+=(--no-publish)
+fi
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -152,7 +164,9 @@ _lap "0a'. QUALITY GATE"
 # no pre-commit, and deploy.sh never invoked it. Combined with
 # `testpaths = ["tests"]` collecting only the outer suite, five structural
 # gates rotted unnoticed and 0.5.78 shipped ungated. ~15s, network-free.
-if [[ "${SKIP_TESTS:-0}" == "1" || "$RUN_TESTS" -eq 0 ]]; then
+if [[ "$ESCALATED" -eq 1 ]]; then
+    echo ">> test gate: not run here (escalated dev push: the door ran the scoped checks; the full suite is the release gate)"
+elif [[ "${SKIP_TESTS:-0}" == "1" || "$RUN_TESTS" -eq 0 ]]; then
     # The reason was required and logged in step 0a (tracker #65).
     echo ">> SKIPPING the test gate (--no-test / SKIP_TESTS=1) -- shipping UNGATED"
 else
@@ -517,7 +531,9 @@ _lap "5. warmup"
 # worker's loaded version + pid; verify_workers.py probes until the worker set
 # settles and FAILS the deploy if any straggler isn't on $NEW. This is the
 # reliability gate: a green deploy now means every worker is on the new code.
-if [[ "$VERIFY" -eq 1 ]]; then
+if [[ "$ESCALATED" -eq 1 ]]; then
+    echo ">> rollout verify: deferred to dev_push (workers on the final build, after its framework re-apply and recycle)"
+elif [[ "$VERIFY" -eq 1 ]]; then
     # --tarball: also compare a CONTENT fingerprint of the shipped code, not
     # just the version string. An install onto a version the box already has
     # is a silent no-op and every worker then reports the target version from
@@ -543,7 +559,9 @@ _lap "6. verify rollout reached every worker"
 # the model's dialect. A refusal fails the ship -- the emit_card splice
 # blindness and both #146 refusal classes would each have failed here the day
 # they landed instead of waiting for someone to drive a probe (#147).
-if [[ "$VERIFY" -eq 1 ]]; then
+if [[ "$ESCALATED" -eq 1 ]]; then
+    echo ">> post-ship card smoke: deferred to dev_push (runs once on the final state)"
+elif [[ "$VERIFY" -eq 1 ]]; then
     echo ">> post-ship card smoke: emit every card type on the box"
     if ! "$PY" "$ROOT/scripts/card_smoke.py" --version "$VERIFY_VER"; then
         echo "!! CARD SMOKE FAILED -- the deployed code refuses at least one card."
@@ -558,6 +576,10 @@ _lap "7. post-ship card smoke"
 # --- 8. live sanity (scripts/live_sanity_hook.sh; SKIP_LIVE_SANITY=1 opts out) --
 # The version bump above is still uncommitted in this tree; name its files so the
 # stamp counts a version-only change as clean (anything else stays dirty).
+if [[ "$ESCALATED" -eq 1 ]]; then
+    echo ">> live sanity: deferred to dev_push (one run on the final state; it stamps the heads)"
+else
 LIVE_SANITY_VERSION_BUMP_FILES="connector-fsr-agentic-assistant/info.json:connector-fsr-agentic-assistant/release_notes.md" \
     bash "$ROOT/scripts/live_sanity_hook.sh" "$ROOT" || exit 1
+fi
 _lap "8. live sanity"
