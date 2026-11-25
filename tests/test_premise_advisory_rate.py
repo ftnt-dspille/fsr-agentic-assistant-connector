@@ -49,3 +49,26 @@ def test_no_verdict_turns_is_no_rate_not_zero_division():
 def test_malformed_advisories_are_not_counted():
     for bad in ("x", [None, {"kind": "change"}, {"state": "unread"}]):
         assert collect([("s", _hist([_card(bad)]))])["shown"] == 0
+
+
+def _pre(card, **review):
+    card["premise"]["preread"] = review
+    return card
+
+
+def test_the_shadow_pre_read_hold_is_counted_by_verdict_and_names_its_record():
+    res = collect([("s", _hist(
+        [_pre(_card(disp="true_positive"), hold=True, relevant=["change:CHG1"])],
+        [_pre(_card(disp="benign"), hold=False, relevant=[])],
+        [_pre(_card(disp="false_positive"), hold=True, relevant=[], conflict=["change"])],
+        [_card(disp="benign")]))])
+    assert res["preread_turns"] == 3 and res["would_hold"] == 2
+    assert res["hold_by_disposition"] == {"false_positive": 1, "true_positive": 1}
+    out = render(res)
+    assert "would hold (shadow): 2" in out
+    assert "on change:CHG1" in out and "on conflict:change" in out
+
+
+def test_a_hold_with_no_record_is_called_out():
+    res = collect([("s", _hist([_pre(_card(), hold=True, relevant=[])]))])
+    assert "NO REASON" in render(res)

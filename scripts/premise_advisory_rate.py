@@ -32,6 +32,17 @@ def advisory_of(card: dict) -> list[dict]:
         if isinstance(adv, list) else []
 
 
+def preread_of(card: dict) -> dict:
+    """The shadow pre-read review on the card: would it hold, and on what record."""
+    r = (card.get("premise") or {}).get("preread")
+    if not isinstance(r, dict):
+        return {}
+    why = [str(x) for x in (r.get("relevant") or [])] + [f"conflict:{x}" for x in (r.get("conflict") or [])]
+    if r.get("unparsed_record"):
+        why.append("unparsed_record")
+    return {"hold": bool(r.get("hold")), "why": why}
+
+
 def collect(histories: Iterable[tuple[str, dict]]) -> dict:
     """Per turn that ended in a verdict card: was an advisory shown. The last
     card of a turn is the one the analyst is left with."""
@@ -45,10 +56,15 @@ def collect(histories: Iterable[tuple[str, dict]]) -> dict:
             turns.append({"session": sid, "turn": n,
                           "disposition": card.get("disposition"),
                           "status": (card.get("premise") or {}).get("status"),
-                          "advisory": advisory_of(card)})
+                          "confidence": card.get("confidence"),
+                          "advisory": advisory_of(card), "preread": preread_of(card)})
     shown = [t for t in turns if t["advisory"]]
     by = Counter(f'{a["kind"]}/{a["state"]}' for t in shown for a in t["advisory"])
+    read = [t for t in turns if t["preread"]]
+    held = [t for t in read if t["preread"]["hold"]]
     return {"verdict_turns": len(turns), "shown": len(shown),
+            "preread_turns": len(read), "would_hold": len(held),
+            "hold_by_disposition": dict(sorted(Counter(str(t["disposition"]) for t in held).items())),
             "rate": round(len(shown) / len(turns), 3) if turns else None,
             "by_kind_state": dict(sorted(by.items())),
             "by_disposition": dict(sorted(Counter(
@@ -63,6 +79,14 @@ def render(res: dict) -> str:
         out.append(f"  {k}: {v}")
     for k, v in res["by_disposition"].items():
         out.append(f"  on a {k} verdict: {v}")
+    if res.get("preread_turns"):
+        out.append(f'pre-read turns: {res["preread_turns"]}, would hold (shadow): {res["would_hold"]}')
+        for k, v in res["hold_by_disposition"].items():
+            out.append(f"  hold on a {k} verdict: {v}")
+        for t in res["turns"]:
+            if t["preread"].get("hold"):
+                out.append("  hold: session {session} turn {turn}: {disposition} {confidence} on {why}".format(
+                    why=", ".join(t["preread"]["why"]) or "NO REASON", **t))
     for t in res["turns"]:
         if t["advisory"]:
             out.append("  session {session} turn {turn}: {adv}".format(
