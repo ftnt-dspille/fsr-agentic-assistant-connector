@@ -79,6 +79,12 @@ SMOKE_TIMEOUT = 180    # seconds the one-alert smoke may wait for its turn (plus
 _INVESTIGATED_DISPOSITIONS = frozenset({
     "true_positive", "false_positive", "benign", "suspicious", "needs_more_info"})
 CLEANUP_BUDGET = 600
+
+
+class RunOverrun(BaseException):
+    """Raised by the SIGALRM budget. Not an Exception and not an OSError: TimeoutError is an
+    OSError, which the HTTP stack catches and reports as a connection error, so the op retry
+    and the cleanup's `except Exception` swallowed the budget and a run hung for an hour."""
 QUARANTINE = {"method": "Quarantine Based"}
 
 
@@ -711,7 +717,7 @@ def run(box: Box, plant: bool = False, c2_file: str | None = None) -> int:
     # on, the test policy in force and the seeded alerts behind. Interrupt it
     # from inside instead, so the cleanup below always runs.
     def _overrun(*_):
-        raise TimeoutError(f"live autonomy ran past {RUN_BUDGET}s")
+        raise RunOverrun(f"live autonomy ran past {RUN_BUDGET}s")
     signal.signal(signal.SIGALRM, _overrun)
     signal.alarm(RUN_BUDGET)
     try:
@@ -973,7 +979,7 @@ def run_close(box: Box) -> int:
     asset = None
     print(f"live autonomy close -> {box.base}  connector={box.fsr.version}  config={box.fsr.config}\n")
     def _overrun(*_):
-        raise TimeoutError(f"live autonomy close ran past {RUN_BUDGET}s")
+        raise RunOverrun(f"live autonomy close ran past {RUN_BUDGET}s")
     signal.signal(signal.SIGALRM, _overrun)
     signal.alarm(RUN_BUDGET)
     try:
@@ -1095,7 +1101,7 @@ def run_triage_proof(box: Box) -> int:
     print(f"  seeding one High alert to {tp}\n")
 
     def _overrun(*_):
-        raise TimeoutError(f"live triage-proof ran past {RUN_BUDGET}s")
+        raise RunOverrun(f"live triage-proof ran past {RUN_BUDGET}s")
     signal.signal(signal.SIGALRM, _overrun)
     signal.alarm(RUN_BUDGET)
     try:
