@@ -334,6 +334,62 @@ def _seed(box: Box, iris: dict, src: str, dst: str, *, severity: str = "High",
     return r.json()["uuid"]
 
 
+def severity_iris(box: Box) -> dict:
+    """{severity name: IRI} read from the box's own recent alerts."""
+    rows = box.get("/api/3/alerts", **{"$limit": 50, "$orderby": "-createDate",
+                                       "$relationships": "false"}).get("hydra:member") or []
+    iris = {a["severity"]["itemValue"]: a["severity"]["@id"] for a in rows
+            if isinstance(a.get("severity"), dict)}
+    first = next((a["type"]["@id"] for a in rows if isinstance(a.get("type"), dict)), None)
+    if first:
+        iris.setdefault("type", first)
+    return iris
+
+
+def arm_budget(seconds: int, what: str) -> None:
+    """Interrupt this run from inside after ``seconds`` (a `RunOverrun`, so the
+    caller's `finally` cleanup always runs). Re-arm with a cleanup budget in the
+    `finally`, then `signal.alarm(0)`."""
+    def _overrun(*_):
+        raise RunOverrun(f"{what} ran past {seconds}s")
+    signal.signal(signal.SIGALRM, _overrun)
+    signal.alarm(seconds)
+
+
+def _step(what: str, fn) -> None:
+    """One cleanup step: a failure is reported and never skips the steps after
+    it (a `RunOverrun` is a BaseException and still stops the cleanup)."""
+    try:
+        fn()
+    except Exception as e:  # noqa: BLE001
+        print(f"    could not {what}: {e}")
+
+
+def cleanup_seeded(box: Box, seeded: list[str], prior_policy: dict | None,
+                   assets: list[str] = ()) -> None:
+    """The run's tail, shared by every seeded-alert run: dismiss the seeded
+    alerts' escalations, delete the alerts and any planted assets, restore the
+    policy and disable the trigger."""
+    def dismiss():
+        for e in box.op("list_pending", {}).get("escalations") or []:
+            if e.get("session_id", "").split(":")[-1] in seeded:
+                box.op("resolve_escalation", {"session_id": e["session_id"],
+                                              "card_id": e["card_id"], "outcome": "dismissed"})
+    _step("dismiss escalations", dismiss)
+    for u in seeded:
+        _step(f"delete alert {u}", lambda u=u: box.s.delete(
+            f"{box.base}/api/3/alerts/{u}", verify=box.verify, timeout=30))
+    for a in assets:
+        _step(f"delete asset {a}", lambda a=a: box.s.delete(
+            f"{box.base}/api/3/assets/{a}", verify=box.verify, timeout=30))
+    print(f"    deleted {len(seeded)} seeded alert(s)" + (f", {len(assets)} asset(s)" if assets else ""))
+    _step("restore the policy", lambda: box.set_policy(prior_policy))
+    _step("disable the trigger", lambda: box.op(
+        "set_auto_triage", {"agent_config": box.fsr.config, "module": "alerts",
+                            "sources": [SOURCE], "enabled": False}))
+    print("    policy restored, trigger disabled")
+
+
 # -- why no auto-triage turn ran ----------------------------------------------
 # An alert ends with no turn for four reasons the wait alone cannot tell apart:
 # the filter skipped it, storm routing grouped or deferred it, it was already
@@ -482,19 +538,23 @@ def _diagnose_no_turn(box: Box, uuid: str) -> dict:
 
 
 
+def _await_turn(box: Box, sid: str, timeout: float, *, sleep=time.sleep, now=time.time) -> bool:
+    """Poll the session's history until a turn with a transcript is stored."""
+    deadline = now() + timeout
+    while now() < deadline:
+        h = box.op("chat_history", {"session_id": sid}, timeout=60)
+        if any(t.get("transcript") for t in h.get("turns") or []):
+            return True
+        sleep(10)
+    return False
+
+
 def _wait_triaged(box: Box, uuid: str, *, expect_turn: bool = True,
                   timeout: int = TURN_TIMEOUT) -> dict:
     """Wait for the trigger's auto-triage turn on ``uuid`` to finish. Returns
     {turned, verdict, decision, escalated}."""
     sid = f"auto:alerts:{uuid}"
-    deadline = time.time() + (timeout if expect_turn else 90)
-    turned = False
-    while time.time() < deadline:
-        h = box.op("chat_history", {"session_id": sid}, timeout=60)
-        if any(t.get("transcript") for t in h.get("turns") or []):
-            turned = True
-            break
-        time.sleep(10)
+    turned = _await_turn(box, sid, timeout if expect_turn else 90)
     if turned:
         time.sleep(25)   # enforcement + read-back run after the turn is stored
     h = box.op("chat_history", {"session_id": sid}, timeout=60)
@@ -716,10 +776,7 @@ def run(box: Box, plant: bool = False, c2_file: str | None = None) -> int:
     # A hung run killed from outside skips `finally` and leaves the trigger
     # on, the test policy in force and the seeded alerts behind. Interrupt it
     # from inside instead, so the cleanup below always runs.
-    def _overrun(*_):
-        raise RunOverrun(f"live autonomy ran past {RUN_BUDGET}s")
-    signal.signal(signal.SIGALRM, _overrun)
-    signal.alarm(RUN_BUDGET)
+    arm_budget(RUN_BUDGET, "live autonomy")
     try:
         for ip in test_ips:
             if box.quarantined(ip):
@@ -852,18 +909,7 @@ def run(box: Box, plant: bool = False, c2_file: str | None = None) -> int:
                     print(f"    unblocked {ip}")
             except Exception as e:  # noqa: BLE001
                 print(f"    could not check/unblock {ip}: {e}")
-        pend = box.op("list_pending", {})
-        for e in pend.get("escalations") or []:
-            if e.get("session_id", "").split(":")[-1] in seeded:
-                box.op("resolve_escalation", {"session_id": e["session_id"],
-                                              "card_id": e["card_id"], "outcome": "dismissed"})
-        for u in seeded:
-            box.s.delete(f"{box.base}/api/3/alerts/{u}", verify=box.verify, timeout=30)
-        print(f"    deleted {len(seeded)} seeded alert(s)")
-        box.set_policy(prior_value)
-        box.op("set_auto_triage", {"agent_config": box.fsr.config, "module": "alerts",
-                                   "sources": [SOURCE], "enabled": False})
-        print("    policy restored, trigger disabled")
+        cleanup_seeded(box, seeded, prior_value)
         signal.alarm(0)
 
     n_fail = sum(1 for r in rep.rows if not r["ok"])
@@ -966,10 +1012,7 @@ def run_close(box: Box) -> int:
     close rule: the policy closes it alone with a comment, the tuning table
     counts it, and Undo reopens it to its prior status with a second comment.
     One model turn."""
-    rows = box.get("/api/3/alerts", **{"$limit": 50, "$orderby": "-createDate",
-                                       "$relationships": "false"}).get("hydra:member") or []
-    iris = {a["severity"]["itemValue"]: a["severity"]["@id"] for a in rows
-            if isinstance(a.get("severity"), dict)}
+    iris = severity_iris(box)
     if "High" not in iris:
         raise SystemExit(f"could not find the High severity IRI (have {sorted(iris)})")
     prior = box.policy_record()
