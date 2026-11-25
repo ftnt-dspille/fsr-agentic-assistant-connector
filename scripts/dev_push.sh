@@ -176,6 +176,12 @@ if [[ -z "$ver_bump" && -n "$installed" && -n "$pinned" && "$installed" != "$pin
     ver_bump="none"
     echo ">> framework pin fsr-playbooks==$pinned in this tree, $installed installed on the box: escalating to an install of $tree_ver (no further bump) so the platform installs the pin"
 fi
+# FORCE_INSTALL=1: take the install path even when nothing needs registering (to time or
+# prove it). Installs the tree's version as is, so the platform may re-mint it as the next number.
+if [[ -n "${FORCE_INSTALL:-}" && -z "$ver_bump" && -z "$new_ops" ]]; then
+    ver_bump="none"
+    echo ">> FORCE_INSTALL=1: escalating to an install of $tree_ver (no further bump)"
+fi
 if [[ -n "$new_ops" || -n "$ver_bump" ]]; then
     # A copy cannot make a new op callable, so escalate THIS push to an install
     # (bump + build + platform install), which registers the op. The one case a

@@ -68,3 +68,8 @@ def test_a_box_ahead_of_the_tree_copies_instead_of_reinstalling_forever():
         "the box's info.json keeps the version workers report"
     # the escalation that matters (older box) is still the original branch
     assert 'ver_bump="none"\n        echo ">> info.json version $box_ver on the box, $tree_ver in this tree: escalating' in DEV_PUSH
+
+
+def test_force_install_takes_the_install_path_without_a_bump():
+    block = DEV_PUSH[DEV_PUSH.index("FORCE_INSTALL=1: take the install path"):DEV_PUSH.index('if [[ -n "$new_ops" || -n "$ver_bump" ]]')]
+    assert '"${FORCE_INSTALL:-}"' in block and 'ver_bump="none"' in block
