@@ -44,9 +44,17 @@ MAX_WORKERS = 16
 MIX = (("c2", False), ("benign", False), ("c2", True), ("benign", True))
 
 
+def _internal_src(i: int) -> str:
+    """The i-th distinct private-range source (RFC 1918). The documentation
+    ranges read as external to the framework, which then finds no internal name
+    for the start-of-turn pre-read."""
+    return f"10.254.{i // 250}.{i % 250 + 1}"
+
+
 def plan_seeds(n: int) -> list[dict]:
     """N seed specs: {kind, asset, src, dst, label}. Every source is distinct
-    (documentation range) so no two alerts group under one storm lead."""
+    and private-range, so the pre-read can name it and no two alerts group under
+    one storm lead."""
     if n < 1:
         raise ValueError("N must be at least 1")
     kinds = [MIX[i % len(MIX)] for i in range(n)]
@@ -54,10 +62,11 @@ def plan_seeds(n: int) -> list[dict]:
     out = []
     for i, (kind, asset) in enumerate(kinds):
         if kind == "c2":
-            src, dst = next(c2)
+            _doc_src, dst = next(c2)
+            src = _internal_src(i)
             label = "C2 Tracker Malware IP"
         else:
-            src, dst = f"198.51.100.{200 + i}", BENIGN_DST
+            src, dst = _internal_src(i), BENIGN_DST
             label = "newly observed destination"
         out.append({"kind": kind, "asset": asset, "src": src, "dst": dst, "label": label})
     return out
