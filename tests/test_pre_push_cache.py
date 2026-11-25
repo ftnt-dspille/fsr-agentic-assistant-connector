@@ -221,3 +221,66 @@ def test_a_host_make_test_pass_also_satisfies_the_push(tmp_path):
     assert _cache(conn, fw, cache, "mark", "editable").returncode == 0
     r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=1)
     assert r.returncode == 0 and runner == [] and host == []
+
+
+# ---- a pass recorded anywhere (the door's gate) is found for the same content, wherever it ran ------------
+
+def _same_content_elsewhere(tmp_path, conn, fw):
+    """The same connector and framework content as a second pair of repos: other paths, other commit ids."""
+    def clone(src, name):
+        dst = tmp_path / name
+        shutil.copytree(src, dst, ignore=shutil.ignore_patterns(".git"))
+        _git(dst, "init", "-q", "-b", "main"); _git(dst, "add", "-A")
+        _git(dst, "commit", "-q", "-m", f"other history for {name}")
+        return dst
+    return clone(conn, "conn2"), clone(fw, "fw2")
+
+
+def test_the_key_is_content_not_commit_ids_or_paths(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    conn2, fw2 = _same_content_elsewhere(tmp_path, conn, fw)
+    assert _cache(conn, fw, cache, "mark", "container").returncode == 0
+    for mode in ("container", "editable"):
+        k1 = _cache(conn, fw, cache, "key", mode).stdout
+        k2 = _cache(conn2, fw2, cache, "key", mode).stdout
+        assert k1 and k1 == k2, (mode, k1, k2)
+    # the door's gate recorded the pass in one place; the pre-push of the push worktree finds it in another
+    assert _cache(conn2, fw2, cache, "has", "container").returncode == 0
+    (fw2 / "f.py").write_text("y = 9\n"); _git(fw2, "commit", "-qam", "different framework content")
+    assert _cache(conn2, fw2, cache, "has", "container").returncode == 1
+
+
+def test_a_container_pass_does_not_depend_on_the_widget_checkouts(tmp_path):
+    # The container never sees them (their parity checks skip there), so a pass keyed on their state would
+    # miss whenever the door's tree and the push worktree point at different widget checkouts.
+    conn, fw, cache = _setup(tmp_path)
+    faw_a, _ = _widgets(tmp_path)
+    faw_b = _repo(tmp_path, "faw_b", {"fortisoar-widget-harness/widgets-src/x/fixture.json": '{"other": 1}\n'})
+    assert _wcache(conn, fw, cache, faw_a, "mark", "container").returncode == 0
+    assert _wcache(conn, fw, cache, faw_b, "has", "container").returncode == 0
+    assert _wcache(conn, fw, cache, tmp_path / "none", "has", "container").returncode == 0
+    # the host modes still key on them
+    _wcache(conn, fw, cache, faw_a, "mark", "editable")
+    assert _wcache(conn, fw, cache, faw_b, "has", "editable").returncode == 1
+
+
+def test_the_key_is_the_same_inside_a_git_hook(tmp_path):
+    # A hook runs with GIT_DIR pointing at the repo being pushed: every `git -C <framework>` then read the
+    # connector instead, so the pre-push computed a key no one else could.
+    conn, fw, cache = _setup(tmp_path)
+    plain = _cache(conn, fw, cache, "key", "container").stdout
+    r = subprocess.run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), "key", "container"], cwd=conn,
+                       capture_output=True, text=True,
+                       env=_env(FSRPB_FRAMEWORK_DIR=str(fw), FSR_TEST_PASS_CACHE=str(cache),
+                                GIT_DIR=str(conn / ".git"), GIT_WORK_TREE=str(conn)))
+    assert plain and r.stdout == plain, (plain, r.stdout, r.stderr)
+
+
+def test_the_push_skips_a_suite_the_door_already_passed_on_the_same_content(tmp_path):
+    conn, fw, cache = _setup(tmp_path)
+    conn2, fw2 = _same_content_elsewhere(tmp_path, conn, fw)
+    assert _cache(conn2, fw2, cache, "mark", "container").returncode == 0          # the door's gate, elsewhere
+    r, runner, host = _full_push(conn, fw, cache, tmp_path, runner_rc=1)           # would fail if it ran
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "already passed on this exact code" in r.stdout
+    assert runner == [] and host == []
