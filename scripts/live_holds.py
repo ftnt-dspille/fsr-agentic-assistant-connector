@@ -28,7 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from box_lock import hold_box  # noqa: E402
 from fsr_live import LiveFSR  # noqa: E402
 from fsr_playbooks.harness.frames import frames_of  # noqa: E402
-from live_autonomy import (BENIGN_DST, SOURCE, TURN_TIMEOUT, Box, RunOverrun,  # noqa: E402
+from live_autonomy import (BENIGN_DST, SOURCE, TURN_TIMEOUT, Box,  # noqa: E402
                            _await_turn, _policy, _seed, _synthetic_c2, arm_budget,
                            cleanup_seeded, severity_iris)
 from premise_advisory_rate import collect, render  # noqa: E402
