@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.6.25
+
+- Version-only bump: the code merged since 0.6.24 is unchanged, so a box that already has 0.6.24 can take it.
+
 ## 0.6.24
 
 - Version-only bump: the code merged since 0.6.23 is unchanged, so a box that already has 0.6.23 can take it.
