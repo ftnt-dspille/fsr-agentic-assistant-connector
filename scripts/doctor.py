@@ -88,6 +88,28 @@ def _vkey(v: str) -> tuple[int, ...]:
     return tuple(int(p) for p in re.findall(r"\d+", v or ""))
 
 
+
+def connector_version_check(box_v: str, local_v: str, runs_tree: bool) -> "Check":
+    """Box connector version against the tree's.
+
+    A box AHEAD of the tree is stale-tree only when it runs other code. dev-push copies a tree
+    into a box that is ahead and keeps the box's info.json on purpose (reinstalling the older
+    number would re-mint it forever), so a box ahead that runs this tree's build is the
+    expected result of that push, not a stale tree."""
+    if box_v == local_v:
+        return Check("box", "connector version", "PASS", f"box = tree = {box_v}")
+    if _vkey(box_v) < _vkey(local_v):
+        return Check("box", "connector version", "WARN",
+                     f"box runs {box_v}, tree is {local_v}: box results are about {box_v}",
+                     "make ship-install   (or deploy)")
+    if runs_tree:
+        return Check("box", "connector version", "WARN",
+                     f"box keeps its number {box_v} (ahead of tree {local_v}) and runs this "
+                     "tree's build: a dev-push copy into a box that was ahead")
+    return Check("box", "connector version", "FAIL",
+                 f"box runs {box_v}, NEWER than tree {local_v} -- tree is stale",
+                 f"git -C {ROOT} pull")
+
 def _read_json(p: Path) -> dict:
     try:
         return json.loads(p.read_text())
@@ -473,16 +495,10 @@ def check_box(env: dict, use_ssh: bool, ssh_host: str,
 
     local_v = str(_connector_info().get("version") or "")
     box_v = str(h.get("connector_version") or "")
-    if box_v == local_v:
-        out.append(Check("box", "connector version", "PASS", f"box = tree = {box_v}"))
-    elif _vkey(box_v) < _vkey(local_v):
-        out.append(Check("box", "connector version", "WARN",
-                         f"box runs {box_v}, tree is {local_v}: box results are about {box_v}",
-                         "make ship-install   (or deploy)"))
-    else:
-        out.append(Check("box", "connector version", "FAIL",
-                         f"box runs {box_v}, NEWER than tree {local_v} -- tree is stale",
-                         f"git -C {ROOT} pull"))
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_fingerprint
+    out.append(connector_version_check(box_v, local_v,
+                                       h.get("build_id") == build_fingerprint.from_dir(PKG)))
 
     markers = _probe_markers(ssh_host) if use_ssh else None
     out.append(_framework_on_box(
