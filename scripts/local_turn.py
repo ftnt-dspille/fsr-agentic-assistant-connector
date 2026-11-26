@@ -692,6 +692,32 @@ _CANNED_ENRICHMENT_OPS = frozenset({
 })
 
 
+def empty_result_for_catalog_op(connector: str, op: str) -> Optional[dict]:
+    """What a real source answers a search or list op that matched nothing:
+    ok:true with an empty result list, not an error. The typed signal is the
+    catalog's output schema: an op whose schema holds a list-valued field is a
+    search/list op, and its empty answer is that field as `[]`. Every other op
+    (a reputation lookup, an op with no schema, an op the catalog does not
+    list, so an invented one) returns None and stays an unserved error: an
+    empty "success" there would read as a clean verdict or hide a made-up op."""
+    import sqlite3
+    try:
+        from fsr_playbooks._db import default_db_path
+        con = sqlite3.connect(f"file:{default_db_path()}?mode=ro", uri=True)
+        try:
+            row = con.execute(
+                "SELECT output_schema_json FROM operations "
+                "WHERE connector_name=? AND op_name=?", (connector, op)).fetchone()
+        finally:
+            con.close()
+        schema = json.loads(row[0] or "{}") if row else {}
+    except Exception:  # noqa: BLE001 - no catalog: stay an honest error
+        return None
+    key = next((k for k, v in schema.items() if isinstance(v, list)), None) \
+        if isinstance(schema, dict) else None
+    return {"ok": True, "data": {key: []}} if key else None
+
+
 def _canned_op_response(connector: str, op: str,
                         params: Optional[dict]) -> Optional[dict]:
     """Return a canned success response for known read-only ops, or None."""
@@ -834,6 +860,9 @@ def _patch_run_op_for_cassette(scope: PatchScope) -> None:
             # fixture's gap, and the agent sees an honest error.
             if _ACTIVE_CASSETTE is not None:
                 _ACTIVE_CASSETTE.session.misses.append(f"OP {connector}.{op}")
+            empty = empty_result_for_catalog_op(connector, op)
+            if empty is not None:
+                return empty
             return {"ok": False, "code": "unserved_op", "connector": connector,
                     "op": op, "message": f"{connector}.{op} returned no data"}
         if canned is None and _ACTIVE_CASSETTE is not None:

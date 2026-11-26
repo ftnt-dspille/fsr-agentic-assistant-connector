@@ -470,3 +470,30 @@ def test_needle_in_ticket_world_serves_the_ticket_and_an_empty_siem():
     assert "INC0043817" not in json.dumps(alert)
     # Unrecorded ops stay honest misses (no canned "malicious" fallback).
     assert box.strict_ops and box.op("servicenow", "get_SIR", {}) is None
+
+
+def _strict_run_op(monkeypatch, **call):
+    from scripts import local_turn as LT
+    from fsr_playbooks.llm.tools import REGISTRY
+    monkeypatch.setattr(LT, "_ACTIVE_WORLD", _box(strict_ops=True))
+    monkeypatch.setattr(LT, "_ACTIVE_CASSETTE", None)
+    with LT.patch_scope() as scope:
+        LT._patch_run_op_for_cassette(scope)
+        return REGISTRY["run_op"].fn(**call)
+
+
+def test_a_strict_world_answers_an_unmatched_search_op_with_an_empty_list(monkeypatch):
+    # A real ticket system answers "no matches" with ok:true and an empty
+    # result; an error here read as a broken source and ended the hunt.
+    out = _strict_run_op(monkeypatch, connector="servicenow", op="advance_search",
+                         params={"table_name": "incident", "adv_query": "x"})
+    assert out["ok"] is True and out["data"] == {"result": []}
+
+
+def test_a_strict_world_still_errors_on_an_op_that_is_not_a_search(monkeypatch):
+    # A reputation lookup with nothing recorded must not read as "clean", and an
+    # op the catalog does not list (an invented one) must still be caught.
+    for conn, op in (("virustotal", "query_ip"), ("servicenow", "invented_op"),
+                     ("nosuchconnector", "search")):
+        out = _strict_run_op(monkeypatch, connector=conn, op=op, params={"ip": "203.0.113.9"})
+        assert out.get("ok") is False, (conn, op, out)
