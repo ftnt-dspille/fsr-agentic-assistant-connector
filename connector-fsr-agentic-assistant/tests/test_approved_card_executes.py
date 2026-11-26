@@ -891,3 +891,30 @@ def test_a_field_the_record_does_not_hold_is_named_as_not_saved(operations, tmp_
                          {"outputTemplateJson": "[]"}, dict(_STORED))
     assert '"not_saved": [' in msg and "outputTemplateJson" in msg
     assert "anything that did not save" in msg
+
+
+# -- several configs, none default (five FortiManager configs, one reachable) --
+# The card now carries the config the investigation's own reads answered on, so
+# an approval with no pick runs there instead of failing INTEGRATION-12 and
+# consuming the card.
+_FMG_OPTIONS = [{"id": f"fmg-{i}", "name": f"managerID_{i}", "default": False}
+                for i in range(1, 6)]
+FMG_CARD = {**CARD, "id": "install-fmg", "connector": "fortinet-fortimanager-json-rpc",
+            "operation": "json_rpc_execute",
+            "config": {"id": "fmg-2", "name": "managerID_2", "default": False},
+            "config_options": _FMG_OPTIONS}
+
+
+def test_a_multi_config_card_without_a_pick_runs_on_the_config_it_carries(
+        operations, tmp_path, monkeypatch):
+    storage = _seed(tmp_path)
+    storage.save_card("sess", FMG_CARD)
+    seen, _, _ = _run(operations, storage, monkeypatch, {"ok": True, "data": {}},
+                      card_id="install-fmg")
+    assert seen[0][1]["config"] == "fmg-2"
+
+
+def test_approved_card_config_prefers_the_carried_one_over_no_choice(operations):
+    from _fsrpb_conn.ops_resume import _approved_card_config
+    assert _approved_card_config(FMG_CARD, None) == "fmg-2"
+    assert _approved_card_config({**FMG_CARD, "config": None}, None) == ""
