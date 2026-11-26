@@ -553,6 +553,25 @@ def _approved_card_config(card: dict, chosen: Any = None) -> str:
     return str(own.get("id") or "")
 
 
+def _config_pick_missing(card: dict, chosen: Any = None) -> bool:
+    """True when the card needs the analyst to pick a connector configuration
+    (``config_required``) and no valid pick came with this approval."""
+    return bool(card.get("config_required")) and not _approved_card_config(
+        card, chosen)
+
+
+def _config_required_err(card: dict, card_id: str, connector: str) -> dict:
+    options = [o for o in (card.get("config_options") or [])
+               if isinstance(o, dict)]
+    return _err(
+        "config_required",
+        f"This action can run on more than one '{connector}' configuration "
+        "and none is preselected. Choose which one to run it on, then "
+        "approve again. The action has not run.",
+        card_id=card_id, config_options=options,
+        choices=[str(o.get("name") or o.get("id")) for o in options])
+
+
 def _editable_arg_names(card: dict) -> set[str]:
     """The argument names the analyst may change on this card.
 
@@ -620,6 +639,13 @@ def _resume_action_card_execute(config: dict, params: dict, decision: str,
         # Nothing executable to run -- degrade to the conversational path so
         # the chat never dead-ends (model acknowledges + asks how to proceed).
         return _resume_conversation(config, params, decision, storage, provider)
+
+    # A card that could not tell which of several configurations to run on
+    # asks the analyst. Approving without a pick would run on none, fail, and
+    # use the card up: refuse here, before anything is popped or executed, so
+    # the claim is released and the card stays open for a second click.
+    if _config_pick_missing(card, params.get("config")):
+        return _config_required_err(card, card_id, connector)
 
     final_args = _approved_args(card, params.get("args"))
 
@@ -1829,6 +1855,14 @@ def _resume_conversation(config: dict, params: dict, decision: str,
                     )
         except Exception:
             pass
+
+    # An approval that still owes the analyst's config pick runs nothing and
+    # takes no turn: refused here, the card stays open.
+    if card_id and decision == "approve" and user_msg is None:
+        _pending = storage.get_card(session_id, card_id) or {}
+        if _config_pick_missing(_pending, params.get("config")):
+            return _config_required_err(_pending, card_id,
+                                        str(_pending.get("connector") or ""))
 
     # A resume is a streaming producer exactly like chat_turn: reserve_next_turn
     # derives the turn AND writes the `turn_start` frame in one atomic write, so

@@ -22,7 +22,7 @@ from .ops_health import _connector_name
 from .ops_playbooks_persist import push_playbook
 from .ops_policy import _load_autonomy_policy
 from .ops_prompts import _session_trace_scope
-from .ops_resume import _approved_card_config, _record_execution
+from .ops_resume import _approved_card_config, _config_pick_missing, _record_execution
 from .ops_scheduling import _send_notification, _wf_iri_from_push
 
 
@@ -320,6 +320,9 @@ def _enforce_policy_cards(session_id: str, transcript: list) -> list[dict]:
         connector, operation = f.get("connector"), f.get("operation")
         card_id = f.get("id")
         if not (connector and operation and card_id):
+            continue
+        # No configuration to run on and several to choose from: a person picks.
+        if _config_pick_missing(f, None):
             continue
         # Decided once, like any approval: a card someone already answered is
         # left alone.
