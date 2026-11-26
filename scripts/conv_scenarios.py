@@ -2207,7 +2207,8 @@ def _tool_result_texts(c: ConvCtx, names: frozenset) -> list[str]:
 
 
 def fact_from_tool(*, values: tuple[str, ...], tools: tuple[str, ...],
-                   absent_from_record: bool = True) -> Grader:
+                   absent_from_record: bool = True,
+                   require_all: bool = False) -> Grader:
     """A FACT the analyst was given came from a hunt, not from the mounted record.
 
     Passes when at least one of `values` (a nonce, an IP, a count the hunt
@@ -2230,6 +2231,8 @@ def fact_from_tool(*, values: tuple[str, ...], tools: tuple[str, ...],
     if not tools:
         raise ValueError("fact_from_tool needs the tools whose results count")
     tool_set = frozenset(tools)
+    # require_all: every value must be a hunt fact, so a multi-pivot row cannot
+    # pass on the first hop alone.
 
     def grade(c: ConvCtx) -> tuple[bool, str]:
         mounted = getattr(c.conv, "mounted", None)
@@ -2241,6 +2244,7 @@ def fact_from_tool(*, values: tuple[str, ...], tools: tuple[str, ...],
         results = [r.lower() for r in _tool_result_texts(c, tool_set)]
         said = _shown_to_analyst(c).lower()
         notes: list[str] = []
+        found: list[str] = []
         for v in values:
             needle = str(v).lower()
             if not any(needle in r for r in results):
@@ -2254,9 +2258,17 @@ def fact_from_tool(*, values: tuple[str, ...], tools: tuple[str, ...],
                 notes.append(f"{v!r} is in the mounted record, so it is not a "
                              f"hunt find")
                 continue
-            return True, (f"{v!r} came from {sorted(tool_set)}, was shown to the "
-                          f"analyst" + (", and is absent from the record"
-                                        if absent_from_record else ""))
+            if not require_all:
+                return True, (f"{v!r} came from {sorted(tool_set)}, was shown to the "
+                              f"analyst" + (", and is absent from the record"
+                                            if absent_from_record else ""))
+            found.append(v)
+        if require_all and len(found) == len(values):
+            return True, (f"all of {list(values)} came from {sorted(tool_set)} and "
+                          f"were shown to the analyst")
+        if require_all and found:
+            return False, (f"only {found} of {list(values)} are hunt facts: "
+                           + "; ".join(notes))
         return False, "no value is a hunt fact: " + "; ".join(notes)
     return grade
 

@@ -583,6 +583,16 @@ def _op_matches(entry: dict, connector: str, op: str, params: dict) -> bool:
     for k, want in (entry.get("match") or {}).items():
         if str(params.get(k, "")).strip().lower() != str(want).strip().lower():
             return False
+    # `contains` serves a free-text call (a search term, a shell command, an LDAP
+    # filter) without pinning its exact wording: {"param": ["a", "b"]} needs one
+    # substring present in that param; the key "*" looks across every param. A
+    # call that names none of the subjects stays an honest miss.
+    for k, subs in (entry.get("contains") or {}).items():
+        hay = (json.dumps(params, default=str) if k == "*"
+               else str(params.get(k, ""))).lower()
+        wanted = [subs] if isinstance(subs, str) else list(subs)
+        if not any(str(x).lower() in hay for x in wanted):
+            return False
     return True
 
 

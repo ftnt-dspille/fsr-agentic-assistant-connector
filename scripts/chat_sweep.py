@@ -354,7 +354,7 @@ def _fact_from_tool(value: Any):
     """`"fact_from_tool": {"values": ["FAZ-ONLY-..."], "tools": ["faz_search",
     "run_op"], "absent_from_record": true}` -- at least one value must be a
     hunt result the analyst was shown and that the mounted record lacks."""
-    if not isinstance(value, dict) or not (set(value) <= {"values", "tools", "absent_from_record"}):
+    if not isinstance(value, dict) or not (set(value) <= {"values", "tools", "absent_from_record", "require_all"}):
         raise ValueError('expected {"values": [...], "tools": [...], '
                          '"absent_from_record": bool}')
     values = value.get("values") or []
@@ -363,7 +363,8 @@ def _fact_from_tool(value: Any):
         raise ValueError("fact_from_tool needs non-empty values and tools lists")
     return CS.fact_from_tool(values=tuple(str(v) for v in values),
                              tools=tuple(str(t) for t in tools),
-                             absent_from_record=bool(value.get("absent_from_record", True)))
+                             absent_from_record=bool(value.get("absent_from_record", True)),
+                             require_all=bool(value.get("require_all", False)))
 
 
 def _relays_truncation(value: Any):

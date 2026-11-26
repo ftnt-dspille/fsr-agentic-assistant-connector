@@ -1,0 +1,492 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, vendor-neutral multi-hop needle: the first source (directory status) looks fine and says nothing about travel; the explanation is only in the request history.",
+  "Intel on the Singapore address is clean. The account is healthy. A request item for this user approves VPN use from Singapore for exactly this week. A request for another user is the distractor.",
+  "Answer: benign or false_positive; RITM0087213 must reach the analyst. A needs_more_info hedge means the agent stopped after the first clean source. strict_ops."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  },
+  {
+   "name": "activedirectory",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Active Directory",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6c2e5a10-71d4-4b3a-9e08-bb1100000003",
+    "@type": "Alert",
+    "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000003",
+    "id": 95003,
+    "name": "Impossible travel: sign-ins from two continents within 40 minutes",
+    "description": "Account akhan signed in from Boston and then from 198.51.100.120 (Singapore) 40 minutes later, and used the VPN.",
+    "sourceIp": "198.51.100.120",
+    "destinationIp": "10.80.1.1",
+    "source": "Corporate SIEM",
+    "createDate": 1790550000.0,
+    "computerName": "vpn-gw-01",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.120",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 62,
+        "undetected": 28,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "akhan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "akhan",
+      "displayName": "Amir Khan",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "mfaEnrolled": true,
+      "lastPasswordChange": "62 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "akhan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "akhan",
+      "displayName": "Amir Khan",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "mfaEnrolled": true,
+      "lastPasswordChange": "62 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "akhan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "akhan",
+      "displayName": "Amir Khan",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "mfaEnrolled": true,
+      "lastPasswordChange": "62 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "akhan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "akhan",
+      "displayName": "Amir Khan",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "mfaEnrolled": true,
+      "lastPasswordChange": "62 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dortiz",
+      "displayName": "Dana Ortiz",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dortiz",
+      "displayName": "Dana Ortiz",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dortiz",
+      "displayName": "Dana Ortiz",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dortiz",
+      "displayName": "Dana Ortiz",
+      "department": "Sales",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

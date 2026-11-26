@@ -1,0 +1,39 @@
+{
+ "name": "ka_pivot_status_clean_history_benign",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_pivot_status_clean_history_benign",
+ "mount": {
+  "module": "alerts",
+  "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000003"
+ },
+ "why": [
+  "KNOWN-ANSWER row (pivot): status looks fine, the answer is in request history."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "benign",
+    "false_positive"
+   ]
+  },
+  "fact_from_tool": {
+   "values": [
+    "RITM0087213"
+   ],
+   "tools": [
+    "run_op",
+    "run_connector_operation"
+   ],
+   "absent_from_record": true,
+   "require_all": true
+  }
+ }
+}

@@ -1,0 +1,559 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, vendor-neutral multi-hop needle: alert -> service account -> its named owner -> the owner's offboarding task.",
+  "Intel and the service account itself look fine (enabled, no failed logons). The account description names an owner; the owner's directory entry is also still enabled. Only the ticket history shows the owner left and the account was never reassigned. A task for the owner's manager is the distractor.",
+  "Answer: true_positive. Needles: dosei (account hop) and TASK0112390 (ticket hop). strict_ops."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  },
+  {
+   "name": "activedirectory",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Active Directory",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6c2e5a10-71d4-4b3a-9e08-bb1100000004",
+    "@type": "Alert",
+    "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000004",
+    "id": 95004,
+    "name": "Bulk read of design files by a service account",
+    "description": "svc-cad-sync read 1,900 files on fs-eng-01 in 12 minutes from 10.90.3.40, outside its normal pattern of a few hundred files per day.",
+    "sourceIp": "10.90.3.40",
+    "destinationIp": "10.90.1.5",
+    "source": "Corporate SIEM",
+    "createDate": 1790550000.0,
+    "computerName": "fs-eng-01",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.90.3.40"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "10.90.3.40",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 62,
+        "undetected": 28,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "svc-cad-sync"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "svc-cad-sync",
+      "description": "CAD sync service account. Owner: Daniel Osei (dosei)",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "lastLogon": "today",
+      "managedBy": "CN=Daniel Osei (dosei)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "svc-cad-sync"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "svc-cad-sync",
+      "description": "CAD sync service account. Owner: Daniel Osei (dosei)",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "lastLogon": "today",
+      "managedBy": "CN=Daniel Osei (dosei)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "svc-cad-sync"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "svc-cad-sync",
+      "description": "CAD sync service account. Owner: Daniel Osei (dosei)",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "lastLogon": "today",
+      "managedBy": "CN=Daniel Osei (dosei)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "svc-cad-sync"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "svc-cad-sync",
+      "description": "CAD sync service account. Owner: Daniel Osei (dosei)",
+      "userAccountControl": "512 (enabled)",
+      "badPwdCount": 0,
+      "lastLogon": "today",
+      "managedBy": "CN=Daniel Osei (dosei)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dosei",
+      "displayName": "Daniel Osei",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "manager": "CN=Eva Brandt",
+      "lastLogon": "6 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dosei",
+      "displayName": "Daniel Osei",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "manager": "CN=Eva Brandt",
+      "lastLogon": "6 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dosei",
+      "displayName": "Daniel Osei",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "manager": "CN=Eva Brandt",
+      "lastLogon": "6 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "dosei",
+      "displayName": "Daniel Osei",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "manager": "CN=Eva Brandt",
+      "lastLogon": "6 days ago"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "ebrandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "ebrandt",
+      "displayName": "Eva Brandt",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "ebrandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "ebrandt",
+      "displayName": "Eva Brandt",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "ebrandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "ebrandt",
+      "displayName": "Eva Brandt",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "ebrandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "ebrandt",
+      "displayName": "Eva Brandt",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112390",
+       "state": "Work in Progress",
+       "short_description": "Offboarding: Daniel Osei, last day passed",
+       "description": "Daniel Osei (dosei) left the company on the last day. Access removal and ownership transfer of his service accounts, including svc-cad-sync, are still pending.",
+       "assignment_group": "IAM"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112390",
+       "state": "Work in Progress",
+       "short_description": "Offboarding: Daniel Osei, last day passed",
+       "description": "Daniel Osei (dosei) left the company on the last day. Access removal and ownership transfer of his service accounts, including svc-cad-sync, are still pending.",
+       "assignment_group": "IAM"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112390",
+       "state": "Work in Progress",
+       "short_description": "Offboarding: Daniel Osei, last day passed",
+       "description": "Daniel Osei (dosei) left the company on the last day. Access removal and ownership transfer of his service accounts, including svc-cad-sync, are still pending.",
+       "assignment_group": "IAM"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "dosei",
+     "Daniel Osei"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112390",
+       "state": "Work in Progress",
+       "short_description": "Offboarding: Daniel Osei, last day passed",
+       "description": "Daniel Osei (dosei) left the company on the last day. Access removal and ownership transfer of his service accounts, including svc-cad-sync, are still pending.",
+       "assignment_group": "IAM"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "ebrandt",
+     "Eva Brandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112402",
+       "state": "Closed",
+       "short_description": "Laptop refresh: Eva Brandt",
+       "description": "New laptop issued.",
+       "assignment_group": "Service Desk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "ebrandt",
+     "Eva Brandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112402",
+       "state": "Closed",
+       "short_description": "Laptop refresh: Eva Brandt",
+       "description": "New laptop issued.",
+       "assignment_group": "Service Desk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "ebrandt",
+     "Eva Brandt"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "TASK0112402",
+       "state": "Closed",
+       "short_description": "Laptop refresh: Eva Brandt",
+       "description": "New laptop issued.",
+       "assignment_group": "Service Desk"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

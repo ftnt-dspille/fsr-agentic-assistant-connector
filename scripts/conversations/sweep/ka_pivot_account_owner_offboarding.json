@@ -1,0 +1,41 @@
+{
+ "name": "ka_pivot_account_owner_offboarding",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_pivot_account_owner_offboarding",
+ "mount": {
+  "module": "alerts",
+  "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000004"
+ },
+ "why": [
+  "KNOWN-ANSWER row (pivot): three hops across directory then tickets.",
+  "Graded as a conviction: true_positive or suspicious. needs_more_info, benign and false_positive mean the pivots were not made."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive",
+    "suspicious"
+   ]
+  },
+  "fact_from_tool": {
+   "values": [
+    "dosei",
+    "TASK0112390"
+   ],
+   "tools": [
+    "run_op",
+    "run_connector_operation"
+   ],
+   "absent_from_record": true,
+   "require_all": true
+  }
+ }
+}

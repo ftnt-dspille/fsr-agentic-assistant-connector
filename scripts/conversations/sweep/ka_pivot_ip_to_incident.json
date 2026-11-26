@@ -1,0 +1,40 @@
+{
+ "name": "ka_pivot_ip_to_incident",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_pivot_ip_to_incident",
+ "mount": {
+  "module": "alerts",
+  "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000002"
+ },
+ "why": [
+  "KNOWN-ANSWER row (pivot): a clean first source (intel) with the evidence in a ticket.",
+  "Graded as a conviction: true_positive or suspicious. needs_more_info, benign and false_positive mean the pivots were not made."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive",
+    "suspicious"
+   ]
+  },
+  "fact_from_tool": {
+   "values": [
+    "INC0051877"
+   ],
+   "tools": [
+    "run_op",
+    "run_connector_operation"
+   ],
+   "absent_from_record": true,
+   "require_all": true
+  }
+ }
+}

@@ -1,0 +1,648 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, vendor-neutral multi-hop needle: alert -> host -> owner -> the owner's logins on other hosts.",
+  "Source 1 (CMDB) and source 2 (directory) look clean: an ordinary Finance workstation and an enabled account. Only the log server, queried for the OWNER, shows off-hours logins from that workstation to a key vault host and a tar of its keys.",
+  "Answer: true_positive. Needles: owner praman (CMDB hop) and bk-vault-02 (log hop). A distractor user's logins (tlund) must not be taken. strict_ops."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  },
+  {
+   "name": "activedirectory",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Active Directory",
+   "config_count": 1
+  },
+  {
+   "name": "ssh",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "SSH (central log server)",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6c2e5a10-71d4-4b3a-9e08-bb1100000001",
+    "@type": "Alert",
+    "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000001",
+    "id": 95001,
+    "name": "Encoded PowerShell command run on a finance workstation",
+    "description": "wks-fin-22 launched powershell.exe with a long base64 command line and made an outbound HTTPS connection to 192.0.2.140 shortly after.",
+    "sourceIp": "10.60.4.22",
+    "destinationIp": "192.0.2.140",
+    "source": "Corporate SIEM",
+    "createDate": 1790550000.0,
+    "computerName": "wks-fin-22",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "192.0.2.140"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "192.0.2.140",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 62,
+        "undetected": 28,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.60.4.22"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "10.60.4.22",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 62,
+        "undetected": 28,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "praman",
+      "displayName": "Priya Raman",
+      "department": "Finance",
+      "userAccountControl": "512 (enabled)",
+      "memberOf": [
+       "CN=Finance-Users"
+      ],
+      "lastLogon": "today",
+      "badPwdCount": 0
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "praman",
+      "displayName": "Priya Raman",
+      "department": "Finance",
+      "userAccountControl": "512 (enabled)",
+      "memberOf": [
+       "CN=Finance-Users"
+      ],
+      "lastLogon": "today",
+      "badPwdCount": 0
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "praman",
+      "displayName": "Priya Raman",
+      "department": "Finance",
+      "userAccountControl": "512 (enabled)",
+      "memberOf": [
+       "CN=Finance-Users"
+      ],
+      "lastLogon": "today",
+      "badPwdCount": 0
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "praman",
+      "displayName": "Priya Raman",
+      "department": "Finance",
+      "userAccountControl": "512 (enabled)",
+      "memberOf": [
+       "CN=Finance-Users"
+      ],
+      "lastLogon": "today",
+      "badPwdCount": 0
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "tlund"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "tlund",
+      "displayName": "Tomas Lund",
+      "department": "Facilities",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "tlund"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "tlund",
+      "displayName": "Tomas Lund",
+      "department": "Facilities",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "tlund"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "tlund",
+      "displayName": "Tomas Lund",
+      "department": "Facilities",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "tlund"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "tlund",
+      "displayName": "Tomas Lund",
+      "department": "Facilities",
+      "userAccountControl": "512 (enabled)"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "ssh",
+   "op": "run_remote_command",
+   "contains": {
+    "cmd": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "stdout": "Sep 28 01:52:07 authgw sshd[2210]: Accepted publickey for praman from 10.60.4.22 port 50122\nSep 28 01:58:41 srv-fin-db-01 sshd[881]: Accepted password for praman from 10.60.4.22 port 50180\nSep 28 02:14:19 bk-vault-02 sshd[412]: Accepted password for praman from 10.60.4.22 port 50244\nSep 28 02:15:02 bk-vault-02 sudo: praman : COMMAND=/usr/bin/tar czf /tmp/.x.tgz /srv/vault/keys\nSep 28 02:21:30 authgw sshd[2290]: Accepted password for praman from 10.60.4.22 port 50301 (usual workstation login window is 08:00-18:00)",
+     "stderr": "",
+     "exit_code": 0
+    }
+   }
+  },
+  {
+   "connector": "ssh",
+   "op": "run_remote_command",
+   "contains": {
+    "cmd": [
+     "tlund"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "stdout": "Sep 28 09:03:11 srv-hr-01 sshd[77]: Accepted publickey for tlund from 10.60.9.5 port 41022",
+     "stderr": "",
+     "exit_code": 0
+    }
+   }
+  },
+  {
+   "connector": "ssh",
+   "op": "run_remote_command",
+   "contains": {
+    "cmd": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "stdout": "Sep 28 01:52:07 authgw sshd[2210]: Accepted publickey for praman from 10.60.4.22\nSep 28 02:14:19 bk-vault-02 sshd[412]: Accepted password for praman from 10.60.4.22",
+     "stderr": "",
+     "exit_code": 0
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

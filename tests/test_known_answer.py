@@ -497,3 +497,30 @@ def test_a_strict_world_still_errors_on_an_op_that_is_not_a_search(monkeypatch):
                      ("nosuchconnector", "search")):
         out = _strict_run_op(monkeypatch, connector=conn, op=op, params={"ip": "203.0.113.9"})
         assert out.get("ok") is False, (conn, op, out)
+
+
+def test_contains_serves_free_text_by_subject_and_misses_otherwise():
+    b = _box(strict_ops=True, ops=[{
+        "connector": "servicenow", "op": "search_record",
+        "contains": {"*": ["web-dmz-03", "Pat Doe"]},
+        "response": {"ok": True, "data": {"result": [{"number": "T1"}]}}}])
+    assert b.op("servicenow", "search_record", {"value": "tickets for PAT DOE"})["ok"]
+    assert b.op("servicenow", "search_record", {"table": "x", "value": "nobody"}) is None
+
+
+def test_fact_from_tool_require_all_needs_every_value():
+    def ctx(shown):
+        s = Step(index=1, kind="user", sent="ask")
+        s.text = shown
+        s.transcript = {"transcript": [
+            {"type": "tool_use", "id": "t1", "name": "run_op", "input": {}},
+            {"type": "tool_result", "tool_use_id": "t1", "content": {"a": "alpha-1 beta-2"}}]}
+        c = Conversation(name="t", steps=[s])
+        c.mounted = {"name": "alert"}
+        return CS.ConvCtx(conv=c, mounted_yaml="")
+    both = CS.fact_from_tool(values=("alpha-1", "beta-2"), tools=("run_op",), require_all=True)
+    one = CS.fact_from_tool(values=("alpha-1", "gamma-3"), tools=("run_op",), require_all=True)
+    anyof = CS.fact_from_tool(values=("alpha-1", "gamma-3"), tools=("run_op",))
+    assert both(ctx("alpha-1 and beta-2"))[0]
+    assert not one(ctx("alpha-1 and gamma-3"))[0]
+    assert anyof(ctx("alpha-1 and gamma-3"))[0]

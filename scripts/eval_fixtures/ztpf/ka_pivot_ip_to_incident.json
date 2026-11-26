@@ -1,0 +1,346 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, vendor-neutral multi-hop needle: alert -> IP -> an earlier incident ticket.",
+  "Threat intel rates the address clean (0 detections) and the host record is plain. Only a closed incident ticket, found by searching tickets for the destination address, says it is confirmed attacker staging infrastructure. A ticket on an adjacent address is the distractor.",
+  "Answer: true_positive; INC0051877 must reach the analyst from a ticket tool. strict_ops."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  },
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6c2e5a10-71d4-4b3a-9e08-bb1100000002",
+    "@type": "Alert",
+    "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000002",
+    "id": 95002,
+    "name": "Nightly batch host opened an outbound connection to a new external address",
+    "description": "app-batch-02 connected to 203.0.113.55 on tcp/8443 and sent 40 MB. The address has not been contacted from this network before.",
+    "sourceIp": "10.70.2.12",
+    "destinationIp": "203.0.113.55",
+    "source": "Corporate SIEM",
+    "createDate": 1790550000.0,
+    "computerName": "app-batch-02",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "Medium",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ],
+  "assets": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "203.0.113.55"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "203.0.113.55",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 62,
+        "undetected": 28,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "10.70.2.12"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "10.70.2.12",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 62,
+        "undetected": 28,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}
