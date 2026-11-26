@@ -147,3 +147,52 @@ def test_content_keys_change_when_the_widget_package_changes(tmp_path):
     (wrepo / "widget" / "view.js").write_text("v=2\n")
     _commit(wrepo, "widget change")
     assert si.content_keys(conn, widgets, "0.12.0", ["agenticAssistant"])["agenticAssistant"] != base["agenticAssistant"]
+
+
+# --- the preflight lists EVERY conflicting artifact at once, with the one command ----------------
+
+WIDGETS3 = {"connector": {"name": CONN, "version": "0.6.18"},
+            "widgets": {"agenticAssistant": "1.4.4", "agenticAssistantMonitor": "1.1.5"}}
+CONTENT3 = dict(CONTENT, agenticAssistantMonitor="treeM")
+
+
+def _two_widget_client():
+    c = FakeClient(conns=["0.6.18"], widgets=["1.4.4"])
+    c.widgets = SimpleNamespace(list=lambda name=None: [SimpleNamespace(
+        version="1.4.4" if name == "agenticAssistant" else "1.1.5", installed=True, draft=False)])
+    return c
+
+
+def test_plan_conflicts_lists_every_same_version_artifact_not_just_the_first():
+    state = {"artifacts": {CONN: {"version": "0.6.18", "content": "other"},
+                           "agenticAssistant": {"version": "1.4.4", "content": "other"},
+                           "agenticAssistantMonitor": {"version": "1.1.5", "content": "other"}}}
+    actions, conflicts = si.plan_conflicts(_two_widget_client(), state, CONTENT3, WIDGETS3)
+    assert [c["name"] for c in conflicts] == [CONN, "agenticAssistant", "agenticAssistantMonitor"]
+    assert {c["reason"] for c in conflicts} == {"same-version"}
+    assert actions == {}
+
+
+def test_plan_conflicts_still_plans_the_artifacts_that_do_not_conflict():
+    state = {"artifacts": {CONN: {"version": "0.6.18", "content": KEY_CONN},
+                           "agenticAssistant": {"version": "1.4.4", "content": "other"}}}
+    client = FakeClient(conns=["0.6.18"], widgets=["1.4.4"])
+    actions, conflicts = si.plan_conflicts(client, state, CONTENT, EXPECT)
+    assert [c["name"] for c in conflicts] == ["agenticAssistant"]
+    assert actions == {CONN: "skip"}
+
+
+def test_the_refusal_names_all_of_them_and_the_one_command(monkeypatch):
+    monkeypatch.setenv("BOX", "81")
+    with pytest.raises(SystemExit) as e:
+        si.plan_install(_two_widget_client(), {}, CONTENT3, WIDGETS3)
+    msg = str(e.value)
+    for name in (CONN, "agenticAssistant 1.4.4", "agenticAssistantMonitor 1.1.5"):
+        assert name in msg
+    assert msg.count("make stable BOX=81 BUMP=patch") == 1
+
+
+def test_conflict_text_for_a_newer_version_is_listed_too():
+    client = FakeClient(conns=["0.6.19"], widgets=["1.4.4"])
+    _, conflicts = si.plan_conflicts(client, {}, CONTENT, EXPECT)
+    assert {(c["name"], c["reason"]) for c in conflicts} == {(CONN, "newer"), ("agenticAssistant", "same-version")}

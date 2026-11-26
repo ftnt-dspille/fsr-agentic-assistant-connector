@@ -443,3 +443,23 @@ def test_a_missing_or_incomplete_inputs_file_is_refused_not_guessed(world):
     f.unlink()
     with pytest.raises(OSError):
         sg.repo_specs(world.monorepo, world.framework, world.conn)
+
+
+def test_the_stale_stamp_message_gives_the_exact_reprove_command_not_make_push(world):
+    shutil.rmtree(world.stamps / "conn_main")
+    world.stamp("conn_main", git(world.conn, "rev-parse", "HEAD"), box="stable-box")
+    shutil.rmtree(world.stamps / "agenticAssistant")
+    world.stamp("agenticAssistant", git(world.widgets["agenticAssistant"], "rev-parse", "HEAD"), box="stable-box")
+    rep = world.run()
+    text = _joined(rep)
+    assert "make push" not in text
+    assert "make dev-push BOX=<experimental>" in text
+    assert "make widget-push WIDGET=agenticAssistant BOX=<experimental>" in text
+
+
+def test_the_report_names_the_repos_whose_stamp_can_be_reproved(world):
+    shutil.rmtree(world.stamps / "conn_main")
+    world.stamp("conn_main", git(world.conn, "rev-parse", "HEAD"), box="stable-box")
+    rep = world.run()
+    assert rep.unproven == ["conn_main"]
+    assert world.run().unproven == ["conn_main"] and world.run().ok is False

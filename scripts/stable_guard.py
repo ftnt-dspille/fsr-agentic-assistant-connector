@@ -61,6 +61,7 @@ class Report:
     heads: dict[str, str] = field(default_factory=dict)     # repo name -> HEAD sha
     notes: list[str] = field(default_factory=list)          # e.g. "used stamped ancestor ..."
     problems: list[str] = field(default_factory=list)
+    unproven: list[str] = field(default_factory=list)       # repos whose only problem is a missing/foreign stamp (re-provable)
 
     @property
     def ok(self) -> bool:
@@ -262,6 +263,20 @@ def stamped_ancestor(spec: RepoSpec, head: str, stamp_dir: Path,
     return None
 
 
+def reprove_hint(name: str) -> str:
+    """The exact commands that give a head a VERIFIED stamp from an experimental box (the door path's own steps).
+    `make stable` runs them itself when it can lease an experimental box (PROVE_BOX=<alias> pins one)."""
+    exp = "BOX=<experimental>"
+    if name in WIDGET_NAMES:
+        how = f"make widget-push WIDGET={name} {exp}"
+    elif name == "fsr_all_widgets":
+        how = f"make doctor {exp} SANITY=1 STAMP=<root checkout>"
+    else:
+        how = f"make dev-push {exp} (connector checkout, FSR_SRC=<framework checkout>; stamps both)"
+    return (f"Re-prove it on an experimental box with `{how}` (what make ship does; make stable does it for you when it can "
+            f"lease one, or pin PROVE_BOX=<alias>) and retry.")
+
+
 def check_stamp(spec: RepoSpec, head: str, stamp_dir: Path,
                 role_of: Callable[[str], str], notes: list[str] | None = None) -> list[str]:
     """A VERIFIED, clean stamp for HEAD whose box reads role = experimental. A HEAD with no
@@ -270,8 +285,7 @@ def check_stamp(spec: RepoSpec, head: str, stamp_dir: Path,
     ok, reasons = _stamp_problem(spec, head, stamp_dir, role_of)
     if ok:
         return []
-    fix = ("Push it to an experimental box (make push BOX=<experimental> then make doctor "
-           "BOX=<experimental> SANITY=1 STAMP=<checkout>) and retry.")
+    fix = reprove_hint(spec.name)
     if not reasons:
         anc = stamped_ancestor(spec, head, stamp_dir, role_of)
         if anc is None:
@@ -317,7 +331,10 @@ def guard(box: str, specs: list[RepoSpec], stamp_dir: Path,
             continue
         rep.heads[spec.name] = head
         rep.problems += check_remote_main(spec, head)
-        rep.problems += check_stamp(spec, head, stamp_dir, role_of, rep.notes)
+        stamp_problems = check_stamp(spec, head, stamp_dir, role_of, rep.notes)
+        if stamp_problems:
+            rep.unproven.append(spec.name)
+        rep.problems += stamp_problems
     return rep
 
 
@@ -332,6 +349,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--framework", required=True, type=Path)
     ap.add_argument("--conn", required=True, type=Path)
     ap.add_argument("--stamp-dir", type=Path, default=None)
+    ap.add_argument("--json", action="store_true",
+                    help="print one JSON object on stdout: {ok, problems, unproven} (unproven = repos whose stamp can be re-proved)")
     ap.add_argument("--promoted-source", action="store_true",
                     help="the repos are detached trees at the promoted commits (make stable)")
     args = ap.parse_args(argv)
@@ -342,6 +361,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     rep = guard(args.box, specs,
                 args.stamp_dir or default_stamp_dir(), detached_ok=args.promoted_source)
+    if args.json:
+        print(json.dumps({"ok": rep.ok, "problems": rep.problems, "unproven": rep.unproven, "heads": rep.heads}))
+        return 0 if rep.ok else 1
     if not rep.ok:
         print("make stable: REFUSED", file=sys.stderr)
         for p in rep.problems:
