@@ -918,3 +918,47 @@ def test_approved_card_config_prefers_the_carried_one_over_no_choice(operations)
     from _fsrpb_conn.ops_resume import _approved_card_config
     assert _approved_card_config(FMG_CARD, None) == "fmg-2"
     assert _approved_card_config({**FMG_CARD, "config": None}, None) == ""
+
+
+# -- several configs, none known to be the one: the card requires a pick --------
+# Live: a card built with no prior read of the connector carried no config and
+# five options. Approving it ran on none, failed INTEGRATION-12 and consumed the
+# card. The card now says `config_required`; approval without a pick is refused
+# before anything runs.
+NEEDS_PICK = {**FMG_CARD, "id": "install-pick", "config": None,
+              "config_required": True}
+
+
+def test_a_card_that_requires_a_pick_is_refused_without_one(operations, tmp_path,
+                                                            monkeypatch):
+    storage = _seed(tmp_path)
+    storage.save_card("sess", NEEDS_PICK)
+    import fsr_playbooks.llm.tools as tools
+    ran: list = []
+    monkeypatch.setattr(tools, "dispatch", lambda *a, **k: ran.append(a) or {"ok": True})
+    out = operations._resume_conversation(
+        {}, {"session_id": "sess", "card_id": "install-pick"}, "approve",
+        storage, provider=object())
+    assert out["ok"] is False and out["error"]["code"] == "config_required"
+    assert out["error"]["choices"] == [o["name"] for o in _FMG_OPTIONS]
+    assert "has not run" in out["error"]["message"]
+    assert ran == [], "nothing may run without a configuration"
+    assert storage.get_card("sess", "install-pick") is not None
+
+
+def test_a_pick_from_the_cards_options_lets_it_run(operations, tmp_path, monkeypatch):
+    storage = _seed(tmp_path)
+    storage.save_card("sess", NEEDS_PICK)
+    seen, _, _ = _run(operations, storage, monkeypatch, {"ok": True, "data": {}},
+                      card_id="install-pick", extra={"config": "fmg-4"})
+    assert seen[0][1]["config"] == "fmg-4"
+
+
+def test_a_pick_the_card_never_offered_does_not_satisfy_it(operations, tmp_path,
+                                                           monkeypatch):
+    storage = _seed(tmp_path)
+    storage.save_card("sess", NEEDS_PICK)
+    out = operations._resume_conversation(
+        {}, {"session_id": "sess", "card_id": "install-pick",
+             "config": "not-offered"}, "approve", storage, provider=object())
+    assert out["ok"] is False and out["error"]["code"] == "config_required"
