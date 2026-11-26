@@ -6,6 +6,7 @@
   "evidence is an earlier ServiceNow ticket: the external address belongs to the vendor",
   "running an approved penetration test against this host. A distractor ticket on another",
   "host (different address, reports a suspected compromise) must not be mistaken for it.",
+  "The alert time falls inside the approved test window (opened 09-02, closed 09-16), so the ticket decides the case; a hedge on the window is a model miss, not a fixture gap.",
   "Answer: benign / false_positive. strict_ops: any op not recorded here is an honest miss.",
   "ServiceNow is served for advance_search and fetch_incidents whatever the query, so the",
   "agent must pick the right ticket out of what comes back.",
@@ -104,7 +105,7 @@
     "sourceIp": "198.51.100.88",
     "destinationIp": "10.40.5.30",
     "source": "Fortinet FortiSIEM",
-    "createDate": 1790550000.0,
+    "createDate": 1788994800.0,
     "computerName": "web-dmz-03",
     "status": {
      "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
