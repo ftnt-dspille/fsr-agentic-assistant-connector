@@ -61,10 +61,12 @@ DASHBOARD_TITLE = pack.DASHBOARD_TITLE
 # After a connector import the integration workers restart for a few minutes and box reads
 # fail ("Unknown error occurred"). Reads and idempotent writes after the import retry for
 # this long, with backoff, before failing with a clear message. Live: a stable box was still
-# failing these reads after 172s, so the window is 5 minutes.
-RETRY_WINDOW = 300.0
+# failing these reads after 172s, and a box with slow integration workers outlasted 294s twice,
+# so the window is 10 minutes (STABLE_RETRY_WINDOW=<seconds> overrides it). A run that still
+# gives up is safe: the install record is "pending" and the next run resumes.
+RETRY_WINDOW = float(os.environ.get("STABLE_RETRY_WINDOW") or 600.0)
 RETRY_FIRST_DELAY = 2.0
-RETRY_MAX_DELAY = 20.0
+RETRY_MAX_DELAY = 30.0
 _sleep = time.sleep
 _clock = time.monotonic
 
@@ -284,10 +286,13 @@ def plan_conflicts(client, state: dict, content: dict, expect: dict) -> tuple[di
     return actions, conflicts
 
 
-def conflict_text(conflicts: list[dict], box: str = "<alias>") -> str:
+def conflict_text(conflicts: list[dict], box: str = "<alias>", record: "Path | None" = None) -> str:
     """ALL the conflicts at once, with the one command that resolves them."""
     lines = [f"stable: {len(conflicts)} artifact(s) cannot be installed as they are:"]
     lines += [f"  - {c['message']}" for c in conflicts]
+    if record is not None and not record.is_file():
+        lines.append(f"  (no install record at {record}: a same-version artifact is only recognised as already "
+                     f"installed by the record of the run that installed it)")
     lines.append(f"One command bumps every one of them in its repo, promotes the bumps, and continues: "
                  f"make stable BOX={box} BUMP=patch")
     return "\n".join(lines)
@@ -439,10 +444,12 @@ def main(argv: list[str] | None = None) -> int:
         state = json.loads(rec.read_text()) if rec.is_file() else {}
         actions, conflicts = plan_conflicts(client, state, content, expect)
         if args.preflight:
-            print(json.dumps({"box": box, "actions": actions, "conflicts": conflicts}))
+            print(json.dumps({"box": box, "actions": actions, "conflicts": conflicts,
+                              "record": str(rec), "record_found": rec.is_file(),
+                              "record_status": state.get("status")}))
             return 3 if conflicts else 0
         if conflicts:
-            raise SystemExit(conflict_text(conflicts, box or "<alias>"))
+            raise SystemExit(conflict_text(conflicts, box or "<alias>", rec))
     conn_tgz = build_connector(conn, wheel, out)
     _say(f"connector : {conn_tgz.name}")
     widget_tgz = build_widgets(monorepo, out, widgets_src)

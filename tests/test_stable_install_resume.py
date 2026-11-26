@@ -133,4 +133,30 @@ def test_the_retry_window_outlasts_an_observed_worker_restart():
     spec = importlib.util.spec_from_file_location("stable_install_window", p)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    assert mod.RETRY_WINDOW >= 300
+    assert mod.RETRY_WINDOW >= 600
+
+
+def test_a_box_that_settles_after_five_minutes_is_waited_for():
+    # Live: a stable box's integration workers took longer than 294s twice; the reads must keep retrying past that.
+    lister = flaky(lambda connector=None: [NS(name="a", default=True)], 20, api_error())
+    # 20 failures (about 500s of backoff) outlast the old 300s window
+    c = NS(connectors=NS(list_configurations=lister))
+    assert si.default_config_name(c, "conn") == "a"
+    assert lister.calls["n"] == 21
+
+
+def test_the_window_can_be_set_from_the_environment(monkeypatch):
+    import importlib.util
+    monkeypatch.setenv("STABLE_RETRY_WINDOW", "45")
+    spec = importlib.util.spec_from_file_location("stable_install_env", Path(si.__file__))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.RETRY_WINDOW == 45.0
+
+
+def test_a_conflict_with_no_install_record_names_where_it_looked(tmp_path):
+    c = [{"name": CONN, "kind": "connector", "version": "0.6.23", "reason": "same-version", "message": "m"}]
+    missing = tmp_path / "installed-81.json"
+    assert f"no install record at {missing}" in si.conflict_text(c, "81", missing)
+    missing.write_text("{}")
+    assert "no install record" not in si.conflict_text(c, "81", missing)
