@@ -1,0 +1,30 @@
+{
+ "name": "noc_source_fit",
+ "category": "source_fit",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "noc_source_fit",
+ "mount": {
+  "module": "alerts",
+  "uuid": "5e1c0a77-4b2d-4c6e-9a13-7d20f6b8c401"
+ },
+ "why": [
+  "Source fit: a network-ops question where threat intel and the ticket system are configured but irrelevant.",
+  "The model must choose the FortiManager device read and must not reflexively query intel or tickets, nor invent connector names.",
+  "Graded by counting run_op calls to a connector other than FortiManager, and calls to a name not on the box."
+ ],
+ "steps": [
+  {
+   "user": "Users behind fgt-pair-5-primary lost access to 192.0.2.0/24 after this morning's change. Investigate and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "called": {
+   "any_of": [
+    "fmg_device",
+    "run_op"
+   ]
+  }
+ }
+}

@@ -91,3 +91,13 @@ def test_a_record_write_waits_for_the_verdict_like_containment():
     assert "deliver the verdict card FIRST, then\nthe action card" in prompt
     assert ("The same holds for a write to the record itself (closing it, or changing its\n"
             "status or severity): deliver the verdict card, then stage the write.") in prompt
+
+
+def test_triage_prompt_leaves_source_choice_to_the_question():
+    """Live, a network-ops question was sent to threat intel and Jira. The prompt
+    must say sources are chosen by what the question needs, must not tell a
+    device question to pull peer-IP intel, and must point at the real roster."""
+    text = _MONOLITH.read_text()
+    assert "Pick sources that fit the question" in text
+    assert "list_configured_connectors" in text
+    assert "and peer-IP threat intel." not in text

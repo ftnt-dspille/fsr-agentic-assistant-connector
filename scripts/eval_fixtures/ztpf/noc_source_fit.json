@@ -1,0 +1,106 @@
+{
+ "_README": [
+  "NOC source-fit world (hand-authored in the shape of live responses).",
+  "A network-ops question on a box that also has threat intel and a ticket system configured.",
+  "Neither holds anything about a device's routing state: the right path is the FortiManager",
+  "device read, and calls to threat intel or the ticket system are irrelevant (the row counts them).",
+  "strict_ops: any op not recorded here is an honest miss."
+ ],
+ "extends": "ka_needle_in_ticket_siem_empty",
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager JSON-RPC",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiguard-threat-intelligence",
+   "status": "Completed",
+   "version": "2.0.0",
+   "label": "Fortinet FortiGuard Threat Intelligence",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiguard-outbreak",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiGuard Outbreak",
+   "config_count": 1
+  },
+  {
+   "name": "jira",
+   "status": "Completed",
+   "version": "2.0.0",
+   "label": "Jira",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {},
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/5e1c0a77-4b2d-4c6e-9a13-7d20f6b8c401",
+    "@type": "Alert",
+    "uuid": "5e1c0a77-4b2d-4c6e-9a13-7d20f6b8c401",
+    "id": 93201,
+    "name": "Branch 5 users cannot reach the 192.0.2.0/24 service network",
+    "description": "Users behind fgt-pair-5-primary report that the 192.0.2.0/24 service network stopped answering after the morning change window. Other networks are reachable.",
+    "sourceIp": "",
+    "destinationIp": "192.0.2.10",
+    "source": "Service desk",
+    "createDate": 1790550000.0,
+    "computerName": "fgt-pair-5-primary",
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "Medium",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    }
+   }
+  ]
+ },
+ "ops": [
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "url": "/dvmdb/adom/root/device",
+       "status": {
+        "code": 0,
+        "message": "OK"
+       },
+       "data": [
+        {
+         "name": "fgt-pair-5-primary",
+         "sn": "FGVMSLTM26001372",
+         "ip": "198.51.100.57",
+         "conn_status": 1,
+         "conf_status": 1,
+         "db_status": 0,
+         "ha_mode": 1,
+         "platform_str": "FortiGate-VM64-KVM",
+         "os_ver": 7,
+         "mr": 0,
+         "last_checked": 1790548000
+        }
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

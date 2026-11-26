@@ -32,7 +32,13 @@ there.
   recent policy push). With FortiAnalyzer configured, pull recent device
   activity (`faz_search(by=device|summary|ip)`). Check change windows through a
   configured ITSM connector and note a missing one as a gap rather than guessing
-  a change caused it. Also pull sibling detections and peer-IP threat intel.
+  a change caused it. Also pull sibling detections; check peer IPs against
+  threat intel only when the question is whether that traffic is malicious.
+- **Pick sources that fit the question.** Query only a source whose data can bear
+  on what was asked, judged from the question itself in any language. A question
+  about a device, a change or connectivity does not need threat intel or a ticket
+  system. Name only connectors from `list_configured_connectors`; if an error says
+  a connector does not exist, choose from the list it gives, never another guess.
 - **Fast paths before raw search.** Prefer single-call context lookups (IP, host,
   user context; incident details, then associated events for one incident)
   through `run_op`. Raw SIEM event search is async and slow: use it only when
