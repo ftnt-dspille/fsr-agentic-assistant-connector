@@ -238,22 +238,24 @@ def content_keys(conn: Path, widgets_src: Path, fw_ver: str, widget_names) -> di
 
 
 @retrying("planning the install")
-def plan_install(client, state: dict, content: dict, expect: dict) -> dict:
-    """Per artifact (connector, each widget): install, skip, or refuse.
+def plan_conflicts(client, state: dict, content: dict, expect: dict) -> tuple[dict, list[dict]]:
+    """(actions, conflicts) for EVERY artifact (connector, each widget), never stopping at the first.
 
     The stable install installs EXACTLY the repo's info.json versions. The importer's
     auto-bump is off, because it moves a box that already has the version to the next
     patch on every run. Each artifact is keyed on its packaged content (content_keys).
       - version not on the box                       -> install
       - same version, same content as recorded        -> skip (already there)
-      - same version, different content (or no record) -> refuse: bump the version (BUMP=patch)
-      - box holds a NEWER version                     -> refuse (the importer would skip the older tarball)
+      - same version, different content (or no record) -> conflict "same-version": bump the version
+      - box holds a NEWER version                     -> conflict "newer" (the importer would skip the older tarball)
     A record with status "pending" (written before the import) turns the "skip" case into
     "resume": the artifact is on the box (an import landed, or a widget sits as a draft) but
     the run never finished; the remaining steps (default config, publish, verify) run again.
+    A conflict is {name, kind, version, reason, message}; the actions of the others are still returned.
     """
     rec = (state or {}).get("artifacts", {})
     actions: dict[str, str] = {}
+    conflicts: list[dict] = []
     cname = expect["connector"]["name"]
     arts = [("connector", cname, expect["connector"]["version"], content[cname])]
     arts += [("widget", w, v, content[w]) for w, v in expect["widgets"].items()]
@@ -267,16 +269,37 @@ def plan_install(client, state: dict, content: dict, expect: dict) -> dict:
             if mine.get("version") == ver and mine.get("content") == key:
                 actions[name] = "resume" if (state or {}).get("status") == PENDING else "skip"
                 continue
-            raise SystemExit(
-                f"stable: {name} {ver} is already on the box with different packaged content "
+            conflicts.append({"name": name, "kind": kind, "version": ver, "reason": "same-version", "message":
+                f"{name} {ver} is already on the box with different packaged content "
                 f"(recorded {(mine.get('content') or 'none')[:12]}, repo {key[:12]}). The installer never "
-                f"reinstalls a version. Bump it (BUMP=patch in that repo), promote, and retry.")
+                f"reinstalls a version."})
+            continue
         newer = [v for v in on_box if _vtuple(v) > _vtuple(ver)]
         if newer:
-            raise SystemExit(f"stable: the box holds {name} {max(newer, key=_vtuple)}, newer than the "
-                             f"repo's {ver}; the importer would skip the older tarball. Bump the repo past it.")
+            conflicts.append({"name": name, "kind": kind, "version": ver, "reason": "newer", "message":
+                f"the box holds {name} {max(newer, key=_vtuple)}, newer than the repo's {ver}; the "
+                f"importer would skip the older tarball. Bump the repo past it."})
+            continue
         actions[name] = "install"
+    return actions, conflicts
+
+
+def conflict_text(conflicts: list[dict], box: str = "<alias>") -> str:
+    """ALL the conflicts at once, with the one command that resolves them."""
+    lines = [f"stable: {len(conflicts)} artifact(s) cannot be installed as they are:"]
+    lines += [f"  - {c['message']}" for c in conflicts]
+    lines.append(f"One command bumps every one of them in its repo, promotes the bumps, and continues: "
+                 f"make stable BOX={box} BUMP=patch")
+    return "\n".join(lines)
+
+
+def plan_install(client, state: dict, content: dict, expect: dict) -> dict:
+    """plan_conflicts, refusing with the COMPLETE list when anything conflicts."""
+    actions, conflicts = plan_conflicts(client, state, content, expect)
+    if conflicts:
+        raise SystemExit(conflict_text(conflicts, os.environ.get("BOX") or "<alias>"))
     return actions
+
 
 def run_import(client, zip_path: Path, install_connector: bool) -> dict:
     """The Import Wizard, driven through pyfsr: upload, options, trigger, wait, verify.
@@ -381,6 +404,9 @@ def installed_state(client, expect: dict, bumps: list[dict]) -> dict:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--build-only", action="store_true", help="build the package; do not touch the box")
+    ap.add_argument("--preflight", action="store_true",
+                    help="read the box and print every artifact that cannot be installed as it is (JSON on the last line); "
+                         "builds and uploads nothing; exit 3 when there are conflicts")
     args = ap.parse_args(argv)
 
     conn = HERE.parent
@@ -400,25 +426,32 @@ def main(argv: list[str] | None = None) -> int:
 
     wheel, fw_ver = build_framework_wheel(framework, out, heads["fsr-playbook-framework"])
     _say(f"framework : fsr-playbooks {fw_ver} (built from main, bundled)")
+    expect = expected_versions(conn, widgets_src)
+    content = content_keys(conn, widgets_src, fw_ver, [w for w in expect["widgets"]])
+    _say("content   : " + ", ".join(f"{k} {v[:12]}" for k, v in content.items()))
+    client = rec = state = actions = None
+    box = os.environ.get("BOX", "")
+    if not args.build_only:
+        # Preflight: every artifact against the box BEFORE anything is built or uploaded, all conflicts at once.
+        from pyfsr import FortiSOAR  # the box is reached through the registry env file only
+        client = FortiSOAR.from_env_file(os.environ["BOX_ENV"])
+        rec = record_path(out, box)
+        state = json.loads(rec.read_text()) if rec.is_file() else {}
+        actions, conflicts = plan_conflicts(client, state, content, expect)
+        if args.preflight:
+            print(json.dumps({"box": box, "actions": actions, "conflicts": conflicts}))
+            return 3 if conflicts else 0
+        if conflicts:
+            raise SystemExit(conflict_text(conflicts, box or "<alias>"))
     conn_tgz = build_connector(conn, wheel, out)
     _say(f"connector : {conn_tgz.name}")
     widget_tgz = build_widgets(monorepo, out, widgets_src)
     zip_path = build_pack(conn_tgz, widget_tgz, fw_ver, out, widgets_src)
-    expect = expected_versions(conn, widgets_src)
-    content = content_keys(conn, widgets_src, fw_ver, [w for w in expect["widgets"]])
-    _say("content   : " + ", ".join(f"{k} {v[:12]}" for k, v in content.items()))
     _say(f"pack      : {zip_path.name} ({zip_path.stat().st_size // 1024} KB)")
     if args.build_only:
         print(json.dumps({"zip": str(zip_path), "framework": fw_ver, "heads": heads, "expect": expect}, indent=2))
         return 0
 
-    from pyfsr import FortiSOAR  # the box is reached through the registry env file only
-    env_file = os.environ["BOX_ENV"]
-    box = os.environ.get("BOX", "")
-    client = FortiSOAR.from_env_file(env_file)
-    rec = record_path(out, box)
-    state = json.loads(rec.read_text()) if rec.is_file() else {}
-    actions = plan_install(client, state, content, expect)
     for name, act in actions.items():
         _say(f"plan      : {name} -> {act}")
     cname0 = expect["connector"]["name"]
