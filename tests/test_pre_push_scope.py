@@ -52,6 +52,7 @@ def repo(tmp_path):
     _write(r, "tests/test_other.py", "from other_mod import Y\n")
     _write(r, "tests/test_foo_script.py", "SCRIPT = 'scripts/foo.sh'\n")
     _write(r, "connector-fsr-agentic-assistant/tests/test_turn_golden_prompts.py", "G = 1\n")
+    _write(r, "connector-fsr-agentic-assistant/fsr_soc_triage/tests/test_triage_prompt_size_ratchet.py", "R = 1\n")
     _write(r, "connector-fsr-agentic-assistant/fsr_soc_triage/prompt_fragments/triage/40_x.md", "a\n")
     _write(r, "connector-fsr-agentic-assistant/fsr_soc_triage/system_prompt_triage.md", "a\n")
     _git(tmp_path, "init", "-q", "-b", "main", str(r))
@@ -98,10 +99,13 @@ def test_a_script_change_selects_the_tests_that_name_it(repo):
     "connector-fsr-agentic-assistant/fsr_soc_triage/prompt_fragments/triage/40_x.md",
     "connector-fsr-agentic-assistant/fsr_soc_triage/system_prompt_triage.md"])
 def test_a_prompt_edit_selects_the_golden_prompt_snapshots(repo, path):
-    # No test imports a markdown prompt, so only this rule keeps a prompt edit from reaching CI as drift.
+    # No test imports a markdown prompt, so only this rule keeps a prompt edit from reaching CI as drift
+    # or over the size ceiling (two edits that each fit can stack past it).
     r, b = repo
     _write(r, path, "b\n"); _git(r, "commit", "-qam", "p")
-    assert _scope(r, b, "feat/x")[1] == ["connector-fsr-agentic-assistant/tests/test_turn_golden_prompts.py"]
+    assert sorted(_scope(r, b, "feat/x")[1]) == [
+        "connector-fsr-agentic-assistant/fsr_soc_triage/tests/test_triage_prompt_size_ratchet.py",
+        "connector-fsr-agentic-assistant/tests/test_turn_golden_prompts.py"]
 
 
 def test_a_changed_test_file_selects_itself(repo):
