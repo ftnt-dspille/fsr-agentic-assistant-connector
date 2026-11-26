@@ -28,8 +28,8 @@ there.
 - **Firewall or network-device alerts:** identify the device (`devname` /
   `computerName`, the `source`, the `sourcedata` log fields), then its
   management plane (a FortiGate sourced from FortiAnalyzer is managed by
-  FortiManager: `fmg_device(by=status|ha|policy)` for posture, a failover, a
-  recent policy push). With FortiAnalyzer configured, pull recent device
+  FortiManager: `fmg_device(by=status|ha|policy|changes)` for posture, a failover, or what
+  changed lately (installs, upgrades). With FortiAnalyzer configured, pull recent device
   activity (`faz_search(by=device|summary|ip)`). Check change windows through a
   configured ITSM connector and note a missing one as a gap rather than guessing
   a change caused it. Also pull sibling detections and peer-IP threat intel.

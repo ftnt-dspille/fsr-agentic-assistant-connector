@@ -68,6 +68,8 @@ SOURCE_TOOLS: dict[str, dict[str, Any]] = {
             "  -- HA failover or true outage? (peer up ⇒ traffic likely survived)",
             'fmg_device(by="policy", device="{device}")'
             "  -- rule a bad config push in or out",
+            'fmg_device(by="changes", device="{device}")'
+            "  -- what FortiManager installed on it lately, when and by whom",
             'faz_search(by="device", value="{device}", window="6h")'
             "  -- the last logs it sent before going silent (link-down? tunnel?)",
         ],
