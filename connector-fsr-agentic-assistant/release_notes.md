@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.6.27
+
+- Version-only bump: the code merged since 0.6.26 is unchanged, so a box that already has 0.6.26 can take it.
+
 ## 0.6.26 (2026-11-25)
 
 _TODO: describe this release._
