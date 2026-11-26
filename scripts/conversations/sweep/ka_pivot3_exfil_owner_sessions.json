@@ -1,0 +1,41 @@
+{
+ "name": "ka_pivot3_exfil_owner_sessions",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_pivot3_exfil_owner_sessions",
+ "mount": {
+  "module": "alerts",
+  "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000003"
+ },
+ "why": [
+  "KNOWN-ANSWER world, vendor-neutral 3-hop pivot: exfil alert -> internal IP -> asset owner (CMDB) -> the owner's sessions (log server) -> the host those sessions reached.",
+  "The destination IP looks clean and the owner is an enabled employee. The owner's session log shows a tar of the source repos on dev-build-07 and an upload to the alert destination. A distractor user (rquist) was the previous owner of the IP."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive",
+    "suspicious"
+   ]
+  },
+  "fact_from_tool": {
+   "values": [
+    "ilarsen",
+    "dev-build-07"
+   ],
+   "tools": [
+    "run_op",
+    "run_connector_operation"
+   ],
+   "absent_from_record": true,
+   "require_all": true
+  }
+ }
+}

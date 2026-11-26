@@ -703,7 +703,13 @@ def empty_result_for_catalog_op(connector: str, op: str) -> Optional[dict]:
     import sqlite3
     try:
         from fsr_playbooks._db import default_db_path
-        con = sqlite3.connect(f"file:{default_db_path()}?mode=ro", uri=True)
+        # The turn's warmup REWRITES the working catalog from the fixture's
+        # connector listing (no output schemas), so reading it here found no
+        # row and every unmatched search came back as an `unserved_op` error:
+        # the source read as broken and the hunt ended. The catalog the copy
+        # was made from still holds the schemas.
+        con = sqlite3.connect(
+            f"file:{_SELF_CATALOG_SRC or default_db_path()}?mode=ro", uri=True)
         try:
             row = con.execute(
                 "SELECT output_schema_json FROM operations "
@@ -1175,6 +1181,7 @@ def _cassette_rules(module: Optional[str], persona: str,
 # that PASS for weeks because nothing graded the accept.
 _SELF_CATALOG: Optional[str] = None
 _SELF_CATALOG_TRIED: Optional[str] = None
+_SELF_CATALOG_SRC: Optional[str] = None
 
 
 def _provision_self_in_catalog(scope: PatchScope) -> None:
@@ -1204,6 +1211,8 @@ def _self_catalog_path() -> Optional[str]:
     if src == _SELF_CATALOG or _SELF_CATALOG_TRIED == src:
         return _SELF_CATALOG
     _SELF_CATALOG_TRIED = src
+    global _SELF_CATALOG_SRC
+    _SELF_CATALOG_SRC = src
     _SELF_CATALOG = None
     # An 88 MB catalog copy per run, never removed, filled the disk (339 of
     # them, 22 GB). The copy only has to outlive this process.

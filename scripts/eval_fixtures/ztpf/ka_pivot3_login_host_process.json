@@ -1,0 +1,473 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, vendor-neutral 3-hop pivot: suspicious login -> user -> the user's host (directory) -> host IP (CMDB) -> processes on that IP (endpoint log, indexed by IP only).",
+  "The source IP intel is clean and the account is enabled. Only the endpoint log for 10.20.5.31 shows a powershell-launched rclone copy of the design share.",
+  "Answer: true_positive. Needles wks-eng-31 (hop 1) and rclone (hop 3). strict_ops."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  },
+  {
+   "name": "activedirectory",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Active Directory",
+   "config_count": 1
+  },
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6c2e5a10-71d4-4b3a-9e08-bb1100000002",
+    "@type": "Alert",
+    "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000002",
+    "id": 96002,
+    "source": "Corporate SIEM",
+    "createDate": 1790550000.0,
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "name": "VPN login from a new country",
+    "description": "kfenwick logged in to the VPN from 198.51.100.77 at 02:58, first time seen from this network.",
+    "sourceIp": "198.51.100.77"
+   }
+  ],
+  "assets": []
+ },
+ "ops": [
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "match": {
+    "ip": "198.51.100.77"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "data": {
+      "id": "198.51.100.77",
+      "type": "ip_address",
+      "attributes": {
+       "last_analysis_stats": {
+        "malicious": 0,
+        "suspicious": 0,
+        "harmless": 60,
+        "undetected": 30,
+        "timeout": 0
+       },
+       "reputation": 0,
+       "as_owner": "Example Hosting",
+       "country": "US"
+      }
+     }
+    }
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "contains": {
+    "*": [
+     "kfenwick"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "kfenwick",
+      "displayName": "Kay Fenwick",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "description": "Primary device: wks-eng-31"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_specific_object_details",
+   "contains": {
+    "*": [
+     "kfenwick"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "kfenwick",
+      "displayName": "Kay Fenwick",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "description": "Primary device: wks-eng-31"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "advanced_search",
+   "contains": {
+    "*": [
+     "kfenwick"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "kfenwick",
+      "displayName": "Kay Fenwick",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "description": "Primary device: wks-eng-31"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "get_all_object_details",
+   "contains": {
+    "*": [
+     "kfenwick"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "sAMAccountName": "kfenwick",
+      "displayName": "Kay Fenwick",
+      "department": "Engineering",
+      "userAccountControl": "512 (enabled)",
+      "description": "Primary device: wks-eng-31"
+     }
+    ]
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "wks-eng-31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2c3d4e5",
+       "name": "wks-eng-31",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.20.5.31",
+       "assigned_to": "Kay Fenwick (kfenwick)",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "wks-eng-31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2c3d4e5",
+       "name": "wks-eng-31",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.20.5.31",
+       "assigned_to": "Kay Fenwick (kfenwick)",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "wks-eng-31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2c3d4e5",
+       "name": "wks-eng-31",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.20.5.31",
+       "assigned_to": "Kay Fenwick (kfenwick)",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "wks-eng-31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2c3d4e5",
+       "name": "wks-eng-31",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.20.5.31",
+       "assigned_to": "Kay Fenwick (kfenwick)",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "wks-eng-31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2c3d4e5",
+       "name": "wks-eng-31",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.20.5.31",
+       "assigned_to": "Kay Fenwick (kfenwick)",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "10.20.5.31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:44 edr[10.20.5.31] proc start: rclone.exe --config c:\\\\users\\\\public\\\\r.conf copy d:\\\\designs remote:bk parent=powershell.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:40 edr[10.20.5.31] proc start: powershell.exe -enc JAB... parent=explorer.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 01:05:02 edr[10.20.5.31] proc start: outlook.exe parent=explorer.exe user=kfenwick"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "10.20.5.31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:44 edr[10.20.5.31] proc start: rclone.exe --config c:\\\\users\\\\public\\\\r.conf copy d:\\\\designs remote:bk parent=powershell.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:40 edr[10.20.5.31] proc start: powershell.exe -enc JAB... parent=explorer.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 01:05:02 edr[10.20.5.31] proc start: outlook.exe parent=explorer.exe user=kfenwick"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "10.20.5.31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:44 edr[10.20.5.31] proc start: rclone.exe --config c:\\\\users\\\\public\\\\r.conf copy d:\\\\designs remote:bk parent=powershell.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:40 edr[10.20.5.31] proc start: powershell.exe -enc JAB... parent=explorer.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 01:05:02 edr[10.20.5.31] proc start: outlook.exe parent=explorer.exe user=kfenwick"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "10.20.5.31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:44 edr[10.20.5.31] proc start: rclone.exe --config c:\\\\users\\\\public\\\\r.conf copy d:\\\\designs remote:bk parent=powershell.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:40 edr[10.20.5.31] proc start: powershell.exe -enc JAB... parent=explorer.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 01:05:02 edr[10.20.5.31] proc start: outlook.exe parent=explorer.exe user=kfenwick"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "10.20.5.31"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:44 edr[10.20.5.31] proc start: rclone.exe --config c:\\\\users\\\\public\\\\r.conf copy d:\\\\designs remote:bk parent=powershell.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 03:12:40 edr[10.20.5.31] proc start: powershell.exe -enc JAB... parent=explorer.exe user=kfenwick"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 01:05:02 edr[10.20.5.31] proc start: outlook.exe parent=explorer.exe user=kfenwick"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

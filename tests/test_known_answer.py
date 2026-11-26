@@ -33,7 +33,9 @@ KA_ROWS = ("ka_c2_beacon", "ka_authorized_scanner", "ka_cdn_first_seen",
            "ka_trap_asset_decommissioned_reassigned",
            "ka_trap_asset_read_change_unread",
            "ka_trap_asset_leans_benign_change_scopes",
-           "ka_trap_approval_no_window", "ka_trap_jira_change_row")
+           "ka_trap_approval_no_window", "ka_trap_jira_change_row",
+           "ka_pivot3_phish_recipients", "ka_pivot3_login_host_process",
+           "ka_pivot3_exfil_owner_sessions", "ka_pivot3_ticket_service_account")
 
 
 def _box(**world):
@@ -524,3 +526,26 @@ def test_fact_from_tool_require_all_needs_every_value():
     assert both(ctx("alpha-1 and beta-2"))[0]
     assert not one(ctx("alpha-1 and gamma-3"))[0]
     assert anyof(ctx("alpha-1 and gamma-3"))[0]
+
+
+def test_unmatched_search_op_is_empty_after_the_turn_warmup_rewrote_the_catalog(
+        monkeypatch, tmp_path):
+    # The offline turn's warmup rewrites its working catalog from the fixture's
+    # connector listing, which carries no output schemas. An unmatched search op
+    # then read as an `unserved_op` error (a broken source) instead of the empty
+    # list a real ticket system returns; the schema must come from the catalog
+    # the working copy was made from.
+    import sqlite3
+    from scripts import local_turn as LT
+    from fsr_playbooks._db import default_db_path
+    src = str(default_db_path())
+    rewritten = tmp_path / "fsr_reference.db"
+    con = sqlite3.connect(rewritten)
+    con.execute("CREATE TABLE operations (connector_name TEXT, op_name TEXT, output_schema_json TEXT)")
+    con.commit()
+    con.close()
+    monkeypatch.setenv("FSRPB_DB", str(rewritten))
+    monkeypatch.setattr(LT, "_SELF_CATALOG_SRC", src)
+    out = _strict_run_op(monkeypatch, connector="servicenow", op="advance_search",
+                         params={"table_name": "incident", "adv_query": "x"})
+    assert out["ok"] is True and out["data"] == {"result": []}
