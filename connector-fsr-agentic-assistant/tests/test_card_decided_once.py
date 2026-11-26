@@ -128,3 +128,21 @@ def test_history_says_who_answered_each_card(ops, box):
 
 def test_history_of_a_session_with_no_decisions(ops, box):
     assert ops.chat_history({}, {"session_id": "s-none"})["card_decisions"] == []
+
+
+def test_a_refused_approval_for_a_missing_config_pick_leaves_the_card_open(ops, box, monkeypatch):
+    """A card that requires a configuration pick is refused without one, and the
+    refusal releases the claim: the analyst picks and approves again."""
+    from _fsrpb_conn import ops_resume
+    monkeypatch.setattr(sys.modules["_fsrpb_conn.ops_chat"], "_chat_resume_routes",
+                        ops_resume._chat_resume_routes)
+    box.st.save_conversation("s1", [{"role": "user", "content": "hi"}])
+    box.st.save_card("s1", {"type": "action_card", "id": "c9",
+                            "connector": "fortinet-fortimanager-json-rpc",
+                            "operation": "json_rpc_execute", "args": {},
+                            "config_required": True,
+                            "config_options": [{"id": "a", "name": "A"},
+                                               {"id": "b", "name": "B"}]})
+    out = _resume(ops, card="c9")
+    assert out["ok"] is False and out["error"]["code"] == "config_required"
+    assert box.st.card_decision("s1", "c9") is None, "the card must stay undecided"
