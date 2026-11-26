@@ -33,7 +33,9 @@ KA_ROWS = ("ka_c2_beacon", "ka_authorized_scanner", "ka_cdn_first_seen",
            "ka_trap_asset_decommissioned_reassigned",
            "ka_trap_asset_read_change_unread",
            "ka_trap_asset_leans_benign_change_scopes",
-           "ka_trap_approval_no_window", "ka_trap_jira_change_row")
+           "ka_trap_approval_no_window", "ka_trap_jira_change_row",
+           "ka_pivot3_phish_recipients", "ka_pivot3_login_host_process",
+           "ka_pivot3_exfil_owner_sessions", "ka_pivot3_ticket_service_account")
 
 
 def _box(**world):

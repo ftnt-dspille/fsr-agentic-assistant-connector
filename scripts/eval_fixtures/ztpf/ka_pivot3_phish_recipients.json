@@ -1,0 +1,721 @@
+{
+ "_README": [
+  "KNOWN-ANSWER world, vendor-neutral 3-hop pivot: phishing report -> sender domain -> other recipients -> who clicked -> what the clicker did next.",
+  "The reporter (jharlan) did not click. The domain search (mail log) names four recipients; only the proxy log for sgreer shows a login-form POST, and sgreer's auth log then shows a foreign login to hr-payroll-01 and a payroll export.",
+  "Answer: true_positive. Needles sgreer (hop 1) and hr-payroll-01 (hop 3), neither in the alert. strict_ops."
+ ],
+ "strict_ops": true,
+ "configured_connectors": [
+  {
+   "name": "servicenow",
+   "status": "Completed",
+   "version": "3.4.0",
+   "label": "ServiceNow",
+   "config_count": 1
+  },
+  {
+   "name": "activedirectory",
+   "status": "Completed",
+   "version": "2.1.0",
+   "label": "Active Directory",
+   "config_count": 1
+  },
+  {
+   "name": "virustotal",
+   "status": "Completed",
+   "version": "3.0.0",
+   "label": "VirusTotal",
+   "config_count": 1
+  }
+ ],
+ "enrichment_actions": {
+  "ip": [
+   {
+    "connector": "virustotal",
+    "op": "query_ip",
+    "title": "Query IP Reputation",
+    "category": "threat-intel",
+    "tier": 1,
+    "requires_approval": false,
+    "status": "Available",
+    "deprecated": false,
+    "required_params": [
+     {
+      "name": "ip",
+      "type": "string"
+     }
+    ],
+    "params": [
+     {
+      "name": "ip",
+      "type": "string",
+      "required": true
+     }
+    ],
+    "runs_on_agent": false
+   }
+  ]
+ },
+ "personas": {},
+ "skills": [],
+ "modules": {
+  "alerts": [
+   {
+    "@id": "/api/3/alerts/6c2e5a10-71d4-4b3a-9e08-bb1100000001",
+    "@type": "Alert",
+    "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000001",
+    "id": 96001,
+    "source": "Corporate SIEM",
+    "createDate": 1790550000.0,
+    "status": {
+     "@id": "/api/3/picklists/7de816ff-7140-4ee5-bd05-93ce22002146",
+     "@type": "Picklist",
+     "itemValue": "Open",
+     "uuid": "7de816ff-7140-4ee5-bd05-93ce22002146"
+    },
+    "severity": {
+     "@id": "/api/3/picklists/40187287-89fc-4e9c-b717-e9443d57eedb",
+     "@type": "Picklist",
+     "itemValue": "High",
+     "uuid": "40187287-89fc-4e9c-b717-e9443d57eedb"
+    },
+    "name": "Phishing email reported by a user",
+    "description": "jharlan reported an email from billing@pay-invoice-portal.example asking to review an invoice. No click by the reporter.",
+    "sourceIp": "198.51.100.20"
+   }
+  ],
+  "assets": []
+ },
+ "ops": [
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  }
+ ]
+}

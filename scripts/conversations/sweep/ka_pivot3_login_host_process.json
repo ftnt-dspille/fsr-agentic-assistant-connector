@@ -1,0 +1,41 @@
+{
+ "name": "ka_pivot3_login_host_process",
+ "category": "known_answer",
+ "intent": "triage",
+ "module": "alerts",
+ "records": "ka_pivot3_login_host_process",
+ "mount": {
+  "module": "alerts",
+  "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000002"
+ },
+ "why": [
+  "KNOWN-ANSWER world, vendor-neutral 3-hop pivot: suspicious login -> user -> the user's host (directory) -> host IP (CMDB) -> processes on that IP (endpoint log, indexed by IP only).",
+  "The source IP intel is clean and the account is enabled. Only the endpoint log for 10.20.5.31 shows a powershell-launched rclone copy of the design share."
+ ],
+ "steps": [
+  {
+   "user": "Triage this alert. Check the evidence and give me your verdict."
+  }
+ ],
+ "expect": {
+  "tools_are_real": true,
+  "verdict_is": {
+   "any_of": [
+    "true_positive",
+    "suspicious"
+   ]
+  },
+  "fact_from_tool": {
+   "values": [
+    "wks-eng-31",
+    "rclone"
+   ],
+   "tools": [
+    "run_op",
+    "run_connector_operation"
+   ],
+   "absent_from_record": true,
+   "require_all": true
+  }
+ }
+}
