@@ -138,6 +138,10 @@ def test_resolve_profile_caches_a_definitive_resolution(monkeypatch):
         return prof, True  # definitive: the read completed
 
     monkeypatch.setattr(profiles, "resolve_profile_status", _resolve)
+    # The skills read must also complete for the persona to be cacheable
+    # (ops_turn_state._apply_skills); the bare object() client above cannot serve it.
+    import ops_turn_state
+    monkeypatch.setattr(ops_turn_state, "_apply_skills", lambda profile, module: (profile, True))
     ops._PROFILE_CACHE.clear()
     assert ops._resolve_profile("ztpf_templates", "sess-y") is prof
     assert ops._resolve_profile("ztpf_templates", "sess-y") is prof
