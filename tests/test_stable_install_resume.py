@@ -133,7 +133,7 @@ def test_the_retry_window_outlasts_an_observed_worker_restart():
     spec = importlib.util.spec_from_file_location("stable_install_window", p)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    assert mod.RETRY_WINDOW >= 600
+    assert mod.RETRY_WINDOW >= 1200
 
 
 def test_a_box_that_settles_after_five_minutes_is_waited_for():
@@ -160,3 +160,20 @@ def test_a_conflict_with_no_install_record_names_where_it_looked(tmp_path):
     assert f"no install record at {missing}" in si.conflict_text(c, "81", missing)
     missing.write_text("{}")
     assert "no install record" not in si.conflict_text(c, "81", missing)
+
+
+def test_a_loaded_box_that_settles_after_ten_minutes_is_waited_for():
+    # Live: reads after the import were still failing at 574s over 23 tries on a loaded box.
+    # 40 failures (about 1100s of backoff) outlast the old 600s window and fit the new one.
+    lister = flaky(lambda connector=None: [NS(name="a", default=True)], 40, api_error())
+    c = NS(connectors=NS(list_configurations=lister))
+    assert si.default_config_name(c, "conn") == "a"
+    assert lister.calls["n"] == 41
+
+
+def test_the_retry_log_shows_elapsed_time_so_a_human_sees_it_is_not_hung(capsys):
+    lister = flaky(lambda connector=None: [NS(name="a", default=True)], 2, api_error())
+    c = NS(connectors=NS(list_configurations=lister))
+    si.default_config_name(c, "conn")
+    out = capsys.readouterr().out
+    assert "try 2," in out and "s of 1200s used" in out

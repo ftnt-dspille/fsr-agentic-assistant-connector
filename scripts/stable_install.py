@@ -62,9 +62,11 @@ DASHBOARD_TITLE = pack.DASHBOARD_TITLE
 # fail ("Unknown error occurred"). Reads and idempotent writes after the import retry for
 # this long, with backoff, before failing with a clear message. Live: a stable box was still
 # failing these reads after 172s, and a box with slow integration workers outlasted 294s twice,
-# so the window is 10 minutes (STABLE_RETRY_WINDOW=<seconds> overrides it). A run that still
-# gives up is safe: the install record is "pending" and the next run resumes.
-RETRY_WINDOW = float(os.environ.get("STABLE_RETRY_WINDOW") or 600.0)
+# so the window is 20 minutes (STABLE_RETRY_WINDOW=<seconds> overrides it): a loaded box
+# outlasted the earlier 10 minutes (reads still failing at 574s). The window is per read, and
+# the first read after the import is what waits out the restart. A run that still gives up
+# is safe: the install record is "pending" and the next run resumes.
+RETRY_WINDOW = float(os.environ.get("STABLE_RETRY_WINDOW") or 1200.0)
 RETRY_FIRST_DELAY = 2.0
 RETRY_MAX_DELAY = 30.0
 _sleep = time.sleep
@@ -105,7 +107,8 @@ def retry_transient(fn, what: str, window: float | None = None):
                 raise SystemExit(f"stable: {what} still failing after {tries} tries over "
                                  f"{int(_clock() - start)}s ({e}); the box may still be restarting "
                                  f"its integration workers. Re-run `make stable`: the install resumes.") from e
-            _say(f"retry     : {what}: {e} (box still settling, again in {delay:.0f}s)")
+            _say(f"retry     : {what}: {e} (box still settling; try {tries}, "
+                 f"{int(_clock() - start)}s of {int(window)}s used, again in {delay:.0f}s)")
             _sleep(delay)
             delay = min(delay * 2, RETRY_MAX_DELAY)
 
