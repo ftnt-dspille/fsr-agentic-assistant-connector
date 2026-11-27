@@ -45,7 +45,7 @@ _BX_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Aliases agents may target. Every other registry alias (customer, cloud or
 # retired boxes) is refused here even though pyfsr can reach it.
-FSR_BOX_ALLOW="${FSR_BOX_ALLOW:-cse 159 ga 81 165 92 soar-ga soar-247}"
+FSR_BOX_ALLOW="${FSR_BOX_ALLOW:-cse 159 ga 81 165 92 soar-ga soar-247 soar-183}"
 
 _bx_die() { echo "box: $*" >&2; return 2; }
 
