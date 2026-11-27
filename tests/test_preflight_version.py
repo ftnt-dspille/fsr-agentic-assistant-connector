@@ -72,6 +72,29 @@ class TestDecide:
         assert code == 0
         assert "unchanged" in msg
 
+    def test_re_pinning_a_bundled_dev_build_to_its_PyPI_release_is_allowed(self):
+        # A fresh bundled-pack install pins the framework to a throwaway hatch-vcs
+        # build that sorts NEWER than the clean release it was built from. The
+        # documented ship-install step re-pins the box to the resolvable PyPI
+        # release of the SAME base -- not a rollback. Without this the whole
+        # fresh-box first-install is blocked (found running it for real).
+        code, msg = decide("0.13.0", "0.13.0.post1.dev40+gbd4ef79f0",
+                           what="framework pin", allow_same=True)
+        assert code == 0
+        assert "re-pinning" in msg
+
+    def test_a_dev_build_of_a_HIGHER_base_is_still_a_downgrade(self):
+        # The re-pin tolerance is base-exact: installing an older release over a
+        # dev build of a newer release is a real rollback and stays refused.
+        code, _ = decide("0.13.0", "0.14.0.dev5",
+                         what="framework pin", allow_same=True)
+        assert code == 3
+
+    def test_the_dev_build_repin_is_pin_only_not_the_connector(self):
+        # allow_same (the pin path) is what tolerates the re-pin; the connector
+        # artifact path never does, so a dev build there is still refused.
+        assert decide("0.13.0", "0.13.0.post1.dev40+gbd4ef79f0")[0] == 3
+
     def test_the_CONNECTOR_still_refuses_the_same_version(self):
         # allow_same is for the pin only. Re-shipping the same connector
         # version is the no-op this whole gate exists for.

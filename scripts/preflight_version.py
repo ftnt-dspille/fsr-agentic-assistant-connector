@@ -50,6 +50,25 @@ def parse_version(v: str) -> tuple:
     return tuple(parts)
 
 
+def _num_release(v: str) -> tuple:
+    """Leading purely-numeric dotted components only, so a hatch-vcs build
+    '0.13.0.post1.dev40+gSHA' and the clean release '0.13.0' share (0, 13, 0)."""
+    out = []
+    for chunk in str(v).strip().split("."):
+        if chunk.isdigit():
+            out.append(int(chunk))
+        else:
+            break
+    return tuple(out)
+
+
+def _is_local_build(v: str) -> bool:
+    """A local / dev build (hatch-vcs local '+gSHA' segment, a .devN or .postN),
+    not a clean released version."""
+    s = str(v).lower()
+    return "+" in s or ".dev" in s or ".post" in s
+
+
 def decide(target: str, live: str | None, *, allow_downgrade: bool = False,
            what: str = "connector", allow_same: bool = False) -> tuple[int, str]:
     """Pure decision, so the rule is testable without a box.
@@ -70,6 +89,16 @@ def decide(target: str, live: str | None, *, allow_downgrade: bool = False,
     t, l = parse_version(target), parse_version(live)
     if t > l:
         return 0, f"{what}: {live} -> {target} moves the box forward"
+    if (allow_same and _is_local_build(live) and not _is_local_build(target)
+            and _num_release(target) and _num_release(live) == _num_release(target)):
+        # A bundled-pack install pins the framework to a throwaway hatch-vcs dev
+        # build (e.g. 0.13.0.post1.dev40+gSHA) that sorts NEWER than the clean
+        # release it was built from. Re-pinning the box to the resolvable PyPI
+        # release of the SAME base is the documented ship-install step (a fresh
+        # bundled install -> PyPI pin), not a rollback. A target of a different
+        # base is still caught as a downgrade below.
+        return 0, (f"{what}: re-pinning the box's local build {live} to the "
+                   f"released {target} of the same base (bundled pack -> PyPI pin)")
     nxt = _next_patch(live)
     if t == l and allow_same:
         # The FRAMEWORK PIN is a dependency, not an artifact we are building.
