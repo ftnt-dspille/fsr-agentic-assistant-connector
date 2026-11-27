@@ -11,10 +11,24 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parent.parent
 HOOKS = REPO / "scripts" / "hooks"
 _ID = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@x",
        "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@x"}
+
+
+# Every subprocess here is bounded: a hung hook or git call fails the test by name instead of stalling the gate.
+SUBPROC_TIMEOUT = 120
+
+
+def _run(*args, **kw):
+    kw.setdefault("timeout", SUBPROC_TIMEOUT)
+    try:
+        return subprocess.run(*args, **kw)
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"hung for {kw['timeout']}s: {args[0]!r}")
 
 
 def _env(**extra):
@@ -29,10 +43,20 @@ def _env(**extra):
     return e
 
 
+def test_a_hung_subprocess_fails_fast_by_name(monkeypatch):
+    # Without the bound this call sleeps 30 s and returns; with it, the test fails by name at the bound.
+    import time
+    monkeypatch.setitem(globals(), "SUBPROC_TIMEOUT", 2)
+    t0 = time.monotonic()
+    with pytest.raises(pytest.fail.Exception, match="hung for 2s"):
+        _run(["sleep", "30"])
+    assert time.monotonic() - t0 < 15
+
+
 def _git(cwd, *a):
     # core.hooksPath=/dev/null: fixture commits are plumbing; the user's global hooks
     # (content scans) would run on each one, seconds apiece.
-    subprocess.run(["git", "-c", "core.hooksPath=/dev/null", *a], cwd=cwd, env=_env(), check=True, capture_output=True)
+    _run(["git", "-c", "core.hooksPath=/dev/null", *a], cwd=cwd, env=_env(), check=True, capture_output=True)
 
 
 def _repo(tmp_path: Path, name: str, files: dict[str, str]) -> Path:
@@ -63,7 +87,7 @@ def _setup(tmp_path):
 
 
 def _cache(conn, fw, cache, *args):
-    return subprocess.run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), *args],
+    return _run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), *args],
                           cwd=conn, capture_output=True, text=True,
                           env=_env(FSRPB_FRAMEWORK_DIR=str(fw), FSR_TEST_PASS_CACHE=str(cache)))
 
@@ -101,7 +125,7 @@ def test_any_input_change_invalidates_the_pass(tmp_path):
 def test_a_delete_only_push_runs_no_suite(tmp_path):
     conn, fw, cache = _setup(tmp_path)
     zero = "0" * 40
-    r = subprocess.run(["bash", str(conn / "scripts/hooks/pre-push"), "origin", "x"],
+    r = _run(["bash", str(conn / "scripts/hooks/pre-push"), "origin", "x"],
                        cwd=conn, capture_output=True, text=True,
                        input=f"(delete) {zero} refs/heads/old {'1' * 40}\n",
                        env=_env(TEST_PY="/nonexistent/python", FSRPB_FRAMEWORK_DIR=str(fw),
@@ -118,7 +142,7 @@ def _widgets(tmp_path):
 
 
 def _wcache(conn, fw, cache, faw, *args):
-    return subprocess.run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), *args],
+    return _run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), *args],
                           cwd=conn, capture_output=True, text=True,
                           env=_env(FSRPB_FRAMEWORK_DIR=str(fw), FSR_TEST_PASS_CACHE=str(cache),
                                    FSR_ALL_WIDGETS=str(faw)))
@@ -162,13 +186,13 @@ def _full_push(conn, fw, cache, tmp_path, *, runner_rc, extra=None):
     host_py.write_text(f'#!/bin/sh\ncase "$1" in -c) exit 0;; esac\necho "$*" >> {host_log}\nexit 0\n')
     for f in (runner, host_py):
         f.chmod(0o755)
-    head = subprocess.run(["git", "-C", str(conn), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+    head = _run(["git", "-C", str(conn), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
     base = dict(PATH=f"{bin_}:{os.environ['PATH']}", TEST_PY=str(host_py), FSRPB_FRAMEWORK_DIR=str(fw),
                 FSR_TEST_PASS_CACHE=str(cache), FSR_LAP_LEDGER=str(tmp_path / "laps.tsv"),
                 PREPUSH_FULL="1", PREPUSH_PY_DOCKER=str(runner))
     env = _env(**{**base, **(extra or {})})
     env = {k: v for k, v in env.items() if v is not None}   # extra={"X": None} unsets X
-    r = subprocess.run(["bash", str(conn / "scripts/hooks/pre-push"), "origin", "x"], cwd=conn, capture_output=True,
+    r = _run(["bash", str(conn / "scripts/hooks/pre-push"), "origin", "x"], cwd=conn, capture_output=True,
                        text=True, input=f"refs/heads/b {head} refs/heads/b {'0' * 40}\n", env=env)
     rd = lambda p: p.read_text().splitlines() if p.exists() else []  # noqa: E731
     return r, rd(runner_log), rd(host_log)
@@ -271,7 +295,7 @@ def test_the_key_is_the_same_inside_a_git_hook(tmp_path):
     # connector instead, so the pre-push computed a key no one else could.
     conn, fw, cache = _setup(tmp_path)
     plain = _cache(conn, fw, cache, "key", "container").stdout
-    r = subprocess.run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), "key", "container"], cwd=conn,
+    r = _run(["bash", str(conn / "scripts/hooks/test_pass_cache.sh"), "key", "container"], cwd=conn,
                        capture_output=True, text=True,
                        env=_env(FSRPB_FRAMEWORK_DIR=str(fw), FSR_TEST_PASS_CACHE=str(cache),
                                 GIT_DIR=str(conn / ".git"), GIT_WORK_TREE=str(conn)))
@@ -298,7 +322,7 @@ def _stale_root_tree(tmp_path):
     fixed = runner.format(body='echo "main-copy pack=$([ -f "$(dirname "$0")/pack_tree.sh" ] && echo yes || echo no)" >> "$ROOT_RUNNER_LOG"; exit 0')
     origin = _repo(tmp_path, "root-origin", {"scripts/devloop_docker_py.sh": broken, "scripts/pack_tree.sh": "#!/bin/sh\n"})
     tree = tmp_path / "root-tree"
-    subprocess.run(["git", "clone", "-q", str(origin), str(tree)], env=_env(), check=True, capture_output=True)
+    _run(["git", "clone", "-q", str(origin), str(tree)], env=_env(), check=True, capture_output=True)
     (origin / "scripts/devloop_docker_py.sh").write_text(fixed)
     _git(origin, "commit", "-qam", "fix the runner on main")
     return tree, log
@@ -318,7 +342,7 @@ def test_the_container_runner_is_root_mains_not_the_stale_trees(tmp_path):
 def test_without_a_root_main_the_trees_own_runner_is_the_fallback(tmp_path):
     conn, fw, cache = _setup(tmp_path)
     tree, log = _stale_root_tree(tmp_path)
-    subprocess.run(["git", "-C", str(tree), "remote", "remove", "origin"], env=_env(), check=True, capture_output=True)
+    _run(["git", "-C", str(tree), "remote", "remove", "origin"], env=_env(), check=True, capture_output=True)
     r, _, _ = _full_push(conn, fw, cache, tmp_path, runner_rc=0,
                          extra={"PREPUSH_PY_DOCKER": None, "FSR_ALL_WIDGETS": str(tree), "ROOT_RUNNER_LOG": str(log)})
     assert log.read_text().splitlines() == ["tree-copy"], log.read_text()
