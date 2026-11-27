@@ -83,6 +83,22 @@ class TestDecide:
         assert code == 0
         assert "re-pinning" in msg
 
+    def test_a_clean_published_post_release_is_NOT_re_pinned_down(self):
+        # A bare .postN (no .dev / +local) is a PUBLISHED release newer than its
+        # base. Re-pinning the box down to the base is a real rollback, not the
+        # bundled dev build the tolerance is for -- it must stay refused.
+        assert decide("0.13.0", "0.13.0.post1",
+                      what="framework pin", allow_same=True)[0] == 3
+
+    def test_a_local_build_of_the_EXACT_base_is_allowed(self):
+        # A dirty-tree hatch-vcs build glues the local segment onto the last
+        # release digit (0.13.0+gSHA). The numeric release is still (0,13,0), so
+        # re-pinning to the clean 0.13.0 is allowed, not falsely refused.
+        code, msg = decide("0.13.0", "0.13.0+gabc1234",
+                           what="framework pin", allow_same=True)
+        assert code == 0
+        assert "re-pinning" in msg
+
     def test_a_dev_build_of_a_HIGHER_base_is_still_a_downgrade(self):
         # The re-pin tolerance is base-exact: installing an older release over a
         # dev build of a newer release is a real rollback and stays refused.

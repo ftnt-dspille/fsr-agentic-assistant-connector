@@ -51,22 +51,27 @@ def parse_version(v: str) -> tuple:
 
 
 def _num_release(v: str) -> tuple:
-    """Leading purely-numeric dotted components only, so a hatch-vcs build
-    '0.13.0.post1.dev40+gSHA' and the clean release '0.13.0' share (0, 13, 0)."""
+    """The numeric release tuple: the leading integer of each dotted component up to
+    the first non-numeric one, so a hatch-vcs build '0.13.0.post1.dev40+gSHA' and a
+    dirty-tree build '0.13.0+gSHA' both share (0, 13, 0) with the clean release
+    '0.13.0'. The leading-int match matters because the local segment glues onto the
+    last release digit ('0+gSHA' -> 0)."""
     out = []
     for chunk in str(v).strip().split("."):
-        if chunk.isdigit():
-            out.append(int(chunk))
-        else:
+        m = re.match(r"^(\d+)", chunk)
+        if not m:
             break
+        out.append(int(m.group(1)))
     return tuple(out)
 
 
 def _is_local_build(v: str) -> bool:
-    """A local / dev build (hatch-vcs local '+gSHA' segment, a .devN or .postN),
-    not a clean released version."""
+    """A local / dev build: a hatch-vcs local '+gSHA'/'+dYYYYMMDD' segment or a '.devN'
+    pre-release. NOT a bare '.postN' -- a clean post-release (e.g. 0.13.0.post1) is a
+    PUBLISHED version newer than its base, and re-pinning down to the base would be a
+    real rollback, not the bundled-pack dev build this tolerates."""
     s = str(v).lower()
-    return "+" in s or ".dev" in s or ".post" in s
+    return "+" in s or ".dev" in s
 
 
 def decide(target: str, live: str | None, *, allow_downgrade: bool = False,
