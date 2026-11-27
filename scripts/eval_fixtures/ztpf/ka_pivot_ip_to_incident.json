@@ -19,6 +19,27 @@
    "version": "3.4.0",
    "label": "ServiceNow",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "5.0.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "4.0.0",
+   "label": "Fortinet FortiSIEM v2",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -79,7 +100,11 @@
     }
    }
   ],
-  "assets": []
+  "assets": [],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -340,6 +365,547 @@
     "data": {
      "result": []
     }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "app-batch-02",
+     "10.70.2.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b2e1",
+       "name": "app-batch-02",
+       "sys_class_name": "cmdb_ci_server",
+       "ip_address": "10.70.2.12",
+       "owned_by": "Batch Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "203.0.113.55"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051877",
+       "state": "Closed",
+       "short_description": "Phishing campaign: payload staging server",
+       "description": "Responders confirmed 203.0.113.55 as attacker staging infrastructure used in the March phishing campaign. Recommendation: block and treat any later contact from an internal host as a compromise. Not yet on the perimeter blocklist.",
+       "assignment_group": "Incident Response",
+       "priority": "2"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "203.0.113.56"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0051902",
+       "state": "Closed",
+       "short_description": "Printer firmware portal unreachable",
+       "description": "Vendor portal 203.0.113.56 timing out.",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-empty"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

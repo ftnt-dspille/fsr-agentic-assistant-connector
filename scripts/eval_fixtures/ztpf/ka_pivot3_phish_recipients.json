@@ -26,6 +26,27 @@
    "version": "3.0.0",
    "label": "VirusTotal",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "5.0.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "4.0.0",
+   "label": "Fortinet FortiSIEM v2",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -84,7 +105,11 @@
     "sourceIp": "198.51.100.20"
    }
   ],
-  "assets": []
+  "assets": [],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -715,6 +740,553 @@
     "data": {
      "result": []
     }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "pay-invoice-portal.example"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<cmoyo@corp.example> msgid=A71"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:02 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<sgreer@corp.example> msgid=A72"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<tobi@corp.example> msgid=A73"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:11:03 mailgw postfix/qmgr: from=<billing@pay-invoice-portal.example> to=<jharlan@corp.example> msgid=A74"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "sgreer"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:26:40 proxy: sgreer wks-hr-14 GET https://pay-invoice-portal.example/invoice/8841 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:27:05 proxy: sgreer wks-hr-14 POST https://pay-invoice-portal.example/login 200"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:02:18 authgw sshd[3311]: Accepted password for sgreer from 203.0.113.88 to hr-payroll-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 09:04:50 hr-payroll-01 sudo: sgreer : COMMAND=/usr/bin/cp /srv/payroll/export.csv /tmp/e.csv"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "cmoyo"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:40:11 proxy: cmoyo wks-fin-08 GET https://intranet.corp.example/home 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "tobi"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:52:31 proxy: tobi wks-sal-19 GET https://news.example/ 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "jharlan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 08:15:09 proxy: jharlan wks-ops-03 GET https://intranet.corp.example/mail 200"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-empty"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_event_list_extended",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_group_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "activedirectory",
+   "op": "global_search",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

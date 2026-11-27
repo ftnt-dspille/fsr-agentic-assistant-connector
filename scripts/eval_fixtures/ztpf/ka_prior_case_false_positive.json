@@ -38,6 +38,13 @@
    "version": "2.1.0",
    "label": "Fortinet FortiEDR",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -188,7 +195,11 @@
     },
     "closureNotes": "<p>Confirmed C2 beacon; host reimaged.</p>"
    }
-  ]
+  ],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -217,6 +228,87 @@
       }
      }
     }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-empty"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

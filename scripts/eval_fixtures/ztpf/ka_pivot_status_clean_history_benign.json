@@ -26,6 +26,27 @@
    "version": "2.1.0",
    "label": "Active Directory",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "5.0.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "4.0.0",
+   "label": "Fortinet FortiSIEM v2",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -86,7 +107,11 @@
     }
    }
   ],
-  "assets": []
+  "assets": [],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -486,6 +511,360 @@
     "data": {
      "result": []
     }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "akhan",
+     "Amir Khan"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087213",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for akhan",
+       "description": "Amir Khan travels to the Singapore sales kickoff from Sep 24 to Sep 30 and needs VPN access from Singapore. Approved by his manager and the security team.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "dortiz"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "RITM0087219",
+       "state": "Closed Complete",
+       "short_description": "VPN geo-restriction exception for dortiz",
+       "description": "Travel to Dubai Oct 3 to Oct 9.",
+       "approval": "approved"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-empty"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_event_list_extended",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_group_list",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

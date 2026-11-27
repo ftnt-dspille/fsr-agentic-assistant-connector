@@ -51,6 +51,13 @@
    "version": "3.3.0",
    "label": "FSR Utilities",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
   }
  ],
  "personas": {

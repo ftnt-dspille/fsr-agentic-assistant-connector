@@ -459,19 +459,22 @@ def test_needle_in_ticket_world_serves_the_ticket_and_an_empty_siem():
         assert "web-dmz-03" not in json.dumps(distractor)
 
     # search_record is served per value: the alert's host or address finds the
-    # needle, the other host finds only the distractor, an unrelated value misses.
+    # needle, the other host finds only the distractor, an unrelated value gets
+    # the honest empty result a box returns (the catch-all row added with the
+    # recorded answers for unserved reads), never either ticket.
     for v in ("web-dmz-03", alert["sourceIp"]):
         got = box.op("servicenow", "search_record",
                      {"table_name": "incident", "column_name": "description", "value": v})
         assert [t["number"] for t in got["data"]["result"]] == ["INC0043817"]
     got = box.op("servicenow", "search_record", {"table_name": "incident", "value": "app-db-09"})
     assert [t["number"] for t in got["data"]["result"]] == ["INC0044102"]
-    assert box.op("servicenow", "search_record", {"table_name": "incident", "value": "nobody"}) is None
+    got = box.op("servicenow", "search_record", {"table_name": "incident", "value": "nobody"})
+    assert got == {"ok": True, "data": {"result": []}}
 
     # The ticket fact is nowhere in the alert, so only a ServiceNow read finds it.
     assert "INC0043817" not in json.dumps(alert)
     # Unrecorded ops stay honest misses (no canned "malicious" fallback).
-    assert box.strict_ops and box.op("servicenow", "get_SIR", {}) is None
+    assert box.strict_ops and box.op("servicenow", "delete_record", {}) is None
 
 
 def _strict_run_op(monkeypatch, **call):
