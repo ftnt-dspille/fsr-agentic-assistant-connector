@@ -257,3 +257,48 @@ ship_pool = true
 port = 11006
 """
     assert _run_probe(tmp_path, reg, "pool-nohost") == 3
+
+
+def _nohost_reg(tmp_path):
+    """A ship_pool box whose registry entry has no appliance host and no env_file host."""
+    (tmp_path / "leases").mkdir()
+    (tmp_path / "instances.toml").write_text("""
+[instances.pool-nohost]
+role = "experimental"
+ship_pool = true
+[instances.pool-nohost.appliance]
+port = 11006
+""")
+    return tmp_path
+
+
+def _nohost_env(reg):
+    # The REAL probe (no FSR_POOL_PROBE_CMD stub): it exits 3 for a box with no host
+    # before opening any socket, so the test needs no network.
+    e = {"PATH": os.environ["PATH"], "HOME": os.environ.get("HOME", "/"),
+         "PYFSR_INSTANCES": str(reg / "instances.toml"), "PYFSR_PY": sys.executable,
+         "FSR_BOX_ALLOW": "pool-nohost", "FSR_BOX_CACHE": str(reg / "cache"),
+         "FSR_LEASE_DIR": str(reg / "leases"), "FSR_LEASE_HOLDER": "tree:me"}
+    if os.environ.get("PYTHONPATH"):
+        e["PYTHONPATH"] = os.environ["PYTHONPATH"]
+    return e
+
+
+def test_a_pool_box_with_no_ssh_host_says_no_profile_not_host_down(tmp_path):
+    reg = _nohost_reg(tmp_path)
+    env = _nohost_env(reg)
+    env["BOX"] = "pool"
+    r = subprocess.run(
+        ["bash", "-c", f'source "{BOXSH}"; resolve_box lease; exit $?'],
+        capture_output=True, text=True, env=env, timeout=120)
+    assert r.returncode == 2, r.stderr
+    assert "no ssh profile in the registry" in r.stderr
+    assert "host down" not in r.stderr
+
+
+def test_pool_status_reports_no_ssh_profile_not_host_down(tmp_path):
+    reg = _nohost_reg(tmp_path)
+    r = subprocess.run(["bash", str(BOXSH), "--pool"], capture_output=True, text=True,
+                       env=_nohost_env(reg), timeout=120)
+    assert "pool-nohost" in r.stdout and "no ssh profile" in r.stdout, (r.stdout, r.stderr)
+    assert "host down" not in r.stdout

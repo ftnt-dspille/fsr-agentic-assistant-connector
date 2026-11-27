@@ -269,7 +269,7 @@ _bx_pool_reachable() {
 # need has push or lease). Refuses naming each candidate's reason: held (by whom, until
 # when) or unreachable (host down).
 bx_pool_pick() {
-    local need="$1" me now a c why="" takes=0 cands=() order=() mine=()
+    local need="$1" me now a c why="" takes=0 cands=() order=() mine=() prc
     POOL_BOX=""
     me="$(bx_lease_holder)"; now="$(date +%s)"
     c="$(bx_pool_candidates)" || return 2
@@ -286,7 +286,10 @@ bx_pool_pick() {
             why="$why
   $a: held by $L_HOLDER until $(_bx_ts "$L_UNTIL")"; continue
         fi
-        if ! _bx_pool_reachable "$a"; then why="$why
+        prc=0; _bx_pool_reachable "$a" || prc=$?
+        if [ "$prc" = 3 ]; then why="$why
+  $a: no ssh profile in the registry (no host to probe; fix its [instances.$a.appliance])"; continue; fi
+        if [ "$prc" != 0 ]; then why="$why
   $a: unreachable (host down)"; continue; fi
         if [ "$takes" = 1 ] && ! bx_lease_take "$a" 2>/dev/null; then why="$why
   $a: held (lost the lease race)"; continue; fi
@@ -304,8 +307,12 @@ bx_pool_status() {
     for a in $c; do
         _bx_lease_read "$a"
         if [ -n "$L_HOLDER" ] && [ "$L_UNTIL" -gt "$now" ]; then echo "$a  held by $L_HOLDER until $(_bx_ts "$L_UNTIL")"
-        elif _bx_pool_reachable "$a"; then echo "$a  free, reachable"
-        else echo "$a  free, unreachable (host down)"; fi
+        else
+            local prc=0; _bx_pool_reachable "$a" || prc=$?
+            if [ "$prc" = 0 ]; then echo "$a  free, reachable"
+            elif [ "$prc" = 3 ]; then echo "$a  free, no ssh profile in the registry"
+            else echo "$a  free, unreachable (host down)"; fi
+        fi
     done
 }
 
