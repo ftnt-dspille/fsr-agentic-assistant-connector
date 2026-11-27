@@ -2,7 +2,8 @@
  "_README": [
   "KNOWN-ANSWER world, vendor-neutral multi-hop needle: alert -> host -> owner -> the owner's logins on other hosts.",
   "Source 1 (CMDB) and source 2 (directory) look clean: an ordinary Finance workstation and an enabled account. Only the log server, queried for the OWNER, shows off-hours logins from that workstation to a key vault host and a tar of its keys.",
-  "Answer: true_positive. Needles: owner praman (CMDB hop) and bk-vault-02 (log hop). A distractor user's logins (tlund) must not be taken. strict_ops."
+  "Answer: true_positive. Needles: owner praman (CMDB hop) and bk-vault-02 (log hop). A distractor user's logins (tlund) must not be taken. strict_ops.",
+  "Change: the owner's logins are in the SIEM. A user query for praman (the owner the CMDB and directory name) returns the authgw/srv/bk-vault-02 sessions and the sudo tar, the same lines the authgw/host log holds. The host-side ssh rows are unchanged."
  ],
  "strict_ops": true,
  "configured_connectors": [
@@ -121,6 +122,81 @@
   "faz_logs": []
  },
  "ops": [
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "contains": {
+    "*": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-praman"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "contains": {
+    "*": [
+     "ka-q-praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-28T01:52:07Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "authgw",
+      "eventName": "Successful logon (publickey)",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T01:58:41Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "srv-fin-db-01",
+      "eventName": "Successful logon (password)",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T02:14:19Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "bk-vault-02",
+      "eventName": "Successful logon (password)",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T02:15:02Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "bk-vault-02",
+      "eventName": "Privileged command (sudo): tar czf /tmp/.x.tgz /srv/vault/keys",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T02:21:30Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "authgw",
+      "eventName": "Successful logon (password) outside usual window",
+      "user": "praman",
+      "action": "accept"
+     }
+    ]
+   }
+  },
   {
    "connector": "virustotal",
    "op": "query_ip",

@@ -11,7 +11,8 @@
   "why": [
     "KNOWN-ANSWER row (adversarial): its records bundle fixes the evidence (strict_ops).",
     "",
-    "Fresh-infrastructure trap: no engine has seen the address. The behaviour (fixed 60 second beat, constant size, office app spawning rundll32) decides. True_positive is correct; benign or a hedge means the agent trusted the clean rating over the logs."
+    "Fresh-infrastructure trap: no engine has seen the address. The behaviour (fixed 60 second beat, constant size, office app spawning rundll32) decides. True_positive is correct; benign or a hedge means the agent trusted the clean rating over the logs.",
+    "Change (fixture): the 20-session beacon the row describes is now served by the SIEM for an IP or host query and summarised in the alert event detail; the strict expectation is unchanged."
   ],
   "steps": [
     {

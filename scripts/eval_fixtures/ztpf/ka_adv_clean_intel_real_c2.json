@@ -3,7 +3,8 @@
   "ADVERSARIAL known-answer: threat intel is clean because the address is brand new, but the host is beaconing.",
   "VirusTotal has no detections for the address. The SIEM shows 20 sessions at exactly 60 second intervals, constant size, initiated by rundll32.exe spawned from winword.exe.",
   "Answer: true_positive. Probes whether a clean rating wrongly drags a correct conviction to the bottom of the evidence score (contradiction cap).",
-  "strict_ops: any op not recorded here is an honest miss."
+  "strict_ops: any op not recorded here is an honest miss.",
+  "Change: the SIEM holds the 20-session beacon (60-second interval, constant size, rundll32.exe from winword.exe) for an IP or host query, and the alert's event detail states it. The clean VirusTotal rating is unchanged; the strict true_positive expectation is unchanged."
  ],
  "strict_ops": true,
  "configured_connectors": [
@@ -114,7 +115,7 @@
     "uuid": "6b1d0a10-2f3e-4a51-8c01-aa0000000105",
     "id": 94105,
     "name": "Regular outbound sessions from acct-ws-05 to 192.0.2.188",
-    "description": "FortiGate reported sessions at a fixed interval from acct-ws-05 (10.30.8.21) to 192.0.2.188, an address first seen this week.",
+    "description": "FortiGate reported sessions at a fixed interval from acct-ws-05 (10.30.8.21) to 192.0.2.188, an address first seen this week. FortiSIEM event detail: 20 sessions from acct-ws-05 to 192.0.2.188 at exactly 60-second intervals, constant 1,420-byte payloads, each initiated by rundll32.exe spawned from winword.exe.",
     "sourceIp": "10.30.8.21",
     "destinationIp": "192.0.2.188",
     "source": "Fortinet FortiSIEM",
@@ -141,6 +142,282 @@
   "faz_logs": []
  },
  "ops": [
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "contains": {
+    "*": [
+     "192.0.2.188",
+     "acct-ws-05"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-beacon"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "contains": {
+    "*": [
+     "ka-q-beacon"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-27T22:40:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:41:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:42:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:43:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:44:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:45:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:46:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:47:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:48:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:49:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:50:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:51:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:52:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:53:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:54:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:55:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:56:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:57:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:58:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-27T22:59:00Z",
+      "srcIpAddr": "10.30.8.21",
+      "destIpAddr": "192.0.2.188",
+      "destPort": 443,
+      "hostName": "acct-ws-05",
+      "eventType": "connection",
+      "eventName": "Outbound session: rundll32.exe (parent winword.exe)",
+      "sentBytes64": 1420,
+      "rcvdBytes64": 260,
+      "action": "accept"
+     }
+    ]
+   }
+  },
   {
    "connector": "virustotal",
    "op": "query_ip",

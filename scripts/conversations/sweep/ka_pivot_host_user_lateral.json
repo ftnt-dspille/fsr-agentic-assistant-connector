@@ -10,7 +10,8 @@
  },
  "why": [
   "KNOWN-ANSWER row (pivot): host -> owner -> the owner's other logins. Intel is clean and the directory shows a healthy account; the conviction is only in the owner's login history on other hosts.",
-  "Graded as a conviction: true_positive or suspicious. needs_more_info, benign and false_positive mean the pivots were not made."
+  "Graded as a conviction: true_positive or suspicious. needs_more_info, benign and false_positive mean the pivots were not made.",
+  "Change (fixture): the owner praman's log-server answer is served from the SIEM user query, which the analyst runs for the owner; the fact was previously reachable only through an ssh command the agent never ran."
  ],
  "steps": [
   {

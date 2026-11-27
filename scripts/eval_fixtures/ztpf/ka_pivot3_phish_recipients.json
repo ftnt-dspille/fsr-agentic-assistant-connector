@@ -2,7 +2,8 @@
  "_README": [
   "KNOWN-ANSWER world, vendor-neutral 3-hop pivot: phishing report -> sender domain -> other recipients -> who clicked -> what the clicker did next.",
   "The reporter (jharlan) did not click. The domain search (mail log) names four recipients; only the proxy log for sgreer shows a login-form POST, and sgreer's auth log then shows a foreign login to hr-payroll-01 and a payroll export.",
-  "Answer: true_positive. Needles sgreer (hop 1) and hr-payroll-01 (hop 3), neither in the alert. strict_ops."
+  "Answer: true_positive. Needles sgreer (hop 1) and hr-payroll-01 (hop 3), neither in the alert. strict_ops.",
+  "Change: a domain search matches the bare sender stem (pay-invoice-portal) as well as the full domain, as a ticket or log search does; the mail-log rows answer it with the recipients."
  ],
  "strict_ops": true,
  "configured_connectors": [
@@ -117,7 +118,8 @@
    "op": "advance_search",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -149,7 +151,8 @@
    "op": "search_record",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -181,7 +184,8 @@
    "op": "fetch_incidents",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -213,7 +217,8 @@
    "op": "get_all_change_requests",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -245,7 +250,8 @@
    "op": "get_users",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -747,7 +753,8 @@
    "op": "get_SIR",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -779,7 +786,8 @@
    "op": "get_change_request_details",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
@@ -811,7 +819,8 @@
    "op": "search_records",
    "contains": {
     "*": [
-     "pay-invoice-portal.example"
+     "pay-invoice-portal.example",
+     "pay-invoice-portal"
     ]
    },
    "response": {
