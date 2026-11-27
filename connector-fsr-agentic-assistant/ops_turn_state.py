@@ -99,14 +99,18 @@ def _resolve_profile(module: Any, session_id: str):
         _PROFILE_DEGRADED_TS[ck] = _profile_clock()
     else:
         _PROFILE_DEGRADED_TS.pop(ck, None)
+    skills_ok = True
     if profile is not None:
         # Fold the module's learned house rules ("skills") into the persona
         # prompt so every downstream path -- ungrounded, grounded, resume --
-        # inherits them without a second lookup. Fail-open: no assistant_skills
-        # module (404) or any read error leaves the prompt unchanged. Skills
-        # shape HOW the generic tools are used; the tools themselves stay generic.
-        profile = _apply_skills(profile, module)
-    if definitive:
+        # inherits them without a second lookup. Fail-open for THIS turn: no
+        # assistant_skills module (404) or a read error leaves the prompt
+        # unchanged. Skills shape HOW the generic tools are used.
+        profile, skills_ok = _apply_skills(profile, module)
+    # A persona resolved WITHOUT its house rules because the skills read failed
+    # is not cached: caching it would strip the rules for the whole process life.
+    # Only a successful skills application (or a 404 "no skills module") is cached.
+    if definitive and skills_ok:
         _PROFILE_CACHE[ck] = profile
         if profile is None:
             _PROFILE_NEG_TS[ck] = _profile_clock()  # start the negative TTL
@@ -114,18 +118,39 @@ def _resolve_profile(module: Any, session_id: str):
 
 
 def _apply_skills(profile: Any, module: str):
-    """Return ``profile`` with the ``assistant_skills`` house rules for ``module``
-    appended to its prompt. Unchanged on any failure or when there are none."""
+    """Return ``(profile, ok)``: ``profile`` with the ``assistant_skills`` house rules for
+    ``module`` appended to its prompt, and ``ok`` False when the skills READ failed
+    transiently (an exception, or a status other than 200/404). A 404 means the module
+    does not exist yet, which is definitive: no rules, ok True."""
     try:
         from fsr_playbooks.mcp_server import _shared
-        from fsr_soc_triage.skills import skills_for_prompt
+        from fsr_soc_triage.skills import load_skills, render_skills_block
         client = _shared._live_client()
-        block = skills_for_prompt(client, module)
+        if client is None:
+            return profile, False
+        failed: list[str] = []
+
+        def _get(c, url, *args, **kwargs):
+            try:
+                r = _shared.live_get_with_reauth(c, url, *args, **kwargs)
+            except Exception:
+                failed.append(url)
+                raise
+            if getattr(r, "status_code", None) not in (200, 404):
+                failed.append(url)
+            return r
+
+        # load_skills is fail-open (it returns [] on any read error), so the failure
+        # is recorded by the wrapper above, not inferred from an empty list.
+        skills = load_skills(client, module, get_with_reauth=_get)
+        if failed:
+            return profile, False
+        block = render_skills_block(skills, module)
         if block:
-            return profile.model_copy(update={"prompt": profile.prompt + block})
+            return profile.model_copy(update={"prompt": profile.prompt + block}), True
+        return profile, True
     except Exception:  # noqa: BLE001 -- skills are best-effort; never break a turn.
-        pass
-    return profile
+        return profile, False
 
 
 def _host_record_write_profile(module: Any):
