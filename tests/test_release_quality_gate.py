@@ -58,12 +58,13 @@ def test_check_without_a_stamp_exits_nonzero(repo, tmp_path):
 def test_run_stamps_head_and_check_then_passes(repo, tmp_path):
     stamps = tmp_path / "stamps"
     assert _gate(repo, "run", stamps).returncode == 0
-    # the three tiers ran with the arguments the release relies on
+    # the two tiers ran with the arguments the release relies on; the
+    # model-graded known-answer report is not one of them
     log = (repo / "tiers.log").read_text()
     assert "tier tool-sweep 1" in log and "tier t1-scenarios" in log and "LLM=fake".split("=")[1] in log
-    assert "frank" in log.splitlines()[2]
+    assert len(log.splitlines()) == 2 and "known-answer" not in log
     stamp = json.loads(next(stamps.iterdir()).read_text())
-    assert stamp["passed"] and set(stamp["tiers"]) == {"tool-sweep", "t1-scenarios", "known-answer"}
+    assert stamp["passed"] and set(stamp["tiers"]) == {"tool-sweep", "t1-scenarios"}
     assert all(t["seconds"] >= 0 for t in stamp["tiers"].values())
     assert _gate(repo, "check", stamps).returncode == 0
 
@@ -90,11 +91,11 @@ def test_a_dirty_tracked_tree_is_refused_by_check_and_run(repo, tmp_path):
 
 def test_a_failing_tier_writes_no_stamp(repo, tmp_path):
     (repo / "Makefile").write_text(
-        "tool-sweep t1-scenarios:\n\t@true\nknown-answer:\n\t@false\n")
+        "tool-sweep:\n\t@true\nt1-scenarios:\n\t@false\n")
     _git(repo, "commit", "-q", "-am", "red tier")
     stamps = tmp_path / "stamps"
     r = _gate(repo, "run", stamps)
-    assert r.returncode == 1 and "known-answer failed" in r.stderr
+    assert r.returncode == 1 and "t1-scenarios failed" in r.stderr
     assert not stamps.exists() or not list(stamps.iterdir())
     assert _gate(repo, "check", stamps).returncode == 1
 
@@ -106,8 +107,8 @@ def test_the_gate_tiers_are_the_ones_the_roadmap_names():
     finally:
         sys.path.pop(0)
     got = {n: " ".join(a) for n, a in quality_gate.TIERS}
-    assert got == {"tool-sweep": "tool-sweep STRICT=1", "t1-scenarios": "t1-scenarios LLM=fake",
-                   "known-answer": "known-answer LLM=frank"}
+    # known-answer grades the live model, not the commit: a report, not a tier.
+    assert got == {"tool-sweep": "tool-sweep STRICT=1", "t1-scenarios": "t1-scenarios LLM=fake"}
     # every tier is a real make target
     mk = (ROOT / "Makefile").read_text()
     for name in got:

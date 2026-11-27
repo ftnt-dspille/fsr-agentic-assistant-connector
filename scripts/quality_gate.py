@@ -3,11 +3,17 @@
 
 A connector release (`make deploy FW=...`, any FSR_RELEASE_INSTALL install) must
 not go out on a green pytest suite alone: the suite grades code shape, not what
-the agent does. These three tiers grade behaviour with no box and no paid model:
+the agent does. These two tiers grade behaviour with no box and no model, so
+they are deterministic and finish in under a minute:
 
   tool-sweep     `make tool-sweep STRICT=1`     every tool, contract + cases
   t1-scenarios   `make t1-scenarios LLM=fake`   behavioural invariants, fake model
-  known-answer   `make known-answer LLM=frank`  verdicts vs recorded evidence
+
+`make known-answer LLM=frank` (verdicts vs recorded evidence) is NOT a stamp
+tier. It grades the live model's investigations (84 conversations, about 730
+model calls), so its result moves with the model, not with the commit: the same
+rows failed on framework v0.13.0 and v0.14.0. It is the assistant's quality
+report; run it before an assistant release and read the failures by hand.
 
     quality_gate.py run     run the tiers on a CLEAN tree; on all-pass write the
                             stamp for HEAD (a failing tier writes nothing)
@@ -38,7 +44,6 @@ ROOT = Path(__file__).resolve().parent.parent
 TIERS: list[tuple[str, list[str]]] = [
     ("tool-sweep", ["tool-sweep", "STRICT=1"]),
     ("t1-scenarios", ["t1-scenarios", "LLM=fake"]),
-    ("known-answer", ["known-answer", "LLM=frank"]),
 ]
 
 

@@ -21,16 +21,19 @@ Measured run times (one laptop, warm env, 10 cores):
 | tool-sweep strict | `make tool-sweep STRICT=1` | about 8 s | nothing |
 | t1-scenarios, fake model | `make t1-scenarios LLM=fake` | about 11 s | nothing; contract and structural graders only (33 disposition graders report NOT RUN) |
 | known-answer | `make known-answer LLM=frank` | about 8.3 min (497 s; 12 scenarios x 2 runs, 3 jobs) | the free gateway; the model is stochastic, so a run can fail a scenario on model noise |
-| whole gate | `make quality-gate` | about 8.5 min | the free gateway |
+| whole gate | `make quality-gate` | about 30 s | nothing (known-answer is not a gate tier) |
 
 For comparison `make test` (the whole pytest suite) is about 22 s parallel. Day to day
 you run `make check` (the tests your diff touches or imports, `scripts/changed_tests.sh`, the
 same selection pre-push uses); CI runs the full suite and `make ship` waits for it.
 
-A skipped tier is not a pass. `known-answer` on the free model failed 3 of 24
-conversations in the measuring run (a verdict card not delivered, and two
-policy-confidence results just under the 0.9 threshold); the gate treats that as
-red, so re-run or fix the cause rather than bypass.
+A skipped tier is not a pass.
+
+`known-answer` is the assistant's quality report, not a gate tier: it grades the
+live model's investigations, so its result moves with the model rather than the
+commit (the same rows failed on framework v0.13.0 and v0.14.0, 84 conversations,
+about 25 min at 3 jobs). Run it before an assistant release and read every
+failure; a framework release does not wait on it.
 
 ## Write checks run offline first
 
