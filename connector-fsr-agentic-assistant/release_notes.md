@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.6.29 (2026-11-27)
+
+- Framework pin fsr-playbooks 0.14.0: the `fsrpb` console script now works from a wheel or git install (the CLI modules ship as package data).
+- Release gate: known-answer runs as the quality report, not a stamp tier.
+
+
 ## 0.6.27
 
 - Version-only bump: the code merged since 0.6.26 is unchanged, so a box that already has 0.6.26 can take it.

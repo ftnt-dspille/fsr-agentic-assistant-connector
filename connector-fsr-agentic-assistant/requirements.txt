@@ -4,7 +4,7 @@
 # This line is the SINGLE SOURCE OF TRUTH for the version: operations.py reads
 # the pin back from here and asserts the imported build matches. Bump it here and
 # nowhere else.
-fsr-playbooks==0.13.0
+fsr-playbooks==0.14.0
 # The agent layer, built on the same fsr-playbooks pin above. ops_tools registers
 # its 7 workflows into the library REGISTRY (withheld from the model). Pinned exact
 # like fsr-playbooks: the worker runs against ONE toolkit build. Pulls pyfsr>=0.28.0
