@@ -193,6 +193,104 @@ bx_lease_list() {
     done
 }
 
+# --- pool (BOX=pool) --------------------------------------------------------------
+# BOX=pool is an explicit opt-in to auto-selection: the first registry box with
+# ship_pool = true and role = "experimental" in FSR_BOX_ALLOW order that is free (no
+# live holder, or this caller's own) AND reachable (its ssh host:port answers a TCP
+# connect) is picked. A pick that needs the lease (push, lease) takes it atomically
+# under the lease lock, so two concurrent BOX=pool picks cannot share a box. The
+# caller's own live lease wins first. Explicit BOX=<alias> never probes or picks.
+#   FSR_POOL_PROBE=0           skip the reachability probe (offline, tests)
+#   FSR_POOL_PROBE_CMD=<path>  replace the probe: run "<path> <alias>", rc 0 = reachable
+#   FSR_POOL_PROBE_TIMEOUT     seconds for the TCP connect (default 3)
+_bx_pool_candidates_py() { cat <<'PYEOF'
+import sys, tomllib
+try:
+    with open(sys.argv[1], "rb") as f:
+        inst = tomllib.load(f).get("instances", {})
+except Exception:
+    inst = {}
+for a in sys.argv[2:]:
+    e = inst.get(a)
+    if isinstance(e, dict) and e.get("ship_pool") is True \
+            and str(e.get("role", "")).strip().lower() == "experimental":
+        print(a)
+PYEOF
+}
+_bx_pool_probe_py() { cat <<'PYEOF'
+import socket, sys, tomllib
+try:
+    with open(sys.argv[1], "rb") as f:
+        inst = tomllib.load(f).get("instances", {})
+except Exception:
+    inst = {}
+ap = (inst.get(sys.argv[2]) or {}).get("appliance") or {}
+if not isinstance(ap, dict) or not ap.get("host"):
+    sys.exit(3)
+try:
+    socket.create_connection((ap["host"], int(ap.get("port", 22))), timeout=float(sys.argv[3])).close()
+except OSError:
+    sys.exit(1)
+PYEOF
+}
+# The ship_pool experimental aliases in FSR_BOX_ALLOW order, one per line.
+bx_pool_candidates() {
+    local reg="${PYFSR_INSTANCES:-$HOME/.pyfsr/instances.toml}" p
+    p="$(_bx_py)" || return 2
+    "$p" -I -c "$(_bx_pool_candidates_py)" "$reg" $FSR_BOX_ALLOW
+}
+# _bx_pool_reachable <alias>: 0 when its ssh host:port answers a TCP connect.
+_bx_pool_reachable() {
+    local a="$1" reg="${PYFSR_INSTANCES:-$HOME/.pyfsr/instances.toml}" p
+    [ "${FSR_POOL_PROBE:-1}" = 0 ] && return 0
+    if [ -n "${FSR_POOL_PROBE_CMD:-}" ]; then $FSR_POOL_PROBE_CMD "$a" >/dev/null 2>&1; return $?; fi
+    p="$(_bx_py)" || return 2
+    "$p" -I -c "$(_bx_pool_probe_py)" "$reg" "$a" "${FSR_POOL_PROBE_TIMEOUT:-3}" >/dev/null 2>&1
+}
+# bx_pool_pick <need>: sets POOL_BOX to the first free, reachable pool box (leased when
+# need has push or lease). Refuses naming each candidate's reason: held (by whom, until
+# when) or unreachable (host down).
+bx_pool_pick() {
+    local need="$1" me now a c why="" takes=0 cands=() order=() mine=()
+    POOL_BOX=""
+    me="$(bx_lease_holder)"; now="$(date +%s)"
+    c="$(bx_pool_candidates)" || return 2
+    [ -n "$c" ] || { _bx_die "BOX=pool: no ship_pool experimental box in FSR_BOX_ALLOW ($FSR_BOX_ALLOW). Mark one ship_pool = true in the registry, or pass BOX=<alias>."; return 2; }
+    cands=($c)
+    for a in "${cands[@]}"; do
+        _bx_lease_read "$a"
+        if [ -n "$L_HOLDER" ] && [ "$L_HOLDER" = "$me" ] && [ "$L_UNTIL" -gt "$now" ]; then mine+=("$a"); else order+=("$a"); fi
+    done
+    case ",$need," in *,push,*|*,lease,*) takes=1 ;; esac
+    for a in "${mine[@]}" "${order[@]}"; do
+        _bx_lease_read "$a"
+        if [ -n "$L_HOLDER" ] && [ "$L_HOLDER" != "$me" ] && [ "$L_UNTIL" -gt "$now" ]; then
+            why="$why
+  $a: held by $L_HOLDER until $(_bx_ts "$L_UNTIL")"; continue
+        fi
+        if ! _bx_pool_reachable "$a"; then why="$why
+  $a: unreachable (host down)"; continue; fi
+        if [ "$takes" = 1 ] && ! bx_lease_take "$a" 2>/dev/null; then why="$why
+  $a: held (lost the lease race)"; continue; fi
+        POOL_BOX="$a"; break
+    done
+    [ -n "$POOL_BOX" ] || { _bx_die "BOX=pool: no ship_pool box is free and reachable:$why
+  Wait and retry, free a held one with: make box-release BOX=<alias> (FORCE=1 for another holder's), or pass BOX=<alias>."; return 2; }
+    echo ">> BOX=pool picked $POOL_BOX" >&2
+}
+# bx_pool_status: one line per ship_pool box: free and reachable, held, or unreachable.
+bx_pool_status() {
+    local a now c; now="$(date +%s)"
+    c="$(bx_pool_candidates)" || return 2
+    [ -n "$c" ] || { echo "pool: no ship_pool experimental box in FSR_BOX_ALLOW"; return 0; }
+    for a in $c; do
+        _bx_lease_read "$a"
+        if [ -n "$L_HOLDER" ] && [ "$L_UNTIL" -gt "$now" ]; then echo "$a  held by $L_HOLDER until $(_bx_ts "$L_UNTIL")"
+        elif _bx_pool_reachable "$a"; then echo "$a  free, reachable"
+        else echo "$a  free, unreachable (host down)"; fi
+    done
+}
+
 resolve_box() {
     local need="${1:-env,ssh}" box="${BOX:-}" knob val dep="" depval="" a
     for knob in ENV FSR_ENV SHIP_ENV SWEEP_ENV MATRIX_ENV LIVE_ENV SSH_HOST; do
@@ -216,6 +314,10 @@ resolve_box() {
         box="$a"
     fi
     [ -n "$box" ] || { _bx_die "no target box. Pass BOX=<alias> (one of: $FSR_BOX_ALLOW). There is no default box."; return 2; }
+    if [ "$box" = pool ]; then
+        bx_pool_pick "$need" || return 2
+        box="$POOL_BOX"
+    fi
     _bx_allowed "$box" || { _bx_die "BOX=$box is not an agent-targetable box (allowed: $FSR_BOX_ALLOW; scripts/box.sh FSR_BOX_ALLOW)."; return 2; }
 
     local kv
@@ -303,6 +405,7 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
             --lease) bx_lease_take "${2:?usage: box.sh --lease <alias>}"; exit $? ;;
             --release) bx_lease_release "${2:?usage: box.sh --release <alias> [force]}" "${3:-}"; exit $? ;;
             --leases) bx_lease_list; exit 0 ;;
+            --pool) bx_pool_status; exit $? ;;
             *) echo "usage: box.sh [--need env,ssh] [--print|--make|--list|--main-checkout <dir>]" >&2; exit 2 ;;
         esac
     done
