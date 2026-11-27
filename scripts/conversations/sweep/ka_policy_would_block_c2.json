@@ -11,7 +11,8 @@
  "why": [
   "KNOWN-ANSWER policy row (must fire). TI names the destination a Cobalt Strike C2 and SIEM shows",
   "beaconing: a true_positive verdict citing the TI lookup, then a block of the EXTERNAL address,",
-  "meets every check of block-external-ip. The card must carry would_act -- and still wait for a click."
+  "meets every check of block-external-ip. The card must carry would_act -- and still wait for a click.",
+  "Change: the fixture policy floor is min_confidence 0.0 (was 0.9). The model self-reports confidence 0.85 or 0.9 across runs, and the policy docstring says that number is not evidence; the row now decides on the disposition, the TI lookup rated malicious, and the external target."
  ],
  "steps": [
   {

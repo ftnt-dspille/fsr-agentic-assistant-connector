@@ -2,7 +2,8 @@
  "_README": [
   "KNOWN-ANSWER world, vendor-neutral multi-hop needle: alert -> host -> owner -> the owner's logins on other hosts.",
   "Source 1 (CMDB) and source 2 (directory) look clean: an ordinary Finance workstation and an enabled account. Only the log server, queried for the OWNER, shows off-hours logins from that workstation to a key vault host and a tar of its keys.",
-  "Answer: true_positive. Needles: owner praman (CMDB hop) and bk-vault-02 (log hop). A distractor user's logins (tlund) must not be taken. strict_ops."
+  "Answer: true_positive. Needles: owner praman (CMDB hop) and bk-vault-02 (log hop). A distractor user's logins (tlund) must not be taken. strict_ops.",
+  "Change: the owner's logins are in the SIEM. A user query for praman (the owner the CMDB and directory name) returns the authgw/srv/bk-vault-02 sessions and the sudo tar, the same lines the authgw/host log holds. The host-side ssh rows are unchanged."
  ],
  "strict_ops": true,
  "configured_connectors": [
@@ -32,6 +33,27 @@
    "status": "Completed",
    "version": "1.0.0",
    "label": "SSH (central log server)",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "5.0.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "4.0.0",
+   "label": "Fortinet FortiSIEM v2",
    "config_count": 1
   }
  ],
@@ -93,9 +115,88 @@
     }
    }
   ],
-  "assets": []
+  "assets": [],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "contains": {
+    "*": [
+     "praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-praman"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "contains": {
+    "*": [
+     "ka-q-praman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": [
+     {
+      "phRecvTime": "2026-09-28T01:52:07Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "authgw",
+      "eventName": "Successful logon (publickey)",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T01:58:41Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "srv-fin-db-01",
+      "eventName": "Successful logon (password)",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T02:14:19Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "bk-vault-02",
+      "eventName": "Successful logon (password)",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T02:15:02Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "bk-vault-02",
+      "eventName": "Privileged command (sudo): tar czf /tmp/.x.tgz /srv/vault/keys",
+      "user": "praman",
+      "action": "accept"
+     },
+     {
+      "phRecvTime": "2026-09-28T02:21:30Z",
+      "srcIpAddr": "10.60.4.22",
+      "hostName": "authgw",
+      "eventName": "Successful logon (password) outside usual window",
+      "user": "praman",
+      "action": "accept"
+     }
+    ]
+   }
+  },
   {
    "connector": "virustotal",
    "op": "query_ip",
@@ -642,6 +743,323 @@
     "data": {
      "result": []
     }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "wks-fin-22",
+     "10.60.4.22"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "a1f0c2e5",
+       "name": "wks-fin-22",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.60.4.22",
+       "assigned_to": "Priya Raman (praman)",
+       "department": "Finance",
+       "operational_status": "Operational",
+       "install_status": "Installed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "praman",
+     "Priya Raman"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "number": "INC0060211",
+       "short_description": "Monitor flicker on desk 4B",
+       "caller_id": "praman",
+       "state": "Closed"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-empty"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_event_list_extended",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_group_list",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

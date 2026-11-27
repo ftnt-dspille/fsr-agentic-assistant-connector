@@ -36,6 +36,13 @@
    "version": "2.1.0",
    "label": "Fortinet FortiEDR",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -148,7 +155,11 @@
     "hostName": "eng-ws-11",
     "destinationDomain": "static-edge.example-cdn.net"
    }
-  ]
+  ],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -357,6 +368,50 @@
       "eventType": "Permitted traffic flow"
      }
     ]
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

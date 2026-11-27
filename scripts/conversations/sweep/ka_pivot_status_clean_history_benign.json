@@ -9,7 +9,8 @@
   "uuid": "6c2e5a10-71d4-4b3a-9e08-bb1100000003"
  },
  "why": [
-  "KNOWN-ANSWER row (pivot): status looks fine, the answer is in request history."
+  "KNOWN-ANSWER row (pivot): status looks fine, the answer is in request history.",
+  "Change (fixture): the AD account record for akhan names the travel exception ticket in its info field; the ticket is unchanged."
  ],
  "steps": [
   {
@@ -30,7 +31,10 @@
    ],
    "tools": [
     "run_op",
-    "run_connector_operation"
+    "run_connector_operation",
+    "siem_search",
+    "siem_raw_query",
+    "faz_search"
    ],
    "absent_from_record": true,
    "require_all": true

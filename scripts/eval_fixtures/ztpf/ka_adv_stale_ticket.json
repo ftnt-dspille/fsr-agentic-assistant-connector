@@ -27,6 +27,20 @@
    "version": "3.4.0",
    "label": "ServiceNow",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "5.0.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -116,7 +130,8 @@
   "assets": [],
   "incidents": [],
   "indicators": [],
-  "identities": []
+  "identities": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -501,6 +516,459 @@
     "data": {
      "result": []
     }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "match": {
+    "value": "web-dmz-07"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "match": {
+    "value": "198.51.100.120"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_all_change_requests",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "match": {
+    "value": "10.40.5.37"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "b81f0c2e5a7d4e9fa3c6d01274e8b5a2",
+       "number": "INC0043911",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Vendor penetration test against web-dmz-03",
+       "description": "Quarterly external penetration test by the contracted vendor, approved by the CISO office. The vendor scans from 198.51.100.88 against web-dmz-03 (10.40.5.30) during the test week only. Test complete.",
+       "opened_at": "2026-08-02 08:15:00",
+       "closed_at": "2026-08-09 17:00:00",
+       "assignment_group": "Security Engineering",
+       "priority": "4"
+      },
+      {
+       "sys_id": "2e90b7a5c1d34f6c8b04a9d7e5f12c34",
+       "number": "INC0043990",
+       "state": "Closed",
+       "active": "false",
+       "short_description": "Printer queue stuck on fin-02",
+       "description": "Print spooler restarted.",
+       "opened_at": "2026-09-10 10:05:00",
+       "assignment_group": "Service Desk",
+       "priority": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

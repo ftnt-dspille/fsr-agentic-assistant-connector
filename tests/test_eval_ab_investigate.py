@@ -60,13 +60,16 @@ def test_world_serves_the_mounted_record_and_the_recorded_op():
 
 
 def test_world_reports_an_unrecorded_op_as_a_miss_not_a_default_answer():
-    """strict_ops carries over: an op the world did not record fails and is listed."""
+    """strict_ops carries over: an op the world did not record fails and is listed.
+    query_url stands in for an unrecorded op: the recorded-answer catch-alls cover
+    query_ip and query_domain (an unknown indicator reads as no reputation record),
+    so those are not misses any more."""
     with WorldServer("ka_c2_beacon") as w:
         _s, got = _post(w.base_url, "/api/integration/execute/", {
-            "connector": "virustotal", "operation": "query_ip",
-            "params": {"ip": "203.0.113.200"}})
+            "connector": "virustotal", "operation": "query_url",
+            "params": {"url": "https://203.0.113.200/"}})
         assert got["status"] == "Failed" and got["data"] is None
-        assert any("virustotal.query_ip" in m for m in w.misses)
+        assert any("virustotal.query_url" in m for m in w.misses)
 
 
 def test_world_refuses_writes():
