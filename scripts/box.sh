@@ -218,17 +218,35 @@ for a in sys.argv[2:]:
 PYEOF
 }
 _bx_pool_probe_py() { cat <<'PYEOF'
-import socket, sys, tomllib
+import os, socket, sys, tomllib
 try:
     with open(sys.argv[1], "rb") as f:
         inst = tomllib.load(f).get("instances", {})
 except Exception:
     inst = {}
 ap = (inst.get(sys.argv[2]) or {}).get("appliance") or {}
-if not isinstance(ap, dict) or not ap.get("host"):
+if not isinstance(ap, dict):
+    ap = {}
+host, port = ap.get("host"), ap.get("port")
+if not host:
+    # The appliance profile may live in an env_file (PYFSR_APPLIANCE_HOST/PORT)
+    # instead of inline keys -- resolve the ssh target from it so a pool box
+    # registered with only an env_file is probed, not reported "host down".
+    envf = ap.get("env_file")
+    if envf and os.path.exists(envf):
+        try:
+            for line in open(envf, encoding="utf-8", errors="replace"):
+                line = line.strip()
+                if line.startswith("PYFSR_APPLIANCE_HOST="):
+                    host = line.split("=", 1)[1].strip().strip("'\"")
+                elif line.startswith("PYFSR_APPLIANCE_PORT="):
+                    port = line.split("=", 1)[1].strip().strip("'\"")
+        except OSError:
+            pass
+if not host:
     sys.exit(3)
 try:
-    socket.create_connection((ap["host"], int(ap.get("port", 22))), timeout=float(sys.argv[3])).close()
+    socket.create_connection((host, int(port or 22)), timeout=float(sys.argv[3])).close()
 except OSError:
     sys.exit(1)
 PYEOF

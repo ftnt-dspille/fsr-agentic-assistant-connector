@@ -204,3 +204,56 @@ def test_the_probe_can_be_switched_off(reg):
     assert r.returncode == 0, r.stderr
     assert "PICKED=pool-a" in r.stdout
     assert _probed(reg) == []
+
+
+# --- the real reachability probe resolves the ssh target from the appliance -------
+# env_file, not only inline host/port. A pool box registered with just an env_file
+# (PYFSR_APPLIANCE_HOST/PORT) must probe that host, not read as "host down".
+def _probe_src() -> str:
+    """The probe python box.sh runs, pulled from the script itself."""
+    r = subprocess.run(["bash", "-c", f"source {BOXSH} >/dev/null 2>&1; _bx_pool_probe_py"],
+                       capture_output=True, text=True)
+    assert r.stdout.strip(), r.stderr
+    return r.stdout
+
+
+def _run_probe(tmp_path, reg_toml: str, alias: str, timeout: str = "3") -> int:
+    reg = tmp_path / "instances.toml"
+    reg.write_text(reg_toml)
+    probe = tmp_path / "probe.py"
+    probe.write_text(_probe_src())
+    return subprocess.run([sys.executable, "-I", str(probe), str(reg), alias, timeout]).returncode
+
+
+def test_probe_resolves_host_from_the_appliance_env_file(tmp_path):
+    import socket
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+    port = srv.getsockname()[1]
+    try:
+        envf = tmp_path / ".env.pool-envonly.appliance"
+        envf.write_text(f"PYFSR_APPLIANCE_HOST=127.0.0.1\nPYFSR_APPLIANCE_PORT={port}\n")
+        reg = f"""
+[instances.pool-envonly]
+role = "experimental"
+ship_pool = true
+[instances.pool-envonly.appliance]
+env_file = "{envf}"
+"""
+        # the appliance has NO inline host -- only the env_file. Before the fix this
+        # exits 3 (reported "unreachable (host down)") though the host is reachable.
+        assert _run_probe(tmp_path, reg, "pool-envonly") == 0
+    finally:
+        srv.close()
+
+
+def test_probe_exits_3_when_no_host_in_registry_or_env_file(tmp_path):
+    reg = """
+[instances.pool-nohost]
+role = "experimental"
+ship_pool = true
+[instances.pool-nohost.appliance]
+port = 11006
+"""
+    assert _run_probe(tmp_path, reg, "pool-nohost") == 3
