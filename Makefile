@@ -95,7 +95,10 @@ WIDGETS     ?= $(HOME)/WebstormProjects/fsr_all_widgets
 # knob. ENV= / FSR_ENV= / SSH_HOST= are retired (one release: a human gets a
 # warning and a registered env file is mapped to its alias; agents are refused).
 # Resolved once here; `box-guard` prints the target or stops with the reason.
-_RESOLVED   := $(shell BOX='$(BOX)' ENV='$(ENV)' FSR_ENV='$(FSR_ENV)' SSH_HOST='$(SSH_HOST)' bash "$(REPO)/scripts/box.sh" --need 'env,ssh?' --make)
+# BOX=pool is NOT resolved here (no parse-time pick, no probe, no lease: `make help` runs
+# nothing). It is picked at recipe time by the __pool_dispatch rule at the end of this file.
+POOL_PICK   := $(filter pool,$(BOX))
+_RESOLVED   := $(if $(POOL_PICK),,$(shell BOX='$(BOX)' ENV='$(ENV)' FSR_ENV='$(FSR_ENV)' SSH_HOST='$(SSH_HOST)' bash "$(REPO)/scripts/box.sh" --need 'env,ssh?' --make))
 RESOLVED_BOX := $(word 1,$(_RESOLVED))
 BOX_ENV     := $(word 2,$(_RESOLVED))
 BOX_SSH     := $(word 3,$(_RESOLVED))
@@ -449,7 +452,9 @@ session-export: BOX_NEED := env
 # box-prep writes the box: take its lease like a push does (refused while another agent holds it; --dry-run only reads).
 box-prep: BOX_NEED := $(if $(findstring --dry-run,$(ARGS)),env,env,lease)
 box-guard:
+ifneq ($(POOL_PICK),pool)
 	@BOX='$(or $(RESOLVED_BOX),$(BOX))' ENV='$(ENV)' FSR_ENV='$(FSR_ENV)' SSH_HOST='$(SSH_HOST)' bash "$(REPO)/scripts/box.sh" --need '$(BOX_NEED)'
+endif
 
 $(BOX_TARGETS): box-guard
 # `doctor` reaches a box unless LOCAL=1.
@@ -601,3 +606,23 @@ matrix: ## Drive the live prompt/flow matrix (T1-T10/P1-P5) through the deployed
 
 ship-widget: ## Ship the WIDGET: canonical lint→unit→e2e→deploy→live-sweep (WIDGET=agenticAssistant BUMP=patch). Deploys to the harness .env box.
 	@$(MAKE) -C "$(WIDGETS)" ship-verify WIDGET=$(or $(WIDGET),agenticAssistant) BUMP=$(BUMP)
+
+# --- BOX=pool: pick at RECIPE time, once, then re-enter make with the picked alias ----
+# Every box target that names its box through BOX runs here when BOX=pool. The pool
+# pick (box.sh --pool-run) takes the lease when the need reaches the box, runs this make
+# again with BOX=<alias> appended, and releases the lease if that run fails. The goals'
+# own recipes are replaced by the dispatch, so the target runs only in the re-entered make.
+POOL_TARGETS := $(BOX_TARGETS) ship doctor box-guard analyze bridge-check eval-ab live-utterances logs matrix models session-bundle session-health session-summary premise-advisory-rate live-holds
+POOL_GOALS  := $(filter $(POOL_TARGETS),$(MAKECMDGOALS))
+ifneq ($(LOCAL),)
+POOL_GOALS  := $(filter-out doctor,$(POOL_GOALS))
+endif
+# A goal that reaches a box over ssh takes the lease; read-only goals do not.
+POOL_NEED   := $(if $(filter-out doctor session-export session-summary session-health premise-advisory-rate analyze session-bundle,$(POOL_GOALS)),env$(COMMA)ssh,env$(COMMA)ssh?)
+ifeq ($(POOL_PICK),pool)
+ifneq ($(POOL_GOALS),)
+$(POOL_GOALS): __pool_dispatch ;
+__pool_dispatch:
+	@bash "$(REPO)/scripts/box.sh" --pool-run '$(POOL_NEED)' -- $(MAKE) --no-print-directory $(POOL_GOALS) $(MAKEOVERRIDES)
+endif
+endif

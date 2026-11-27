@@ -302,3 +302,75 @@ def test_pool_status_reports_no_ssh_profile_not_host_down(tmp_path):
                        env=_nohost_env(reg), timeout=120)
     assert "pool-nohost" in r.stdout and "no ssh profile" in r.stdout, (r.stdout, r.stderr)
     assert "host down" not in r.stdout
+
+
+# --- lease on every pool pick path, release on later failure, lazy make resolution ---
+
+def test_a_deploy_pick_takes_the_lease_so_a_second_concurrent_pick_gets_another_box(reg):
+    # #2: a deploy target (need env,ssh, no push token) must lease the box it picks.
+    first = _resolve(reg, need="env,ssh", FSR_LEASE_HOLDER="tree:one")
+    assert first.returncode == 0 and "PICKED=pool-a" in first.stdout, first.stderr
+    assert (reg / "leases" / "pool-a").read_text().split()[0] == "tree:one"
+    second = _resolve(reg, need="env,ssh", FSR_LEASE_HOLDER="tree:two")
+    assert second.returncode == 0 and "PICKED=pool-b" in second.stdout, second.stderr
+    assert (reg / "leases" / "pool-a").read_text().split()[0] == "tree:one"
+
+
+def test_a_pick_that_fails_later_releases_its_lease(reg):
+    # #4: pool-a is picked and leased, then the env-file check fails: the lease must not
+    # stay held for the TTL.
+    (reg / ".env.pool-a").unlink()
+    r = _resolve(reg, need="env,lease")
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert not (reg / "leases" / "pool-a").exists(), "pool-a lease leaked after a later failure"
+    # Restore the env file: pool-a must be free again, so the next pick takes it.
+    (reg / ".env.pool-a").write_text("FSR_BASE_URL=https://pool-a.example.com\nFSR_API_KEY=k\n")
+    again = _resolve(reg, need="lease")
+    assert again.returncode == 0 and "PICKED=pool-a" in again.stdout, again.stdout + again.stderr
+
+
+def test_an_explicit_alias_with_a_deploy_need_takes_no_lease(reg):
+    # Unchanged: only the pool pick leases on env,ssh; an explicit alias never does.
+    r = _resolve(reg, box="pool-b", need="env,ssh")
+    assert r.returncode == 0, r.stderr
+    assert not (reg / "leases" / "pool-b").exists()
+    assert _probed(reg) == []
+
+
+def _pool_run(reg, *cmd, need="env,ssh", **kw):
+    env = _env(reg, **kw)
+    return subprocess.run(
+        ["bash", str(BOXSH), "--pool-run", need, "--", *cmd],
+        capture_output=True, text=True, env=env, timeout=120)
+
+
+def test_pool_run_appends_the_picked_box_as_the_last_argument(reg):
+    r = _pool_run(reg, "sh", "-c", 'printf "%s\\n" "$@"', "sh")
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.strip().splitlines()[-1] == "BOX=pool-a", r.stdout
+
+
+def test_pool_run_releases_the_lease_when_the_command_fails(reg):
+    r = _pool_run(reg, "sh", "-c", "exit 3")
+    assert r.returncode == 3, r.stderr
+    assert not (reg / "leases" / "pool-a").exists()
+
+
+def test_make_help_with_pool_does_not_pick_or_probe(reg):
+    # #5: no parse-time pick. `make help` must not run the pool pick, probe or lease.
+    r = subprocess.run(["make", "-s", "-C", str(ROOT), "help", "BOX=pool", "DEV_ENV_STATUS=ok"],
+                       capture_output=True, text=True, env=_env(reg), timeout=300)
+    assert r.returncode == 0, r.stderr
+    assert _probed(reg) == [], "make help probed the pool"
+    assert not any((reg / "leases").iterdir()), "make help took a lease"
+
+
+def test_make_box_guard_with_pool_picks_leases_and_runs_on_the_picked_box(reg):
+    # #2 + #5 end to end: the recipe-time pick leases the box, and the target runs on it.
+    # DEV_ENV_STATUS=ok skips the Makefile's venv guard (box wiring is under test, not the
+    # venv); the guard still runs on a dev machine. CI has no dev env.
+    r = subprocess.run(["make", "-s", "-C", str(ROOT), "box-guard", "BOX=pool", "DEV_ENV_STATUS=ok"],
+                       capture_output=True, text=True, env=_env(reg), timeout=300)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "target box: pool-a" in r.stderr, r.stdout + r.stderr
+    assert (reg / "leases" / "pool-a").read_text().split()[0] == "tree:me"

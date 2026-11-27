@@ -265,12 +265,20 @@ _bx_pool_reachable() {
     p="$(_bx_py)" || return 2
     "$p" -I -c "$(_bx_pool_probe_py)" "$reg" "$a" "${FSR_POOL_PROBE_TIMEOUT:-3}" >/dev/null 2>&1
 }
-# bx_pool_pick <need>: sets POOL_BOX to the first free, reachable pool box (leased when
-# need has push or lease). Refuses naming each candidate's reason: held (by whom, until
-# when) or unreachable (host down).
+# _bx_need_takes <need>: 0 when the need reaches the box over ssh or takes a lease
+# (push, lease, or a hard ssh). `ssh?` (only when a profile exists) and `env` do not.
+_bx_need_takes() {
+    case ",$1," in *,push,*|*,lease,*|*,ssh,*) return 0 ;; esac
+    return 1
+}
+# bx_pool_pick <need>: sets POOL_BOX to the first free, reachable pool box. A pick whose
+# need takes the box (_bx_need_takes) leases it atomically under the lease lock, so two
+# deploy picks cannot share a box, and sets POOL_LEASED=1 so a caller can release it if a
+# later step fails. Refuses naming each candidate's reason: held (by whom, until when) or
+# unreachable (host down).
 bx_pool_pick() {
     local need="$1" me now a c why="" takes=0 cands=() order=() mine=() prc
-    POOL_BOX=""
+    POOL_BOX=""; POOL_LEASED=0
     me="$(bx_lease_holder)"; now="$(date +%s)"
     c="$(bx_pool_candidates)" || return 2
     [ -n "$c" ] || { _bx_die "BOX=pool: no ship_pool experimental box in FSR_BOX_ALLOW ($FSR_BOX_ALLOW). Mark one ship_pool = true in the registry, or pass BOX=<alias>."; return 2; }
@@ -279,7 +287,7 @@ bx_pool_pick() {
         _bx_lease_read "$a"
         if [ -n "$L_HOLDER" ] && [ "$L_HOLDER" = "$me" ] && [ "$L_UNTIL" -gt "$now" ]; then mine+=("$a"); else order+=("$a"); fi
     done
-    case ",$need," in *,push,*|*,lease,*) takes=1 ;; esac
+    _bx_need_takes "$need" && takes=1
     for a in "${mine[@]}" "${order[@]}"; do
         _bx_lease_read "$a"
         if [ -n "$L_HOLDER" ] && [ "$L_HOLDER" != "$me" ] && [ "$L_UNTIL" -gt "$now" ]; then
@@ -293,11 +301,24 @@ bx_pool_pick() {
   $a: unreachable (host down)"; continue; fi
         if [ "$takes" = 1 ] && ! bx_lease_take "$a" 2>/dev/null; then why="$why
   $a: held (lost the lease race)"; continue; fi
-        POOL_BOX="$a"; break
+        POOL_BOX="$a"; [ "$takes" = 1 ] && POOL_LEASED=1; break
     done
     [ -n "$POOL_BOX" ] || { _bx_die "BOX=pool: no ship_pool box is free and reachable:$why
   Wait and retry, free a held one with: make box-release BOX=<alias> (FORCE=1 for another holder's), or pass BOX=<alias>."; return 2; }
     echo ">> BOX=pool picked $POOL_BOX" >&2
+}
+# bx_pool_run <need> [--] <cmd...>: pick a pool box (leased when the need takes it), run
+# cmd with BOX=<alias> appended as its last argument, and release the lease if cmd fails,
+# so a failed run never holds the box for the TTL. Make re-enters itself through this
+# (Makefile __pool_dispatch), so the pick happens at recipe time, once.
+bx_pool_run() {
+    local need="$1" box rc=0
+    shift; [ "${1:-}" = -- ] && shift
+    bx_pool_pick "$need" || return 2
+    box="$POOL_BOX"
+    "$@" "BOX=$box" || rc=$?
+    if [ "$rc" -ne 0 ] && [ "$POOL_LEASED" = 1 ]; then bx_lease_release "$box" >/dev/null 2>&1 || true; fi
+    return "$rc"
 }
 # bx_pool_status: one line per ship_pool box: free and reachable, held, or unreachable.
 bx_pool_status() {
@@ -342,7 +363,19 @@ resolve_box() {
     if [ "$box" = pool ]; then
         bx_pool_pick "$need" || return 2
         box="$POOL_BOX"
+        # The pick may hold the lease; any later failure gives it back (never held for the TTL).
+        if ! _bx_resolve_alias "$box" "$need"; then
+            [ "$POOL_LEASED" = 1 ] && bx_lease_release "$box" >/dev/null 2>&1
+            return 2
+        fi
+        return 0
     fi
+    _bx_resolve_alias "$box" "$need"
+}
+# _bx_resolve_alias <alias> <need>: the checks and setup after the box is named (the
+# explicit path and the pool path share it). Sets BOX, BOX_ENV, BOX_SSH, BOX_ROLE.
+_bx_resolve_alias() {
+    local box="$1" need="$2"
     _bx_allowed "$box" || { _bx_die "BOX=$box is not an agent-targetable box (allowed: $FSR_BOX_ALLOW; scripts/box.sh FSR_BOX_ALLOW)."; return 2; }
 
     local kv
@@ -417,6 +450,8 @@ EOF
 }
 
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+    # --pool-run takes the rest of argv (it is a command runner, not a flag): handle it first.
+    if [ "${1:-}" = --pool-run ]; then shift; bx_pool_run "$@"; exit $?; fi
     need="env,ssh"; mode=banner
     while [ $# -gt 0 ]; do
         case "$1" in
