@@ -44,6 +44,7 @@ user and admin guides.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import shutil
@@ -58,6 +59,10 @@ REPO = Path(__file__).resolve().parent.parent
 CONNECTOR_DIR = REPO / "connector-fsr-agentic-assistant"
 DIST = REPO / "dist"
 ASSETS = REPO / "scripts" / "pack_assets"
+# What the connector tarball is built from: a cached tarball is reused only while these are unchanged.
+CONNECTOR_SOURCES = [
+    CONNECTOR_DIR, REPO / "scripts" / "build.sh", REPO / "scripts" / "fetch_pinned_wheel.sh",
+]
 
 # Resolved relative to this repo so the script works from any cwd.
 HARNESS_PACKAGES = Path(
@@ -100,13 +105,50 @@ def require(path: Path, hint: str) -> Path:
     return path
 
 
-def ensure(path: Path, cmd: list[str], cwd: Path, hint: str) -> Path:
-    """The artifact, built first when it is missing. Neither build bumps a
-    version, so the pack still carries exactly what info.json names."""
-    if not path.is_file():
+# Never part of a source hash: build output and caches that change without a source edit.
+_SKIP_PARTS = {"__pycache__", "node_modules", ".git", "dist", "build", ".DS_Store"}
+
+
+def source_hash(*roots: Path) -> str | None:
+    """sha256 over the relative path and bytes of every file under each root (a root may be a
+    single file). None when a root is missing: the caller then cannot vouch for a cached
+    artifact and rebuilds."""
+    h = hashlib.sha256()
+    for root in roots:
+        if not root.exists():
+            return None
+        files = [root] if root.is_file() else sorted(
+            p for p in root.rglob("*") if p.is_file()
+            and not (_SKIP_PARTS & set(p.relative_to(root).parts)) and p.suffix != ".pyc")
+        for p in files:
+            rel = p.name if root.is_file() else str(p.relative_to(root))
+            h.update(rel.encode() + b"\0")
+            h.update(p.read_bytes() + b"\0")
+    return h.hexdigest()
+
+
+def ensure(path: Path, cmd: list[str], cwd: Path, hint: str,
+           sources: list[Path] = ()) -> Path:
+    """The artifact, built first when it is missing or when its sources changed since it was
+    built. Reuse is keyed on the CONTENT of `sources`, not the version string: the artifact
+    name carries only the version, so an edit without a bump used to reuse a stale tarball.
+    Each build leaves a `<artifact>.srchash` stamp; no stamp, a different hash, or a source
+    tree that cannot be hashed all mean rebuild. Neither build bumps a version, so the pack
+    still carries exactly what info.json names."""
+    want = source_hash(*sources) if sources else None
+    stamp = path.with_name(path.name + ".srchash")
+    if path.is_file() and want is not None and stamp.is_file() \
+            and stamp.read_text().strip() == want:
+        return path
+    if path.is_file():
+        print(f"stale     : {path.name} (sources changed or unstamped), rebuilding")
+    else:
         print(f"build     : {' '.join(cmd)}   (no {path.name})")
-        subprocess.run(cmd, cwd=cwd, check=True)
-    return require(path, hint)
+    subprocess.run(cmd, cwd=cwd, check=True)
+    require(path, hint)
+    if want is not None:
+        stamp.write_text(want + "\n")
+    return path
 
 
 def framework_pin() -> str:
@@ -221,7 +263,8 @@ def main(argv: list[str] | None = None) -> int:
         conn_tgz = require(Path(args.connector_tgz), "scripts/build.sh")
     else:
         conn_tgz = ensure(DIST / f"connector-fsr-agentic-assistant-{conn_ver}.tgz",
-                          ["bash", "scripts/build.sh"], REPO, "bash scripts/build.sh")
+                          ["bash", "scripts/build.sh"], REPO, "bash scripts/build.sh",
+                          sources=CONNECTOR_SOURCES)
 
     widgets = []
     for name in WIDGET_NAMES:
@@ -231,7 +274,8 @@ def main(argv: list[str] | None = None) -> int:
         else:
             tgz = ensure(HARNESS_PACKAGES / f"{name}-{ver}.tgz",
                          ["node", "scripts/widget.js", "pack", name], HARNESS,
-                         f"node scripts/widget.js pack {name}   (in the harness)")
+                         f"node scripts/widget.js pack {name}   (in the harness)",
+                         sources=[WIDGET_SRC / name, HARNESS / "scripts"])
         widgets.append({"name": name, "version": ver, "tgz": tgz,
                         "title": widget_info(name).get("title", name)})
 
