@@ -11,6 +11,9 @@
 #
 # Output: ./dist/connector-fsr-agentic-assistant-<version>.tgz
 #
+# The PyPI pin's wheel is cached per exact pin in dist/wheel-cache/ (FSR_WHEEL_CACHE=<dir> moves
+# it): a rebuild of the same pin copies it instead of downloading again, and a new pin downloads.
+#
 # FSR_PLAYBOOKS_WHEEL=<fsr_playbooks wheel>  bundle THAT wheel instead of the
 #   requirements.txt pin from PyPI (make stable: the framework built from promoted
 #   main). The tarball is then built from a STAGED copy whose requirements.txt pins
@@ -81,8 +84,8 @@ if [[ -n "$FSR_WHEEL" ]]; then
     cp "$FSR_WHEEL" "$PKG_DIR/wheels/$WHL"
     echo ">> bundled framework wheel (FSR_PLAYBOOKS_WHEEL, no PyPI): fsr-playbooks==$BUNDLED_VER"
     WHEEL_OK=1
-elif "$PIPPY" -m pip download --no-deps --only-binary=:all: \
-        -d "$PKG_DIR/wheels" "$FSR_PIN"; then
+elif PIP="$PIPPY" bash "$ROOT/scripts/fetch_pinned_wheel.sh" "$FSR_PIN" \
+        "$PKG_DIR/wheels" "${FSR_WHEEL_CACHE:-$ROOT/dist/wheel-cache}"; then
     echo "   $(ls "$PKG_DIR/wheels")"
     WHEEL_OK=1
 elif [[ "${ALLOW_OFFLINE_BUILD:-0}" == "1" ]]; then
