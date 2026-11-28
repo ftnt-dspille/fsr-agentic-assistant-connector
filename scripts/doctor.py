@@ -237,8 +237,9 @@ def expected_framework() -> str:
 
 def check_framework_release() -> list[Check]:
     pin = _framework_pin()
-    tag = _git(FRAMEWORK, "describe", "--tags", "--abbrev=0").lstrip("v")
-    past = _git(FRAMEWORK, "rev-list", "--count", f"v{tag}..HEAD") if tag else ""
+    fw = expected_framework()   # an agent tree's own framework, not the shared checkout
+    tag = _git(fw, "describe", "--tags", "--abbrev=0").lstrip("v")
+    past = _git(fw, "rev-list", "--count", f"v{tag}..HEAD") if tag else ""
     out = []
     if not tag:
         return [Check("local", "framework pin", "SKIP", "no release tag in the framework repo")]
@@ -249,7 +250,7 @@ def check_framework_release() -> list[Check]:
     elif _vkey(tag) < _vkey(pin):
         out.append(Check("local", "framework pin", "FAIL",
                          f"connector pins {pin}, newest framework tag is {tag}",
-                         f"git -C {FRAMEWORK} fetch --tags"))
+                         f"git -C {fw} fetch --tags"))
     else:
         out.append(Check("local", "framework pin", "PASS", f"pin {pin} = latest tag"))
     if past and past != "0":
