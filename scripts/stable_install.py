@@ -148,7 +148,10 @@ def build_framework_wheel(framework: Path, out: Path, sha: str) -> tuple[Path, s
     wheel = wheels[0]
     ver = wheel.name[len("fsr_playbooks-"):].split("-py3-none-any")[0]
     # hatch-vcs stamps the commit into the version (+g<sha>): the wheel must be the framework HEAD.
-    if sha[:7] not in ver:
+    # A build exactly on a release tag carries no +g<sha>; then the tag v<ver> must point at HEAD.
+    tags = subprocess.run(["git", "-C", str(framework), "tag", "--points-at", sha],
+                          capture_output=True, text=True).stdout.split()
+    if sha[:7] not in ver and f"v{ver}" not in tags:
         raise SystemExit(f"stable: framework wheel {ver} does not carry HEAD {sha[:9]}; the checkout moved")
     return wheel, ver
 
